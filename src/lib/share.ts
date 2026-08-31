@@ -11,7 +11,7 @@ export type FunnelStage = "존재" | "맥락" | "시의성" | "추천";
 
 export const shareRunSchema = z.object({
   questions: z.array(z.string().trim().min(5).max(500)).min(1).max(30),
-  providers: z.array(z.enum(providers)).min(1).max(3).transform((items) => [...new Set(items)]),
+  providers: z.array(z.enum(providers)).min(1).max(providers.length).transform((items) => [...new Set(items)]),
   repetitions: z.number().int().min(1).max(5).optional(),
 });
 
@@ -156,7 +156,8 @@ export async function runShareMeasurement(input: unknown) {
   validateBrandFreeQuestions(parsed.questions, [brand, ...settings.competitors]);
   for (const provider of parsed.providers) {
     if (!settings.decryptedApiKeys[provider]) {
-      throw new AppError(`${provider} API 키를 설정한 뒤 측정을 실행해 주세요.`, 409, "API_KEY_REQUIRED");
+      const providerLabel = provider === "hyperclova" ? "HyperCLOVA X" : provider;
+      throw new AppError(`${providerLabel} API 키를 설정한 뒤 측정을 실행해 주세요.`, 409, "API_KEY_REQUIRED");
     }
   }
 
@@ -246,9 +247,12 @@ export async function runShareMeasurement(input: unknown) {
 }
 
 export function getShareHistory(limit = 20) {
+  const parseStoredJson = <T,>(value: string, fallback: T) => {
+    try { return JSON.parse(value) as T; } catch { return fallback; }
+  };
   return getDatabase().orm.select().from(measureRuns).orderBy(desc(measureRuns.createdAt)).limit(limit).all().map((row) => ({
     ...row,
-    models: JSON.parse(row.models) as { provider: Provider; model: string }[],
-    summary: JSON.parse(row.summary) as Record<string, unknown>,
+    models: parseStoredJson<{ provider: Provider; model: string }[]>(row.models, []),
+    summary: parseStoredJson<Record<string, unknown>>(row.summary, {}),
   }));
 }

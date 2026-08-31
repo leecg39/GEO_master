@@ -6,13 +6,13 @@ import { AlertTriangle, Bot, History, LoaderCircle, Play, Plus } from "lucide-re
 import { Badge, Button, Card, EmptyState, PageHeader, Progress } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 
-type Provider = "openai" | "anthropic" | "gemini";
+type Provider = "openai" | "anthropic" | "gemini" | "hyperclova";
 interface SettingsInfo { brandName: string; category: string; repetitions: number; apiKeys: Record<Provider, { configured: boolean }> }
 interface ModelMetric { total: number; mentions: number; share: number }
 interface RunResult { id: number; answerShare: number; positiveRate: number; genrank: number; funnelStage: string; total: number; mentions: number; perModel: Record<Provider, ModelMetric>; competitorComparison: { name: string; mentions: number; share: number }[]; createdAt: string; completedAt: string }
 interface HistoryRun { id: number; answerShare: number; genrank: number; funnelStage: string; status: string; createdAt: string }
-const labels: Record<Provider, string> = { openai: "GPT", anthropic: "Claude", gemini: "Gemini" };
-const colors: Record<Provider, string> = { openai: "bg-emerald-400", anthropic: "bg-amber-400", gemini: "bg-violet-400" };
+const labels: Record<Provider, string> = { openai: "GPT", anthropic: "Claude", gemini: "Gemini", hyperclova: "HyperCLOVA X" };
+const colors: Record<Provider, string> = { openai: "bg-emerald-400", anthropic: "bg-amber-400", gemini: "bg-violet-400", hyperclova: "bg-rose-400" };
 
 async function json<T>(response: Response): Promise<T> { const data = await response.json() as T & { error?: string }; if (!response.ok) throw new Error(data.error ?? "요청에 실패했습니다."); return data; }
 
@@ -21,7 +21,7 @@ export function ShareClient() {
   const [templates, setTemplates] = useState<string[]>([]);
   const [history, setHistory] = useState<HistoryRun[]>([]);
   const [questions, setQuestions] = useState("");
-  const [selected, setSelected] = useState<Record<Provider, boolean>>({ openai: false, anthropic: false, gemini: false });
+  const [selected, setSelected] = useState<Record<Provider, boolean>>({ openai: false, anthropic: false, gemini: false, hyperclova: false });
   const [repetitions, setRepetitions] = useState(3);
   const [result, setResult] = useState<RunResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,7 +31,7 @@ export function ShareClient() {
   useEffect(() => { void (async () => { try {
     const [settingsData, shareData] = await Promise.all([json<{ settings: SettingsInfo }>(await fetch("/api/settings")), json<{ templates: string[]; runs: HistoryRun[] }>(await fetch("/api/share"))]);
     setSettings(settingsData.settings); setRepetitions(settingsData.settings.repetitions); setTemplates(shareData.templates); setHistory(shareData.runs);
-    setSelected({ openai: settingsData.settings.apiKeys.openai.configured, anthropic: settingsData.settings.apiKeys.anthropic.configured, gemini: settingsData.settings.apiKeys.gemini.configured });
+    setSelected({ openai: settingsData.settings.apiKeys.openai.configured, anthropic: settingsData.settings.apiKeys.anthropic.configured, gemini: settingsData.settings.apiKeys.gemini.configured, hyperclova: settingsData.settings.apiKeys.hyperclova.configured });
   } catch (cause) { setError(cause instanceof Error ? cause.message : "데이터를 불러오지 못했습니다."); } finally { setLoading(false); } })(); }, []);
 
   const questionList = useMemo(() => questions.split("\n").map((item) => item.trim()).filter(Boolean), [questions]);

@@ -1,7 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { getDatabase } from "./db";
 import { audits, checklistStates, measureRuns, strategyItems } from "./db/schema";
-import type { Provider } from "./settings";
+import { providers, type Provider } from "./settings";
 
 const cycleLabels = ["1주차 · 모니터링", "2주차 · 분석", "3주차 · 우선순위", "4주차 · 콘텐츠 개선"];
 
@@ -23,11 +23,7 @@ export function aggregateMonthlyTrends(runs: TrendRun[]) {
     const entry = monthly.get(month) ?? {
       total: 0,
       mentions: 0,
-      providers: {
-        openai: { total: 0, mentions: 0 },
-        anthropic: { total: 0, mentions: 0 },
-        gemini: { total: 0, mentions: 0 },
-      },
+      providers: Object.fromEntries(providers.map((provider) => [provider, { total: 0, mentions: 0 }])) as Record<Provider, { total: number; mentions: number }>,
     };
     let summary: ShareSummary = {};
     try { summary = JSON.parse(run.summary) as ShareSummary; } catch { /* 이전 손상 데이터는 아래 호환 폴백으로 집계한다. */ }
@@ -35,7 +31,7 @@ export function aggregateMonthlyTrends(runs: TrendRun[]) {
     const mentions = typeof summary.mentions === "number" ? summary.mentions : run.answerShare / 100;
     entry.total += total;
     entry.mentions += Math.max(0, Math.min(total, mentions));
-    for (const provider of ["openai", "anthropic", "gemini"] as const) {
+    for (const provider of providers) {
       const model = summary.perModel?.[provider];
       if (!model?.total) continue;
       entry.providers[provider].total += model.total;
@@ -48,7 +44,7 @@ export function aggregateMonthlyTrends(runs: TrendRun[]) {
   return [...monthly.entries()].slice(-12).map(([month, entry]) => ({
     month,
     overall: entry.total ? Number(((entry.mentions / entry.total) * 100).toFixed(1)) : 0,
-    ...Object.fromEntries((["openai", "anthropic", "gemini"] as const).map((provider) => {
+    ...Object.fromEntries(providers.map((provider) => {
       const model = entry.providers[provider];
       return [provider, model.total ? Number(((model.mentions / model.total) * 100).toFixed(1)) : null];
     })) as Record<Provider, number | null>,

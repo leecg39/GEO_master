@@ -14,7 +14,8 @@ interface GenerateOptions {
 }
 
 export async function generateText({ provider, apiKey, model, system, prompt, maxTokens = 1800 }: GenerateOptions) {
-  if (!apiKey) throw new AppError(`${provider} API 키가 설정되지 않았습니다.`, 409, "API_KEY_REQUIRED");
+  const providerLabel = provider === "hyperclova" ? "HyperCLOVA X" : provider;
+  if (!apiKey) throw new AppError(`${providerLabel} API 키가 설정되지 않았습니다.`, 409, "API_KEY_REQUIRED");
   try {
     if (provider === "openai") {
       const client = new OpenAI({ apiKey });
@@ -40,6 +41,40 @@ export async function generateText({ provider, apiKey, model, system, prompt, ma
         .join("\n")
         .trim();
     }
+    if (provider === "hyperclova") {
+      const response = await fetch(`https://clovastudio.stream.ntruss.com/v3/chat-completions/${encodeURIComponent(model)}`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${apiKey}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: [
+            { role: "system", content: system },
+            { role: "user", content: prompt },
+          ],
+          topP: 0.8,
+          topK: 0,
+          maxTokens: Math.min(4096, Math.max(1, Math.trunc(maxTokens))),
+          temperature: 0.5,
+          repetitionPenalty: 1.1,
+          stop: [],
+        }),
+        signal: AbortSignal.timeout(120_000),
+      });
+      if (response.status === 401 || response.status === 403) {
+        throw new AppError(`${providerLabel} API 키 인증에 실패했습니다.`, 401, "LLM_AUTH_FAILED");
+      }
+      if (!response.ok) {
+        throw new AppError(`${providerLabel} 모델 호출에 실패했습니다. 잠시 후 다시 시도해 주세요.`, 502, "LLM_REQUEST_FAILED");
+      }
+      const data = await response.json() as { result?: { message?: { content?: unknown } } };
+      const content = data.result?.message?.content;
+      if (typeof content !== "string" || !content.trim()) {
+        throw new AppError(`${providerLabel} 모델이 유효한 텍스트를 반환하지 않았습니다.`, 502, "INVALID_LLM_OUTPUT");
+      }
+      return content.trim();
+    }
     const client = new GoogleGenAI({ apiKey });
     const response = await client.models.generateContent({
       model,
@@ -50,9 +85,9 @@ export async function generateText({ provider, apiKey, model, system, prompt, ma
   } catch (error) {
     const status = typeof error === "object" && error && "status" in error ? Number(error.status) : 502;
     if (status === 401 || status === 403) {
-      throw new AppError(`${provider} API 키 인증에 실패했습니다.`, 401, "LLM_AUTH_FAILED");
+      throw new AppError(`${providerLabel} API 키 인증에 실패했습니다.`, 401, "LLM_AUTH_FAILED");
     }
     if (error instanceof AppError) throw error;
-    throw new AppError(`${provider} 모델 호출에 실패했습니다. 잠시 후 다시 시도해 주세요.`, 502, "LLM_REQUEST_FAILED");
+    throw new AppError(`${providerLabel} 모델 호출에 실패했습니다. 잠시 후 다시 시도해 주세요.`, 502, "LLM_REQUEST_FAILED");
   }
 }

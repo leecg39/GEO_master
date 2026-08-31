@@ -73,7 +73,7 @@
 | 프레임워크 | Next.js(App Router) + TypeScript | 서버 라우트로 LLM 호출·사이트 크롤링 처리(CORS 회피), 커뮤니티 자료에서도 SEO 친화 스택으로 언급 |
 | 스타일 | Tailwind CSS | 빠른 UI 구축, 다크 톤 대시보드 |
 | 데이터 | SQLite(better-sqlite3) + Drizzle ORM | 로컬 파일 DB로 프로젝트·측정 이력·체크리스트 저장 |
-| LLM | openai / @anthropic-ai/sdk / @google/genai | 3사 통합 인터페이스, API 키는 설정 화면에서 입력 |
+| LLM | openai / @anthropic-ai/sdk / @google/genai / NAVER Cloud REST | 4사 통합 인터페이스, API 키는 설정 화면에서 입력 |
 | 파싱/차트 | cheerio(진단 크롤러), recharts(추이 차트) | |
 
 ## 4. 모듈 구성
@@ -90,7 +90,7 @@ flowchart LR
         settings[설정]
     end
     audit -->|사이트 크롤링| web[(대상 웹사이트)]
-    share -->|질의 반복| llm[(GPT / Claude / Gemini)]
+    share -->|질의 반복| llm[(GPT / Claude / Gemini / HyperCLOVA X)]
     studio -->|리라이팅·생성| llm
     dash --- share
     dash --- audit
@@ -130,7 +130,7 @@ flowchart LR
 - SEO→GEO 용어 대조표, 케이스 스터디(김캐디·모두싸인·노션·허브스팟 등), **부록 38항목 실행 체크리스트**(체크 상태 저장)
 
 ### 4-7. 설정 `/settings`
-- API 키 관리(OpenAI/Anthropic/Gemini), 브랜드 프로필, 모델·반복 횟수 기본값
+- API 키 관리(OpenAI/Anthropic/Gemini/HyperCLOVA X), 브랜드 프로필, 모델·반복 횟수 기본값
 
 ## 5. DB 주요 테이블
 
@@ -139,7 +139,7 @@ flowchart LR
 ## 6. 구현 순서
 
 1. 잔여 OCR 백그라운드 작업 정리(`_ocr/` 삭제) → Next.js 프로젝트 스캐폴드(레이아웃·네비게이션·다크 톤 UI)
-2. DB 스키마 + 설정 화면 + LLM 클라이언트 공통 모듈(3사 통합 인터페이스)
+2. DB 스키마 + 설정 화면 + LLM 클라이언트 공통 모듈(4사 통합 인터페이스)
 3. GEO 진단 모듈(크롤러 + 체크리스트 엔진 + 리포트)
 4. 응답 점유율 측정 모듈(실행 파이프라인 + 결과 분석 + 이력)
 5. 대시보드(퍼널 판정 + 차트)
@@ -152,7 +152,7 @@ flowchart LR
 
 - 책의 실측정 주의사항 반영: 시크릿 모드 대응은 API 호출로 대체되므로 해당 없음. 반복 횟수 기본 3회/질문, 모델 가중치(예: GPT 40%, Gemini 25%)는 설정 가능 옵션으로 제공
 - API 키는 로컬 SQLite에 저장하고 서버 라우트에서만 사용(클라이언트 노출 금지), `.gitignore`에 DB 파일 포함
-- 향후 확장 아이디어: 네이버(하이퍼클로바X) 채널 측정, llms.txt 생성기, 멀티모달(이미지 alt 일괄 점검), 팀 공유용 리포트 내보내기(PDF)
+- 후속 확장 아이디어였던 llms.txt 생성기, 리포트/PDF, 멀티모달 감사, 네이버 HyperCLOVA X, 비밀 없는 팀 공유 스냅샷도 구현 완료
 
 
 ---
@@ -162,10 +162,10 @@ flowchart LR
 ### 8-1. 핵심 계획 완료
 
 - [x] OCR 산출물 정리 — 294장을 영구 삭제하지 않고 macOS 휴지통으로 이동
-- [x] Next.js App Router·Tailwind 다크 UI와 7개 반응형 라우트
-- [x] SQLite/better-sqlite3 + Drizzle 11개 테이블과 콜드스타트 자동 부트스트랩
-- [x] AES-256-GCM API 키 저장, 브랜드·모델·가중치·반복 수 설정
-- [x] OpenAI·Anthropic·Gemini 공통 LLM 인터페이스
+- [x] Next.js App Router·Tailwind 다크 UI와 11개 반응형 라우트
+- [x] SQLite/better-sqlite3 + Drizzle 11개 테이블, 콜드스타트 부트스트랩과 비파괴 스키마 마이그레이션
+- [x] AES-256-GCM API 키 저장, 브랜드·4개 모델·가중치·반복 수 설정
+- [x] OpenAI·Anthropic·Gemini·NAVER HyperCLOVA X 공통 LLM 인터페이스
 - [x] SSRF/DNS rebinding 방어형 사이트 수집과 32항목 GEO 진단
 - [x] 반복 응답 점유율·문맥·경쟁사·GenRank·퍼널 측정 및 이력
 - [x] Recharts 대시보드와 원자료 가중 월간 추이
@@ -176,21 +176,24 @@ flowchart LR
 
 ### 8-2. 검증 결과
 
-- Vitest: 11개 파일, 51개 테스트 통과
-- 커버리지: statements 70.94%, lines 71.98%
+- Vitest: 16개 파일, 76개 테스트 통과
+- 커버리지: statements 74.92%, branches 66.85%, functions 82.69%, lines 76.58%
 - TypeScript 및 ESLint(경고 0), Next.js 프로덕션 빌드 통과
-- 프로덕션 API: 대시보드 200, 공개 URL 진단 201 및 32항목 반환
-- 보안: 검증 IP 소켓 고정, 리다이렉트 재검증, localhost 바인딩, cross-site 403, non-JSON 415 확인
-- 브라우저: 8개 라우트, 설정·전략·체크리스트 영속, 엔티티 JSON-LD, llms.txt 생성·검증, 진단 리포트와 모바일 UI 확인
+- 프로덕션 API: 대시보드, 공개 URL 32항목 진단·멀티모달 감사, 리포트·스냅샷 attachment 확인
+- 보안: 검증 IP 소켓 고정, 리다이렉트 재검증, localhost 바인딩, cross-site 403, non-JSON 415, 비밀 없는 스냅샷 확인
+- 브라우저: 11개 라우트, 리포트 print CSS, 멀티모달 부분 실패, 4개 LLM UI, 스냅샷 merge/replace·키 보존, 좁은 화면 확인
+- 독립 적대적 보안·품질 검토와 수정 후 별도 재검증 완료
 
-### 8-3. 다음 확장 계획
+### 8-3. 후속 확장 완료
 
-핵심 구축 범위의 필수 잔여 항목은 없다. 향후 확장 아이디어는 다음 순서로 진행한다.
+핵심 구축 범위와 합의된 후속 확장까지 모두 완료했다.
 
-1. [x] llms.txt 생성·미리보기·다운로드와 재진단 워크플로 — `/llms`로 완료
-2. 진단/응답 점유율 JSON·CSV 및 PDF 리포트 내보내기
-3. 이미지 alt·파일명·차트 텍스트를 포함한 멀티모달 일괄 감사
-4. 네이버 하이퍼클로바X 채널 어댑터
-5. 팀 공유를 위한 권한·동기화 아키텍처
+1. [x] llms.txt 생성·미리보기·다운로드와 재진단 워크플로 — `/llms`
+2. [x] 진단/응답 점유율 JSON·UTF-8 CSV 및 인쇄/PDF 리포트 — `/reports`
+3. [x] 이미지 alt·파일명·차트 텍스트·영상 자막/챕터/대본 멀티모달 일괄 감사 — `/multimodal`
+4. [x] 네이버 HyperCLOVA X 공식 v3 제공자 어댑터, 설정·측정·스튜디오·대시보드 통합
+5. [x] 비밀 없는 schema v1 팀 공유 스냅샷, ID 재매핑 병합·확인형 교체·트랜잭션 롤백 — `/workspace`
+
+필수 잔여 항목은 없다. 실시간 권한·동기화, 예약 측정, 전용 PDF 렌더러는 별도 선택 범위다.
 
 구현 상세와 후속 작업 주의사항은 `docs/IMPLEMENTATION_HANDOFF.md`에 기록한다.

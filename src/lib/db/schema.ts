@@ -8,6 +8,7 @@ export const settings = sqliteTable("settings", {
   openaiApiKey: text("openai_api_key"),
   anthropicApiKey: text("anthropic_api_key"),
   geminiApiKey: text("gemini_api_key"),
+  hyperclovaApiKey: text("hyperclova_api_key"),
   models: text("models").notNull().default("{}"),
   repetitions: integer("repetitions").notNull().default(3),
   modelWeights: text("model_weights").notNull().default("{}"),

@@ -34,3 +34,18 @@ pre { overflow: auto; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: #020617; }
 ::-webkit-scrollbar-thumb { border: 2px solid #020617; border-radius: 999px; background: #334155; }
+
+.print-only { display: none; }
+
+@media print {
+  @page { size: A4; margin: 14mm; }
+  html, body { background: white !important; color: #111827 !important; }
+  aside, body > div > header, .no-print { display: none !important; }
+  main { padding-left: 0 !important; }
+  main > div { max-width: none !important; padding: 0 !important; }
+  .print-only { display: block !important; }
+  .report-page, .report-page * { color: #111827 !important; }
+  .report-page .print-card { break-inside: avoid; border-color: #d1d5db !important; background: white !important; box-shadow: none !important; backdrop-filter: none !important; }
+  .report-page [role="progressbar"] { border: 1px solid #d1d5db; background: #f3f4f6 !important; }
+  .report-page [role="progressbar"] > div { background: #0891b2 !important; }
+}

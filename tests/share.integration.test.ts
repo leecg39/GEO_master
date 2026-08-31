@@ -7,7 +7,7 @@ vi.mock("@/lib/llm", () => ({ generateText: vi.fn() }));
 
 import { closeDatabase, getDatabase } from "@/lib/db";
 import { generateText } from "@/lib/llm";
-import { runShareMeasurement } from "@/lib/share";
+import { getShareHistory, runShareMeasurement } from "@/lib/share";
 import { updateSettings } from "@/lib/settings";
 
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "geo-share-test-"));
@@ -20,8 +20,8 @@ beforeAll(() => {
   process.env.GEO_MASTER_KEY = "share-integration-master-key-with-32-characters";
   updateSettings({
     brandName: "브랜드Z", category: "분석 도구", competitors: ["경쟁사A"],
-    models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test" },
-    repetitions: 1, modelWeights: { openai: 1, anthropic: 0, gemini: 0 },
+    models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", hyperclova: "HCX-DASH-002" },
+    repetitions: 1, modelWeights: { openai: 1, anthropic: 0, gemini: 0, hyperclova: 0 },
     apiKeys: { openai: "sk-test" },
   });
 });
@@ -45,5 +45,14 @@ describe("share measurement atomicity", () => {
     const count = getDatabase().sqlite.prepare("SELECT COUNT(*) AS count FROM measure_results WHERE run_id = ?").get(run.id) as { count: number };
     expect(run.status).toBe("failed");
     expect(count.count).toBe(0);
+  });
+
+  it("tolerates malformed legacy history JSON", () => {
+    const db = getDatabase().sqlite;
+    const run = db.prepare("SELECT id FROM measure_runs ORDER BY id DESC LIMIT 1").get() as { id: number };
+    db.prepare("UPDATE measure_runs SET models = ?, summary = ? WHERE id = ?").run("not-json", "{", run.id);
+    const item = getShareHistory().find((entry) => entry.id === run.id);
+    expect(item?.models).toEqual([]);
+    expect(item?.summary).toEqual({});
   });
 });

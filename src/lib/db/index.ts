@@ -28,6 +28,7 @@ function bootstrap(sqlite: Database.Database) {
       openai_api_key TEXT,
       anthropic_api_key TEXT,
       gemini_api_key TEXT,
+      hyperclova_api_key TEXT,
       models TEXT NOT NULL DEFAULT '{}',
       repetitions INTEGER NOT NULL DEFAULT 3,
       model_weights TEXT NOT NULL DEFAULT '{}',
@@ -134,6 +135,10 @@ function bootstrap(sqlite: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_audits_created ON audits(created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_strategy_type ON strategy_items(type);
   `);
+  const settingsColumns = sqlite.pragma("table_info(settings)") as { name: string }[];
+  if (!settingsColumns.some((column) => column.name === "hyperclova_api_key")) {
+    sqlite.exec("ALTER TABLE settings ADD COLUMN hyperclova_api_key TEXT");
+  }
 }
 
 function createDatabase(databasePath: string) {

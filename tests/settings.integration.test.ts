@@ -35,27 +35,51 @@ describe.sequential("settings API and cold-start database", () => {
 
   it("round-trips settings without exposing plaintext API keys", async () => {
     const secret = "sk-integration-secret-9876";
+    const hyperclovaSecret = "nv-hyperclova-secret-4321";
     const request = new NextRequest("http://localhost/api/settings", {
       method: "PUT", headers: { "content-type": "application/json" },
       body: JSON.stringify({
         brandName: "테스트 브랜드", category: "GEO 도구", competitors: ["경쟁사A"],
-        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test" },
-        repetitions: 3, modelWeights: { openai: .4, anthropic: .35, gemini: .25 },
-        apiKeys: { openai: secret, anthropic: "sk-ant-normal-5555" },
+        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", hyperclova: "HCX-DASH-002" },
+        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, hyperclova: .25 },
+        apiKeys: { openai: secret, anthropic: "sk-ant-normal-5555", hyperclova: hyperclovaSecret },
       }),
     });
     const putResponse = await PUT(request);
     expect(putResponse.status).toBe(200);
     const putText = await putResponse.text();
     expect(putText).not.toContain(secret);
+    expect(putText).not.toContain(hyperclovaSecret);
     expect(putText).toContain("••••••••9876");
+    expect(putText).toContain("••••••••4321");
 
     const getResponse = GET();
     const getText = await getResponse.text();
     expect(getText).not.toContain(secret);
+    expect(getText).not.toContain(hyperclovaSecret);
     expect(JSON.parse(getText).settings.apiKeys.openai.configured).toBe(true);
-    const stored = getDatabase().sqlite.prepare("SELECT openai_api_key FROM settings WHERE id=1").get() as { openai_api_key: string };
+    expect(JSON.parse(getText).settings.apiKeys.hyperclova.configured).toBe(true);
+    const stored = getDatabase().sqlite.prepare("SELECT openai_api_key, hyperclova_api_key FROM settings WHERE id=1").get() as { openai_api_key: string; hyperclova_api_key: string };
     expect(stored.openai_api_key).not.toContain(secret);
+    expect(stored.hyperclova_api_key).not.toContain(hyperclovaSecret);
+    expect(getServerSettings(["hyperclova"]).decryptedApiKeys.hyperclova).toBe(hyperclovaSecret);
+  });
+
+  it("accepts legacy three-provider settings payloads", async () => {
+    const request = new NextRequest("http://localhost/api/settings", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        brandName: "레거시 브랜드", category: "GEO 도구", competitors: [],
+        models: { openai: "gpt-legacy", anthropic: "claude-legacy", gemini: "gemini-legacy" },
+        repetitions: 2, modelWeights: { openai: .4, anthropic: .35, gemini: .25 },
+      }),
+    });
+    const response = await PUT(request);
+    expect(response.status).toBe(200);
+    const body = JSON.parse(await response.text()).settings;
+    expect(body.models.hyperclova).toBe("HCX-DASH-002");
+    expect(body.modelWeights.hyperclova).toBe(.25);
+    expect(body.apiKeys.hyperclova.configured).toBe(true);
   });
 
   it("reports corrupted encrypted data safely instead of returning it or crashing", async () => {

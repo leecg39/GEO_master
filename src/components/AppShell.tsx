@@ -3,18 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarChart3, BookOpen, Bot, FileCode2, FilePenLine, Gauge, Menu, SearchCheck, Settings, Target, X } from "lucide-react";
+import { BarChart3, BookOpen, Bot, FileCode2, FileDown, FilePenLine, Gauge, Images, Menu, PackageOpen, SearchCheck, Settings, Target, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { href: "/", label: "대시보드", icon: Gauge },
   { href: "/audit", label: "GEO 진단", icon: SearchCheck },
+  { href: "/multimodal", label: "멀티모달 감사", icon: Images },
   { href: "/llms", label: "llms.txt", icon: FileCode2 },
   { href: "/share", label: "응답 점유율", icon: BarChart3 },
+  { href: "/reports", label: "리포트", icon: FileDown },
   { href: "/studio", label: "콘텐츠 스튜디오", icon: FilePenLine },
   { href: "/strategy", label: "전략 워크스페이스", icon: Target },
   { href: "/learn", label: "학습 센터", icon: BookOpen },
+  { href: "/workspace", label: "팀 공유", icon: PackageOpen },
   { href: "/settings", label: "설정", icon: Settings },
 ];
 
