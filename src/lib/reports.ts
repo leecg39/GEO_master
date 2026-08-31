@@ -5,6 +5,9 @@ import { AppError } from "./errors";
 import type { AuditItemResult } from "./audit";
 
 export type ReportKind = "audit" | "share";
+export type AuditReport = ReturnType<typeof buildAuditReport>;
+export type ShareReport = ReturnType<typeof buildShareReport>;
+export type PortableReport = AuditReport | ShareReport;
 
 function parseJson<T>(value: string, fallback: T): T {
   try { return JSON.parse(value) as T; } catch { return fallback; }
@@ -42,14 +45,17 @@ export function buildAuditReport(id?: number) {
   };
 }
 
-export function buildShareReport(id?: number) {
+export function buildShareReport(id?: number, resultLimit?: number) {
   const { orm } = getDatabase();
   const run = id
     ? orm.select().from(measureRuns).where(eq(measureRuns.id, id)).get()
     : orm.select().from(measureRuns).where(eq(measureRuns.status, "completed")).orderBy(desc(measureRuns.createdAt)).limit(1).get();
   if (!run) throw new AppError("내보낼 응답 점유율 결과가 없습니다.", 404, "REPORT_NOT_FOUND");
   if (run.status !== "completed") throw new AppError("완료된 응답 점유율 측정만 내보낼 수 있습니다.", 409, "REPORT_NOT_READY");
-  const results = orm.select().from(measureResults).where(eq(measureResults.runId, run.id)).all().map((row) => ({
+  const resultQuery = orm.select().from(measureResults).where(eq(measureResults.runId, run.id));
+  const boundedLimit = resultLimit === undefined ? undefined : Math.max(1, Math.min(10_000, Math.floor(resultLimit) || 1));
+  const resultRows = boundedLimit === undefined ? resultQuery.all() : resultQuery.limit(boundedLimit).all();
+  const results = resultRows.map((row) => ({
     question: row.questionText,
     provider: row.provider,
     model: row.model,
@@ -101,7 +107,7 @@ export function reportToCsv(report: ReturnType<typeof buildAuditReport> | Return
   return `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
 }
 
-export function reportFilename(kind: ReportKind, id: number, format: "json" | "csv") {
+export function reportFilename(kind: ReportKind, id: number, format: "json" | "csv" | "pdf") {
   const date = new Date().toISOString().slice(0, 10);
   return `geo-${kind}-${id}-${date}.${format}`;
 }

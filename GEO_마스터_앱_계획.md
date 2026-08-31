@@ -138,6 +138,12 @@ flowchart LR
 - 월·건별 비용 한도, provider별 호출 추정 단가, 대기 중 상한 예약과 종료 후 호출 시도 기반 정산
 - stale lease 자동 재실행 금지, 협조적 취소, 사용자 명시 재시도와 오류 코드·접근 가능한 경고 표시
 
+### 4-9. 전용 리포트 `/reports`
+- 완료된 진단·응답 점유율 이력의 근거 미리보기와 JSON·UTF-8 BOM CSV·서버 PDF 다운로드
+- dependency 없는 PDF 1.7 object/xref writer, A4 자동 페이지 나눔과 진단·점유율 전용 보고서 템플릿
+- 한국어 Type0 CID font(`HYSMyeongJo-Medium`, `UniKS-UTF16-H`)와 UTF-16BE hex text로 PDF 연산자 주입 차단
+- 200페이지·12MB·측정 근거 1,000건 상한, 생략 고지, `no-store`·`nosniff` attachment; 브라우저 인쇄는 보조 경로
+
 ## 5. DB 주요 테이블
 
 `settings`(API 키), `projects`(브랜드·경쟁사), `questions`/`question_sets`, `measure_runs`/`measure_results`(언급·맥락), `measurement_schedules`/`measurement_jobs`/`automation_policy`(예약·큐·비용), `audits`/`audit_items`, `contents`(스튜디오 결과), `checklist_states`, `strategy_items`(매핑·클러스터·캘린더)
@@ -158,7 +164,7 @@ flowchart LR
 
 - 책의 실측정 주의사항 반영: 시크릿 모드 대응은 API 호출로 대체되므로 해당 없음. 반복 횟수 기본 3회/질문, 모델 가중치(예: GPT 40%, Gemini 25%)는 설정 가능 옵션으로 제공
 - API 키는 로컬 SQLite에 저장하고 서버 라우트에서만 사용(클라이언트 노출 금지), `.gitignore`에 DB 파일 포함
-- 후속 확장 아이디어였던 llms.txt 생성기, 리포트/PDF, 멀티모달 감사, 네이버 HyperCLOVA X, 비밀 없는 팀 공유 스냅샷, 예약 측정·영속 큐·비용 한도도 구현 완료
+- 후속 확장 아이디어였던 llms.txt 생성기, 전용 서버 PDF 리포트, 멀티모달 감사, 네이버 HyperCLOVA X, 비밀 없는 팀 공유 스냅샷, 예약 측정·영속 큐·비용 한도도 구현 완료
 
 ---
 
@@ -174,6 +180,7 @@ flowchart LR
 - [x] SSRF/DNS rebinding 방어형 사이트 수집과 32항목 GEO 진단
 - [x] 반복 응답 점유율·문맥·경쟁사·GenRank·퍼널 측정 및 이력
 - [x] SQLite 영속 예약·원자 작업 큐·비용 한도와 호출 시도 정산
+- [x] 진단·점유율 전용 서버 PDF 1.7 renderer, 한국어 템플릿과 다운로드 UI
 - [x] Recharts 대시보드와 원자료 가중 월간 추이
 - [x] 콘텐츠 스튜디오 4도구와 FAQPage/Organization JSON-LD
 - [x] 질문 매핑·토픽 클러스터·캘린더·4주 사이클 CRUD
@@ -182,25 +189,26 @@ flowchart LR
 
 ### 8-2. 검증 결과
 
-- Vitest: 19개 파일, 93개 테스트 통과
-- 커버리지: statements 76.92%, branches 67.22%, functions 83.55%, lines 79.06%
+- Vitest: 20개 파일, 103개 테스트 통과
+- 커버리지: statements 79.97%, branches 69.12%, functions 85.97%, lines 82.40%
 - TypeScript 및 ESLint(경고 0), Next.js 프로덕션 빌드 통과
-- 프로덕션 API: 대시보드, 공개 URL 32항목 진단·멀티모달 감사, 리포트·스냅샷 attachment, 자동화 비용·큐 상태 전이 확인
+- 프로덕션 API: 대시보드, 공개 URL 32항목 진단·멀티모달 감사, JSON/CSV/PDF·스냅샷 attachment, 자동화 비용·큐 상태 전이 확인
 - 보안: 검증 IP 소켓 고정, 리다이렉트 재검증, localhost 바인딩, cross-site 403, non-JSON 415, 비밀 없는 스냅샷·예약 payload 확인
-- 브라우저: 12개 라우트, 리포트 print CSS, 멀티모달 부분 실패, 4개 LLM UI, 스냅샷 merge/replace·키 보존, 자동화 예약 수정·비용 정산, 375px 화면 확인
-- 독립 적대적 보안·품질 검토, 비용 과대계상·stale/slot 경합 수정과 별도 재검증 완료
+- 브라우저: 12개 라우트, 전용 PDF 링크·빈 이력 disabled 상태·리포트 print CSS, 멀티모달 부분 실패, 4개 LLM UI, 스냅샷 merge/replace·키 보존, 자동화 예약 수정·비용 정산, 375px 화면 확인
+- PDF 파일: 실제 API의 PDF 1.7/xref/UniKS CMap·attachment 보안 헤더, macOS `file` 인식과 Quartz 한국어 렌더링 확인
+- 독립 적대적 보안·품질 검토, PDF parser injection·상한·Unicode·실패 응답과 자동화 비용·stale/slot 경합 수정 후 별도 fix verifier 완료
 
 ### 8-3. 후속 확장 완료
 
 핵심 구축 범위와 합의된 후속 확장까지 모두 완료했다.
 
 1. [x] llms.txt 생성·미리보기·다운로드와 재진단 워크플로 — `/llms`
-2. [x] 진단/응답 점유율 JSON·UTF-8 CSV 및 인쇄/PDF 리포트 — `/reports`
+2. [x] 진단/응답 점유율 JSON·UTF-8 CSV와 전용 서버 PDF 1.7 리포트 — `/reports`
 3. [x] 이미지 alt·파일명·차트 텍스트·영상 자막/챕터/대본 멀티모달 일괄 감사 — `/multimodal`
 4. [x] 네이버 HyperCLOVA X 공식 v3 제공자 어댑터, 설정·측정·스튜디오·대시보드 통합
 5. [x] 비밀 없는 schema v1 팀 공유 스냅샷, ID 재매핑 병합·확인형 교체·트랜잭션 롤백 — `/workspace`
 6. [x] 예약 측정·SQLite 영속 작업 큐·월/건별 비용 한도·취소/재시도 — `/automation`
 
-필수 잔여 항목은 없다. 사용자 인증·권한 기반 실시간 협업/원격 동기화와 전용 PDF 렌더러는 별도 선택 범위다.
+필수 잔여 항목은 없다. 사용자 인증·권한 기반 실시간 협업과 원격 동기화만 별도 선택 범위다.
 
 구현 상세와 후속 작업 주의사항은 `docs/IMPLEMENTATION_HANDOFF.md`에 기록한다.

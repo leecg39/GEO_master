@@ -7,8 +7,8 @@
 - 로컬: `/Users/user01/Desktop/GEO_master`
 - 원격: `https://github.com/leecg39/GEO_master.git`
 - 작업 브랜치: `feat/geo-master-app`
-- 자동화 확장 시작 기준 커밋: `1101450537277db6536e16d7fe9f8e99ce8ad3e8` (`feat: complete GEO roadmap extensions`)
-- 이 문서는 핵심 앱, llms.txt, 리포트, 멀티모달, HyperCLOVA X, 팀 공유와 예약 측정 자동화까지 포함한 전달 상태를 설명한다.
+- PDF 확장 시작 기준 커밋: `b0a4e1c243a811e791b210456dfaa7caf18f3fa1` (`feat: add scheduled measurement automation`)
+- 이 문서는 핵심 앱, llms.txt, 전용 PDF 리포트, 멀티모달, HyperCLOVA X, 팀 공유와 예약 측정 자동화까지 포함한 전달 상태를 설명한다.
 
 ## 완료 범위
 
@@ -27,11 +27,19 @@
 ## 후속 확장 완료
 
 - **llms.txt**: `/llms` 공식 제안형 생성·편집·검증·다운로드, 자격증명 URL 차단, escaped 라벨 라운드트립, 원격 MIME/배포 확인
-- **리포트**: `/reports`, `/api/reports`의 선택형 진단·점유율 미리보기, JSON/UTF-8 BOM CSV attachment, 수식 주입 방어, 인쇄/PDF CSS
+- **리포트**: `/reports`, `/api/reports`의 선택형 진단·점유율 미리보기, JSON/UTF-8 BOM CSV와 전용 서버 PDF 1.7 attachment, 수식·PDF 연산자 주입 방어, 보조 인쇄 CSS
 - **멀티모달 감사**: `/multimodal`에서 최대 10개 공개 URL의 src/srcset·alt·파일명·차트 수치/텍스트와 영상 title·자막·챕터·대본 신호 분석
 - **HyperCLOVA X**: 공식 `clovastudio.stream.ntruss.com/v3` 단일 Bearer 계약, HCX-DASH-002 기본 모델, 설정 암호화·점유율·스튜디오·대시보드 통합
 - **팀 공유**: `/workspace` schema v1 JSON, 비밀 열 구조적 제외, 25MB 스트리밍 상한, merge ID/FK 재매핑, 확인형 replace, 키 보존과 원자적 롤백
 - **예약 측정**: `/automation`, `/api/automation`의 일정 CRUD, SQLite 영속 큐, 비용 한도·경고, 취소·재시도와 worker 상태 표시
+
+## 전용 PDF 리포트 계약
+
+- `src/lib/report-pdf.ts`는 외부 PDF dependency 없이 PDF 1.7 object/page tree/content stream/xref/trailer를 생성한다. A4 자동 페이지 나눔과 진단 점수·카테고리·개선 항목, 점유율·GenRank·모델·경쟁사·질문 근거 템플릿을 제공한다.
+- 한국어는 Type0 `/HYSMyeongJo-Medium` + `/UniKS-UTF16-H` + Adobe-Korea1 CID font로 출력한다. DB·사용자 문자열은 NFC 정규화와 제어문자 제거 후 UTF-16BE hex `<...> Tj`로만 기록해 literal PDF operator/stream 주입을 차단한다.
+- CID font는 비임베드이므로 CJK font 지원 viewer가 필요하다. Korea1 밖 보조평면 문자는 무음 누락 대신 `?`로 결정적으로 치환한다. Latin과 한글 모두 `/DW 1000`의 1em advance를 보수적으로 계산해 혼합 문장 우측 잘림을 막는다.
+- 문서는 최대 200페이지·12MB다. PDF route는 점유율 근거를 최대 1,000건만 materialize하고 생략 수를 문서에 표시한다. JSON/CSV route는 기존처럼 전량을 유지한다.
+- PDF·JSON·CSV와 오류 응답은 `no-store`, `nosniff`를 사용한다. attachment 파일명은 ASCII이며, 완료되지 않은 점유율 run은 409로 차단한다. 브라우저 인쇄는 보조 경로다.
 
 ## 예약 자동화 계약
 
@@ -83,29 +91,38 @@
 - build와 읽기 전용 GET에서 worker가 유료 호출을 시작하지 않도록 차단
 - 두 독립 감사 후 별도 fix verifier가 8개 불변식 PASS와 신규 P0 부재를 확인
 
+전용 PDF 독립 감사 수정:
+
+- `/DW 1000` 고정폭을 Latin·한글 모두 1em으로 계산하고 혼합 요약의 실제 text command 줄바꿈을 회귀 테스트로 고정
+- JSON/CSV/PDF와 report 오류 응답에 `no-store`·`nosniff`를 일관 적용하고 409/422/404 route 계약을 추가
+- 선택 ID가 남아도 report load가 실패하면 세 다운로드를 실제 disabled button으로 전환
+- PDF route에 1,000개 결과 조회 상한과 생략 고지를 추가하되 JSON/CSV 전량 동작은 유지
+- Korea1 밖 보조평면 문자와 lone surrogate를 `?`로 결정 치환하고 처리 문자열 길이를 선제 제한
+- 0분모 progress, grade 기반 강조색과 하드코딩 `/32` 이력 라벨 drift를 제거
+- 세 관점의 독립 적대적 감사 뒤 별도 fix verifier가 F1~F6, xref·주입·페이지 상한·미완료 run 차단을 모두 PASS하고 P0/P1 부재를 확인
+
 ## 검증 증거
 
-- `npm test`: 19 files / 93 tests passed
+- `npm test`: 20 files / 103 tests passed
 - `npm run typecheck`: passed
 - `npm run lint`: 0 errors, 0 warnings
 - `npm run build`: passed; 12 UI routes, 13 API routes, Proxy 생성
-- `npm run test:coverage`: statements 76.92%, branches 67.22%, functions 83.55%, lines 79.06%
+- `npm run test:coverage`: statements 79.97%, branches 69.12%, functions 85.97%, lines 82.40%
 - 자동화 테스트: 비용 상한·종료 정산, 0단가 거부, budget TOCTOU transaction, slot 멱등/coalescing, double claim, stale/orphan 격리·late success, 취소·재시도, 공유 잠금, 손상 상태, 비파괴 마이그레이션, payload 비밀 부재
 - 격리 API: `$0.02` 상한 예약 작업이 API 키 선차단으로 호출 0회 실패한 뒤 incurred/used/reserved/consumed 모두 `$0`, DB에는 안정적 `API_KEY_REQUIRED`만 저장
 - ego-browser: `/automation` 전역 메뉴, 정책·큐 상태, 예약 수정 왕복과 live status, 종료 정산/상한 표시, aria progress/busy, 375px 무가로넘침·오류 alert 부재
-- 기존 프로덕션 QA: example.com 진단, W3C+example.com 멀티모달, 리포트/스냅샷 attachment, HyperCLOVA mock·DB 마이그레이션, 스냅샷 merge/replace·키 보존
+- 리포트 Chromium QA: audit/share PDF href가 선택 ID와 일치하고 desktop·375px에서 무가로넘침, 빈 이력과 삭제 후 404에서 JSON/CSV/PDF/인쇄 4개 disabled·download anchor 0개
+- PDF API/파일 QA: 실제 Korean fixture PDF의 `%PDF-1.7`, xref, `/UniKS-UTF16-H`, ASCII attachment, `no-store`, `nosniff`; macOS `file` 인식과 `sips` Quartz 595×842 PNG 렌더, 혼합 요약 2개 text command 확인
+- 기존 프로덕션 QA: example.com 진단, W3C+example.com 멀티모달, 스냅샷 attachment, HyperCLOVA mock·DB 마이그레이션, 스냅샷 merge/replace·키 보존
 
 ## 로컬 실행 데이터
 
-`data/geo.db*`와 `data/.master-key`는 `.gitignore` 대상이며 커밋하지 않는다. 새 자동화 테이블도 같은 로컬 DB 안에 존재한다. 테스트·브라우저 검증은 `/tmp/geo-automation-qa.db`와 포트 3113에서 격리 실행한 뒤 서버·DB·task space를 모두 정리했다.
+`data/geo.db*`와 `data/.master-key`는 `.gitignore` 대상이며 커밋하지 않는다. 새 자동화 테이블도 같은 로컬 DB 안에 존재한다. 자동화 QA는 `/tmp/geo-automation-qa.db`·포트 3113, PDF QA는 `/tmp/geo-pdf-qa.db`·포트 3114와 빈 이력 포트 3115에서 격리 실행했으며 서버·DB·렌더 산출물·ego-browser task space는 최종 커밋 전에 정리한다.
 
 ## 다음 계획
 
-원 계획과 llms.txt, 리포트, 멀티모달, HyperCLOVA X, 팀 공유, 예약 측정·영속 큐·비용 한도까지 완료했다. 필수 잔여 항목은 없다.
+원 계획과 llms.txt, 전용 PDF 리포트, 멀티모달, HyperCLOVA X, 팀 공유, 예약 측정·영속 큐·비용 한도까지 완료했다. 필수 잔여 항목은 없다.
 
-선택적 발전이 필요하다면 별도 범위로 다음을 설계한다.
+선택적 발전이 필요하다면 별도 범위로 사용자 인증·권한 기반 실시간 공동 편집과 원격 동기화를 설계한다.
 
-1. 사용자 인증·권한 기반 실시간 공동 편집과 원격 동기화
-2. 브라우저 인쇄가 아닌 전용 PDF 렌더러와 보고서 템플릿
-
-후속 변경에서도 공인 IP pin, API 키 비노출, 완료 측정 원자성, queue claim/비용 정산, 스냅샷 키 보존·롤백을 회귀 테스트로 유지한다.
+후속 변경에서도 공인 IP pin, API 키 비노출, 완료 측정 원자성, PDF hex text/xref·상한, queue claim/비용 정산, 스냅샷 키 보존·롤백을 회귀 테스트로 유지한다.
