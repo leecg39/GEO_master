@@ -8,6 +8,7 @@
 |---|---|
 | 대시보드 | GEO 퍼널 4단계, 모델별 월간 응답 점유율, GenRank, 최근 진단, 38항목 진행률, 4주 사이클 |
 | GEO 진단 | URL·robots.txt·llms.txt·sitemap 수집, SEO/GEO/E-E-A-T/기술/브랜드 32항목 점검과 이력 |
+| llms.txt | 공식 제안 형식 초안 생성, 편집, 구조 검증, 다운로드, 원격 `/llms.txt` 배포 확인 |
 | 응답 점유율 | 브랜드 없는 질문 × GPT/Claude/Gemini × 반복 실행, 언급·순위·감정·경쟁사·GenRank 분석 |
 | 콘텐츠 스튜디오 | 리라이팅 5패턴, 도입부 3단 공식, FAQ+FAQPage, 엔티티 정의+Organization JSON-LD |
 | 전략 | 질문 매핑, Pillar–Cluster–Supporting 보드, 콘텐츠 캘린더, 4주 모니터링 사이클 CRUD |
@@ -42,10 +43,11 @@ npm start
 
 1. `/settings`에서 브랜드, 카테고리, 경쟁사와 사용할 LLM 키를 저장합니다.
 2. `/audit`에서 공식 사이트를 진단하고 자동·수동 항목의 우선순위를 확인합니다.
-3. `/share`에서 브랜드명이 없는 핵심 질문 20~30개를 여러 모델로 반복 측정합니다.
-4. `/strategy`에서 질문을 의도·세그먼트·여정으로 분류하고 4주 개선 사이클을 운영합니다.
-5. `/studio`에서 우선 콘텐츠를 리라이팅하고 JSON-LD를 생성합니다.
-6. 매월 대시보드의 응답 점유율, GenRank와 퍼널 변화를 비교합니다.
+3. `/llms`에서 공식 사이트 안내 초안을 만들고 `/llms.txt` 배포 상태를 검증합니다.
+4. `/share`에서 브랜드명이 없는 핵심 질문 20~30개를 여러 모델로 반복 측정합니다.
+5. `/strategy`에서 질문을 의도·세그먼트·여정으로 분류하고 4주 개선 사이클을 운영합니다.
+6. `/studio`에서 우선 콘텐츠를 리라이팅하고 JSON-LD를 생성합니다.
+7. 매월 대시보드의 응답 점유율, GenRank와 퍼널 변화를 비교합니다.
 
 > LLM 측정과 콘텐츠 생성은 각 제공자의 유료 API를 호출할 수 있습니다. 실행 전 예상 호출 횟수를 확인하세요.
 
@@ -76,6 +78,7 @@ Next.js HMR에서도 DB 연결은 `globalThis` 캐시를 사용해 중복 연결
 |---|---|---|
 | GET | `/api/dashboard` | 통합 대시보드 집계 |
 | GET/POST | `/api/audits` | 진단 이력/실행 |
+| POST | `/api/llms` | llms.txt 생성·검증·원격 배포 확인 |
 | GET/PUT | `/api/settings` | 공개 설정/저장 |
 | GET | `/api/share` | 측정 이력·질문 템플릿 |
 | POST | `/api/share/run` | 응답 점유율 실행 |
@@ -93,7 +96,7 @@ npm run lint
 npm run build
 ```
 
-현재 기준: **10개 테스트 파일, 44개 테스트 통과**, statements 69.36% / lines 70.26%, TypeScript·ESLint·Next 프로덕션 빌드 통과. 프로덕션 API, 공개 URL 32항목 진단, 7개 화면과 390px 모바일 UI도 실제 브라우저로 검증했습니다.
+현재 기준: **11개 테스트 파일, 51개 테스트 통과**, statements 70.94% / lines 71.98%, TypeScript·ESLint·Next 프로덕션 빌드 통과. 프로덕션 API, 공개 URL 32항목 진단, 8개 화면과 390px 모바일 UI도 실제 브라우저로 검증했습니다.
 
 ## 기술 스택
 
@@ -101,4 +104,4 @@ Next.js 16 App Router · React 19 · TypeScript 6 · Tailwind CSS 4 · SQLite/be
 
 ## 향후 확장
 
-핵심 계획은 완료되었습니다. 다음 우선순위는 ① llms.txt 생성·검증 워크플로 ② 진단/점유율 리포트 내보내기 ③ 이미지 alt 일괄 점검 ④ 네이버 하이퍼클로바X 채널 ⑤ 팀 공유입니다. 상세 상태는 `docs/IMPLEMENTATION_HANDOFF.md`를 참고하세요.
+핵심 계획과 llms.txt 확장은 완료되었습니다. 다음 우선순위는 ① 진단/점유율 리포트 내보내기 ② 이미지 alt 일괄 점검 ③ 네이버 하이퍼클로바X 채널 ④ 팀 공유입니다. 상세 상태는 `docs/IMPLEMENTATION_HANDOFF.md`를 참고하세요.

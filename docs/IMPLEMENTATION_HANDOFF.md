@@ -23,6 +23,14 @@
 8. 콘텐츠 스튜디오 4도구, 전략 CRUD, 4주 사이클
 9. 학습 콘텐츠와 SQLite 영속 38항목 체크리스트
 
+## 후속 확장 완료
+
+- `/llms` 공식 제안형 llms.txt 생성·편집·검증·다운로드 화면
+- 설정의 브랜드 프로필 자동 연동과 핵심 문서 annotated-link 생성
+- details 구조 마커 무해화, 자격증명 URL 차단, escaped 라벨 라운드트립 검증
+- SSRF 방어 크롤러를 재사용한 원격 `/llms.txt` 배포·MIME 유형 확인
+- 브라우저에서 유효 초안 100점, 편집 후 검증 무효화, H1 오류·다운로드 차단 확인
+
 ## 적대적 검토에서 수정한 사항
 
 - DNS 사전 검사와 실제 `fetch` 사이 TOCTOU를 제거: 검증된 IP를 Node `http/https` lookup에 고정, 리다이렉트마다 재검증
@@ -36,16 +44,17 @@
 
 ## 검증 증거
 
-- `npm test`: 10 files / 44 tests passed
+- `npm test`: 11 files / 51 tests passed
 - `npm run typecheck`: passed
 - `npm run lint`: 0 errors, 0 warnings
-- `npm run build`: passed; 7 UI routes, 8 API routes, Proxy 생성
-- `npm run test:coverage`: statements 69.36%, lines 70.26%
+- `npm run build`: passed; 8 UI routes, 9 API routes, Proxy 생성
+- `npm run test:coverage`: statements 70.94%, lines 71.98%
 - 프로덕션 `GET /api/dashboard`: 200, 체크리스트 total 38
 - 프로덕션 Proxy: cross-site text/plain POST 403, same-origin text/plain POST 415
 - 프로덕션 `POST /api/audits` with `https://example.com`: 201, total 32
 - `lsof`: 테스트 서버가 `TCP 127.0.0.1:3111`에만 LISTEN
-- ego-browser: 모든 7개 화면의 H1/내비게이션/Next 오류 부재 확인
+- ego-browser: 모든 8개 화면의 H1/내비게이션/Next 오류 부재 확인
+- ego-browser llms.txt: 설정 브랜드 연동, 100점 초안, 편집 후 검증 무효화, H1 오류와 다운로드 차단 확인
 - ego-browser 상호작용: 설정 저장 후 서버 재시작 영속, 엔티티 Organization+sameAs, 학습 1/38 영속, 전략 질문 CRUD, 진단 리포트, 모바일 390px 무가로넘침·메뉴 확인
 
 ## 로컬 실행 데이터
@@ -56,10 +65,9 @@
 
 핵심 범위에 미완료 필수 항목은 없다. 확장은 다음 순서가 합리적이다.
 
-1. **llms.txt 워크플로**: 브랜드 엔티티·대표 문서에서 초안 생성, 미리보기, 다운로드, 재진단 연결
-2. **리포트 내보내기**: 진단과 응답 점유율 JSON/CSV 우선, 이후 PDF
-3. **멀티모달 감사**: 이미지 파일명·alt·차트 텍스트·영상 자막 일괄 점검
-4. **추가 채널**: 네이버 하이퍼클로바X용 제공자 어댑터와 가중치
-5. **팀 공유**: 로컬 단일 사용자 모델에서 권한·동기화 모델로 별도 설계
+1. **리포트 내보내기**: 진단과 응답 점유율 JSON/CSV 우선, 이후 PDF
+2. **멀티모달 감사**: 이미지 파일명·alt·차트 텍스트·영상 자막 일괄 점검
+3. **추가 채널**: 네이버 하이퍼클로바X용 제공자 어댑터와 가중치
+4. **팀 공유**: 로컬 단일 사용자 모델에서 권한·동기화 모델로 별도 설계
 
 다음 작업 시작 전 기존 보안 불변식(공인 IP pin, 키 비노출, 원자적 결과 저장)을 회귀 테스트로 유지한다.

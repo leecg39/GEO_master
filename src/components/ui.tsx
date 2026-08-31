@@ -38,8 +38,8 @@ export function Button({ className, variant = "primary", ...props }: ButtonHTMLA
   return <button className={cn("inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-cyan-400/50 disabled:cursor-not-allowed", variants[variant], className)} {...props} />;
 }
 
-export function Progress({ value, className }: { value: number; className?: string }) {
-  return <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(Math.max(0, Math.min(100, value)))} className={cn("h-2 overflow-hidden rounded-full bg-slate-800", className)}><div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 transition-all" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} /></div>;
+export function Progress({ value, className, ariaLabel = "진행률" }: { value: number; className?: string; ariaLabel?: string }) {
+  return <div role="progressbar" aria-label={ariaLabel} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(Math.max(0, Math.min(100, value)))} className={cn("h-2 overflow-hidden rounded-full bg-slate-800", className)}><div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 transition-all" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} /></div>;
 }
 
 export function EmptyState({ children }: { children: ReactNode }) {
