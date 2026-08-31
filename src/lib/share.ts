@@ -148,8 +148,21 @@ function validateBrandFreeQuestions(questions: string[], entities: string[]) {
   }
 }
 
-export async function runShareMeasurement(input: unknown) {
+export interface ShareMeasurementOptions {
+  shouldCancel?: () => boolean;
+  onRunCreated?: (runId: number) => void;
+  onBillableCall?: (provider: Provider) => void;
+}
+
+function assertNotCanceled(options: ShareMeasurementOptions) {
+  if (options.shouldCancel?.()) {
+    throw new AppError("예약 측정 작업이 취소되었습니다.", 409, "JOB_CANCELED");
+  }
+}
+
+export async function runShareMeasurement(input: unknown, options: ShareMeasurementOptions = {}) {
   const parsed = shareRunSchema.parse(input);
+  assertNotCanceled(options);
   const settings = getServerSettings(parsed.providers);
   const brand = settings.brandName.trim();
   if (!brand) throw new AppError("설정에서 브랜드 프로필을 먼저 저장해 주세요.", 409, "BRAND_REQUIRED");
@@ -187,11 +200,15 @@ export async function runShareMeasurement(input: unknown) {
   const aggregateRows: AggregateInput[] = [];
   const pendingResults: (typeof measureResults.$inferInsert)[] = [];
   try {
+    options.onRunCreated?.(run.id);
+    assertNotCanceled(options);
     for (const question of parsed.questions) {
       for (const provider of parsed.providers) {
         const apiKey = settings.decryptedApiKeys[provider]!;
         const model = settings.models[provider];
         for (let repetition = 1; repetition <= repetitions; repetition += 1) {
+          assertNotCanceled(options);
+          options.onBillableCall?.(provider);
           const response = await generateText({
             provider,
             apiKey,
@@ -200,10 +217,14 @@ export async function runShareMeasurement(input: unknown) {
             prompt: question,
             maxTokens: 1600,
           });
+          assertNotCanceled(options);
           const mention = analyzeMentions(response, brand, settings.competitors);
-          const sentiment = mention.brandMentioned
-            ? await classifySentiment(response, brand, provider, apiKey, model)
-            : "neutral";
+          let sentiment: Sentiment = "neutral";
+          if (mention.brandMentioned) {
+            options.onBillableCall?.(provider);
+            sentiment = await classifySentiment(response, brand, provider, apiKey, model);
+          }
+          assertNotCanceled(options);
           const aggregateRow: AggregateInput = { provider, sentiment, ...mention };
           aggregateRows.push(aggregateRow);
           pendingResults.push({
@@ -222,8 +243,10 @@ export async function runShareMeasurement(input: unknown) {
         }
       }
     }
+    assertNotCanceled(options);
     const summary = aggregateShare(aggregateRows, settings.competitors, settings.modelWeights);
     const completedAt = new Date().toISOString();
+    assertNotCanceled(options);
     sqlite.transaction(() => {
       orm.insert(measureResults).values(pendingResults).run();
       orm.update(measureRuns).set({

@@ -132,9 +132,15 @@ flowchart LR
 ### 4-7. 설정 `/settings`
 - API 키 관리(OpenAI/Anthropic/Gemini/HyperCLOVA X), 브랜드 프로필, 모델·반복 횟수 기본값
 
+### 4-8. 예약 측정 자동화 `/automation`
+- 질문·provider·반복 수·다음 실행·주기를 저장하고 활성/정지·수정·삭제·즉시 실행 제공
+- SQLite 영속 작업 큐, due slot UNIQUE 멱등키와 조건부 `UPDATE … RETURNING` 원자 claim
+- 월·건별 비용 한도, provider별 호출 추정 단가, 대기 중 상한 예약과 종료 후 호출 시도 기반 정산
+- stale lease 자동 재실행 금지, 협조적 취소, 사용자 명시 재시도와 오류 코드·접근 가능한 경고 표시
+
 ## 5. DB 주요 테이블
 
-`settings`(API 키), `projects`(브랜드·경쟁사), `questions`/`question_sets`, `measure_runs`/`measure_results`(언급·맥락), `audits`/`audit_items`, `contents`(스튜디오 결과), `checklist_states`, `strategy_items`(매핑·클러스터·캘린더)
+`settings`(API 키), `projects`(브랜드·경쟁사), `questions`/`question_sets`, `measure_runs`/`measure_results`(언급·맥락), `measurement_schedules`/`measurement_jobs`/`automation_policy`(예약·큐·비용), `audits`/`audit_items`, `contents`(스튜디오 결과), `checklist_states`, `strategy_items`(매핑·클러스터·캘린더)
 
 ## 6. 구현 순서
 
@@ -152,8 +158,7 @@ flowchart LR
 
 - 책의 실측정 주의사항 반영: 시크릿 모드 대응은 API 호출로 대체되므로 해당 없음. 반복 횟수 기본 3회/질문, 모델 가중치(예: GPT 40%, Gemini 25%)는 설정 가능 옵션으로 제공
 - API 키는 로컬 SQLite에 저장하고 서버 라우트에서만 사용(클라이언트 노출 금지), `.gitignore`에 DB 파일 포함
-- 후속 확장 아이디어였던 llms.txt 생성기, 리포트/PDF, 멀티모달 감사, 네이버 HyperCLOVA X, 비밀 없는 팀 공유 스냅샷도 구현 완료
-
+- 후속 확장 아이디어였던 llms.txt 생성기, 리포트/PDF, 멀티모달 감사, 네이버 HyperCLOVA X, 비밀 없는 팀 공유 스냅샷, 예약 측정·영속 큐·비용 한도도 구현 완료
 
 ---
 
@@ -162,12 +167,13 @@ flowchart LR
 ### 8-1. 핵심 계획 완료
 
 - [x] OCR 산출물 정리 — 294장을 영구 삭제하지 않고 macOS 휴지통으로 이동
-- [x] Next.js App Router·Tailwind 다크 UI와 11개 반응형 라우트
-- [x] SQLite/better-sqlite3 + Drizzle 11개 테이블, 콜드스타트 부트스트랩과 비파괴 스키마 마이그레이션
+- [x] Next.js App Router·Tailwind 다크 UI와 12개 반응형 라우트
+- [x] SQLite/better-sqlite3 + Drizzle 14개 테이블, 콜드스타트 부트스트랩과 비파괴 스키마 마이그레이션
 - [x] AES-256-GCM API 키 저장, 브랜드·4개 모델·가중치·반복 수 설정
 - [x] OpenAI·Anthropic·Gemini·NAVER HyperCLOVA X 공통 LLM 인터페이스
 - [x] SSRF/DNS rebinding 방어형 사이트 수집과 32항목 GEO 진단
 - [x] 반복 응답 점유율·문맥·경쟁사·GenRank·퍼널 측정 및 이력
+- [x] SQLite 영속 예약·원자 작업 큐·비용 한도와 호출 시도 정산
 - [x] Recharts 대시보드와 원자료 가중 월간 추이
 - [x] 콘텐츠 스튜디오 4도구와 FAQPage/Organization JSON-LD
 - [x] 질문 매핑·토픽 클러스터·캘린더·4주 사이클 CRUD
@@ -176,13 +182,13 @@ flowchart LR
 
 ### 8-2. 검증 결과
 
-- Vitest: 16개 파일, 76개 테스트 통과
-- 커버리지: statements 74.92%, branches 66.85%, functions 82.69%, lines 76.58%
+- Vitest: 19개 파일, 93개 테스트 통과
+- 커버리지: statements 76.92%, branches 67.22%, functions 83.55%, lines 79.06%
 - TypeScript 및 ESLint(경고 0), Next.js 프로덕션 빌드 통과
-- 프로덕션 API: 대시보드, 공개 URL 32항목 진단·멀티모달 감사, 리포트·스냅샷 attachment 확인
-- 보안: 검증 IP 소켓 고정, 리다이렉트 재검증, localhost 바인딩, cross-site 403, non-JSON 415, 비밀 없는 스냅샷 확인
-- 브라우저: 11개 라우트, 리포트 print CSS, 멀티모달 부분 실패, 4개 LLM UI, 스냅샷 merge/replace·키 보존, 좁은 화면 확인
-- 독립 적대적 보안·품질 검토와 수정 후 별도 재검증 완료
+- 프로덕션 API: 대시보드, 공개 URL 32항목 진단·멀티모달 감사, 리포트·스냅샷 attachment, 자동화 비용·큐 상태 전이 확인
+- 보안: 검증 IP 소켓 고정, 리다이렉트 재검증, localhost 바인딩, cross-site 403, non-JSON 415, 비밀 없는 스냅샷·예약 payload 확인
+- 브라우저: 12개 라우트, 리포트 print CSS, 멀티모달 부분 실패, 4개 LLM UI, 스냅샷 merge/replace·키 보존, 자동화 예약 수정·비용 정산, 375px 화면 확인
+- 독립 적대적 보안·품질 검토, 비용 과대계상·stale/slot 경합 수정과 별도 재검증 완료
 
 ### 8-3. 후속 확장 완료
 
@@ -193,7 +199,8 @@ flowchart LR
 3. [x] 이미지 alt·파일명·차트 텍스트·영상 자막/챕터/대본 멀티모달 일괄 감사 — `/multimodal`
 4. [x] 네이버 HyperCLOVA X 공식 v3 제공자 어댑터, 설정·측정·스튜디오·대시보드 통합
 5. [x] 비밀 없는 schema v1 팀 공유 스냅샷, ID 재매핑 병합·확인형 교체·트랜잭션 롤백 — `/workspace`
+6. [x] 예약 측정·SQLite 영속 작업 큐·월/건별 비용 한도·취소/재시도 — `/automation`
 
-필수 잔여 항목은 없다. 실시간 권한·동기화, 예약 측정, 전용 PDF 렌더러는 별도 선택 범위다.
+필수 잔여 항목은 없다. 사용자 인증·권한 기반 실시간 협업/원격 동기화와 전용 PDF 렌더러는 별도 선택 범위다.
 
 구현 상세와 후속 작업 주의사항은 `docs/IMPLEMENTATION_HANDOFF.md`에 기록한다.

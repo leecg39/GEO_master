@@ -74,6 +74,54 @@ export const measureResults = sqliteTable("measure_results", {
   createdAt: text("created_at").notNull(),
 });
 
+export const measurementSchedules = sqliteTable("measurement_schedules", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  questions: text("questions").notNull(),
+  providers: text("providers").notNull(),
+  repetitions: integer("repetitions").notNull(),
+  intervalMinutes: integer("interval_minutes").notNull(),
+  nextRunAt: text("next_run_at").notNull(),
+  enabled: integer("enabled", { mode: "boolean" }).notNull().default(false),
+  lastErrorCode: text("last_error_code"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const automationPolicy = sqliteTable("automation_policy", {
+  id: integer("id").primaryKey(),
+  monthlyBudgetUsd: real("monthly_budget_usd").notNull().default(0),
+  maxRunCostUsd: real("max_run_cost_usd").notNull().default(0),
+  providerCallCosts: text("provider_call_costs").notNull().default("{}"),
+  alertThreshold: real("alert_threshold").notNull().default(0.8),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const measurementJobs = sqliteTable("measurement_jobs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  scheduleId: integer("schedule_id").references(() => measurementSchedules.id, { onDelete: "set null" }),
+  runId: integer("run_id").references(() => measureRuns.id, { onDelete: "set null" }),
+  attemptOfId: integer("attempt_of_id"),
+  status: text("status").notNull(),
+  payload: text("payload").notNull(),
+  idempotencyKey: text("idempotency_key").notNull(),
+  estimatedCostUsd: real("estimated_cost_usd").notNull(),
+  incurredCostUsd: real("incurred_cost_usd").notNull().default(0),
+  providerCallCosts: text("provider_call_costs").notNull().default("{}"),
+  budgetPeriod: text("budget_period").notNull(),
+  budgetCharged: integer("budget_charged", { mode: "boolean" }).notNull().default(false),
+  errorCode: text("error_code"),
+  availableAt: text("available_at").notNull(),
+  workerId: text("worker_id"),
+  leaseExpiresAt: text("lease_expires_at"),
+  cancelRequested: integer("cancel_requested", { mode: "boolean" }).notNull().default(false),
+  createdAt: text("created_at").notNull(),
+  startedAt: text("started_at"),
+  completedAt: text("completed_at"),
+  updatedAt: text("updated_at").notNull(),
+});
+
 export const audits = sqliteTable("audits", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   url: text("url").notNull(),

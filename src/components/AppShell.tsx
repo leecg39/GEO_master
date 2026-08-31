@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarChart3, BookOpen, Bot, FileCode2, FileDown, FilePenLine, Gauge, Images, Menu, PackageOpen, SearchCheck, Settings, Target, X } from "lucide-react";
+import { BarChart3, BookOpen, Bot, CalendarClock, FileCode2, FileDown, FilePenLine, Gauge, Images, Menu, PackageOpen, SearchCheck, Settings, Target, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,7 @@ const navigation = [
   { href: "/multimodal", label: "멀티모달 감사", icon: Images },
   { href: "/llms", label: "llms.txt", icon: FileCode2 },
   { href: "/share", label: "응답 점유율", icon: BarChart3 },
+  { href: "/automation", label: "예약 측정", icon: CalendarClock },
   { href: "/reports", label: "리포트", icon: FileDown },
   { href: "/studio", label: "콘텐츠 스튜디오", icon: FilePenLine },
   { href: "/strategy", label: "전략 워크스페이스", icon: Target },
