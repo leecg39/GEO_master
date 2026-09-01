@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { Eye, History, LoaderCircle, Pencil, Pin, Plus, Trash2 } from "lucide-react";
+import { Copy, Eye, History, LoaderCircle, Pencil, Pin, Plus, Trash2 } from "lucide-react";
 import { ConfirmDialog, CrudListToolbar, CursorPagination, DetailDrawer } from "@/components/CrudPrimitives";
 import { Badge, Button, Card, EmptyState } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
@@ -249,6 +249,23 @@ export function StudioHistoryPanel({ tool, onSelect }: { tool: StudioTool; onSel
     }
   };
 
+  const duplicate = async (content: StudioContentSummary) => {
+    if (busy) return;
+    try {
+      setBusy(true);
+      const result = await api<{ content: StudioContentResource }>(`/api/contents/${content.id}/duplicate`, { method: "POST" });
+      setCursor(null);
+      setBackStack([]);
+      await load(null, appliedQuery);
+      onSelect(result.content);
+      setError("");
+    } catch (duplicateError) {
+      setError(duplicateError instanceof Error ? duplicateError.message : "콘텐츠를 복제하지 못했습니다.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const remove = async () => {
     if (!deleteTarget || busy) return;
     try {
@@ -281,7 +298,11 @@ export function StudioHistoryPanel({ tool, onSelect }: { tool: StudioTool; onSel
         <div className="min-w-0"><p className="flex items-center gap-1 truncate text-sm font-medium text-slate-300">{content.pinned && <Pin className="h-3 w-3 shrink-0 text-cyan-300" />}{content.title || `${toolLabels[tool]} #${content.id}`}</p><p className="mt-0.5 truncate text-xs text-slate-600">{formatDate(content.createdAt)} · {content.provider || "로컬"} · revision {content.currentRevision}</p></div>
         <Badge tone={statusTone(content.status)}>{content.status}</Badge>
         <button type="button" disabled={busy} onClick={() => void openDetail(content.id)} className="rounded-lg p-2 text-slate-500 hover:bg-white/5 hover:text-cyan-300" aria-label={`${content.title} 상세 보기`}><Eye className="h-4 w-4" /></button>
-        <div className="flex"><button type="button" disabled={busy} onClick={() => beginEdit(content)} className="rounded-lg p-2 text-slate-500 hover:bg-white/5 hover:text-cyan-300" aria-label={`${content.title} 메타데이터 수정`}><Pencil className="h-4 w-4" /></button><button type="button" disabled={busy} onClick={() => setDeleteTarget(content)} className="rounded-lg p-2 text-slate-600 hover:bg-rose-400/10 hover:text-rose-300" aria-label={`${content.title} 삭제`}><Trash2 className="h-4 w-4" /></button></div>
+        <div className="flex">
+          <button type="button" disabled={busy} onClick={() => void duplicate(content)} className="rounded-lg p-2 text-slate-500 hover:bg-white/5 hover:text-cyan-300" aria-label={`${content.title} 복제`}><Copy className="h-4 w-4" /></button>
+          <button type="button" disabled={busy} onClick={() => beginEdit(content)} className="rounded-lg p-2 text-slate-500 hover:bg-white/5 hover:text-cyan-300" aria-label={`${content.title} 메타데이터 수정`}><Pencil className="h-4 w-4" /></button>
+          <button type="button" disabled={busy} onClick={() => setDeleteTarget(content)} className="rounded-lg p-2 text-slate-600 hover:bg-rose-400/10 hover:text-rose-300" aria-label={`${content.title} 삭제`}><Trash2 className="h-4 w-4" /></button>
+        </div>
       </article>)}</div> : <div className="mt-4"><EmptyState>{appliedQuery ? `검색된 ${toolLabels[tool]} 결과가 없습니다.` : `첫 ${toolLabels[tool]} 결과를 생성하면 이력이 쌓입니다.`}</EmptyState></div>}
       <div className="mt-4"><CursorPagination canPrevious={backStack.length > 0} hasMore={page.hasMore} busy={loading || busy} onPrevious={() => { const stack = [...backStack]; setCursor(stack.pop() ?? null); setBackStack(stack); }} onNext={() => { if (!page.nextCursor) return; setBackStack((stack) => [...stack, cursor]); setCursor(page.nextCursor); }} /></div>
     </Card>

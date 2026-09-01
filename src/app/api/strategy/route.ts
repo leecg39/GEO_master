@@ -17,14 +17,19 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  try { return NextResponse.json({ item: updateStrategyItem(await request.json()) }); }
-  catch (error) { return errorResponse(error); }
+  try {
+    const body = await request.json() as { id?: unknown; title?: unknown; status?: unknown; parentId?: unknown; data?: unknown; expectedUpdatedAt?: unknown };
+    const id = z.coerce.number().int().positive().parse(body.id);
+    const { id: _id, ...fields } = body;
+    void _id;
+    return NextResponse.json({ item: updateStrategyItem(id, fields) });
+  } catch (error) { return errorResponse(error); }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
     const id = z.coerce.number().int().positive().parse(request.nextUrl.searchParams.get("id"));
-    deleteStrategyItem(id);
+    deleteStrategyItem(id, await request.json());
     return new NextResponse(null, { status: 204 });
   } catch (error) { return errorResponse(error); }
 }

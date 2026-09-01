@@ -5,6 +5,7 @@ import { NextRequest } from "next/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { GET as listContentsRoute } from "@/app/api/contents/route";
 import { DELETE as deleteContentRoute, GET as getContentRoute, PATCH as updateContentRoute } from "@/app/api/contents/[id]/route";
+import { POST as duplicateContentRoute } from "@/app/api/contents/[id]/duplicate/route";
 import { GET as listRevisionsRoute, POST as createRevisionRoute } from "@/app/api/contents/[id]/revisions/route";
 import {
   contentRequestHash,
@@ -186,6 +187,17 @@ describe.sequential("project-scoped contents and immutable revisions", () => {
     expect((await listRevisionsRoute(new NextRequest(`http://localhost/api/contents/${firstContent.id}/revisions`), context(firstContent.id))).status).toBe(409);
     expect(() => findContentByRequest(requestId, requestHash)).toThrowError(/다른 콘텐츠 입력/);
     activateProject(projectId);
+  });
+
+  it("duplicates generated content as a new draft without reusing the request id", async () => {
+    const copied = await duplicateContentRoute(new NextRequest(`http://localhost/api/contents/${firstContent.id}/duplicate`, { method: "POST" }), context(firstContent.id));
+    expect(copied.status).toBe(201);
+    const body = await copied.json() as { content: ContentResource };
+    expect(body.content.id).not.toBe(firstContent.id);
+    expect(body.content.title).toContain("복사본");
+    expect(body.content.status).toBe("draft");
+    expect(body.content.clientRequestId).toBeNull();
+    expect(body.content.output).toEqual(firstContent.output);
   });
 
   it("requires revision cascade confirmation, deletes atomically, and returns 404", async () => {

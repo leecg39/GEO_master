@@ -14,7 +14,9 @@ import {
 } from "./crud";
 import { getDatabase } from "./db";
 import { AppError } from "./errors";
+import { generateText } from "./llm";
 import { requireActiveProject } from "./projects";
+import { getPublicSettings, getServerSettings, type Provider } from "./settings";
 import { fetchPublicText } from "./url-security";
 
 export const AUDIT_CATEGORIES = ["기반 SEO", "GEO 콘텐츠 구조", "신뢰도·E-E-A-T", "기술적 GEO", "브랜드 노출"] as const;
@@ -101,6 +103,7 @@ interface Snapshot {
   tables: number;
   faqSignals: number;
   firstParagraph: string;
+  bodySnippet: string;
   jsonLdTypes: string[];
   hasAuthor: boolean;
   externalCitations: number;
@@ -218,6 +221,7 @@ export function parseAuditHtml(html: string, pageUrl: string): Snapshot {
     tables: $("table").length,
     faqSignals: $("[itemtype*='FAQPage'] [itemprop='name'], details summary, .faq h2, .faq h3, [class*='faq'] [class*='question']").length,
     firstParagraph: $("main p, article p, body p").first().text().replace(/\s+/g, " ").trim(),
+    bodySnippet: bodyText.slice(0, 3000),
     jsonLdTypes,
     hasAuthor: $("[rel='author'],[itemprop='author'],meta[name='author'],.author").length > 0,
     externalCitations: $("a[href^='http']").filter((_, node) => {
@@ -258,12 +262,247 @@ export function auditGrade(score: number) {
   return score >= 25 ? "우수" : score < 20 ? "개선 필요" : "보통";
 }
 
-export function scoreAudit(snapshot: Snapshot, files: SupportingFiles, manualOverrides: Record<string, boolean> = {}) {
+export interface GeoEngineAnalysis {
+  executiveSummary: string;
+  recommendations: string[];
+  evaluatedRules: Record<string, { passed: boolean; detail: string; recommendation?: string }>;
+  engineMode: "ai-engine" | "semantic-engine";
+}
+
+function parseLlmJson(text: string): Record<string, unknown> | null {
+  try {
+    const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1];
+    const candidate = fenced ?? text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1);
+    return JSON.parse(candidate) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+function selectActiveLlmProvider() {
+  try {
+    const publicSettings = getPublicSettings();
+    const preference: Provider[] = ["openai", "anthropic", "gemini", "grok"];
+    const provider = preference.find((item) => publicSettings.apiKeys[item].configured && !publicSettings.apiKeys[item].error);
+    if (!provider) return null;
+    const settings = getServerSettings([provider]);
+    const apiKey = settings.decryptedApiKeys[provider];
+    if (!apiKey) return null;
+    return {
+      provider,
+      apiKey,
+      model: settings.models[provider],
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function evaluateSemanticRules(snapshot: Snapshot, files: SupportingFiles, pageUrl: string): GeoEngineAnalysis {
+  let domain = "target";
+  try {
+    domain = new URL(pageUrl).hostname;
+  } catch {
+    domain = "target";
+  }
+  const brandName = snapshot.title.split(/[-–—|·:]/)[0]?.trim() || domain;
+  const combinedText = `${snapshot.title} ${snapshot.description} ${snapshot.headings.join(" ")} ${snapshot.firstParagraph} ${snapshot.bodySnippet}`.toLowerCase();
+
+  // 1. geo-search-intent
+  const hasIntentKeywords = /(가이드|비교|추천|방법|가격|비용|후기|원리|도입|설치|해결|기능|솔루션|서비스|특징|전략|컨설팅|어떻게|무엇|선택|비교표|faq)/i.test(combinedText);
+  const searchIntentPassed = hasIntentKeywords || snapshot.questionHeadings > 0;
+  const searchIntentDetail = searchIntentPassed
+    ? "핵심 검색 의도(정보·비교·해결) 키워드 및 구조가 문서에 반영되어 있습니다."
+    : "검색 의도를 명시하는 키워드와 소제목이 부족합니다.";
+
+  // 2. geo-journey
+  const hasJourneySignals = (snapshot.headings.length >= 3 && (snapshot.tables >= 1 || snapshot.lists >= 1)) || /(시작하기|도입|신청|문의|체험|가격|플랜|단계|절차)/i.test(combinedText);
+  const journeyPassed = hasJourneySignals;
+  const journeyDetail = journeyPassed
+    ? "탐색→비교→실행 단계로 이어지는 콘텐츠 여정 구조가 확인되었습니다."
+    : "고객의 단계별 결정 여정(탐색→비교→행동) 구조 배치가 미흡합니다.";
+
+  // 3. brand-definition
+  const hasEntityDefinition = Boolean(snapshot.description && snapshot.description.length >= 15) || (snapshot.firstParagraph.length >= 25 && snapshot.firstParagraph.includes(brandName));
+  const brandDefPassed = hasEntityDefinition;
+  const brandDefDetail = brandDefPassed
+    ? "AI가 인용 가능한 형태의 브랜드/서비스 정의 문장이 감지되었습니다."
+    : "AI 검색 엔진이 한 문장으로 추출할 수 있는 명확한 브랜드 정의가 부족합니다.";
+
+  // 4. brand-authority
+  const hasAuthority = snapshot.externalCitations >= 1 || snapshot.entityIdentifiers >= 1 || /(인증|특허|공식|협회|표준|파트너|선정|수상|보안|iso)/i.test(combinedText);
+  const authorityPassed = hasAuthority;
+  const authorityDetail = authorityPassed
+    ? "권위 신호(외부 출처, 인증/식별자, 공식 표기)가 확인되었습니다."
+    : "공신력 있는 외부 출처 연계나 권위 기관 연결 근거가 부족합니다.";
+
+  // 5. brand-multilingual
+  const hasMultilingual = /[a-zA-Z]{3,}/.test(snapshot.title) && /[a-zA-Z]{3,}/.test(snapshot.description || snapshot.firstParagraph);
+  const multilingualPassed = hasMultilingual;
+  const multilingualDetail = multilingualPassed
+    ? "글로벌 AI 모델을 위한 영문 브랜드명 및 맥락 정보가 포함되어 있습니다."
+    : "영문 브랜드명 병기 및 글로벌 AI 검색용 영문 맥락 정보가 부족합니다.";
+
+  // 6. brand-triggers
+  const hasComparativeClaims = /(1위|최대|최초|최고|전문|인기|대표|표준|공식)/i.test(combinedText);
+  const triggersPassed = snapshot.numericEvidence >= 2 && (!hasComparativeClaims || snapshot.numericEvidence >= 4);
+  const triggersDetail = triggersPassed
+    ? `추천 질문에 대응 가능한 정량 수치(${snapshot.numericEvidence}개) 기반 근거가 확보되어 있습니다.`
+    : "AI 추천 시 선택될 수 있는 객관적 수치와 구체적 조건 근거가 부족합니다.";
+
+  // 7. brand-source-diversity
+  const sourceDiversityPassed = snapshot.externalCitations >= 2 || (snapshot.externalCitations >= 1 && snapshot.jsonLdTypes.length >= 1);
+  const sourceDiversityDetail = sourceDiversityPassed
+    ? "공식 스키마 및 외부 소스 연결 신호가 다각화되어 있습니다."
+    : "언론, 공식 문서, 커뮤니티 등 다각화된 출처 연결 신호가 부족합니다.";
+
+  const evaluatedRules: Record<string, { passed: boolean; detail: string }> = {
+    "geo-search-intent": { passed: searchIntentPassed, detail: searchIntentDetail },
+    "geo-journey": { passed: journeyPassed, detail: journeyDetail },
+    "brand-definition": { passed: brandDefPassed, detail: brandDefDetail },
+    "brand-authority": { passed: authorityPassed, detail: authorityDetail },
+    "brand-multilingual": { passed: multilingualPassed, detail: multilingualDetail },
+    "brand-triggers": { passed: triggersPassed, detail: triggersDetail },
+    "brand-source-diversity": { passed: sourceDiversityPassed, detail: sourceDiversityDetail },
+  };
+
+  const recs: string[] = [];
+  if (snapshot.h1Count === 0) recs.push(`H1 태그가 없습니다. '${brandName}'의 핵심 가치와 주제를 담은 H1을 1개 배치하세요.`);
+  if (!snapshot.description) recs.push("meta description이 누락되었습니다. 120~150자의 명확한 서비스 요약 설명을 작성하세요.");
+  if (!snapshot.jsonLdTypes.length) recs.push("JSON-LD 스키마가 없습니다. Organization 및 WebSite 스키마를 추가해 AI 엔티티 인식을 높이세요.");
+  if (snapshot.questionHeadings === 0) recs.push("H2 소제목을 '고객이 AI에 실제 묻는 질문형'으로 구성하여 답변 점유율을 확보하세요.");
+  if (snapshot.faqSignals === 0) recs.push("자주 묻는 질문(FAQ) 섹션과 FAQPage 스키마를 구성하여 직접 인용 확률을 높이세요.");
+  if (!files.llms) recs.push("/llms.txt 파일을 루트에 배포하여 최신 AI 크롤러에게 대표 문서 경로를 안내하세요.");
+  if (snapshot.tables === 0 && snapshot.lists === 0) recs.push("비교 표나 순서형 목록을 추가하여 AI가 요약하기 쉬운 정보 구조를 만드세요.");
+  if (!authorityPassed) recs.push("인증 마크, 고객사 실적, 표준 준수 등의 검증 가능한 근거 링크를 추가하세요.");
+  if (recs.length < 5) {
+    recs.push("문서 첫 3줄 이내에 핵심 결론을 제시하는 Answer-First 구조로 도입부를 개선하세요.");
+  }
+
+  const executiveSummary = `${brandName} (${domain}) 페이지는 32개 GEO 진단 기준 중 ${snapshot.jsonLdTypes.length > 0 ? "구조화 데이터 기반을 일부 갖추었으나" : "구조화 데이터 및 AI 크롤러 최적화가 필요하며"}, AI 검색 엔진이 핵심 답변으로 인용할 수 있는 ${snapshot.questionHeadings > 0 ? "질문형 구조" : "명확한 정의 및 근거 수치"} 강화가 권장됩니다.`;
+
+  return {
+    executiveSummary,
+    recommendations: recs.slice(0, 6),
+    evaluatedRules,
+    engineMode: "semantic-engine",
+  };
+}
+
+export async function analyzePageWithGeoEngine(
+  snapshot: Snapshot,
+  pageUrl: string,
+  files: SupportingFiles,
+): Promise<GeoEngineAnalysis> {
+  const activeLlm = selectActiveLlmProvider();
+  if (!activeLlm) {
+    return evaluateSemanticRules(snapshot, files, pageUrl);
+  }
+
+  try {
+    let domain = "target";
+    try {
+      domain = new URL(pageUrl).hostname;
+    } catch {
+      domain = "target";
+    }
+
+    const system = "당신은 최고 수준의 생성형 검색 최적화(GEO · Generative Engine Optimization) 수석 분석 엔진입니다. AI 검색 엔진(ChatGPT Search, Perplexity, Claude, Gemini)이 웹페이지를 색인하고 인용할 때의 관점에서 페이지를 정밀 분석합니다. 반드시 JSON 형식으로만 응답하세요.";
+
+    const prompt = `다음 웹페이지의 실제 수집 정보를 바탕으로 GEO 정밀 진단을 수행하고 JSON으로만 응답하세요.
+
+[수집된 페이지 정보]
+- URL: ${pageUrl} (도메인: ${domain})
+- Title: ${snapshot.title || "(제목 없음)"}
+- Meta Description: ${snapshot.description || "(설명 없음)"}
+- H1 개수: ${snapshot.h1Count}개
+- 주요 소제목: ${snapshot.headings.slice(0, 10).join(" | ") || "(소제목 없음)"}
+- 첫 문단: ${snapshot.firstParagraph.slice(0, 300) || "(본문 시작 없음)"}
+- 본문 발췌: ${snapshot.bodySnippet.slice(0, 800) || "(본문 텍스트 없음)"}
+- JSON-LD 스키마: ${snapshot.jsonLdTypes.join(", ") || "(없음)"}
+- 외부 출처 링크 수: ${snapshot.externalCitations}개 / 내부 링크 수: ${snapshot.internalLinks}개
+- 정량 수치 표현: ${snapshot.numericEvidence}개
+- robots.txt AI 크롤러 상태: ${files.robots ? "존재" : "없음"} / llms.txt: ${files.llms ? "확인됨" : "없음"} / sitemap: ${files.sitemap ? "확인됨" : "없음"}
+
+[필수 JSON 출력 형식]
+{
+  "executiveSummary": "이 사이트의 GEO 역량과 AI 인용 가능성에 대한 2~3문장의 핵심 요약 (구체적 브랜드명 및 강약점 포함)",
+  "recommendations": [
+    "구체적인 실행 권고 1 (페이지 맞춤형)",
+    "구체적인 실행 권고 2",
+    "구체적인 실행 권고 3",
+    "구체적인 실행 권고 4",
+    "구체적인 실행 권고 5"
+  ],
+  "evaluatedRules": {
+    "geo-search-intent": { "passed": true, "detail": "평가 근거 요약" },
+    "geo-journey": { "passed": false, "detail": "평가 근거 요약" },
+    "brand-definition": { "passed": true, "detail": "평가 근거 요약" },
+    "brand-authority": { "passed": false, "detail": "평가 근거 요약" },
+    "brand-multilingual": { "passed": false, "detail": "평가 근거 요약" },
+    "brand-triggers": { "passed": true, "detail": "평가 근거 요약" },
+    "brand-source-diversity": { "passed": false, "detail": "평가 근거 요약" }
+  }
+}`;
+
+    const rawOutput = await generateText({
+      provider: activeLlm.provider,
+      apiKey: activeLlm.apiKey,
+      model: activeLlm.model,
+      system,
+      prompt,
+      maxTokens: 1500,
+    });
+
+    const parsed = parseLlmJson(rawOutput);
+    if (parsed && typeof parsed.executiveSummary === "string" && Array.isArray(parsed.recommendations) && parsed.evaluatedRules && typeof parsed.evaluatedRules === "object") {
+      const evaluated = parsed.evaluatedRules as Record<string, { passed?: boolean; detail?: string }>;
+      const cleanEvaluated: Record<string, { passed: boolean; detail: string }> = {};
+      const requiredCodes = ["geo-search-intent", "geo-journey", "brand-definition", "brand-authority", "brand-multilingual", "brand-triggers", "brand-source-diversity"];
+      for (const code of requiredCodes) {
+        if (evaluated[code] && typeof evaluated[code].passed === "boolean") {
+          cleanEvaluated[code] = {
+            passed: evaluated[code].passed!,
+            detail: String(evaluated[code].detail || (evaluated[code].passed ? "AI 엔진 검증 통과" : "AI 엔진 검증 미충족")),
+          };
+        }
+      }
+      if (Object.keys(cleanEvaluated).length >= 5) {
+        return {
+          executiveSummary: parsed.executiveSummary,
+          recommendations: parsed.recommendations.filter((r): r is string => typeof r === "string").slice(0, 8),
+          evaluatedRules: cleanEvaluated,
+          engineMode: "ai-engine",
+        };
+      }
+    }
+  } catch (error) {
+    console.warn("GEO AI engine invocation failed, falling back to semantic engine:", error);
+  }
+
+  return evaluateSemanticRules(snapshot, files, pageUrl);
+}
+
+export function scoreAudit(
+  snapshot: Snapshot,
+  files: SupportingFiles,
+  manualOverrides: Record<string, boolean> = {},
+  engineEvaluatedRules: Record<string, { passed: boolean; detail: string }> = {},
+) {
   const items: AuditItemResult[] = AUDIT_RULES.map((rule) => {
     const manual = Boolean(rule.manual);
-    const checked = manual
-      ? result(manualOverrides[rule.code] === true, rule.code in manualOverrides ? (manualOverrides[rule.code] ? "수동 확인 완료" : "수동 미충족") : "수동 확인 필요")
-      : rule.check!(snapshot, files);
+    let checked: { passed: boolean; detail: string };
+    if (manual) {
+      if (rule.code in manualOverrides) {
+        checked = result(manualOverrides[rule.code] === true, manualOverrides[rule.code] ? "수동 확인 완료" : "수동 미충족");
+      } else if (rule.code in engineEvaluatedRules) {
+        checked = result(engineEvaluatedRules[rule.code].passed, engineEvaluatedRules[rule.code].detail);
+      } else {
+        checked = result(false, "수동 확인 필요");
+      }
+    } else {
+      checked = rule.check!(snapshot, files);
+    }
     return { ...rule, manual, ...checked };
   });
   const score = items.filter((item) => item.passed).length;
@@ -363,15 +602,19 @@ export async function createAudit(input: unknown) {
     optionalFile(new URL("/sitemap.xml", finalUrl).toString()),
   ]);
   const snapshot = parseAuditHtml(page.text, page.url);
-  const scored = scoreAudit(snapshot, { robots, llms, sitemap }, parsed.manualOverrides);
+  const engineAnalysis = await analyzePageWithGeoEngine(snapshot, page.url, { robots, llms, sitemap });
+  const scored = scoreAudit(snapshot, { robots, llms, sitemap }, parsed.manualOverrides, engineAnalysis.evaluatedRules);
   if (scored.total !== 32) throw new Error(`Audit rule invariant failed: ${scored.total}`);
   const now = new Date().toISOString();
   const title = parsed.title || snapshot.title || finalUrl.hostname;
+  const notes = parsed.notes || engineAnalysis.executiveSummary;
   const metadata = {
     finalUrl: page.url,
     title: snapshot.title,
     schemas: snapshot.jsonLdTypes,
-    recommendations: scored.items.filter((item) => !item.passed).slice(0, 8).map((item) => item.recommendation),
+    executiveSummary: engineAnalysis.executiveSummary,
+    recommendations: engineAnalysis.recommendations,
+    engineMode: engineAnalysis.engineMode,
     _requestHash: fingerprint,
   };
   const { sqlite } = getDatabase();
@@ -386,7 +629,7 @@ export async function createAudit(input: unknown) {
     `).run(
       active.id,
       title,
-      parsed.notes,
+      notes,
       parsed.clientRequestId ?? null,
       parsed.url,
       scored.score,

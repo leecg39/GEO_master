@@ -56,13 +56,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="min-h-screen">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-68 border-r border-white/7 bg-slate-950/85 p-5 backdrop-blur-xl lg:block">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-white/7 bg-slate-950/85 p-6 backdrop-blur-xl lg:block">
         <Brand />
         <ProjectSwitcher />
         <Navigation />
-        <div className="absolute inset-x-5 bottom-5 rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-3">
+        <div className="absolute inset-x-6 bottom-6 rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-3.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-300"><span className="h-2 w-2 rounded-full bg-emerald-400" />로컬 퍼스트</div>
-          <p className="mt-1.5 text-[11px] leading-4 text-slate-500">데이터와 API 키는 이 기기의 SQLite에만 저장됩니다.</p>
+          <p className="mt-1.5 text-xs leading-5 text-slate-400">데이터와 API 키는 이 기기의 SQLite에만 저장됩니다.</p>
         </div>
       </aside>
       <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/7 bg-slate-950/80 px-4 backdrop-blur-xl lg:hidden">
@@ -76,7 +76,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Navigation close={() => setOpen(false)} />
         </aside>
       </div>}
-      <main className="lg:pl-68"><div className="mx-auto max-w-[1500px] px-4 py-8 sm:px-7 lg:px-10 lg:py-10">{children}</div></main>
+      <main className="lg:pl-72"><div className="w-full max-w-[2400px] px-4 py-6 sm:px-8 lg:px-10 xl:px-12 2xl:px-16 lg:py-8 xl:py-10">{children}</div></main>
     </div>
   );
 }

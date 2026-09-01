@@ -12,6 +12,16 @@ interface ModelMetric { total: number; mentions: number; share: number }
 interface RunResult { id: number; title: string; notes: string; status: string; answerShare: number; positiveRate: number; genrank: number; funnelStage: string; total: number; mentions: number; perModel: Record<Provider, ModelMetric>; competitorComparison: { name: string; mentions: number; share: number }[]; createdAt: string; completedAt: string | null }
 const labels: Record<Provider, string> = { openai: "GPT", anthropic: "Claude", gemini: "Gemini", grok: "Grok" };
 const colors: Record<Provider, string> = { openai: "bg-emerald-400", anthropic: "bg-amber-400", gemini: "bg-violet-400", grok: "bg-rose-400" };
+const CATEGORY_PRESETS = [
+  "GEO 분석 도구", "SEO 도구", "콘텐츠 마케팅", "마케팅 자동화", "데이터 분석", "AI 챗봇",
+  "전자상거래", "소셜 커머스", "중고 거래", "구독 서비스", "결제 서비스", "핀테크",
+  "클라우드 서비스", "협업 도구", "화상회의", "프로젝트 관리", "노코드 도구", "개발자 도구",
+  "CRM", "ERP", "회계 소프트웨어", "인사 관리", "채용 플랫폼", "법률 서비스", "세무 서비스",
+  "보안 솔루션", "모니터링 도구", "번역 도구", "디자인 도구", "동영상 편집", "음악 스트리밍",
+  "온라인 교육", "전자책", "헬스케어", "시니어 케어", "육아 용품", "반려동물 용품",
+  "여행/숙박", "부동산", "음식 배달", "물류/배송", "패션/뷰티", "게임",
+  "스마트홈", "전기차 충전", "모빌리티", "보험", "투자/자산 관리", "정부/공공 서비스",
+];
 
 async function json<T>(response: Response): Promise<T> { const data = await response.json() as T & { error?: string }; if (!response.ok) throw new Error(data.error ?? "요청에 실패했습니다."); return data; }
 
@@ -50,6 +60,9 @@ export function ShareClient() {
   const [templates, setTemplates] = useState<string[]>([]);
   const [questions, setQuestions] = useState("");
   const [runTitle, setRunTitle] = useState("");
+  const [category, setCategory] = useState("");
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+  const [categoryDragOver, setCategoryDragOver] = useState(false);
   const requestId = useRef<string | null>(null);
   const [selected, setSelected] = useState<Record<Provider, boolean>>({ openai: false, anthropic: false, gemini: false, grok: false });
   const [repetitions, setRepetitions] = useState(3);
@@ -59,8 +72,24 @@ export function ShareClient() {
   const [error, setError] = useState("");
 
   useEffect(() => { void (async () => { try {
-    const [settingsData, shareData] = await Promise.all([json<{ settings: SettingsInfo }>(await fetch("/api/settings")), json<{ templates: string[] }>(await fetch("/api/share"))]);
+    const [settingsData, shareData, categories] = await Promise.all([
+      json<{ settings: SettingsInfo }>(await fetch("/api/settings")),
+      json<{ templates: string[] }>(await fetch("/api/share")),
+      (async () => {
+        const collected = new Set<string>();
+        let cursor: string | null = null;
+        do {
+          const parameters = new URLSearchParams({ limit: "100" });
+          if (cursor) parameters.set("cursor", cursor);
+          const page = await json<{ items: { category: string }[]; page: { nextCursor: string | null; hasMore: boolean } }>(await fetch(`/api/projects?${parameters}`));
+          for (const item of page.items) { const value = item.category.trim(); if (value) collected.add(value); }
+          cursor = page.page.hasMore ? page.page.nextCursor : null;
+        } while (cursor);
+        return [...collected];
+      })(),
+    ]);
     setSettings(settingsData.settings); setRepetitions(settingsData.settings.repetitions); setTemplates(shareData.templates);
+    setCategory(settingsData.settings.category); setCategoryOptions(categories);
     setSelected({ openai: settingsData.settings.apiKeys.openai.configured, anthropic: settingsData.settings.apiKeys.anthropic.configured, gemini: settingsData.settings.apiKeys.gemini.configured, grok: settingsData.settings.apiKeys.grok.configured });
   } catch (cause) { setError(cause instanceof Error ? cause.message : "데이터를 불러오지 못했습니다."); } finally { setLoading(false); } })(); }, []);
 
@@ -73,7 +102,7 @@ export function ShareClient() {
     if (!display) setError(`이 측정은 ${run.status} 상태이며 완료된 지표가 없습니다.`);
   }, []);
   function addTemplate(template: string) {
-    const value = template.replaceAll("{카테고리}", settings?.category || "카테고리").replace("{문제}", "고객의 핵심 문제");
+    const value = template.replaceAll("{카테고리}", category.trim() || settings?.category || "카테고리").replace("{문제}", "고객의 핵심 문제");
     setQuestions((current) => current ? `${current}\n${value}` : value);
     requestId.current = null;
   }
@@ -115,7 +144,7 @@ export function ShareClient() {
     {!settings?.brandName && <Card className="mb-5 border-amber-400/20 bg-amber-400/5"><p className="flex items-center gap-2 text-sm text-amber-300"><AlertTriangle className="h-4 w-4" />측정 전에 왼쪽 프로젝트 관리에서 브랜드 프로필을 저장하세요.</p></Card>}
     <QuestionPoolManager onUseQuestions={setMeasurementQuestions} />
     <form onSubmit={run} className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
-      <Card><div className="mb-4 flex items-center justify-between"><div><h2 className="font-semibold text-white">핵심 질문 세트</h2><p className="mt-1 text-xs text-slate-500">한 줄에 하나 · 최대 30개 · 브랜드/경쟁사명 제외</p></div><Badge>{questionList.length}/30</Badge></div><label className="sr-only" htmlFor="questions">핵심 질문</label><textarea id="questions" required rows={11} value={questions} onChange={(e) => setMeasurementQuestions(e.target.value)} placeholder="국내에서 신뢰할 수 있는 GEO 분석 도구는 무엇인가요?" /><div className="mt-4 flex flex-wrap gap-2">{templates.map((template) => <button type="button" key={template} onClick={() => addTemplate(template)} className="inline-flex items-center gap-1 rounded-lg border border-white/8 bg-white/[0.03] px-2.5 py-1.5 text-left text-[11px] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300"><Plus className="h-3 w-3" />{template}</button>)}</div></Card>
+      <Card><div className="mb-4 flex items-center justify-between"><div><h2 className="font-semibold text-white">핵심 질문 세트</h2><p className="mt-1 text-xs text-slate-500">한 줄에 하나 · 최대 30개 · 브랜드/경쟁사명 제외</p></div><Badge>{questionList.length}/30</Badge></div><div className="mb-3"><label className="block text-sm" htmlFor="category">카테고리 <span className="text-xs text-slate-600">직접 입력하거나 아래 카드를 클릭·드래그해 선택</span></label><input id="category" className={`mt-2${categoryDragOver ? " border-cyan-400/40 bg-cyan-400/5" : ""}`} maxLength={120} value={category} onChange={(event) => setCategory(event.target.value)} onDragOver={(event) => { event.preventDefault(); setCategoryDragOver(true); }} onDragLeave={() => setCategoryDragOver(false)} onDrop={(event) => { event.preventDefault(); const value = event.dataTransfer.getData("text/plain").trim(); if (value) setCategory(value); setCategoryDragOver(false); }} placeholder="예: GEO 분석 도구" /><div className="mt-2 flex max-h-24 flex-wrap gap-2 overflow-y-auto">{[...new Set([...CATEGORY_PRESETS, ...categoryOptions])].map((option) => <button type="button" key={option} draggable onDragStart={(event) => event.dataTransfer.setData("text/plain", option)} onClick={() => setCategory(option)} title="클릭하거나 입력란으로 드래그하세요" className={`cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing ${option === category ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200" : "border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300"}`}>{option}</button>)}</div></div><label className="sr-only" htmlFor="questions">핵심 질문</label><textarea id="questions" required rows={11} value={questions} onChange={(e) => setMeasurementQuestions(e.target.value)} placeholder="국내에서 신뢰할 수 있는 GEO 분석 도구는 무엇인가요?" /><div className="mt-4 flex flex-wrap gap-2">{templates.map((template) => <button type="button" key={template} onClick={() => addTemplate(template)} className="inline-flex items-center gap-1 rounded-lg border border-white/8 bg-white/[0.03] px-2.5 py-1.5 text-left text-[11px] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300"><Plus className="h-3 w-3" />{template}</button>)}</div></Card>
       <Card><h2 className="font-semibold text-white">실행 설정</h2><label className="mt-4 block text-sm">저장 제목 <span className="text-xs text-slate-600">(선택)</span><input className="mt-2" maxLength={120} value={runTitle} onChange={(event) => { setRunTitle(event.target.value); requestId.current = null; }} placeholder="예: 3월 핵심 질문 측정" /></label><div className="mt-4 space-y-3">{(Object.keys(labels) as Provider[]).map((provider) => { const configured = settings?.apiKeys[provider].configured; return <label key={provider} className={`flex items-center justify-between rounded-xl border p-3 ${selected[provider] ? "border-cyan-400/25 bg-cyan-400/5" : "border-white/7 bg-slate-950/30"}`}><span className="flex items-center gap-3"><input type="checkbox" disabled={!configured} checked={selected[provider]} onChange={(e) => { setSelected((state) => ({ ...state, [provider]: e.target.checked })); requestId.current = null; }} /><Bot className="h-4 w-4 text-slate-500" /><span className="text-sm">{labels[provider]}</span></span><Badge tone={configured ? "good" : "default"}>{configured ? "준비됨" : "키 필요"}</Badge></label>; })}</div><label className="mt-5 block text-sm">질문당 반복<select className="mt-2" value={repetitions} onChange={(e) => { setRepetitions(Number(e.target.value)); requestId.current = null; }}>{[1,2,3,4,5].map((count) => <option value={count} key={count}>{count}회</option>)}</select></label><div className="mt-5 rounded-xl bg-slate-950/45 p-3 text-xs leading-5 text-slate-500">예상 답변 호출: <strong className="text-slate-300">{questionList.length * repetitions * Object.values(selected).filter(Boolean).length}회</strong><br />브랜드가 언급된 응답은 문맥 분류 호출이 추가됩니다.</div><Button className="mt-5 w-full" disabled={running || !questionList.length || questionList.length > 30 || !Object.values(selected).some(Boolean)}>{running ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}{running ? "AI 응답 측정 중…" : "측정 실행"}</Button></Card>
     </form>{error && <p role="alert" className="mt-5 rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-sm text-rose-300">{error}</p>}
 

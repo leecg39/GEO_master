@@ -212,6 +212,29 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 5,
+    name: "checklist-project-unique",
+    up(sqlite) {
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS checklist_states_v5 (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
+          scope TEXT NOT NULL,
+          item_key TEXT NOT NULL,
+          checked INTEGER NOT NULL DEFAULT 0,
+          note TEXT NOT NULL DEFAULT '',
+          updated_at TEXT NOT NULL,
+          UNIQUE(project_id, scope, item_key)
+        );
+        INSERT INTO checklist_states_v5 (id, project_id, scope, item_key, checked, note, updated_at)
+        SELECT id, project_id, scope, item_key, checked, COALESCE(note, ''), updated_at FROM checklist_states;
+        DROP TABLE checklist_states;
+        ALTER TABLE checklist_states_v5 RENAME TO checklist_states;
+        CREATE INDEX IF NOT EXISTS idx_checklist_project_scope ON checklist_states(project_id, scope, item_key);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

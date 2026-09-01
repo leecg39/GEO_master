@@ -36,7 +36,7 @@ describe("versioned database migrations", () => {
       migrations.map(({ version, name }) => ({ version, name })),
     );
     expect(rows.every((row) => Number.isFinite(Date.parse(row.applied_at)))).toBe(true);
-    expect(LATEST_SCHEMA_VERSION).toBe(4);
+    expect(LATEST_SCHEMA_VERSION).toBe(5);
     expect((sqlite.pragma("table_info(settings)") as { name: string }[]).map((column) => column.name))
       .toEqual(expect.arrayContaining(["grok_api_key", "subscription_pin"]));
     expect((sqlite.prepare("SELECT COUNT(*) AS count FROM settings").get() as { count: number }).count).toBe(1);

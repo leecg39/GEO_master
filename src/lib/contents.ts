@@ -440,6 +440,23 @@ export function createContentRevision(contentIdInput: unknown, input: unknown) {
   });
 }
 
+export function duplicateContent(idInput: unknown) {
+  const source = publicContent(ownedContentRow(resourceIdSchema.parse(idInput)));
+  const baseTitle = source.title.trim() || source.tool;
+  return storeGeneratedContent({
+    tool: source.tool,
+    title: `${baseTitle} 복사본`.slice(0, 120),
+    notes: source.notes,
+    status: "draft",
+    pinned: false,
+    provider: source.provider,
+    input: source.input,
+    output: source.output,
+    metadata: source.metadata,
+    origin: "generated",
+  });
+}
+
 export function deleteContent(idInput: unknown, input: unknown) {
   const id = resourceIdSchema.parse(idInput);
   const parsed = contentDeleteSchema.parse(input);

@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { getDatabase } from "./db";
 import { AppError } from "./errors";
+import { requireActiveProject } from "./projects";
 import { runShareMeasurement, shareRunSchema, type ShareMeasurementOptions } from "./share";
 import { type Provider } from "./settings";
 
@@ -67,6 +68,7 @@ interface PolicyRow {
 
 interface ScheduleRow {
   id: number;
+  project_id: number | null;
   name: string;
   questions: string;
   providers: string;
@@ -81,6 +83,7 @@ interface ScheduleRow {
 
 interface JobRow {
   id: number;
+  project_id: number | null;
   schedule_id: number | null;
   run_id: number | null;
   attempt_of_id: number | null;
@@ -271,11 +274,15 @@ function enqueueMeasurementJob({
     const timestamp = now.toISOString();
     const result = sqlite.prepare(`
       INSERT INTO measurement_jobs (
-        schedule_id, attempt_of_id, status, payload, idempotency_key, estimated_cost_usd,
+        project_id, schedule_id, attempt_of_id, status, payload, idempotency_key, estimated_cost_usd,
         incurred_cost_usd, provider_call_costs, budget_period, budget_charged, error_code,
         available_at, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
+      scheduleId
+        ? (sqlite.prepare("SELECT project_id FROM measurement_schedules WHERE id = ?").get(scheduleId) as { project_id: number | null } | undefined)?.project_id
+          ?? requireActiveProject().id
+        : requireActiveProject().id,
       scheduleId,
       attemptOfId,
       status,
@@ -312,12 +319,14 @@ function scheduleFromRow(row: ScheduleRow) {
 
 export function createSchedule(input: unknown) {
   const schedule = scheduleInputSchema.parse(input);
+  const active = requireActiveProject();
   const now = new Date().toISOString();
   const result = getDatabase().sqlite.prepare(`
     INSERT INTO measurement_schedules (
-      name, questions, providers, repetitions, interval_minutes, next_run_at, enabled, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      project_id, name, questions, providers, repetitions, interval_minutes, next_run_at, enabled, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
+    active.id,
     schedule.name,
     JSON.stringify(schedule.questions),
     JSON.stringify(schedule.providers),
@@ -334,6 +343,7 @@ export function createSchedule(input: unknown) {
 export function getSchedule(id: number) {
   const row = getDatabase().sqlite.prepare("SELECT * FROM measurement_schedules WHERE id = ?").get(id) as ScheduleRow | undefined;
   if (!row) throw new AppError("예약을 찾을 수 없습니다.", 404, "SCHEDULE_NOT_FOUND");
+  requireActiveProject(row.project_id);
   return scheduleFromRow(row);
 }
 
@@ -365,7 +375,16 @@ export function toggleSchedule(id: number, enabled: boolean) {
 }
 
 export function deleteSchedule(id: number) {
-  const result = getDatabase().sqlite.prepare("DELETE FROM measurement_schedules WHERE id = ?").run(id);
+  getSchedule(id);
+  const sqlite = getDatabase().sqlite;
+  const active = sqlite.prepare(`
+    SELECT COUNT(*) AS count FROM measurement_jobs
+    WHERE schedule_id = ? AND status IN ('queued','running')
+  `).get(id) as { count: number };
+  if (active.count > 0) {
+    throw new AppError("실행 중이거나 대기 중인 작업이 있어 예약을 삭제할 수 없습니다.", 409, "SCHEDULE_HAS_ACTIVE_JOBS");
+  }
+  const result = sqlite.prepare("DELETE FROM measurement_schedules WHERE id = ?").run(id);
   if (!result.changes) throw new AppError("예약을 찾을 수 없습니다.", 404, "SCHEDULE_NOT_FOUND");
   return { id };
 }
@@ -544,6 +563,7 @@ export async function processNextJob({
 export function cancelJob(id: number) {
   const row = jobById(id);
   if (!row) throw new AppError("작업을 찾을 수 없습니다.", 404, "JOB_NOT_FOUND");
+  requireActiveProject(row.project_id);
   const now = new Date().toISOString();
   if (row.status === "queued") {
     getDatabase().sqlite.prepare(`
@@ -562,6 +582,7 @@ export function cancelJob(id: number) {
 export function retryJob(id: number) {
   const row = jobById(id);
   if (!row) throw new AppError("작업을 찾을 수 없습니다.", 404, "JOB_NOT_FOUND");
+  requireActiveProject(row.project_id);
   if (!(["failed", "blocked", "canceled"] as JobStatus[]).includes(row.status)) {
     throw new AppError("실패·차단·취소된 작업만 다시 시도할 수 있습니다.", 409, "JOB_NOT_RETRYABLE");
   }
@@ -586,7 +607,8 @@ export function getAutomationState(now = new Date()) {
     SELECT COALESCE(SUM(incurred_cost_usd), 0) AS total FROM measurement_jobs
     WHERE budget_period = ? AND budget_charged = 1 AND status IN ('completed','failed','canceled')
   `).get(period) as { total: number };
-  const schedules = (sqlite.prepare("SELECT * FROM measurement_schedules ORDER BY created_at DESC").all() as ScheduleRow[])
+  const active = requireActiveProject();
+  const schedules = (sqlite.prepare("SELECT * FROM measurement_schedules WHERE project_id = ? ORDER BY created_at DESC").all(active.id) as ScheduleRow[])
     .map((row) => {
       try {
         const schedule = scheduleFromRow(row);
@@ -608,7 +630,7 @@ export function getAutomationState(now = new Date()) {
         };
       }
     });
-  const jobs = (sqlite.prepare("SELECT * FROM measurement_jobs ORDER BY id DESC LIMIT 50").all() as JobRow[]).map(publicJob);
+  const jobs = (sqlite.prepare("SELECT * FROM measurement_jobs WHERE project_id = ? ORDER BY id DESC LIMIT 50").all(active.id) as JobRow[]).map(publicJob);
   const usagePercent = policy.monthlyBudgetUsd > 0 ? (usedUsd / policy.monthlyBudgetUsd) * 100 : 0;
   return {
     policy,

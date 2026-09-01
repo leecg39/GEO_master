@@ -1,6 +1,7 @@
-import { desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { getDatabase } from "./db";
 import { audits, checklistStates, measureResults, measureRuns, projects, strategyItems } from "./db/schema";
+import { requireActiveProject } from "./projects";
 import { providers, type Provider } from "./settings";
 
 const cycleLabels = ["1주차 · 모니터링", "2주차 · 분석", "3주차 · 우선순위", "4주차 · 콘텐츠 개선"];
@@ -125,9 +126,10 @@ export function aggregateMonthlyTrends(runs: TrendRun[]) {
 }
 
 export function getDashboardData() {
+  const active = requireActiveProject();
   const { orm } = getDatabase();
   const runs = orm.select().from(measureRuns)
-    .where(eq(measureRuns.status, "completed"))
+    .where(and(eq(measureRuns.status, "completed"), eq(measureRuns.projectId, active.id)))
     .orderBy(desc(measureRuns.createdAt))
     .limit(100)
     .all();
@@ -147,12 +149,18 @@ export function getDashboardData() {
     : [];
   const latestRows = latestRun ? resultRows.filter((row) => row.runId === latestRun.id) : [];
   const previousRows = previousRun ? resultRows.filter((row) => row.runId === previousRun.id) : [];
-  const latestAudit = orm.select().from(audits).orderBy(desc(audits.createdAt)).limit(1).get() ?? null;
-  const checklist = orm.select().from(checklistStates).where(eq(checklistStates.scope, "learn-38")).all();
-  const cycleRows = orm.select().from(strategyItems).where(eq(strategyItems.type, "cycle")).all();
-  const project = latestRun?.projectId
-    ? orm.select().from(projects).where(eq(projects.id, latestRun.projectId)).get()
-    : orm.select().from(projects).orderBy(desc(projects.updatedAt)).limit(1).get();
+  const latestAudit = orm.select().from(audits)
+    .where(eq(audits.projectId, active.id))
+    .orderBy(desc(audits.createdAt))
+    .limit(1)
+    .get() ?? null;
+  const checklist = orm.select().from(checklistStates)
+    .where(and(eq(checklistStates.scope, "learn-38"), eq(checklistStates.projectId, active.id)))
+    .all();
+  const cycleRows = orm.select().from(strategyItems)
+    .where(and(eq(strategyItems.type, "cycle"), eq(strategyItems.projectId, active.id)))
+    .all();
+  const project = orm.select().from(projects).where(eq(projects.id, active.id)).get();
 
   const trends = aggregateMonthlyTrends(runs);
   const latestSummary = parseDashboardSummary(latestRun?.summary);

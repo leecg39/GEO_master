@@ -28,9 +28,10 @@ describe.sequential("workspace persistence", () => {
 
   it("creates, updates, lists and deletes strategy items", () => {
     const item = createStrategyItem({ type: "question", title: "어떤 GEO 도구가 좋은가요?", data: { source: "고객 상담", intent: "비교·평가형" } });
-    expect(updateStrategyItem({ id: item.id, status: "완료" }).status).toBe("완료");
+    const updated = updateStrategyItem(item.id, { status: "완료", expectedUpdatedAt: item.updatedAt });
+    expect(updated.status).toBe("완료");
     expect(listStrategyItems().some((entry) => entry.id === item.id)).toBe(true);
-    deleteStrategyItem(item.id);
+    deleteStrategyItem(item.id, { expectedUpdatedAt: updated.updatedAt, cascadeConfirmed: true });
     expect(listStrategyItems().some((entry) => entry.id === item.id)).toBe(false);
   });
 
@@ -44,7 +45,7 @@ describe.sequential("workspace persistence", () => {
 
   it("reflects completed cycle state and checklist progress on dashboard", () => {
     const cycle = createStrategyItem({ type: "cycle", title: "질문 측정", data: { week: 1 } });
-    updateStrategyItem({ id: cycle.id, status: "완료" });
+    updateStrategyItem(cycle.id, { status: "완료", expectedUpdatedAt: cycle.updatedAt });
     const dashboard = getDashboardData();
     expect(dashboard.checklist).toEqual({ completed: 1, total: 38, percent: 3 });
     expect(dashboard.cycle[0].done).toBe(true);

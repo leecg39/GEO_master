@@ -69,7 +69,7 @@ describe.sequential("portable workspace snapshot", () => {
   it("exports all portable tables without key fields, ciphertext, or plaintext", async () => {
     useDatabase(sourcePath);
     const serialized = serializeWorkspaceSnapshot(snapshot);
-    expect(snapshot).toMatchObject({ kind: "geo-master-workspace", schemaVersion: 1, workspaceName: "공유 브랜드" });
+    expect(snapshot).toMatchObject({ kind: "geo-master-workspace", schemaVersion: 2, workspaceName: "공유 브랜드" });
     expect(snapshot.stats).toMatchObject({ projects: 1, questionSets: 1, questions: 1, measureRuns: 1, measureResults: 1, audits: 1, auditItems: 1, contents: 1, checklistStates: 1, strategyItems: 1 });
     expect(snapshot.data.settings).not.toHaveProperty("apiKeys");
     expect(serialized).not.toContain(sourceSecret);

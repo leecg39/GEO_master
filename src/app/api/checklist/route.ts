@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLearnChecklist, updateLearnChecklist } from "@/lib/checklist";
+import { getLearnChecklist, resetLearnChecklist, updateLearnChecklist } from "@/lib/checklist";
 import { errorResponse } from "@/lib/errors";
 
 export const runtime = "nodejs";
@@ -11,6 +11,9 @@ export function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  try { return NextResponse.json({ checklist: updateLearnChecklist(await request.json()) }); }
-  catch (error) { return errorResponse(error); }
+  try {
+    const body = await request.json() as { reset?: unknown };
+    const checklist = body.reset ? resetLearnChecklist(body) : updateLearnChecklist(body);
+    return NextResponse.json({ checklist });
+  } catch (error) { return errorResponse(error); }
 }
