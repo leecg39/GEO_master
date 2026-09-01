@@ -46,6 +46,7 @@ interface ProjectRow {
   id: number;
   name: string;
   brand_name: string;
+  domain: string;
   category: string;
   competitors: string;
   created_at: string;
@@ -65,6 +66,7 @@ export interface ProjectResource {
   id: number;
   name: string;
   brandName: string;
+  domain: string;
   category: string;
   competitors: string[];
   active: boolean;
@@ -103,6 +105,7 @@ function toProject(row: ProjectRow, activeProjectId: number | null): ProjectReso
     id: row.id,
     name: row.name,
     brandName: row.brand_name,
+    domain: row.domain ?? "",
     category: row.category,
     competitors: parseCompetitors(row.competitors),
     active: row.id === activeProjectId,

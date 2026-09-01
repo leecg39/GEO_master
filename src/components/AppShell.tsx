@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarChart3, BookOpen, Bot, CalendarClock, FileCode2, FileDown, FilePenLine, Gauge, Images, Menu, PackageOpen, SearchCheck, Settings, Target, X } from "lucide-react";
+import { BarChart3, BookOpen, Bot, CalendarClock, CreditCard, FileCode2, FileDown, FilePenLine, Gauge, Globe2, Images, MapPin, Menu, PackageOpen, SearchCheck, Settings, Target, TrendingUp, X } from "lucide-react";
 import { useState } from "react";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,11 @@ import { cn } from "@/lib/utils";
 const navigation = [
   { href: "/", label: "대시보드", icon: Gauge },
   { href: "/audit", label: "GEO 진단", icon: SearchCheck },
+  { href: "/ai-seo", label: "AI SEO (SERP)", icon: Globe2 },
+  { href: "/site-audit", label: "사이트 진단", icon: SearchCheck },
+  { href: "/position-tracking", label: "포지션 추적", icon: TrendingUp },
+  { href: "/analytics/overview", label: "도메인 개요", icon: BarChart3 },
+  { href: "/local-business", label: "지역 SEO", icon: MapPin },
   { href: "/multimodal", label: "멀티모달 감사", icon: Images },
   { href: "/llms", label: "llms.txt", icon: FileCode2 },
   { href: "/share", label: "응답 점유율", icon: BarChart3 },
@@ -20,6 +25,7 @@ const navigation = [
   { href: "/strategy", label: "전략 워크스페이스", icon: Target },
   { href: "/learn", label: "학습 센터", icon: BookOpen },
   { href: "/workspace", label: "팀 공유", icon: PackageOpen },
+  { href: "/subscription", label: "SEMForge Pro", icon: CreditCard },
   { href: "/settings", label: "설정", icon: Settings },
 ];
 

@@ -42,7 +42,8 @@ const snapshotDataSchema = z.object({
     repetitions: z.number().int().min(1).max(5), modelWeights: providerWeightsSchema,
   }).strict(),
   projects: z.array(z.object({
-    id, name: short, brandName: z.string().max(120), category: z.string().max(120),
+    id, name: short, brandName: z.string().max(120), domain: z.string().max(253).optional().default(""),
+    category: z.string().max(120),
     competitors: encodedJson(200_000, jsonArray), createdAt: timestamp, updatedAt: timestamp,
   }).strict()).max(20_000),
   questionSets: z.array(z.object({
@@ -191,7 +192,10 @@ export function buildWorkspaceSnapshot(): WorkspaceSnapshot {
       competitors: publicSettings.competitors, models: publicSettings.models,
       repetitions: publicSettings.repetitions, modelWeights: publicSettings.modelWeights,
     },
-    projects: orm.select().from(projects).orderBy(asc(projects.id)).all(),
+    projects: orm.select().from(projects).orderBy(asc(projects.id)).all().map((row) => ({
+      id: row.id, name: row.name, brandName: row.brandName, domain: row.domain ?? "",
+      category: row.category, competitors: row.competitors, createdAt: row.createdAt, updatedAt: row.updatedAt,
+    })),
     questionSets: orm.select().from(questionSets).orderBy(asc(questionSets.id)).all().map((row) => ({
       id: row.id, projectId: row.projectId, name: row.name, createdAt: row.createdAt, updatedAt: row.updatedAt || row.createdAt,
     })),
@@ -287,7 +291,7 @@ export function importWorkspace(input: unknown) {
     for (const row of data.projects) {
       const inserted = orm.insert(projects).values({
         ...(parsed.mode === "replace" ? { id: row.id } : {}), name: row.name, brandName: row.brandName,
-        category: row.category, competitors: row.competitors, createdAt: row.createdAt, updatedAt: row.updatedAt,
+        domain: row.domain ?? "", category: row.category, competitors: row.competitors, createdAt: row.createdAt, updatedAt: row.updatedAt,
       }).returning({ id: projects.id }).get();
       projectMap.set(row.id, inserted.id);
     }

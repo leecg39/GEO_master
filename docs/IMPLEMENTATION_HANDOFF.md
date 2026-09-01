@@ -32,6 +32,7 @@
 - **Grok**: xAI 공식 `https://api.x.ai/v1` OpenAI 호환 Responses API, `grok-4.6` 기본 모델, 설정 암호화·점유율·스튜디오·대시보드 통합
 - **팀 공유**: `/workspace` schema v2 JSON(v1 호환 가져오기), 비밀 열·로컬 백업 페이로드 구조적 제외, 25MB 스트리밍 상한, merge ID/FK 재매핑, 확인형 replace, 키 보존과 원자적 롤백, 로컬 백업 이름 변경·복원·삭제
 - **예약 측정**: `/automation`, `/api/automation`의 일정 CRUD, SQLite 영속 큐, 비용 한도·경고, 취소·재시도와 worker 상태 표시
+- **SEMForge 통합**: `docs/SEMFORGE_INTEGRATION.md` — AI SEO(`/ai-seo`), Firecrawl 사이트 진단(`/site-audit`), 포지션 추적, 도메인 개요, 지역 SEO. **SEMForge Pro 월 300,000원 구독**(`/subscription`) 활성화 후 TalorData/Firecrawl/GSC·GBP 실행 API 사용. 개발 결제: `SEMFORGE_BILLING_MODE=dev` + confirm 토큰.
 
 ## 전용 PDF 리포트 계약
 
