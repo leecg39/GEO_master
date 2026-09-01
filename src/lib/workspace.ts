@@ -311,7 +311,8 @@ export function importWorkspace(input: unknown) {
     for (const row of data.measureRuns) {
       const inserted = orm.insert(measureRuns).values({
         ...(parsed.mode === "replace" ? { id: row.id } : {}), projectId: mapped(projectMap, row.projectId, "측정/프로젝트"),
-        title: row.title ?? "", notes: row.notes ?? "", clientRequestId: row.clientRequestId ?? null,
+        title: row.title ?? "", notes: row.notes ?? "",
+        clientRequestId: parsed.mode === "replace" ? row.clientRequestId ?? null : null,
         status: row.status, models: row.models, repetitions: row.repetitions, totalQueries: row.totalQueries,
         answerShare: row.answerShare, genrank: row.genrank, funnelStage: row.funnelStage,
         summary: row.summary, createdAt: row.createdAt, updatedAt: row.updatedAt ?? row.createdAt,
@@ -332,7 +333,8 @@ export function importWorkspace(input: unknown) {
       const inserted = orm.insert(audits).values({
         ...(parsed.mode === "replace" ? { id: row.id } : {}),
         projectId: mapped(projectMap, row.projectId ?? data.projects[0]?.id ?? null, "진단/프로젝트"),
-        title: row.title ?? "", notes: row.notes ?? "", clientRequestId: row.clientRequestId ?? null,
+        title: row.title ?? "", notes: row.notes ?? "",
+        clientRequestId: parsed.mode === "replace" ? row.clientRequestId ?? null : null,
         url: row.url, score: row.score, grade: row.grade, items: row.items, metadata: row.metadata,
         createdAt: row.createdAt, updatedAt: row.updatedAt ?? row.createdAt,
       }).returning({ id: audits.id }).get();
@@ -350,7 +352,8 @@ export function importWorkspace(input: unknown) {
         ...(parsed.mode === "replace" ? { id: row.id } : {}),
         projectId: mapped(projectMap, row.projectId ?? data.projects[0]?.id ?? null, "콘텐츠/프로젝트"),
         tool: row.tool, title: row.title ?? "", notes: row.notes ?? "", status: row.status ?? "generated",
-        pinned: row.pinned ?? false, provider: row.provider ?? null, clientRequestId: row.clientRequestId ?? null,
+        pinned: row.pinned ?? false, provider: row.provider ?? null,
+        clientRequestId: parsed.mode === "replace" ? row.clientRequestId ?? null : null,
         input: row.input, output: row.output, metadata: row.metadata ?? "{}",
         createdAt: row.createdAt, updatedAt: row.updatedAt ?? row.createdAt,
       }).returning({ id: contents.id }).get();

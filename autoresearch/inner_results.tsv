@@ -1,0 +1,7 @@
+timestamp	experiment	score	pct	decision	notes
+2026-09-02T01:40	baseline	100	100	KEEP	split header + 2-col grid
+2026-09-02T01:45	compact-model-stack	104	100	KEEP	radar+table vertical in right column
+2026-09-02T01:46	summary-bar-align	104	100	KEEP	justify-between summary bar
+2026-09-02T02:03	qa-radar-table-stretch	104	100	KEEP	items-stretch + legend under radar
+2026-09-02T02:03	qa-panel-height-symmetry	104	100	KEEP	Area 400 + min-h 560 both columns
+2026-09-02T02:04	qa-table-focus-visible	104	100	KEEP	keyboard focus polish on model table

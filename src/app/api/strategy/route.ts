@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { errorResponse } from "@/lib/errors";
-import { createStrategyItem, deleteStrategyItem, listStrategyItems, STRATEGY_GUIDE, updateStrategyItem } from "@/lib/strategy";
+import { createStrategyItem, deleteStrategyItem, listStrategyItemsPage, STRATEGY_GUIDE, updateStrategyItem } from "@/lib/strategy";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export function GET() {
-  try { return NextResponse.json({ items: listStrategyItems(), guide: STRATEGY_GUIDE }); }
-  catch (error) { return errorResponse(error); }
+export function GET(request: NextRequest) {
+  try {
+    return NextResponse.json({
+      ...listStrategyItemsPage(Object.fromEntries(request.nextUrl.searchParams.entries())),
+      guide: STRATEGY_GUIDE,
+    });
+  } catch (error) {
+    return errorResponse(error);
+  }
 }
 
 export async function POST(request: NextRequest) {

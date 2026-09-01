@@ -253,7 +253,7 @@ export function StudioHistoryPanel({ tool, onSelect }: { tool: StudioTool; onSel
     if (busy) return;
     try {
       setBusy(true);
-      const result = await api<{ content: StudioContentResource }>(`/api/contents/${content.id}/duplicate`, { method: "POST" });
+      const result = await api<{ content: StudioContentResource }>(`/api/contents/${content.id}/duplicate`, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
       setCursor(null);
       setBackStack([]);
       await load(null, appliedQuery);

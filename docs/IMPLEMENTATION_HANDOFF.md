@@ -30,7 +30,7 @@
 - **리포트**: `/reports`, `/api/reports`의 선택형 진단·점유율 미리보기, JSON/UTF-8 BOM CSV와 전용 서버 PDF 1.7 attachment, 수식·PDF 연산자 주입 방어, 보조 인쇄 CSS
 - **멀티모달 감사**: `/multimodal`에서 최대 10개 공개 URL의 src/srcset·alt·파일명·차트 수치/텍스트와 영상 title·자막·챕터·대본 신호 분석
 - **Grok**: xAI 공식 `https://api.x.ai/v1` OpenAI 호환 Responses API, `grok-4.6` 기본 모델, 설정 암호화·점유율·스튜디오·대시보드 통합
-- **팀 공유**: `/workspace` schema v1 JSON, 비밀 열 구조적 제외, 25MB 스트리밍 상한, merge ID/FK 재매핑, 확인형 replace, 키 보존과 원자적 롤백
+- **팀 공유**: `/workspace` schema v2 JSON(v1 호환 가져오기), 비밀 열·로컬 백업 페이로드 구조적 제외, 25MB 스트리밍 상한, merge ID/FK 재매핑, 확인형 replace, 키 보존과 원자적 롤백, 로컬 백업 이름 변경·복원·삭제
 - **예약 측정**: `/automation`, `/api/automation`의 일정 CRUD, SQLite 영속 큐, 비용 한도·경고, 취소·재시도와 worker 상태 표시
 
 ## 전용 PDF 리포트 계약
@@ -66,7 +66,7 @@
 ### 데이터 경계
 
 - job payload에는 `questions`, `providers`, `repetitions`만 저장하며 API 키, 암호문, LLM 응답 원문을 넣지 않는다.
-- schema v1 팀 스냅샷은 자동화 일정·작업·비용 정책을 제외한다. 가져온 파일이 대상 기기에서 유료 예약을 자동 활성화하지 않게 하는 의도적 경계다.
+- schema v2 팀 스냅샷은 자동화 일정·작업·비용 정책과 로컬 백업 페이로드를 제외한다. 가져온 파일이 대상 기기에서 유료 예약을 자동 활성화하지 않게 하는 의도적 경계다. v1 파일도 가져올 수 있다.
 - 기존 `runShareMeasurement`의 완료 시 `measure_results`+요약 단일 transaction 불변식은 유지하며 큐는 실행 ID·취소·호출 시작 콜백만 주입한다.
 
 ## 적대적 검토에서 수정한 사항
@@ -103,11 +103,10 @@
 
 ## 검증 증거
 
-- `npm test`: 20 files / 103 tests passed
+- `npm test`: 31 files / 177 tests passed
 - `npm run typecheck`: passed
 - `npm run lint`: 0 errors, 0 warnings
-- `npm run build`: passed; 12 UI routes, 13 API routes, Proxy 생성
-- `npm run test:coverage`: statements 79.97%, branches 69.12%, functions 85.97%, lines 82.40%
+- `npm run build`: passed; 12 UI routes, CRUD API(llms-documents·report-presets·workspace backups·contents revisions 포함), Proxy 생성
 - 자동화 테스트: 비용 상한·종료 정산, 0단가 거부, budget TOCTOU transaction, slot 멱등/coalescing, double claim, stale/orphan 격리·late success, 취소·재시도, 공유 잠금, 손상 상태, 비파괴 마이그레이션, payload 비밀 부재
 - 격리 API: `$0.02` 상한 예약 작업이 API 키 선차단으로 호출 0회 실패한 뒤 incurred/used/reserved/consumed 모두 `$0`, DB에는 안정적 `API_KEY_REQUIRED`만 저장
 - ego-browser: `/automation` 전역 메뉴, 정책·큐 상태, 예약 수정 왕복과 live status, 종료 정산/상한 표시, aria progress/busy, 375px 무가로넘침·오류 alert 부재
@@ -121,7 +120,7 @@
 
 ## 다음 계획
 
-원 계획과 llms.txt, 전용 PDF 리포트, 멀티모달, Grok, 팀 공유, 예약 측정·영속 큐·비용 한도까지 완료했다. 필수 잔여 항목은 없다.
+원 계획 1~20과 `docs/CRUD_CONTRACT.md` 검증 갭까지 완료했다. 메뉴 12화면의 가변 리소스는 확인형 삭제, 프로젝트 격리, stale write, 복제/복원 계약을 따른다. 필수 잔여 항목은 없다.
 
 선택적 발전이 필요하다면 별도 범위로 사용자 인증·권한 기반 실시간 공동 편집과 원격 동기화를 설계한다.
 

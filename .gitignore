@@ -12,3 +12,4 @@ data/.master-key
 playwright-report/
 test-results/
 *.tsbuildinfo
+.gstack/

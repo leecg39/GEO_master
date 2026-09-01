@@ -1,7 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { CheckCircle2, Download, FileCode2, Globe2, LoaderCircle, RefreshCw, Save, ShieldAlert, Trash2 } from "lucide-react";
+import { CheckCircle2, Copy, Download, FileCode2, Globe2, LoaderCircle, RefreshCw, Save, ShieldAlert, Trash2 } from "lucide-react";
+import { ConfirmDialog } from "@/components/CrudPrimitives";
 import { Badge, Button, Card, EmptyState, PageHeader, Progress } from "@/components/ui";
 
 interface Validation { valid: boolean; score: number; issues: { severity: "error" | "warning" | "info"; code: string; message: string; line?: number }[]; stats: { bytes: number; lines: number; sections: number; links: number; errors: number; warnings: number } }
@@ -17,6 +18,7 @@ export function LlmsTxtClient() {
   const [savedId, setSavedId] = useState<number | null>(null);
   const [savedUpdatedAt, setSavedUpdatedAt] = useState("");
   const [documents, setDocuments] = useState<Array<{ id: number; title: string; status: string; updatedAt: string }>>([]);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; title: string; updatedAt: string } | null>(null);
 
   async function loadDocuments() {
     const data = await json<{ items: Array<{ id: number; title: string; status: string; updatedAt: string }> }>(await fetch("/api/llms-documents?limit=20"));
@@ -58,11 +60,20 @@ export function LlmsTxtClient() {
       setResources(doc.resources.map((item) => `${item.title} | ${item.url} | ${item.description}`).join("\n"));
     } catch (cause) { setError(cause instanceof Error ? cause.message : "문서를 열지 못했습니다."); }
   }
-  async function removeDocument(id: number, updatedAt: string) {
+  async function duplicateDocument(id: number) {
     try {
-      const response = await fetch(`/api/llms-documents/${id}`, { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ expectedUpdatedAt: updatedAt }) });
+      const data = await json<{ document: { id: number; updatedAt: string } }>(await fetch(`/api/llms-documents/${id}/duplicate`, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" }));
+      await loadDocuments();
+      await openDocument(data.document.id);
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "문서를 복제하지 못했습니다."); }
+  }
+  async function removeDocument() {
+    if (!deleteTarget) return;
+    try {
+      const response = await fetch(`/api/llms-documents/${deleteTarget.id}`, { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ expectedUpdatedAt: deleteTarget.updatedAt }) });
       if (!response.ok) throw new Error("삭제하지 못했습니다.");
-      if (savedId === id) { setSavedId(null); setSavedUpdatedAt(""); }
+      if (savedId === deleteTarget.id) { setSavedId(null); setSavedUpdatedAt(""); }
+      setDeleteTarget(null);
       await loadDocuments();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "문서를 삭제하지 못했습니다."); }
   }
@@ -73,6 +84,7 @@ export function LlmsTxtClient() {
     {error && <p role="alert" className="mt-5 rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-sm text-rose-300">{error}</p>}
     <section className="mt-5 grid gap-5 xl:grid-cols-[1fr_0.7fr]">{validation ? <Card><div className="flex items-start justify-between"><div><h2 className="font-semibold text-white">구조 검증</h2><p className="mt-1 text-xs text-slate-500">{validation.stats.bytes} bytes · {validation.stats.sections} sections · {validation.stats.links} links</p></div><Badge tone={validation.valid ? "good" : "bad"}>{validation.valid ? "배포 가능" : "수정 필요"}</Badge></div><div className="mt-5 flex items-center gap-4"><strong className="text-3xl text-white">{validation.score}</strong><Progress value={validation.score} ariaLabel="llms.txt 구조 점수" className="flex-1" /></div><div className="mt-5 space-y-2" role="list" aria-live="polite">{validation.issues.length ? validation.issues.map((issue, index) => <div role="listitem" key={`${issue.code}-${index}`} className={`flex gap-3 rounded-xl p-3 text-sm ${issue.severity === "error" ? "bg-rose-400/8 text-rose-300" : issue.severity === "warning" ? "bg-amber-400/8 text-amber-300" : "bg-slate-950/40 text-slate-400"}`}>{issue.severity === "error" ? <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />}<span><span className="sr-only">{issue.severity === "error" ? "오류: " : issue.severity === "warning" ? "경고: " : "정보: "}</span>{issue.line ? `${issue.line}행 · ` : ""}{issue.message}</span></div>) : <p className="rounded-xl bg-emerald-400/8 p-3 text-sm text-emerald-300">제안 구조에 맞습니다.</p>}</div></Card> : <Card><EmptyState>초안을 생성하거나 편집한 문서를 검증하세요.</EmptyState></Card>}
       <Card><div className="flex items-center gap-3"><Globe2 className="h-5 w-5 text-cyan-400" /><div><h2 className="font-semibold text-white">배포 확인</h2><p className="text-xs text-slate-500">공식 사이트 루트의 /llms.txt 확인</p></div></div><p className="mt-4 text-xs leading-5 text-slate-500">사이트 URL을 기준으로 SSRF 방어형 크롤러가 공개 파일을 가져와 동일한 규칙으로 검사합니다.</p><Button type="button" className="mt-5 w-full" variant="secondary" disabled={!website || remoteLoading} onClick={() => void verifyRemote()}>{remoteLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Globe2 className="h-4 w-4" />}원격 /llms.txt 확인</Button>{remoteUrl && <p className="mt-3 break-all text-xs text-emerald-300">확인: {remoteUrl}<br /><span className="text-slate-500">{remoteContentType || "content-type 없음"}</span></p>}</Card></section>
-    <Card className="mt-5"><h2 className="font-semibold text-white">저장된 llms.txt</h2>{documents.length ? <div className="mt-3 divide-y divide-white/5">{documents.map((item) => <div key={item.id} className="flex items-center justify-between gap-3 py-3"><button type="button" className="min-w-0 text-left" onClick={() => void openDocument(item.id)}><p className="truncate text-sm text-slate-200">{item.title}</p><p className="text-xs text-slate-600">{item.status}</p></button><button type="button" aria-label={`${item.title} 삭제`} onClick={() => void removeDocument(item.id, item.updatedAt)}><Trash2 className="h-4 w-4 text-slate-600 hover:text-rose-400" /></button></div>)}</div> : <p className="mt-3 text-sm text-slate-600">저장한 문서가 없습니다.</p>}</Card>
+    <Card className="mt-5"><h2 className="font-semibold text-white">저장된 llms.txt</h2>{documents.length ? <div className="mt-3 divide-y divide-white/5">{documents.map((item) => <div key={item.id} className="flex items-center justify-between gap-3 py-3"><button type="button" className="min-w-0 text-left" onClick={() => void openDocument(item.id)}><p className="truncate text-sm text-slate-200">{item.title}</p><p className="text-xs text-slate-600">{item.status}</p></button><div className="flex"><button type="button" aria-label={`${item.title} 복제`} onClick={() => void duplicateDocument(item.id)} className="rounded-lg p-2 text-slate-500 hover:text-cyan-300"><Copy className="h-4 w-4" /></button><button type="button" aria-label={`${item.title} 삭제`} onClick={() => setDeleteTarget(item)} className="rounded-lg p-2 text-slate-600 hover:text-rose-400"><Trash2 className="h-4 w-4" /></button></div></div>)}</div> : <p className="mt-3 text-sm text-slate-600">저장한 문서가 없습니다.</p>}</Card>
+    <ConfirmDialog open={Boolean(deleteTarget)} title="llms.txt 문서를 삭제할까요?" description={deleteTarget && <>{deleteTarget.title} 초안과 검증 결과가 삭제됩니다.</>} confirmLabel="문서 삭제" destructive onClose={() => setDeleteTarget(null)} onConfirm={removeDocument} />
   </div>;
 }

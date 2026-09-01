@@ -11,7 +11,9 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "seed:annatar": "npx --yes tsx scripts/seed-annatar-mock.ts",
+    "autoresearch:dashboard": "node autoresearch/eval/dashboard-score.mjs"
   },
   "engines": {
     "node": ">=22.0.0"
