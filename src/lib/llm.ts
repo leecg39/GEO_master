@@ -4,6 +4,19 @@ import OpenAI from "openai";
 import { AppError } from "./errors";
 import type { Provider } from "./settings";
 
+export const GUDOKPIN_OPENAI_BASE_URL = "https://api.gudokpin.com/v1";
+export const GUDOKPIN_ANTHROPIC_BASE_URL = "https://api.gudokpin.com";
+
+function gudokpinBaseURL(provider: "openai" | "anthropic", apiKey: string) {
+  if (!apiKey.startsWith("csk_")) return undefined;
+  const expected = provider === "openai" ? GUDOKPIN_OPENAI_BASE_URL : GUDOKPIN_ANTHROPIC_BASE_URL;
+  const configured = (provider === "openai" ? process.env.GUDOKPIN_OPENAI_BASE_URL : process.env.GUDOKPIN_ANTHROPIC_BASE_URL)?.trim() || expected;
+  if (configured !== expected) {
+    throw new AppError(`구독핀 ${provider} Base URL 설정이 올바르지 않습니다.`, 500, "INVALID_GUDOKPIN_BASE_URL");
+  }
+  return configured;
+}
+
 interface GenerateOptions {
   provider: Provider;
   apiKey: string;
@@ -18,7 +31,7 @@ export async function generateText({ provider, apiKey, model, system, prompt, ma
   if (!apiKey) throw new AppError(`${providerLabel} API 키가 설정되지 않았습니다.`, 409, "API_KEY_REQUIRED");
   try {
     if (provider === "openai") {
-      const client = new OpenAI({ apiKey });
+      const client = new OpenAI({ apiKey, baseURL: gudokpinBaseURL("openai", apiKey) });
       const response = await client.responses.create({
         model,
         instructions: system,
@@ -28,7 +41,7 @@ export async function generateText({ provider, apiKey, model, system, prompt, ma
       return response.output_text.trim();
     }
     if (provider === "anthropic") {
-      const client = new Anthropic({ apiKey });
+      const client = new Anthropic({ apiKey, baseURL: gudokpinBaseURL("anthropic", apiKey) });
       const response = await client.messages.create({
         model,
         max_tokens: maxTokens,

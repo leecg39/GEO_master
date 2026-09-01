@@ -127,15 +127,15 @@ describe("persistent measurement automation", () => {
   it("claims each queued job at most once", () => {
     const schedule = createSchedule(baseSchedule);
     runScheduleNow(schedule.id);
-    expect(claimNextJob("worker-a", new Date("2026-09-01T00:00:00.000Z"))?.status).toBe("running");
-    expect(claimNextJob("worker-b", new Date("2026-09-01T00:00:00.000Z"))).toBeNull();
+    expect(claimNextJob("worker-a", new Date("2099-09-01T00:00:00.000Z"))?.status).toBe("running");
+    expect(claimNextJob("worker-b", new Date("2099-09-01T00:00:00.000Z"))).toBeNull();
   });
 
   it("marks stale jobs and their orphan measure run failed instead of silently replaying cost", () => {
     const sqlite = getDatabase().sqlite;
     const schedule = createSchedule(baseSchedule);
     const job = runScheduleNow(schedule.id);
-    claimNextJob("dead-worker", new Date("2026-09-01T00:00:00.000Z"));
+    claimNextJob("dead-worker", new Date("2099-09-01T00:00:00.000Z"));
     const runId = Number(sqlite.prepare(`
       INSERT INTO measure_runs (status, models, repetitions, total_queries, created_at)
       VALUES ('running', '[]', 1, 1, '2026-09-01T00:00:00.000Z')
@@ -203,7 +203,7 @@ describe("persistent measurement automation", () => {
     const job = runScheduleNow(schedule.id);
     const result = await processNextJob({
       workerId: "late-worker",
-      now: new Date("2026-09-01T00:00:00.000Z"),
+      now: new Date("2099-09-01T00:00:00.000Z"),
       execute: async (_input, options) => {
         const runId = Number(sqlite.prepare(`
           INSERT INTO measure_runs (status, models, repetitions, total_queries, created_at)

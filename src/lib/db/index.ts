@@ -29,6 +29,7 @@ function bootstrap(sqlite: Database.Database) {
       anthropic_api_key TEXT,
       gemini_api_key TEXT,
       hyperclova_api_key TEXT,
+      subscription_pin TEXT,
       models TEXT NOT NULL DEFAULT '{}',
       repetitions INTEGER NOT NULL DEFAULT 3,
       model_weights TEXT NOT NULL DEFAULT '{}',
@@ -187,6 +188,9 @@ function bootstrap(sqlite: Database.Database) {
   const settingsColumns = sqlite.pragma("table_info(settings)") as { name: string }[];
   if (!settingsColumns.some((column) => column.name === "hyperclova_api_key")) {
     sqlite.exec("ALTER TABLE settings ADD COLUMN hyperclova_api_key TEXT");
+  }
+  if (!settingsColumns.some((column) => column.name === "subscription_pin")) {
+    sqlite.exec("ALTER TABLE settings ADD COLUMN subscription_pin TEXT");
   }
   const scheduleColumns = sqlite.pragma("table_info(measurement_schedules)") as { name: string }[];
   if (!scheduleColumns.some((column) => column.name === "last_error_code")) {

@@ -65,6 +65,75 @@ describe.sequential("settings API and cold-start database", () => {
     expect(getServerSettings(["hyperclova"]).decryptedApiKeys.hyperclova).toBe(hyperclovaSecret);
   });
 
+  it("round-trips the subscription pin without exposing plaintext", async () => {
+    const pin = "csk_sub-pin-secret-2468";
+    const request = new NextRequest("http://localhost/api/settings", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        brandName: "핀 브랜드", category: "GEO 도구", competitors: [],
+        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", hyperclova: "HCX-DASH-002" },
+        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, hyperclova: .25 },
+        subscriptionPin: pin,
+      }),
+    });
+    const putResponse = await PUT(request);
+    expect(putResponse.status).toBe(200);
+    const putText = await putResponse.text();
+    expect(putText).not.toContain(pin);
+    expect(JSON.parse(putText).settings.subscriptionPin).toMatchObject({ configured: true, error: false });
+    expect(putText).toContain("••••••••2468");
+
+    const stored = getDatabase().sqlite.prepare("SELECT subscription_pin FROM settings WHERE id=1").get() as { subscription_pin: string };
+    expect(stored.subscription_pin).not.toContain(pin);
+    expect(getServerSettings().decryptedSubscriptionPin).toBe(pin);
+    const viaSubscription = getServerSettings(["openai", "anthropic"]);
+    expect(viaSubscription.decryptedApiKeys.openai).toBe(pin);
+    expect(viaSubscription.decryptedApiKeys.anthropic).toBe(pin);
+    expect(viaSubscription.models).toMatchObject({ openai: "gpt-5.6-luna", anthropic: "claude-sonnet-5" });
+
+    const clearRequest = new NextRequest("http://localhost/api/settings", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        brandName: "핀 브랜드", category: "GEO 도구", competitors: [],
+        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", hyperclova: "HCX-DASH-002" },
+        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, hyperclova: .25 },
+        clearSubscriptionPin: true,
+      }),
+    });
+    const clearResponse = await PUT(clearRequest);
+    expect(JSON.parse(await clearResponse.text()).settings.subscriptionPin.configured).toBe(false);
+    expect(getServerSettings().decryptedSubscriptionPin).toBeNull();
+  });
+
+  it("prefers environment keys and validates the Gudokpin csk_ prefix", () => {
+    const names = ["GUDOKPIN_API_KEY", "GUDOKPIN_OPENAI_MODEL", "GUDOKPIN_ANTHROPIC_MODEL", "GEMINI_API_KEY", "HYPERCLOVA_API_KEY"] as const;
+    const previous = Object.fromEntries(names.map((name) => [name, process.env[name]]));
+    try {
+      process.env.GUDOKPIN_API_KEY = "csk_environment-1234";
+      process.env.GUDOKPIN_OPENAI_MODEL = "gpt-5.6-luna";
+      process.env.GUDOKPIN_ANTHROPIC_MODEL = "claude-sonnet-5";
+      process.env.GEMINI_API_KEY = "gemini-environment";
+      process.env.HYPERCLOVA_API_KEY = "clova-environment";
+      const server = getServerSettings(["openai", "anthropic", "gemini", "hyperclova"]);
+      expect(server.decryptedApiKeys).toEqual({
+        openai: "csk_environment-1234",
+        anthropic: "csk_environment-1234",
+        gemini: "gemini-environment",
+        hyperclova: "clova-environment",
+      });
+      expect(server.models).toMatchObject({ openai: "gpt-5.6-luna", anthropic: "claude-sonnet-5" });
+      expect(server.apiKeys.openai).toMatchObject({ configured: true, error: false, source: "environment" });
+
+      process.env.GUDOKPIN_API_KEY = "sk-invalid";
+      expect(() => getServerSettings(["openai"])).toThrow(/csk_/);
+    } finally {
+      for (const name of names) {
+        const value = previous[name];
+        if (value === undefined) delete process.env[name]; else process.env[name] = value;
+      }
+    }
+  });
+
   it("accepts legacy three-provider settings payloads", async () => {
     const request = new NextRequest("http://localhost/api/settings", {
       method: "PUT", headers: { "content-type": "application/json" },

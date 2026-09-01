@@ -46,6 +46,10 @@ export const settingsInputSchema = z.object({
     gemini: z.string().trim().max(500).optional(),
     hyperclova: z.string().trim().max(500).optional(),
   }).optional(),
+  subscriptionPin: z.string().trim().max(500).refine((value) => !value || value.startsWith("csk_"), {
+    message: "구독핀 API 키는 csk_로 시작해야 합니다.",
+  }).optional(),
+  clearSubscriptionPin: z.boolean().optional(),
   clearApiKeys: z.array(z.enum(providers)).optional(),
 });
 
@@ -81,13 +85,46 @@ function ensureSettings() {
   return orm.select().from(settings).where(eq(settings.id, 1)).get()!;
 }
 
-function publicKeyState(encrypted: string | null) {
-  if (!encrypted) return { configured: false, preview: null, error: false };
+function environmentValue(name: string) {
+  return process.env[name]?.trim() || null;
+}
+
+function gudokpinEnvironmentKey() {
+  return environmentValue("GUDOKPIN_API_KEY");
+}
+
+function providerEnvironmentKey(provider: Provider) {
+  const gudokpin = gudokpinEnvironmentKey();
+  if ((provider === "openai" || provider === "anthropic") && gudokpin) return gudokpin;
+  const names: Record<Provider, string> = {
+    openai: "OPENAI_API_KEY",
+    anthropic: "ANTHROPIC_API_KEY",
+    gemini: "GEMINI_API_KEY",
+    hyperclova: "HYPERCLOVA_API_KEY",
+  };
+  return environmentValue(names[provider]);
+}
+
+function resolvedModels(value: string, gudokpinConfigured: boolean) {
+  const models = parseProviderRecord(value, defaultModels);
+  if (gudokpinConfigured) {
+    models.openai = environmentValue("GUDOKPIN_OPENAI_MODEL") ?? "gpt-5.6-luna";
+    models.anthropic = environmentValue("GUDOKPIN_ANTHROPIC_MODEL") ?? "claude-sonnet-5";
+  }
+  return models;
+}
+
+function publicKeyState(encrypted: string | null, environmentKey: string | null = null) {
+  if (environmentKey) {
+    const invalid = environmentKey === gudokpinEnvironmentKey() && !environmentKey.startsWith("csk_");
+    return { configured: true, preview: maskSecret(environmentKey), error: invalid, source: "environment" as const };
+  }
+  if (!encrypted) return { configured: false, preview: null, error: false, source: null };
   try {
-    return { configured: true, preview: maskSecret(decryptSecret(encrypted)), error: false };
+    return { configured: true, preview: maskSecret(decryptSecret(encrypted)), error: false, source: "database" as const };
   } catch (error) {
     if (error instanceof SecretDecryptionError) {
-      return { configured: true, preview: null, error: true };
+      return { configured: true, preview: null, error: true, source: "database" as const };
     }
     throw error;
   }
@@ -99,15 +136,16 @@ export function getPublicSettings() {
     brandName: row.brandName,
     category: row.category,
     competitors: parseJson<string[]>(row.competitors, []),
-    models: parseProviderRecord(row.models, defaultModels),
+    models: resolvedModels(row.models, Boolean(gudokpinEnvironmentKey() || row.subscriptionPin)),
     repetitions: row.repetitions,
     modelWeights: parseProviderRecord(row.modelWeights, defaultModelWeights),
     apiKeys: {
-      openai: publicKeyState(row.openaiApiKey),
-      anthropic: publicKeyState(row.anthropicApiKey),
-      gemini: publicKeyState(row.geminiApiKey),
-      hyperclova: publicKeyState(row.hyperclovaApiKey),
+      openai: publicKeyState(row.openaiApiKey, providerEnvironmentKey("openai")),
+      anthropic: publicKeyState(row.anthropicApiKey, providerEnvironmentKey("anthropic")),
+      gemini: publicKeyState(row.geminiApiKey, providerEnvironmentKey("gemini")),
+      hyperclova: publicKeyState(row.hyperclovaApiKey, providerEnvironmentKey("hyperclova")),
     },
+    subscriptionPin: publicKeyState(row.subscriptionPin, gudokpinEnvironmentKey()),
     updatedAt: row.updatedAt,
   };
 }
@@ -122,6 +160,11 @@ export function updateSettings(input: unknown) {
     anthropicApiKey: clear.has("anthropic") ? null : apiKeys.anthropic ? encryptSecret(apiKeys.anthropic) : row.anthropicApiKey,
     geminiApiKey: clear.has("gemini") ? null : apiKeys.gemini ? encryptSecret(apiKeys.gemini) : row.geminiApiKey,
     hyperclovaApiKey: clear.has("hyperclova") ? null : apiKeys.hyperclova ? encryptSecret(apiKeys.hyperclova) : row.hyperclovaApiKey,
+    subscriptionPin: parsed.clearSubscriptionPin
+      ? null
+      : parsed.subscriptionPin
+        ? encryptSecret(parsed.subscriptionPin)
+        : row.subscriptionPin,
   };
   const now = new Date().toISOString();
   const { orm, sqlite } = getDatabase();
@@ -170,14 +213,45 @@ export function getServerSettings(requiredProviders: readonly Provider[] = []) {
     gemini: row.geminiApiKey,
     hyperclova: row.hyperclovaApiKey,
   };
+  let cachedSubscriptionPin: string | null | undefined;
+  const decryptSubscriptionPin = () => {
+    if (cachedSubscriptionPin !== undefined) return cachedSubscriptionPin;
+    if (!row.subscriptionPin) {
+      cachedSubscriptionPin = null;
+      return null;
+    }
+    try {
+      const value = decryptSecret(row.subscriptionPin);
+      if (value && !value.startsWith("csk_")) {
+        throw new AppError("구독핀 API 키는 csk_로 시작해야 합니다.", 409, "INVALID_GUDOKPIN_API_KEY");
+      }
+      cachedSubscriptionPin = value;
+      return value;
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError("구독핀 API 키를 복호화할 수 없습니다. 설정에서 다시 저장해 주세요.", 409, "INVALID_SUBSCRIPTION_PIN_STORAGE");
+    }
+  };
   const decrypt = (provider: Provider) => {
     if (!required.has(provider)) return null;
+    const environmentKey = providerEnvironmentKey(provider);
+    if (environmentKey) {
+      if ((provider === "openai" || provider === "anthropic") && environmentKey === gudokpinEnvironmentKey() && !environmentKey.startsWith("csk_")) {
+        throw new AppError("구독핀 API 키는 csk_로 시작해야 합니다.", 409, "INVALID_GUDOKPIN_API_KEY");
+      }
+      return environmentKey;
+    }
+    if (provider === "openai" || provider === "anthropic") {
+      const subscriptionPin = decryptSubscriptionPin();
+      if (subscriptionPin) return subscriptionPin;
+    }
     try {
       return decryptSecret(encrypted[provider]);
     } catch {
       throw new AppError(`${provider} API 키를 복호화할 수 없습니다. 설정에서 다시 저장해 주세요.`, 409, "INVALID_API_KEY_STORAGE");
     }
   };
+  const shouldExposeDecryptedPin = required.size === 0 || required.has("openai") || required.has("anthropic");
   return {
     ...getPublicSettings(),
     decryptedApiKeys: {
@@ -186,5 +260,6 @@ export function getServerSettings(requiredProviders: readonly Provider[] = []) {
       gemini: decrypt("gemini"),
       hyperclova: decrypt("hyperclova"),
     },
+    decryptedSubscriptionPin: shouldExposeDecryptedPin ? (gudokpinEnvironmentKey() ?? decryptSubscriptionPin()) : null,
   };
 }

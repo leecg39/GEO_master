@@ -41,6 +41,9 @@ npm start
 - `GEO_MASTER_KEY`: API 키 암호화에 사용할 32바이트 이상의 임의 문자열. 비워 두면 `data/.master-key`를 권한 `0600`으로 자동 생성합니다.
 - `GEO_DB_PATH`: SQLite 파일 경로. 기본값은 `data/geo.db`입니다.
 - `GEO_DISABLE_AUTOMATION_WORKER=1`: 유지보수·격리 검증 중 예약 worker 자동 기동을 막습니다. 수동 큐 처리 API는 별도입니다.
+- `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `HYPERCLOVA_API_KEY`: 설정 화면의 암호화 키 대신 사용할 선택적 환경 키입니다.
+- `GUDOKPIN_API_KEY`: `csk_`로 시작하는 구독핀 키입니다. 설정하면 OpenAI·Anthropic 직접 키보다 우선하며 `gpt-5.6-luna`·`claude-sonnet-5`를 기본 사용합니다.
+- 구독핀 Base URL은 OpenAI/Responses용 `https://api.gudokpin.com/v1`, Anthropic/Messages용 `https://api.gudokpin.com`으로 검증하며 잘못된 `/v1` 조합은 실행 전에 차단합니다.
 
 `.env*`, SQLite DB/WAL, 자동 마스터 키는 Git에서 제외됩니다.
 
@@ -116,7 +119,7 @@ npm run lint
 npm run build
 ```
 
-현재 기준: **20개 테스트 파일, 103개 테스트 통과**, statements 79.97% / branches 69.12% / functions 85.97% / lines 82.40%, TypeScript·ESLint(경고 0)·Next 프로덕션 빌드 통과. 프로덕션 API, 공개 URL 진단·멀티모달 감사, JSON/CSV/PDF·스냅샷 attachment, 자동화 비용·큐 상태 전이, 12개 화면과 375px 모바일 UI를 실제 브라우저로 검증했습니다. 전용 PDF는 실제 API 응답의 xref·CMap·보안 헤더를 검사하고 macOS `file`·Quartz 렌더링으로 한국어 출력과 페이지 레이아웃을 확인했으며, 독립 적대적 검토와 fix verifier에서 신규 P0/P1이 없었습니다.
+현재 기준: **21개 테스트 파일, 110개 테스트 통과**, statements 79.87% / branches 69.75% / functions 83.60% / lines 82.54%, TypeScript·ESLint(경고 0)·Next 프로덕션 빌드 통과. 프로덕션 API, 공개 URL 진단·멀티모달 감사, JSON/CSV/PDF·스냅샷 attachment, 자동화 비용·큐 상태 전이, 12개 화면과 375px 모바일 UI를 실제 브라우저로 검증했습니다. 전용 PDF는 실제 API 응답의 xref·CMap·보안 헤더를 검사하고 macOS `file`·Quartz 렌더링으로 한국어 출력과 페이지 레이아웃을 확인했으며, 독립 적대적 검토와 fix verifier에서 신규 P0/P1이 없었습니다.
 
 ## 기술 스택
 

@@ -9,6 +9,7 @@ export const settings = sqliteTable("settings", {
   anthropicApiKey: text("anthropic_api_key"),
   geminiApiKey: text("gemini_api_key"),
   hyperclovaApiKey: text("hyperclova_api_key"),
+  subscriptionPin: text("subscription_pin"),
   models: text("models").notNull().default("{}"),
   repetitions: integer("repetitions").notNull().default(3),
   modelWeights: text("model_weights").notNull().default("{}"),
