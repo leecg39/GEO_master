@@ -2,7 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { getDatabase } from "./db";
 import {
-  auditItems, audits, checklistStates, contents, measureResults, measureRuns, projects,
+  auditItems, audits, checklistStates, contentRevisions, contents, measureResults, measureRuns, projects,
   questionSets, questions, settings as settingsTable, strategyItems,
 } from "./db/schema";
 import { AppError } from "./errors";
@@ -27,11 +27,11 @@ function encodedJson(maxLength: number, shape: z.ZodType = z.unknown()) {
 
 const providerModelsSchema = z.object({
   openai: z.string().min(1).max(120), anthropic: z.string().min(1).max(120),
-  gemini: z.string().min(1).max(120), hyperclova: z.string().min(1).max(120),
+  gemini: z.string().min(1).max(120), grok: z.string().min(1).max(120),
 }).strict();
 const providerWeightsSchema = z.object({
   openai: z.number().min(0).max(1), anthropic: z.number().min(0).max(1),
-  gemini: z.number().min(0).max(1), hyperclova: z.number().min(0).max(1),
+  gemini: z.number().min(0).max(1), grok: z.number().min(0).max(1),
 }).strict();
 
 const snapshotDataSchema = z.object({
@@ -144,15 +144,35 @@ export function buildWorkspaceSnapshot(): WorkspaceSnapshot {
       repetitions: publicSettings.repetitions, modelWeights: publicSettings.modelWeights,
     },
     projects: orm.select().from(projects).orderBy(asc(projects.id)).all(),
-    questionSets: orm.select().from(questionSets).orderBy(asc(questionSets.id)).all(),
-    questions: orm.select().from(questions).orderBy(asc(questions.id)).all(),
-    measureRuns: orm.select().from(measureRuns).orderBy(asc(measureRuns.id)).all(),
+    questionSets: orm.select().from(questionSets).orderBy(asc(questionSets.id)).all().map((row) => ({
+      id: row.id, projectId: row.projectId, name: row.name, createdAt: row.createdAt,
+    })),
+    questions: orm.select().from(questions).orderBy(asc(questions.id)).all().map((row) => ({
+      id: row.id, questionSetId: row.questionSetId, text: row.text, source: row.source,
+      intent: row.intent, segment: row.segment, journeyStage: row.journeyStage, createdAt: row.createdAt,
+    })),
+    measureRuns: orm.select().from(measureRuns).orderBy(asc(measureRuns.id)).all().map((row) => ({
+      id: row.id, projectId: row.projectId, status: row.status, models: row.models,
+      repetitions: row.repetitions, totalQueries: row.totalQueries, answerShare: row.answerShare,
+      genrank: row.genrank, funnelStage: row.funnelStage, summary: row.summary,
+      createdAt: row.createdAt, completedAt: row.completedAt,
+    })),
     measureResults: orm.select().from(measureResults).orderBy(asc(measureResults.id)).all(),
-    audits: orm.select().from(audits).orderBy(asc(audits.id)).all(),
+    audits: orm.select().from(audits).orderBy(asc(audits.id)).all().map((row) => ({
+      id: row.id, url: row.url, score: row.score, grade: row.grade, items: row.items,
+      metadata: row.metadata, createdAt: row.createdAt,
+    })),
     auditItems: orm.select().from(auditItems).orderBy(asc(auditItems.id)).all(),
-    contents: orm.select().from(contents).orderBy(asc(contents.id)).all(),
-    checklistStates: orm.select().from(checklistStates).orderBy(asc(checklistStates.id)).all(),
-    strategyItems: orm.select().from(strategyItems).orderBy(asc(strategyItems.id)).all(),
+    contents: orm.select().from(contents).orderBy(asc(contents.id)).all().map((row) => ({
+      id: row.id, tool: row.tool, input: row.input, output: row.output, createdAt: row.createdAt,
+    })),
+    checklistStates: orm.select().from(checklistStates).orderBy(asc(checklistStates.id)).all().map((row) => ({
+      id: row.id, scope: row.scope, itemKey: row.itemKey, checked: row.checked, updatedAt: row.updatedAt,
+    })),
+    strategyItems: orm.select().from(strategyItems).orderBy(asc(strategyItems.id)).all().map((row) => ({
+      id: row.id, type: row.type, title: row.title, data: row.data, status: row.status,
+      createdAt: row.createdAt, updatedAt: row.updatedAt,
+    })),
   };
   return workspaceSnapshotSchema.parse({
     kind: "geo-master-workspace", schemaVersion: WORKSPACE_SCHEMA_VERSION,
@@ -247,7 +267,24 @@ export function importWorkspace(input: unknown) {
         code: row.code, category: row.category, passed: row.passed, manual: row.manual, detail: row.detail,
       }).run();
     }
-    for (const row of data.contents) orm.insert(contents).values({ ...(parsed.mode === "replace" ? { id: row.id } : {}), tool: row.tool, input: row.input, output: row.output, createdAt: row.createdAt }).run();
+    for (const row of data.contents) {
+      const inserted = orm.insert(contents).values({
+        ...(parsed.mode === "replace" ? { id: row.id } : {}),
+        tool: row.tool,
+        input: row.input,
+        output: row.output,
+        createdAt: row.createdAt,
+        updatedAt: row.createdAt,
+      }).returning({ id: contents.id }).get();
+      orm.insert(contentRevisions).values({
+        contentId: inserted.id,
+        revision: 1,
+        input: row.input,
+        output: row.output,
+        origin: "restored",
+        createdAt: row.createdAt,
+      }).run();
+    }
     for (const row of data.checklistStates) {
       orm.insert(checklistStates).values({
         ...(parsed.mode === "replace" ? { id: row.id } : {}), scope: row.scope, itemKey: row.itemKey,

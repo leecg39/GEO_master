@@ -9,14 +9,14 @@ export const DEFAULT_PROVIDER_CALL_COSTS: Record<Provider, number> = {
   openai: 0.01,
   anthropic: 0.015,
   gemini: 0.005,
-  hyperclova: 0.005,
+  grok: 0.005,
 };
 
 const providerCostSchema = z.object({
   openai: z.number().finite().positive().max(100),
   anthropic: z.number().finite().positive().max(100),
   gemini: z.number().finite().positive().max(100),
-  hyperclova: z.number().finite().positive().max(100),
+  grok: z.number().finite().positive().max(100),
 }).strict();
 
 export const automationPolicySchema = z.object({
@@ -116,7 +116,11 @@ function budgetPeriod(date: Date) {
 }
 
 function payloadFromSchedule(input: Pick<ScheduleInput, "questions" | "providers" | "repetitions">): MeasurementPayload {
-  const parsed = shareRunSchema.parse(input);
+  const parsed = shareRunSchema.parse({
+    questions: input.questions,
+    providers: input.providers,
+    repetitions: input.repetitions,
+  });
   return { ...parsed, repetitions: input.repetitions };
 }
 
@@ -140,7 +144,7 @@ export function getAutomationPolicy(): AutomationPolicy {
     openai: rawCosts.openai ?? DEFAULT_PROVIDER_CALL_COSTS.openai,
     anthropic: rawCosts.anthropic ?? DEFAULT_PROVIDER_CALL_COSTS.anthropic,
     gemini: rawCosts.gemini ?? DEFAULT_PROVIDER_CALL_COSTS.gemini,
-    hyperclova: rawCosts.hyperclova ?? DEFAULT_PROVIDER_CALL_COSTS.hyperclova,
+    grok: rawCosts.grok ?? DEFAULT_PROVIDER_CALL_COSTS.grok,
   });
   return automationPolicySchema.parse({
     monthlyBudgetUsd: row.monthly_budget_usd,

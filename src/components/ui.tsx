@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
+import { forwardRef, type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export function PageHeader({ eyebrow, title, description, action }: { eyebrow: string; title: string; description: string; action?: ReactNode }) {
@@ -29,14 +29,14 @@ export function Badge({ children, tone = "default", className }: { children: Rea
   return <span className={cn("inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold", tones[tone], className)}>{children}</span>;
 }
 
-export function Button({ className, variant = "primary", ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "danger" }) {
+export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "danger" }>(function Button({ className, variant = "primary", ...props }, ref) {
   const variants = {
     primary: "bg-cyan-400 text-slate-950 hover:bg-cyan-300 disabled:bg-cyan-900 disabled:text-slate-500",
     secondary: "border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 disabled:text-slate-600",
     danger: "border border-rose-400/20 bg-rose-400/10 text-rose-300 hover:bg-rose-400/20",
   };
-  return <button className={cn("inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-cyan-400/50 disabled:cursor-not-allowed", variants[variant], className)} {...props} />;
-}
+  return <button ref={ref} className={cn("inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-cyan-400/50 disabled:cursor-not-allowed", variants[variant], className)} {...props} />;
+});
 
 export function Progress({ value, className, ariaLabel = "진행률" }: { value: number; className?: string; ariaLabel?: string }) {
   return <div role="progressbar" aria-label={ariaLabel} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(Math.max(0, Math.min(100, value)))} className={cn("h-2 overflow-hidden rounded-full bg-slate-800", className)}><div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 transition-all" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} /></div>;

@@ -8,7 +8,8 @@ vi.mock("@/lib/llm", () => ({ generateText: vi.fn() }));
 import { closeDatabase, getDatabase } from "@/lib/db";
 import { generateText } from "@/lib/llm";
 import { getShareHistory, runShareMeasurement } from "@/lib/share";
-import { updateSettings } from "@/lib/settings";
+import { ensureActiveProject, updateProject } from "@/lib/projects";
+import { getPublicSettings, updateSettings } from "@/lib/settings";
 
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "geo-share-test-"));
 const databasePath = path.join(tempDir, "geo.db");
@@ -18,11 +19,15 @@ const previousKey = process.env.GEO_MASTER_KEY;
 beforeAll(() => {
   process.env.GEO_DB_PATH = databasePath;
   process.env.GEO_MASTER_KEY = "share-integration-master-key-with-32-characters";
+  const activeProject = ensureActiveProject();
+  updateProject(activeProject.id, {
+    name: "브랜드Z", brandName: "브랜드Z", category: "분석 도구", competitors: ["경쟁사A"],
+    expectedUpdatedAt: activeProject.updatedAt,
+  });
   updateSettings({
-    brandName: "브랜드Z", category: "분석 도구", competitors: ["경쟁사A"],
-    models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", hyperclova: "HCX-DASH-002" },
-    repetitions: 1, modelWeights: { openai: 1, anthropic: 0, gemini: 0, hyperclova: 0 },
-    apiKeys: { openai: "sk-test" },
+    models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", grok: "grok-4.6" },
+    repetitions: 1, modelWeights: { openai: 1, anthropic: 0, gemini: 0, grok: 0 },
+    apiKeys: { openai: "sk-test" }, expectedUpdatedAt: getPublicSettings().updatedAt,
   });
 });
 afterAll(() => {

@@ -19,6 +19,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "0.122.0",
     "@google/genai": "2.19.0",
+    "agentation": "^3.0.2",
     "better-sqlite3": "13.0.3",
     "cheerio": "1.2.0",
     "clsx": "2.1.1",

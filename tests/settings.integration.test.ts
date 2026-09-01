@@ -4,23 +4,29 @@ import path from "node:path";
 import { NextRequest } from "next/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { closeDatabase, getDatabase } from "@/lib/db";
-import { getServerSettings } from "@/lib/settings";
+import { getPublicSettings, getServerSettings } from "@/lib/settings";
 import { GET, PUT } from "@/app/api/settings/route";
 
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "geo-master-test-"));
 const databasePath = path.join(tempDir, "cold", "geo.db");
 const previousDb = process.env.GEO_DB_PATH;
 const previousKey = process.env.GEO_MASTER_KEY;
+const previousGrokKey = process.env.GROK_API_KEY;
+const previousXaiKey = process.env.XAI_API_KEY;
 
 beforeAll(() => {
   process.env.GEO_DB_PATH = databasePath;
   process.env.GEO_MASTER_KEY = "integration-test-master-key-32-characters-minimum";
+  delete process.env.GROK_API_KEY;
+  delete process.env.XAI_API_KEY;
 });
 afterAll(() => {
   closeDatabase(databasePath);
   fs.rmSync(tempDir, { recursive: true, force: true });
   if (previousDb === undefined) delete process.env.GEO_DB_PATH; else process.env.GEO_DB_PATH = previousDb;
   if (previousKey === undefined) delete process.env.GEO_MASTER_KEY; else process.env.GEO_MASTER_KEY = previousKey;
+  if (previousGrokKey === undefined) delete process.env.GROK_API_KEY; else process.env.GROK_API_KEY = previousGrokKey;
+  if (previousXaiKey === undefined) delete process.env.XAI_API_KEY; else process.env.XAI_API_KEY = previousXaiKey;
 });
 
 describe.sequential("settings API and cold-start database", () => {
@@ -35,34 +41,82 @@ describe.sequential("settings API and cold-start database", () => {
 
   it("round-trips settings without exposing plaintext API keys", async () => {
     const secret = "sk-integration-secret-9876";
-    const hyperclovaSecret = "nv-hyperclova-secret-4321";
+    const grokSecret = "xai-grok-secret-4321";
     const request = new NextRequest("http://localhost/api/settings", {
       method: "PUT", headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        brandName: "테스트 브랜드", category: "GEO 도구", competitors: ["경쟁사A"],
-        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", hyperclova: "HCX-DASH-002" },
-        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, hyperclova: .25 },
-        apiKeys: { openai: secret, anthropic: "sk-ant-normal-5555", hyperclova: hyperclovaSecret },
+        expectedUpdatedAt: getPublicSettings().updatedAt,
+        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", grok: "grok-4.6" },
+        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, grok: .25 },
+        apiKeys: { openai: secret, anthropic: "sk-ant-normal-5555", grok: grokSecret },
       }),
     });
     const putResponse = await PUT(request);
     expect(putResponse.status).toBe(200);
     const putText = await putResponse.text();
     expect(putText).not.toContain(secret);
-    expect(putText).not.toContain(hyperclovaSecret);
+    expect(putText).not.toContain(grokSecret);
     expect(putText).toContain("••••••••9876");
     expect(putText).toContain("••••••••4321");
 
     const getResponse = GET();
     const getText = await getResponse.text();
     expect(getText).not.toContain(secret);
-    expect(getText).not.toContain(hyperclovaSecret);
+    expect(getText).not.toContain(grokSecret);
     expect(JSON.parse(getText).settings.apiKeys.openai.configured).toBe(true);
-    expect(JSON.parse(getText).settings.apiKeys.hyperclova.configured).toBe(true);
-    const stored = getDatabase().sqlite.prepare("SELECT openai_api_key, hyperclova_api_key FROM settings WHERE id=1").get() as { openai_api_key: string; hyperclova_api_key: string };
+    expect(JSON.parse(getText).settings.apiKeys.grok.configured).toBe(true);
+    const stored = getDatabase().sqlite.prepare("SELECT openai_api_key, grok_api_key FROM settings WHERE id=1").get() as { openai_api_key: string; grok_api_key: string };
     expect(stored.openai_api_key).not.toContain(secret);
-    expect(stored.hyperclova_api_key).not.toContain(hyperclovaSecret);
-    expect(getServerSettings(["hyperclova"]).decryptedApiKeys.hyperclova).toBe(hyperclovaSecret);
+    expect(stored.grok_api_key).not.toContain(grokSecret);
+    expect(getServerSettings(["grok"]).decryptedApiKeys.grok).toBe(grokSecret);
+  });
+
+  it("keeps project profiles canonical and rejects stale or project fields in global settings", async () => {
+    const before = getPublicSettings();
+    const projectBefore = getDatabase().sqlite.prepare("SELECT updated_at FROM projects WHERE id = ?").get(before.activeProject.id) as { updated_at: string };
+    getDatabase().sqlite.prepare("UPDATE projects SET name = ?, brand_name = ?, category = ?, competitors = ? WHERE id = ?")
+      .run("정식 프로젝트", "정식 브랜드", "정식 카테고리", JSON.stringify(["경쟁사 X"]), before.activeProject.id);
+
+    const publicResponse = GET();
+    const publicBody = (await publicResponse.json()).settings;
+    expect(publicBody).toMatchObject({
+      brandName: "정식 브랜드",
+      category: "정식 카테고리",
+      competitors: ["경쟁사 X"],
+      activeProject: { id: before.activeProject.id, name: "정식 프로젝트" },
+    });
+
+    const invalid = await PUT(new NextRequest("http://localhost/api/settings", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        models: before.models, repetitions: 2, modelWeights: before.modelWeights,
+        expectedUpdatedAt: before.updatedAt, brandName: "설정에서 덮어쓰기",
+      }),
+    }));
+    expect(invalid.status).toBe(422);
+    expect((await invalid.json()).code).toBe("VALIDATION_ERROR");
+
+    const valid = await PUT(new NextRequest("http://localhost/api/settings", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        models: before.models, repetitions: 2, modelWeights: before.modelWeights,
+        expectedUpdatedAt: before.updatedAt,
+      }),
+    }));
+    expect(valid.status).toBe(200);
+    expect((await valid.json()).settings.repetitions).toBe(2);
+
+    const stale = await PUT(new NextRequest("http://localhost/api/settings", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        models: before.models, repetitions: 4, modelWeights: before.modelWeights,
+        expectedUpdatedAt: before.updatedAt,
+      }),
+    }));
+    expect(stale.status).toBe(409);
+    expect((await stale.json()).code).toBe("STALE_WRITE");
+    expect((getDatabase().sqlite.prepare("SELECT updated_at FROM projects WHERE id = ?").get(before.activeProject.id) as { updated_at: string }).updated_at)
+      .toBe(projectBefore.updated_at);
   });
 
   it("round-trips the subscription pin without exposing plaintext", async () => {
@@ -70,9 +124,9 @@ describe.sequential("settings API and cold-start database", () => {
     const request = new NextRequest("http://localhost/api/settings", {
       method: "PUT", headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        brandName: "핀 브랜드", category: "GEO 도구", competitors: [],
-        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", hyperclova: "HCX-DASH-002" },
-        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, hyperclova: .25 },
+        expectedUpdatedAt: getPublicSettings().updatedAt,
+        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", grok: "grok-4.6" },
+        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, grok: .25 },
         subscriptionPin: pin,
       }),
     });
@@ -94,9 +148,9 @@ describe.sequential("settings API and cold-start database", () => {
     const clearRequest = new NextRequest("http://localhost/api/settings", {
       method: "PUT", headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        brandName: "핀 브랜드", category: "GEO 도구", competitors: [],
-        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", hyperclova: "HCX-DASH-002" },
-        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, hyperclova: .25 },
+        expectedUpdatedAt: getPublicSettings().updatedAt,
+        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", grok: "grok-4.6" },
+        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, grok: .25 },
         clearSubscriptionPin: true,
       }),
     });
@@ -106,23 +160,27 @@ describe.sequential("settings API and cold-start database", () => {
   });
 
   it("prefers environment keys and validates the Gudokpin csk_ prefix", () => {
-    const names = ["GUDOKPIN_API_KEY", "GUDOKPIN_OPENAI_MODEL", "GUDOKPIN_ANTHROPIC_MODEL", "GEMINI_API_KEY", "HYPERCLOVA_API_KEY"] as const;
+    const names = ["GUDOKPIN_API_KEY", "GUDOKPIN_OPENAI_MODEL", "GUDOKPIN_ANTHROPIC_MODEL", "GEMINI_API_KEY", "GROK_API_KEY", "XAI_API_KEY"] as const;
     const previous = Object.fromEntries(names.map((name) => [name, process.env[name]]));
     try {
       process.env.GUDOKPIN_API_KEY = "csk_environment-1234";
       process.env.GUDOKPIN_OPENAI_MODEL = "gpt-5.6-luna";
       process.env.GUDOKPIN_ANTHROPIC_MODEL = "claude-sonnet-5";
       process.env.GEMINI_API_KEY = "gemini-environment";
-      process.env.HYPERCLOVA_API_KEY = "clova-environment";
-      const server = getServerSettings(["openai", "anthropic", "gemini", "hyperclova"]);
+      process.env.GROK_API_KEY = "grok-environment";
+      const server = getServerSettings(["openai", "anthropic", "gemini", "grok"]);
       expect(server.decryptedApiKeys).toEqual({
         openai: "csk_environment-1234",
         anthropic: "csk_environment-1234",
         gemini: "gemini-environment",
-        hyperclova: "clova-environment",
+        grok: "grok-environment",
       });
       expect(server.models).toMatchObject({ openai: "gpt-5.6-luna", anthropic: "claude-sonnet-5" });
       expect(server.apiKeys.openai).toMatchObject({ configured: true, error: false, source: "environment" });
+
+      delete process.env.GROK_API_KEY;
+      process.env.XAI_API_KEY = "xai-standard-environment";
+      expect(getServerSettings(["grok"]).decryptedApiKeys.grok).toBe("xai-standard-environment");
 
       process.env.GUDOKPIN_API_KEY = "sk-invalid";
       expect(() => getServerSettings(["openai"])).toThrow(/csk_/);
@@ -138,7 +196,7 @@ describe.sequential("settings API and cold-start database", () => {
     const request = new NextRequest("http://localhost/api/settings", {
       method: "PUT", headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        brandName: "레거시 브랜드", category: "GEO 도구", competitors: [],
+        expectedUpdatedAt: getPublicSettings().updatedAt,
         models: { openai: "gpt-legacy", anthropic: "claude-legacy", gemini: "gemini-legacy" },
         repetitions: 2, modelWeights: { openai: .4, anthropic: .35, gemini: .25 },
       }),
@@ -146,9 +204,9 @@ describe.sequential("settings API and cold-start database", () => {
     const response = await PUT(request);
     expect(response.status).toBe(200);
     const body = JSON.parse(await response.text()).settings;
-    expect(body.models.hyperclova).toBe("HCX-DASH-002");
-    expect(body.modelWeights.hyperclova).toBe(.25);
-    expect(body.apiKeys.hyperclova.configured).toBe(true);
+    expect(body.models.grok).toBe("grok-4.6");
+    expect(body.modelWeights.grok).toBe(.25);
+    expect(body.apiKeys.grok.configured).toBe(true);
   });
 
   it("reports corrupted encrypted data safely instead of returning it or crashing", async () => {

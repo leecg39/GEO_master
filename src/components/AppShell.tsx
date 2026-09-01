@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { BarChart3, BookOpen, Bot, CalendarClock, FileCode2, FileDown, FilePenLine, Gauge, Images, Menu, PackageOpen, SearchCheck, Settings, Target, X } from "lucide-react";
 import { useState } from "react";
+import { ProjectSwitcher } from "@/components/ProjectSwitcher";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -57,6 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-68 border-r border-white/7 bg-slate-950/85 p-5 backdrop-blur-xl lg:block">
         <Brand />
+        <ProjectSwitcher />
         <Navigation />
         <div className="absolute inset-x-5 bottom-5 rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-3">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-300"><span className="h-2 w-2 rounded-full bg-emerald-400" />로컬 퍼스트</div>
@@ -70,6 +72,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {open && <div className="fixed inset-0 z-50 bg-black/60 lg:hidden" onClick={() => setOpen(false)}>
         <aside className="h-full w-72 border-r border-white/10 bg-slate-950 p-5" onClick={(event) => event.stopPropagation()}>
           <div className="flex items-center justify-between"><Brand /><button type="button" onClick={() => setOpen(false)} aria-label="메뉴 닫기" className="p-2 text-slate-400"><X /></button></div>
+          <ProjectSwitcher />
           <Navigation close={() => setOpen(false)} />
         </aside>
       </div>}

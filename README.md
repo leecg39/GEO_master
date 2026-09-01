@@ -10,7 +10,7 @@
 | GEO 진단 | URL·robots.txt·llms.txt·sitemap 수집, SEO/GEO/E-E-A-T/기술/브랜드 32항목 점검과 이력 |
 | 멀티모달 감사 | 최대 10개 URL의 이미지 alt·파일명·차트 텍스트와 영상 자막·챕터·대본 신호 일괄 점검 |
 | llms.txt | 공식 제안 형식 초안 생성, 편집, 구조 검증, 다운로드, 원격 `/llms.txt` 배포 확인 |
-| 응답 점유율 | 브랜드 없는 질문 × GPT/Claude/Gemini/HyperCLOVA X × 반복 실행, 언급·순위·감정·경쟁사·GenRank 분석 |
+| 응답 점유율 | 브랜드 없는 질문 × GPT/Claude/Gemini/Grok × 반복 실행, 언급·순위·감정·경쟁사·GenRank 분석 |
 | 예약 측정 | SQLite 영속 일정·작업 큐, 원자 claim, 취소·재시도, 월·건별 비용 한도와 호출 시도 기반 정산 |
 | 리포트 | 진단·점유율 근거 미리보기, JSON/UTF-8 CSV, 전용 서버 PDF 1.7 다운로드와 보조 브라우저 인쇄 |
 | 콘텐츠 스튜디오 | 4개 LLM의 리라이팅 5패턴, 도입부 3단 공식, FAQ+FAQPage, 엔티티 정의+Organization JSON-LD |
@@ -41,7 +41,7 @@ npm start
 - `GEO_MASTER_KEY`: API 키 암호화에 사용할 32바이트 이상의 임의 문자열. 비워 두면 `data/.master-key`를 권한 `0600`으로 자동 생성합니다.
 - `GEO_DB_PATH`: SQLite 파일 경로. 기본값은 `data/geo.db`입니다.
 - `GEO_DISABLE_AUTOMATION_WORKER=1`: 유지보수·격리 검증 중 예약 worker 자동 기동을 막습니다. 수동 큐 처리 API는 별도입니다.
-- `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `HYPERCLOVA_API_KEY`: 설정 화면의 암호화 키 대신 사용할 선택적 환경 키입니다.
+- `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `GROK_API_KEY`: 설정 화면의 암호화 키 대신 사용할 선택적 환경 키입니다. Grok은 표준 `XAI_API_KEY`도 fallback으로 인식합니다.
 - `GUDOKPIN_API_KEY`: `csk_`로 시작하는 구독핀 키입니다. 설정하면 OpenAI·Anthropic 직접 키보다 우선하며 `gpt-5.6-luna`·`claude-sonnet-5`를 기본 사용합니다.
 - 구독핀 Base URL은 OpenAI/Responses용 `https://api.gudokpin.com/v1`, Anthropic/Messages용 `https://api.gudokpin.com`으로 검증하며 잘못된 `/v1` 조합은 실행 전에 차단합니다.
 
@@ -73,7 +73,7 @@ npm start
 - 예약 payload에는 질문·provider·반복 수만 저장하며 API 키·응답 원문은 넣지 않습니다. due slot UNIQUE 멱등키와 조건부 `UPDATE … RETURNING` claim으로 중복 실행을 막습니다.
 - 자동화 비용 정책 기본값은 0달러로 비활성입니다. 대기·실행 중에는 문맥 분류를 포함한 최대 2배 호출 상한을 예약하고, 종료 뒤에는 실제 시작한 호출 횟수 × 작업 생성 당시 단가로 정산합니다.
 - stale lease는 자동 재실행하지 않고 실패로 격리하며, 사용자가 명시적으로 재시도할 때 새 예산을 예약합니다. 빌드 및 읽기 전용 GET은 worker를 기동하지 않습니다.
-- HyperCLOVA X는 네이버클라우드 공식 고정 origin과 v3 경로만 호출하며 Bearer 키·업스트림 오류 본문을 노출하지 않습니다.
+- Grok은 xAI 공식 `https://api.x.ai/v1` 고정 Base URL과 Responses API만 사용하며 Bearer 키·업스트림 오류 세부정보를 노출하지 않습니다.
 - 전용 PDF는 외부 문자열을 NFC 정규화·제어문자 제거 후 UTF-16BE hex text로만 기록해 PDF 연산자 주입을 차단합니다. A4 200페이지, 12MB, PDF당 측정 근거 1,000건 상한과 생략 고지를 적용하며 JSON/CSV 원본은 전량 유지합니다.
 - 한국어 PDF는 `HYSMyeongJo-Medium`·`UniKS-UTF16-H` Type0 CID font를 사용합니다. 비임베드 글꼴의 CJK viewer 의존성을 명시하고, 지원 범위 밖 보조평면 문자는 `?`로 결정적으로 치환합니다.
 - 워크스페이스 스냅샷은 API 키·암호문·마스터 키를 구조적으로 제외하고 25MB 상한, strict Zod 검증, ID 재매핑과 트랜잭션 롤백을 적용합니다. 자동 실행 오작동을 막기 위해 일정·큐·비용 정책은 schema v1 스냅샷에서 제외합니다.
@@ -123,8 +123,8 @@ npm run build
 
 ## 기술 스택
 
-Next.js 16 App Router · React 19 · TypeScript 6 · Tailwind CSS 4 · SQLite/better-sqlite3 · Drizzle ORM · OpenAI/Anthropic/Google GenAI SDK · NAVER Cloud HyperCLOVA X REST · Cheerio · Recharts · Vitest
+Next.js 16 App Router · React 19 · TypeScript 6 · Tailwind CSS 4 · SQLite/better-sqlite3 · Drizzle ORM · OpenAI/Anthropic/Google GenAI SDK · xAI Grok Responses API · Cheerio · Recharts · Vitest
 
 ## 로드맵 상태
 
-핵심 계획과 후속 확장인 llms.txt, 전용 서버 PDF 리포트, 멀티모달 감사, HyperCLOVA X, 휴대 가능한 팀 공유 스냅샷, 예약 측정·영속 큐·비용 한도까지 완료되었습니다. 필수 잔여 범위는 없으며 이후 선택적 발전 항목은 사용자 인증·권한 기반 실시간 협업과 원격 동기화뿐입니다. 상세 구현·보안 불변식은 `docs/IMPLEMENTATION_HANDOFF.md`를 참고하세요.
+핵심 계획과 후속 확장인 llms.txt, 전용 서버 PDF 리포트, 멀티모달 감사, Grok, 휴대 가능한 팀 공유 스냅샷, 예약 측정·영속 큐·비용 한도까지 완료되었습니다. 필수 잔여 범위는 없으며 이후 선택적 발전 항목은 사용자 인증·권한 기반 실시간 협업과 원격 동기화뿐입니다. 상세 구현·보안 불변식은 `docs/IMPLEMENTATION_HANDOFF.md`를 참고하세요.

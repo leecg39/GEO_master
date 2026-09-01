@@ -23,7 +23,7 @@ describe("answer share analytics", () => {
       { provider: "openai", brandMentioned: false, sentiment: "neutral", mentionRank: null, competitorMentions: ["경쟁사A"] },
       { provider: "anthropic", brandMentioned: true, sentiment: "neutral", mentionRank: 2, competitorMentions: [] },
       { provider: "gemini", brandMentioned: true, sentiment: "positive", mentionRank: 1, competitorMentions: ["경쟁사B"] },
-    ], ["경쟁사A", "경쟁사B"], { openai: .4, anthropic: .35, gemini: .25, hyperclova: .25 });
+    ], ["경쟁사A", "경쟁사B"], { openai: .4, anthropic: .35, gemini: .25, grok: .25 });
     expect(result.answerShare).toBe(75);
     expect(result.perModel.openai.share).toBe(50);
     expect(result.competitorComparison[0]).toEqual({ name: "경쟁사A", mentions: 2, share: 50 });

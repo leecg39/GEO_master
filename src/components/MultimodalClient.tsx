@@ -1,22 +1,109 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useCallback, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, FileImage, Film, Images, LoaderCircle } from "lucide-react";
+import { MultimodalHistoryPanel, notifyMultimodalAuditChanged, type MultimodalContentResource } from "@/components/MultimodalHistoryPanel";
 import { Badge, Button, Card, EmptyState, PageHeader, Progress } from "@/components/ui";
 
 interface Issue { code: string; severity: "error" | "warning" | "info"; message: string }
 interface ImageResult { index: number; src: string; filename: string; alt: string; decorative: boolean; chartLike: boolean; caption: string; companionText: string; score: number; issues: Issue[] }
 interface VideoResult { index: number; kind: "native" | "embed"; src: string; title: string; captionLanguages: string[]; hasChapters: boolean; hasTranscript: boolean; score: number; issues: Issue[] }
 interface PageResult { ok: boolean; url: string; finalUrl?: string; error?: string; result?: { summary: { total: number; discoveredImages: number; truncatedImages: number; withIssues: number; missingAlt: number; filenameIssues: number; charts: number; chartsWithoutData: number; averageScore: number; videos: number; discoveredVideos: number; truncatedVideos: number; videosWithoutCaptions: number; videosWithoutChapters: number }; images: ImageResult[]; videos: VideoResult[] } }
-interface Audit { generatedAt: string; summary: { requested: number; succeeded: number; failed: number; images: number; videos: number; issues: number }; pages: PageResult[] }
+interface Audit { contentId: number; generatedAt: string; summary: { requested: number; succeeded: number; failed: number; images: number; videos: number; issues: number }; pages: PageResult[] }
 async function json<T>(response: Response): Promise<T> { const body = await response.json() as T & { error?: string }; if (!response.ok) throw new Error(body.error ?? "요청에 실패했습니다."); return body; }
 
+
+function record(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+}
+
+function validIssue(value: unknown): value is Issue {
+  const issue = record(value);
+  return Boolean(issue && typeof issue.code === "string" && ["error", "warning", "info"].includes(String(issue.severity)) && typeof issue.message === "string");
+}
+
+function validImage(value: unknown): value is ImageResult {
+  const image = record(value);
+  return Boolean(image && typeof image.index === "number" && typeof image.src === "string" && typeof image.filename === "string"
+    && typeof image.alt === "string" && typeof image.decorative === "boolean" && typeof image.chartLike === "boolean"
+    && typeof image.caption === "string" && typeof image.companionText === "string" && typeof image.score === "number"
+    && Array.isArray(image.issues) && image.issues.every(validIssue));
+}
+
+function validVideo(value: unknown): value is VideoResult {
+  const video = record(value);
+  return Boolean(video && typeof video.index === "number" && ["native", "embed"].includes(String(video.kind))
+    && typeof video.src === "string" && typeof video.title === "string" && Array.isArray(video.captionLanguages)
+    && video.captionLanguages.every((language) => typeof language === "string") && typeof video.hasChapters === "boolean"
+    && typeof video.hasTranscript === "boolean" && typeof video.score === "number" && Array.isArray(video.issues)
+    && video.issues.every(validIssue));
+}
+
+function storedAudit(content: MultimodalContentResource): Audit | null {
+  const output = record(content.output);
+  const summary = record(output?.summary);
+  if (!output || !summary || typeof output.generatedAt !== "string" || !Array.isArray(output.pages)) return null;
+  const summaryKeys = ["requested", "succeeded", "failed", "images", "videos", "issues"] as const;
+  if (!summaryKeys.every((key) => typeof summary[key] === "number")) return null;
+  const pages = output.pages;
+  if (!pages.every((item) => {
+    const page = record(item);
+    if (!page || typeof page.ok !== "boolean" || typeof page.url !== "string") return false;
+    if (!page.ok) return page.error === undefined || typeof page.error === "string";
+    if (page.finalUrl !== undefined && typeof page.finalUrl !== "string") return false;
+    const result = record(page.result);
+    const pageSummary = record(result?.summary);
+    if (!result || !pageSummary || !Array.isArray(result.images) || !Array.isArray(result.videos)) return false;
+    const pageSummaryKeys = ["total", "discoveredImages", "truncatedImages", "withIssues", "missingAlt", "filenameIssues", "charts", "chartsWithoutData", "averageScore", "videos", "discoveredVideos", "truncatedVideos", "videosWithoutCaptions", "videosWithoutChapters"];
+    return pageSummaryKeys.every((key) => typeof pageSummary[key] === "number")
+      && result.images.every(validImage) && result.videos.every(validVideo);
+  })) return null;
+  return {
+    contentId: content.id,
+    generatedAt: output.generatedAt,
+    summary: summary as unknown as Audit["summary"],
+    pages: pages as PageResult[],
+  };
+}
 export function MultimodalClient() {
-  const [urls, setUrls] = useState(""); const [audit, setAudit] = useState<Audit | null>(null); const [loading, setLoading] = useState(false); const [error, setError] = useState("");
+  const [urls, setUrls] = useState("");
+  const [title, setTitle] = useState("");
+  const [notes, setNotes] = useState("");
+  const [audit, setAudit] = useState<Audit | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const requestId = useRef<string | null>(null);
   const urlList = useMemo(() => [...new Set(urls.split("\n").map((url) => url.trim()).filter(Boolean))], [urls]);
-  async function submit(event: FormEvent) { event.preventDefault(); setLoading(true); setError(""); setAudit(null); try { const data = await json<{ audit: Audit }>(await fetch("/api/multimodal", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ urls: urlList }) })); setAudit(data.audit); } catch (cause) { setError(cause instanceof Error ? cause.message : "감사에 실패했습니다."); } finally { setLoading(false); } }
+
+  const selectStoredAudit = useCallback((content: MultimodalContentResource | null) => {
+    if (!content) { setAudit(null); return; }
+    const stored = storedAudit(content);
+    setAudit(stored);
+    setError(stored ? "" : "저장된 감사 결과 형식이 올바르지 않습니다.");
+  }, []);
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setAudit(null);
+    try {
+      requestId.current ??= crypto.randomUUID();
+      const data = await json<{ audit: Audit }>(await fetch("/api/multimodal", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ urls: urlList, title, notes, clientRequestId: requestId.current }),
+      }));
+      setAudit(data.audit);
+      notifyMultimodalAuditChanged();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "감사에 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  }
   return <div><PageHeader eyebrow="Multimodal GEO" title="이미지·영상 일괄 감사" description="이미지 alt와 파일명, 차트 수치, 영상 자막·챕터·대본 신호를 여러 페이지에서 한 번에 점검합니다." />
-    <Card><form onSubmit={submit} aria-busy={loading}><div className="flex items-center justify-between"><label htmlFor="multimodal-urls" className="font-semibold text-white">감사할 공개 URL</label><Badge>{urlList.length}/10</Badge></div><textarea id="multimodal-urls" className="mt-3" rows={6} required value={urls} onChange={(e) => setUrls(e.target.value)} placeholder="https://example.com/article&#10;https://example.com/report" /><div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p className="flex items-center gap-2 text-xs text-slate-500"><AlertTriangle className="h-3.5 w-3.5 text-amber-400" />공개 HTML만 수집하며 사설망·압축·2MB 초과 응답은 차단합니다.</p><Button type="submit" disabled={loading || !urlList.length || urlList.length > 10}>{loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Images className="h-4 w-4" />}{loading ? "미디어 분석 중…" : "일괄 감사"}</Button></div></form>{error && <p role="alert" className="mt-4 rounded-xl bg-rose-400/10 p-3 text-sm text-rose-300">{error}</p>}</Card>
+    <Card><form onSubmit={submit} aria-busy={loading}><div className="mb-4 grid gap-4 sm:grid-cols-2"><label className="block text-sm">저장 제목 <span className="text-xs text-slate-600">(선택)</span><input className="mt-2" maxLength={120} value={title} onChange={(event) => { setTitle(event.target.value); requestId.current = null; }} placeholder="예: 핵심 랜딩 페이지 감사" /></label><label className="block text-sm">메모 <span className="text-xs text-slate-600">(선택)</span><input className="mt-2" maxLength={5000} value={notes} onChange={(event) => { setNotes(event.target.value); requestId.current = null; }} placeholder="담당자나 검토 목적" /></label></div><div className="flex items-center justify-between"><label htmlFor="multimodal-urls" className="font-semibold text-white">감사할 공개 URL</label><Badge>{urlList.length}/10</Badge></div><textarea id="multimodal-urls" className="mt-3" rows={6} required value={urls} onChange={(event) => { setUrls(event.target.value); requestId.current = null; }} placeholder="https://example.com/article&#10;https://example.com/report" /><div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p className="flex items-center gap-2 text-xs text-slate-500"><AlertTriangle className="h-3.5 w-3.5 text-amber-400" />공개 HTML만 수집하며 사설망·압축·2MB 초과 응답은 차단합니다.</p><Button type="submit" disabled={loading || !urlList.length || urlList.length > 10}>{loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Images className="h-4 w-4" />}{loading ? "미디어 분석 중…" : "일괄 감사"}</Button></div></form>{error && <p role="alert" className="mt-4 rounded-xl bg-rose-400/10 p-3 text-sm text-rose-300">{error}</p>}</Card>
     {audit && <section className="mt-5 space-y-5" aria-live="polite">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <Card><span className="text-xs text-slate-500">페이지</span><strong className="mt-2 block text-2xl text-white">{audit.summary.succeeded}/{audit.summary.requested}</strong></Card>
@@ -32,5 +119,6 @@ export function MultimodalClient() {
         {page.result.videos.length > 0 && <div className="mt-5"><h3 className="mb-3 text-sm font-semibold text-white">영상 접근성 신호</h3><div className="grid gap-3 lg:grid-cols-2">{page.result.videos.map((video) => <div key={`${video.index}-${video.src}`} className="rounded-xl border border-white/7 bg-slate-950/35 p-4"><div className="flex items-start gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-cyan-400/10"><Film className="h-4 w-4 text-cyan-300" /></span><div className="min-w-0 flex-1"><div className="flex justify-between gap-2"><p className="truncate text-sm font-semibold text-slate-200">{video.title || `영상 ${video.index}`}</p><Badge tone={video.score >= 88 ? "good" : video.score >= 60 ? "warn" : "bad"}>{video.score}</Badge></div><div className="mt-2 flex flex-wrap gap-2"><Badge tone="cyan">{video.kind === "native" ? "HTML 영상" : "외부 임베드"}</Badge>{video.captionLanguages.length > 0 && <Badge tone="good">자막 {video.captionLanguages.join(", ")}</Badge>}{video.hasChapters && <Badge>챕터</Badge>}{video.hasTranscript && <Badge>대본</Badge>}</div></div></div>{video.issues.length > 0 && <ul className="mt-3 space-y-1.5">{video.issues.map((issue) => <li key={issue.code} className={`text-xs ${issue.severity === "error" ? "text-rose-300" : issue.severity === "warning" ? "text-amber-300" : "text-cyan-300"}`}><span className="sr-only">{issue.severity === "error" ? "오류: " : issue.severity === "warning" ? "경고: " : "정보: "}</span>{issue.message}</li>)}</ul>}</div>)}</div></div>}
       </>}</Card>)}
     </section>}
+    <MultimodalHistoryPanel onSelect={selectStoredAudit} />
   </div>;
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { automationPolicySchema, estimateMeasurementCost, nextScheduleTime, scheduleInputSchema } from "@/lib/automation";
 
-const rates = { openai: 0.01, anthropic: 0.02, gemini: 0.005, hyperclova: 0.004 };
+const rates = { openai: 0.01, anthropic: 0.02, gemini: 0.005, grok: 0.004 };
 
 describe("automation calculations", () => {
   it("reserves a conservative upper bound including possible sentiment calls", () => {

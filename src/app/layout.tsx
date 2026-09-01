@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Agentation } from "agentation";
 import { AppShell } from "@/components/AppShell";
 import "./globals.css";
 
@@ -9,5 +10,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  return <html lang="ko"><body><AppShell>{children}</AppShell></body></html>;
+  return (
+    <html lang="ko">
+      <body>
+        <AppShell>{children}</AppShell>
+        {process.env.NODE_ENV === "development" && <Agentation />}
+      </body>
+    </html>
+  );
 }

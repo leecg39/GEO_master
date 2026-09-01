@@ -21,7 +21,8 @@ import {
 import { closeDatabase, getDatabase } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { generateText } from "@/lib/llm";
-import { updateSettings } from "@/lib/settings";
+import { ensureActiveProject, updateProject } from "@/lib/projects";
+import { getPublicSettings, updateSettings } from "@/lib/settings";
 
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "geo-automation-test-"));
 const databasePath = path.join(tempDir, "geo.db");
@@ -42,14 +43,17 @@ beforeAll(() => {
   process.env.GEO_DB_PATH = databasePath;
   process.env.GEO_MASTER_KEY = "automation-integration-master-key-32-chars";
   process.env.GEO_DISABLE_AUTOMATION_WORKER = "1";
+  const activeProject = ensureActiveProject();
+  updateProject(activeProject.id, {
+    name: "브랜드Z", brandName: "브랜드Z", category: "분석 도구", competitors: ["경쟁사A"],
+    expectedUpdatedAt: activeProject.updatedAt,
+  });
   updateSettings({
-    brandName: "브랜드Z",
-    category: "분석 도구",
-    competitors: ["경쟁사A"],
-    models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", hyperclova: "HCX-DASH-002" },
+    models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", grok: "grok-4.6" },
     repetitions: 1,
-    modelWeights: { openai: 1, anthropic: 0, gemini: 0, hyperclova: 0 },
+    modelWeights: { openai: 1, anthropic: 0, gemini: 0, grok: 0 },
     apiKeys: { openai: "sk-automation-secret" },
+    expectedUpdatedAt: getPublicSettings().updatedAt,
   });
 });
 
@@ -64,7 +68,7 @@ beforeEach(() => {
   updateAutomationPolicy({
     monthlyBudgetUsd: 100,
     maxRunCostUsd: 10,
-    providerCallCosts: { openai: 0.01, anthropic: 0.015, gemini: 0.005, hyperclova: 0.005 },
+    providerCallCosts: { openai: 0.01, anthropic: 0.015, gemini: 0.005, grok: 0.005 },
     alertThreshold: 0.8,
   });
   vi.mocked(generateText).mockReset();
@@ -94,7 +98,7 @@ describe("persistent measurement automation", () => {
     updateAutomationPolicy({
       monthlyBudgetUsd: 0.03,
       maxRunCostUsd: 1,
-      providerCallCosts: { openai: 0.01, anthropic: 0.015, gemini: 0.005, hyperclova: 0.005 },
+      providerCallCosts: { openai: 0.01, anthropic: 0.015, gemini: 0.005, grok: 0.005 },
       alertThreshold: 0.8,
     });
     const schedule = createSchedule(baseSchedule);
@@ -107,7 +111,7 @@ describe("persistent measurement automation", () => {
     updateAutomationPolicy({
       monthlyBudgetUsd: 100,
       maxRunCostUsd: 0.01,
-      providerCallCosts: { openai: 0.01, anthropic: 0.015, gemini: 0.005, hyperclova: 0.005 },
+      providerCallCosts: { openai: 0.01, anthropic: 0.015, gemini: 0.005, grok: 0.005 },
       alertThreshold: 0.8,
     });
     expect(runScheduleNow(schedule.id).errorCode).toBe("RUN_COST_LIMIT_EXCEEDED");

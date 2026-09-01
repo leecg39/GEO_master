@@ -6,6 +6,7 @@ export class AppError extends Error {
     message: string,
     public readonly status = 400,
     public readonly code = "BAD_REQUEST",
+    public readonly details?: unknown,
   ) {
     super(message);
     this.name = "AppError";
@@ -21,7 +22,7 @@ export function errorResponse(error: unknown) {
   }
   if (error instanceof AppError) {
     return NextResponse.json(
-      { error: error.message, code: error.code },
+      { error: error.message, code: error.code, ...(error.details === undefined ? {} : { details: error.details }) },
       { status: error.status },
     );
   }

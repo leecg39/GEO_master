@@ -15,7 +15,7 @@ describe("dashboard monthly trends", () => {
         summary: JSON.stringify({ total: 2, mentions: 2, perModel: { openai: { total: 2, mentions: 2, share: 100 } } }),
       },
     ]);
-    expect(trends).toEqual([{ month: "2026-09", overall: 18.2, openai: 18.2, anthropic: null, gemini: null, hyperclova: null }]);
+    expect(trends).toEqual([{ month: "2026-09", overall: 18.2, openai: 18.2, anthropic: null, gemini: null, grok: null }]);
   });
 
   it("keeps months separate and tolerates legacy malformed summaries", () => {

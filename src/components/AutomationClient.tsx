@@ -5,7 +5,7 @@ import { AlertTriangle, CalendarClock, CircleDollarSign, Clock3, LoaderCircle, P
 import { Badge, Button, Card, EmptyState, PageHeader, Progress } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 
-type Provider = "openai" | "anthropic" | "gemini" | "hyperclova";
+type Provider = "openai" | "anthropic" | "gemini" | "grok";
 type JobStatus = "queued" | "running" | "completed" | "failed" | "canceled" | "blocked";
 interface Policy { monthlyBudgetUsd: number; maxRunCostUsd: number; providerCallCosts: Record<Provider, number>; alertThreshold: number }
 interface Budget { period: string; usedUsd: number; reservedUsd: number; consumedUsd: number; remainingUsd: number; usagePercent: number; alert: boolean }
@@ -13,7 +13,7 @@ interface Schedule { id: number; name: string; questions: string[]; providers: P
 interface Job { id: number; scheduleId: number | null; runId: number | null; attemptOfId: number | null; status: JobStatus; providers: Provider[]; questionCount: number; repetitions: number; estimatedCostUsd: number; incurredCostUsd: number; budgetPeriod: string; errorCode: string | null; cancelRequested: boolean; availableAt: string; createdAt: string; startedAt: string | null; completedAt: string | null }
 interface AutomationState { policy: Policy; budget: Budget; schedules: Schedule[]; jobs: Job[] }
 
-const providerLabels: Record<Provider, string> = { openai: "GPT", anthropic: "Claude", gemini: "Gemini", hyperclova: "HyperCLOVA X" };
+const providerLabels: Record<Provider, string> = { openai: "GPT", anthropic: "Claude", gemini: "Gemini", grok: "Grok" };
 const providers = Object.keys(providerLabels) as Provider[];
 const statusLabels: Record<JobStatus, string> = { queued: "대기", running: "실행 중", completed: "완료", failed: "실패", canceled: "취소", blocked: "비용 차단" };
 const errorLabels: Record<string, string> = {
@@ -62,7 +62,7 @@ export function AutomationClient() {
   const [policy, setPolicy] = useState<Policy | null>(null);
   const [name, setName] = useState("월간 핵심 질문 측정");
   const [questions, setQuestions] = useState("");
-  const [selected, setSelected] = useState<Record<Provider, boolean>>({ openai: false, anthropic: false, gemini: false, hyperclova: false });
+  const [selected, setSelected] = useState<Record<Provider, boolean>>({ openai: false, anthropic: false, gemini: false, grok: false });
   const [repetitions, setRepetitions] = useState(1);
   const [intervalMinutes, setIntervalMinutes] = useState(43_200);
   const [nextRunAt, setNextRunAt] = useState("");
@@ -140,7 +140,7 @@ export function AutomationClient() {
 
   function resetScheduleForm() {
     setEditingId(null); setName("월간 핵심 질문 측정"); setQuestions("");
-    setSelected({ openai: false, anthropic: false, gemini: false, hyperclova: false });
+    setSelected({ openai: false, anthropic: false, gemini: false, grok: false });
     setRepetitions(1); setIntervalMinutes(43_200); setNextRunAt(localInputValue(new Date(Date.now() + 24 * 60 * 60_000))); setEnabled(false);
   }
 

@@ -1,13 +1,16 @@
 import * as cheerio from "cheerio";
 import { z } from "zod";
-import { getDatabase } from "./db";
-import { contents } from "./db/schema";
+import { contentRequestHash, findContentByRequest, storeGeneratedContent } from "./contents";
+import { idempotencyKeySchema } from "./crud";
 import { AppError } from "./errors";
 import { fetchPublicText } from "./url-security";
 
 export const multimodalRequestSchema = z.object({
   urls: z.array(z.string().trim().url().max(2048)).min(1).max(10).transform((urls) => [...new Set(urls)]),
-});
+  title: z.string().trim().max(120).optional().default(""),
+  notes: z.string().trim().max(5_000).optional().default(""),
+  clientRequestId: idempotencyKeySchema.optional(),
+}).strict();
 
 export interface ImageIssue { code: string; severity: "error" | "warning" | "info"; message: string }
 export interface ImageAuditResult {
@@ -141,6 +144,17 @@ export function auditImagesFromHtml(html: string, pageUrl: string) {
 
 export async function runMultimodalAudit(input: unknown) {
   const parsed = multimodalRequestSchema.parse(input);
+  const requestHash = contentRequestHash({ urls: parsed.urls, title: parsed.title, notes: parsed.notes });
+  if (parsed.clientRequestId) {
+    const existing = findContentByRequest(parsed.clientRequestId, requestHash);
+    if (existing) {
+      if (existing.tool !== "multimodal-audit" || !existing.output || typeof existing.output !== "object" || Array.isArray(existing.output)) {
+        throw new AppError("저장된 멀티모달 감사 결과를 읽을 수 없습니다.", 409, "INVALID_STORED_MULTIMODAL_AUDIT");
+      }
+      return { ...(existing.output as Record<string, unknown>), contentId: existing.id };
+    }
+  }
+
   const pages: ({ ok: true; url: string; finalUrl: string; result: ReturnType<typeof auditImagesFromHtml> } | { ok: false; url: string; error: string })[] = [];
   for (const url of parsed.urls) {
     try {
@@ -161,6 +175,16 @@ export async function runMultimodalAudit(input: unknown) {
     issues: successful.reduce((sum, page) => sum + page.result.summary.withIssues + page.result.videos.filter((video) => video.issues.length).length, 0),
   };
   const output = { generatedAt: new Date().toISOString(), summary, pages };
-  getDatabase().orm.insert(contents).values({ tool: "multimodal-audit", input: JSON.stringify(parsed), output: JSON.stringify(output), createdAt: output.generatedAt }).run();
-  return output;
+  const content = storeGeneratedContent({
+    tool: "multimodal-audit",
+    title: parsed.title || (parsed.urls.length === 1 ? parsed.urls[0] : `${parsed.urls.length}개 URL 멀티모달 감사`),
+    notes: parsed.notes,
+    clientRequestId: parsed.clientRequestId,
+    requestHash,
+    input: { urls: parsed.urls },
+    output,
+    metadata: { summary },
+    origin: "generated",
+  });
+  return { ...output, contentId: content.id };
 }

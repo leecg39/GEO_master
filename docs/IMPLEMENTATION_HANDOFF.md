@@ -8,7 +8,7 @@
 - 원격: `https://github.com/leecg39/GEO_master.git`
 - 작업 브랜치: `feat/geo-master-app`
 - PDF 확장 시작 기준 커밋: `b0a4e1c243a811e791b210456dfaa7caf18f3fa1` (`feat: add scheduled measurement automation`)
-- 이 문서는 핵심 앱, llms.txt, 전용 PDF 리포트, 멀티모달, HyperCLOVA X, 팀 공유와 예약 측정 자동화까지 포함한 전달 상태를 설명한다.
+- 이 문서는 핵심 앱, llms.txt, 전용 PDF 리포트, 멀티모달, Grok, 팀 공유와 예약 측정 자동화까지 포함한 전달 상태를 설명한다.
 
 ## 완료 범위
 
@@ -17,7 +17,7 @@
 1. OCR 294장은 영구 삭제하지 않고 `/Users/user01/.Trash/GEO_master_ocr_20260901-024648`로 이동
 2. Next.js App Router, 반응형 다크 UI, 12개 화면
 3. SQLite/Drizzle 14개 테이블, 콜드스타트 자동 생성, HMR 싱글턴, 비파괴 열 마이그레이션
-4. AES-256-GCM 설정과 OpenAI/Anthropic/Gemini/HyperCLOVA X 공통 클라이언트
+4. AES-256-GCM 설정과 OpenAI/Anthropic/Gemini/Grok 공통 클라이언트
 5. 32항목 GEO 진단과 SSRF/DNS rebinding 방어
 6. 즉시·예약 응답 점유율, 경쟁사·문맥·GenRank·퍼널 측정
 7. Recharts 대시보드와 4개 모델 원자료 가중 월간 집계
@@ -29,7 +29,7 @@
 - **llms.txt**: `/llms` 공식 제안형 생성·편집·검증·다운로드, 자격증명 URL 차단, escaped 라벨 라운드트립, 원격 MIME/배포 확인
 - **리포트**: `/reports`, `/api/reports`의 선택형 진단·점유율 미리보기, JSON/UTF-8 BOM CSV와 전용 서버 PDF 1.7 attachment, 수식·PDF 연산자 주입 방어, 보조 인쇄 CSS
 - **멀티모달 감사**: `/multimodal`에서 최대 10개 공개 URL의 src/srcset·alt·파일명·차트 수치/텍스트와 영상 title·자막·챕터·대본 신호 분석
-- **HyperCLOVA X**: 공식 `clovastudio.stream.ntruss.com/v3` 단일 Bearer 계약, HCX-DASH-002 기본 모델, 설정 암호화·점유율·스튜디오·대시보드 통합
+- **Grok**: xAI 공식 `https://api.x.ai/v1` OpenAI 호환 Responses API, `grok-4.6` 기본 모델, 설정 암호화·점유율·스튜디오·대시보드 통합
 - **팀 공유**: `/workspace` schema v1 JSON, 비밀 열 구조적 제외, 25MB 스트리밍 상한, merge ID/FK 재매핑, 확인형 replace, 키 보존과 원자적 롤백
 - **예약 측정**: `/automation`, `/api/automation`의 일정 CRUD, SQLite 영속 큐, 비용 한도·경고, 취소·재시도와 worker 상태 표시
 
@@ -77,7 +77,7 @@
 - dev/start `127.0.0.1` 고정, cross-site 변경 403, non-JSON 변경 415
 - 손상된 무관 제공자 키 지연 복호화, 측정 완료 원자 저장, 원자료 가중 월간 집계
 - 멀티모달 개수·MIME·임베드 경계, 리포트 CSV 수식 방어·완료 run 제한, 스냅샷 strict 검증·롤백
-- HyperCLOVA X 고정 공식 origin, 모델 경로 인코딩, timeout과 업스트림 본문 비노출
+- Grok xAI 고정 공식 Base URL, Responses API와 업스트림 오류 세부정보 비노출
 
 예약 자동화 독립 감사 수정:
 
@@ -113,7 +113,7 @@
 - ego-browser: `/automation` 전역 메뉴, 정책·큐 상태, 예약 수정 왕복과 live status, 종료 정산/상한 표시, aria progress/busy, 375px 무가로넘침·오류 alert 부재
 - 리포트 Chromium QA: audit/share PDF href가 선택 ID와 일치하고 desktop·375px에서 무가로넘침, 빈 이력과 삭제 후 404에서 JSON/CSV/PDF/인쇄 4개 disabled·download anchor 0개
 - PDF API/파일 QA: 실제 Korean fixture PDF의 `%PDF-1.7`, xref, `/UniKS-UTF16-H`, ASCII attachment, `no-store`, `nosniff`; macOS `file` 인식과 `sips` Quartz 595×842 PNG 렌더, 혼합 요약 2개 text command 확인
-- 기존 프로덕션 QA: example.com 진단, W3C+example.com 멀티모달, 스냅샷 attachment, HyperCLOVA mock·DB 마이그레이션, 스냅샷 merge/replace·키 보존
+- 기존 프로덕션 QA: example.com 진단, W3C+example.com 멀티모달, 스냅샷 attachment, Grok Responses mock·DB 마이그레이션, 스냅샷 merge/replace·키 보존
 
 ## 로컬 실행 데이터
 
@@ -121,7 +121,7 @@
 
 ## 다음 계획
 
-원 계획과 llms.txt, 전용 PDF 리포트, 멀티모달, HyperCLOVA X, 팀 공유, 예약 측정·영속 큐·비용 한도까지 완료했다. 필수 잔여 항목은 없다.
+원 계획과 llms.txt, 전용 PDF 리포트, 멀티모달, Grok, 팀 공유, 예약 측정·영속 큐·비용 한도까지 완료했다. 필수 잔여 항목은 없다.
 
 선택적 발전이 필요하다면 별도 범위로 사용자 인증·권한 기반 실시간 공동 편집과 원격 동기화를 설계한다.
 

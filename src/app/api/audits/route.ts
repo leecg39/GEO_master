@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { getAuditHistory, runAudit } from "@/lib/audit";
+import { createAudit, listAudits } from "@/lib/audit";
 import { errorResponse } from "@/lib/errors";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const requestSchema = z.object({
-  url: z.string().trim().min(1).max(2048),
-  manualOverrides: z.record(z.string(), z.boolean()).optional().default({}),
-});
-
-export async function GET() {
+export function GET(request: NextRequest) {
   try {
-    return NextResponse.json({ audits: getAuditHistory() });
+    const page = listAudits(Object.fromEntries(request.nextUrl.searchParams.entries()));
+    return NextResponse.json({ ...page, audits: page.items }, { headers: { "cache-control": "no-store" } });
   } catch (error) {
     return errorResponse(error);
   }
@@ -21,8 +16,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const input = requestSchema.parse(await request.json());
-    return NextResponse.json({ audit: await runAudit(input.url, input.manualOverrides) }, { status: 201 });
+    return NextResponse.json({ audit: await createAudit(await request.json()) }, { status: 201 });
   } catch (error) {
     return errorResponse(error);
   }

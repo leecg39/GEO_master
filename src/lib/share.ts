@@ -1,9 +1,13 @@
-import { desc, eq } from "drizzle-orm";
+import { createHash } from "node:crypto";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { idempotencyKeySchema } from "./crud";
 import { getDatabase } from "./db";
-import { measureResults, measureRuns, projects } from "./db/schema";
+import { measureResults, measureRuns } from "./db/schema";
 import { AppError } from "./errors";
 import { generateText } from "./llm";
+import { listMeasureRuns, publicStoredMeasureRun, storedMeasureRunById, storedMeasureRunByRequest, storedMeasureRunHash } from "./measure-runs";
+import { requireActiveProject } from "./projects";
 import { getServerSettings, providers, type Provider } from "./settings";
 
 export type Sentiment = "positive" | "neutral" | "negative";
@@ -13,7 +17,10 @@ export const shareRunSchema = z.object({
   questions: z.array(z.string().trim().min(5).max(500)).min(1).max(30),
   providers: z.array(z.enum(providers)).min(1).max(providers.length).transform((items) => [...new Set(items)]),
   repetitions: z.number().int().min(1).max(5).optional(),
-});
+  title: z.string().trim().max(120).optional().default(""),
+  notes: z.string().trim().max(5_000).optional().default(""),
+  clientRequestId: idempotencyKeySchema.optional(),
+}).strict();
 
 export const QUESTION_TEMPLATES = [
   "{카테고리}를 선택할 때 가장 중요한 기준은 무엇인가요?",
@@ -160,41 +167,75 @@ function assertNotCanceled(options: ShareMeasurementOptions) {
   }
 }
 
+function measurementRequestHash(input: z.infer<typeof shareRunSchema>) {
+  return createHash("sha256").update(JSON.stringify({
+    questions: input.questions,
+    providers: input.providers,
+    repetitions: input.repetitions,
+    title: input.title,
+    notes: input.notes,
+  })).digest("hex");
+}
+
+function runResponse(resource: ReturnType<typeof publicStoredMeasureRun>) {
+  return {
+    ...resource.summary,
+    id: resource.id,
+    projectId: resource.projectId,
+    title: resource.title,
+    notes: resource.notes,
+    status: resource.status,
+    answerShare: resource.answerShare,
+    genrank: resource.genrank,
+    funnelStage: resource.funnelStage,
+    createdAt: resource.createdAt,
+    updatedAt: resource.updatedAt,
+    completedAt: resource.completedAt,
+  };
+}
+
 export async function runShareMeasurement(input: unknown, options: ShareMeasurementOptions = {}) {
   const parsed = shareRunSchema.parse(input);
   assertNotCanceled(options);
+  const active = requireActiveProject();
+  const fingerprint = measurementRequestHash(parsed);
+  if (parsed.clientRequestId) {
+    const existing = storedMeasureRunByRequest(parsed.clientRequestId);
+    if (existing) {
+      if (existing.project_id !== active.id || storedMeasureRunHash(existing) !== fingerprint) {
+        throw new AppError("동일한 요청 ID가 다른 측정 입력에 이미 사용되었습니다.", 409, "IDEMPOTENCY_KEY_REUSED");
+      }
+      options.onRunCreated?.(existing.id);
+      return runResponse(publicStoredMeasureRun(existing));
+    }
+  }
+
   const settings = getServerSettings(parsed.providers);
   const brand = settings.brandName.trim();
-  if (!brand) throw new AppError("설정에서 브랜드 프로필을 먼저 저장해 주세요.", 409, "BRAND_REQUIRED");
+  if (!brand) throw new AppError("활성 프로젝트의 브랜드 프로필을 먼저 저장해 주세요.", 409, "BRAND_REQUIRED");
   validateBrandFreeQuestions(parsed.questions, [brand, ...settings.competitors]);
   for (const provider of parsed.providers) {
     if (!settings.decryptedApiKeys[provider]) {
-      const providerLabel = provider === "hyperclova" ? "HyperCLOVA X" : provider;
+      const providerLabel = provider === "grok" ? "Grok" : provider;
       throw new AppError(`${providerLabel} API 키를 설정한 뒤 측정을 실행해 주세요.`, 409, "API_KEY_REQUIRED");
     }
   }
 
   const { orm, sqlite } = getDatabase();
-  let project = orm.select().from(projects).limit(1).get();
   const now = new Date().toISOString();
-  if (!project) {
-    project = orm.insert(projects).values({
-      name: brand,
-      brandName: brand,
-      category: settings.category,
-      competitors: JSON.stringify(settings.competitors),
-      createdAt: now,
-      updatedAt: now,
-    }).returning().get();
-  }
   const repetitions = parsed.repetitions ?? settings.repetitions;
   const run = orm.insert(measureRuns).values({
-    projectId: project.id,
+    projectId: active.id,
+    title: parsed.title || `${parsed.questions.length}개 질문 응답 점유율`,
+    notes: parsed.notes,
+    clientRequestId: parsed.clientRequestId ?? null,
     status: "running",
     models: JSON.stringify(parsed.providers.map((provider) => ({ provider, model: settings.models[provider] }))),
     repetitions,
     totalQueries: parsed.questions.length * parsed.providers.length * repetitions,
+    summary: JSON.stringify({ _requestHash: fingerprint }),
     createdAt: now,
+    updatedAt: now,
   }).returning().get();
 
   const aggregateRows: AggregateInput[] = [];
@@ -254,28 +295,26 @@ export async function runShareMeasurement(input: unknown, options: ShareMeasurem
         answerShare: summary.answerShare,
         genrank: summary.genrank,
         funnelStage: summary.funnelStage,
-        summary: JSON.stringify(summary),
+        summary: JSON.stringify({ ...summary, _requestHash: fingerprint }),
         completedAt,
+        updatedAt: completedAt,
       }).where(eq(measureRuns.id, run.id)).run();
     })();
-    return { id: run.id, createdAt: now, completedAt, ...summary };
+    const stored = storedMeasureRunById(run.id);
+    if (!stored) throw new Error("Completed measurement run was not persisted");
+    return runResponse(publicStoredMeasureRun(stored));
   } catch (error) {
+    const completedAt = new Date().toISOString();
     orm.update(measureRuns).set({
       status: "failed",
-      summary: JSON.stringify({ error: error instanceof AppError ? error.code : "LLM_REQUEST_FAILED" }),
-      completedAt: new Date().toISOString(),
+      summary: JSON.stringify({ error: error instanceof AppError ? error.code : "LLM_REQUEST_FAILED", _requestHash: fingerprint }),
+      completedAt,
+      updatedAt: completedAt,
     }).where(eq(measureRuns.id, run.id)).run();
     throw error;
   }
 }
 
 export function getShareHistory(limit = 20) {
-  const parseStoredJson = <T,>(value: string, fallback: T) => {
-    try { return JSON.parse(value) as T; } catch { return fallback; }
-  };
-  return getDatabase().orm.select().from(measureRuns).orderBy(desc(measureRuns.createdAt)).limit(limit).all().map((row) => ({
-    ...row,
-    models: parseStoredJson<{ provider: Provider; model: string }[]>(row.models, []),
-    summary: parseStoredJson<Record<string, unknown>>(row.summary, {}),
-  }));
+  return listMeasureRuns({ limit }).items;
 }

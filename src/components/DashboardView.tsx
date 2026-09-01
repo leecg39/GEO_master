@@ -44,7 +44,7 @@ const modelMeta: Record<string, { label: string; short: string; color: string }>
   openai: { label: "ChatGPT", short: "GPT", color: "#21e6a5" },
   anthropic: { label: "Claude", short: "CLD", color: "#ff9d42" },
   gemini: { label: "Gemini", short: "GEM", color: "#9b8cff" },
-  hyperclova: { label: "HyperCLOVA X", short: "HCX", color: "#54d8ff" },
+  grok: { label: "Grok", short: "GRK", color: "#54d8ff" },
 };
 
 const stageDescriptions: Record<string, string> = {

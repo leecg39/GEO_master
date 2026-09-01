@@ -1,8 +1,20 @@
+import { createHash } from "node:crypto";
 import * as cheerio from "cheerio";
-import { desc, eq } from "drizzle-orm";
+import { z } from "zod";
+import {
+  assertDeleteAllowed,
+  assertExpectedUpdatedAt,
+  collectionQuerySchema,
+  cursorPage,
+  decodeCursor,
+  expectFound,
+  idempotencyKeySchema,
+  resourceIdSchema,
+  transactionalMutation,
+} from "./crud";
 import { getDatabase } from "./db";
-import { auditItems, audits } from "./db/schema";
 import { AppError } from "./errors";
+import { requireActiveProject } from "./projects";
 import { fetchPublicText } from "./url-security";
 
 export const AUDIT_CATEGORIES = ["기반 SEO", "GEO 콘텐츠 구조", "신뢰도·E-E-A-T", "기술적 GEO", "브랜드 노출"] as const;
@@ -16,6 +28,60 @@ export interface AuditItemResult {
   manual: boolean;
   detail: string;
   recommendation: string;
+}
+
+export const auditCreateSchema = z.object({
+  url: z.string().trim().url().max(2048),
+  title: z.string().trim().max(120).optional().default(""),
+  notes: z.string().trim().max(5_000).optional().default(""),
+  manualOverrides: z.record(z.string().min(1).max(120), z.boolean()).refine((value) => Object.keys(value).length <= 32, {
+    message: "수동 확인 항목은 32개를 초과할 수 없습니다.",
+  }).optional().default({}),
+  clientRequestId: idempotencyKeySchema.optional(),
+}).strict();
+
+export const auditUpdateSchema = z.object({
+  title: z.string().trim().max(120).optional(),
+  notes: z.string().trim().max(5_000).optional(),
+  expectedUpdatedAt: z.string().min(1).max(64),
+}).strict().refine((value) => value.title !== undefined || value.notes !== undefined, {
+  message: "수정할 진단 메타데이터를 하나 이상 입력해 주세요.",
+});
+
+export const auditDeleteSchema = z.object({
+  expectedUpdatedAt: z.string().min(1).max(64),
+  cascadeConfirmed: z.boolean().default(false),
+}).strict();
+
+interface AuditRow {
+  id: number;
+  project_id: number | null;
+  title: string;
+  notes: string;
+  client_request_id: string | null;
+  url: string;
+  score: number;
+  grade: string;
+  items: string;
+  metadata: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AuditResource {
+  id: number;
+  projectId: number;
+  title: string;
+  notes: string;
+  clientRequestId: string | null;
+  url: string;
+  score: number;
+  total: number;
+  grade: string;
+  items: AuditItemResult[];
+  metadata: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Snapshot {
@@ -214,8 +280,79 @@ async function optionalFile(url: string) {
   }
 }
 
-export async function runAudit(target: string, manualOverrides: Record<string, boolean> = {}) {
-  const page = await fetchPublicText(target);
+function parseJson<T>(value: string, fallback: T): T {
+  try { return JSON.parse(value) as T; } catch { return fallback; }
+}
+
+function findAuditRow(id: number) {
+  return getDatabase().sqlite.prepare("SELECT * FROM audits WHERE id = ?").get(id) as AuditRow | undefined;
+}
+
+function publicAudit(row: AuditRow): AuditResource {
+  const metadata = parseJson<Record<string, unknown>>(row.metadata, {});
+  delete metadata._requestHash;
+  const items = parseJson<AuditItemResult[]>(row.items, []);
+  return {
+    id: row.id,
+    projectId: row.project_id!,
+    title: row.title,
+    notes: row.notes,
+    clientRequestId: row.client_request_id,
+    url: row.url,
+    score: row.score,
+    total: items.length,
+    grade: row.grade,
+    items,
+    metadata,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function ownedAuditRow(id: number) {
+  const row = expectFound(findAuditRow(id), "진단 이력을 찾을 수 없습니다.", "AUDIT_NOT_FOUND");
+  const active = requireActiveProject();
+  if (row.project_id !== active.id) {
+    throw new AppError("활성 프로젝트의 진단 이력이 아닙니다.", 409, "PROJECT_SCOPE_MISMATCH");
+  }
+  return row;
+}
+
+function requestHash(input: z.infer<typeof auditCreateSchema>) {
+  const manualOverrides = Object.fromEntries(Object.entries(input.manualOverrides).sort(([left], [right]) => left.localeCompare(right)));
+  return createHash("sha256").update(JSON.stringify({
+    url: input.url,
+    title: input.title,
+    notes: input.notes,
+    manualOverrides,
+  })).digest("hex");
+}
+
+function idempotentAudit(clientRequestId: string, projectId: number, expectedHash: string) {
+  const row = getDatabase().sqlite.prepare("SELECT * FROM audits WHERE client_request_id = ?").get(clientRequestId) as AuditRow | undefined;
+  if (!row) return null;
+  const storedHash = parseJson<Record<string, unknown>>(row.metadata, {})._requestHash;
+  if (row.project_id !== projectId || storedHash !== expectedHash) {
+    throw new AppError("동일한 요청 ID가 다른 진단 입력에 이미 사용되었습니다.", 409, "IDEMPOTENCY_KEY_REUSED");
+  }
+  return publicAudit(row);
+}
+
+export async function createAudit(input: unknown) {
+  const parsed = auditCreateSchema.parse(input);
+  const active = requireActiveProject();
+  const allowedOverrides = new Set(AUDIT_RULES.filter((rule) => rule.manual).map((rule) => rule.code));
+  const unknownOverrides = Object.keys(parsed.manualOverrides).filter((code) => !allowedOverrides.has(code));
+  if (unknownOverrides.length) {
+    throw new AppError("알 수 없는 수동 진단 항목이 포함되어 있습니다.", 422, "UNKNOWN_AUDIT_OVERRIDE", { codes: unknownOverrides });
+  }
+  const fingerprint = requestHash(parsed);
+  if (parsed.clientRequestId) {
+    const existing = idempotentAudit(parsed.clientRequestId, active.id, fingerprint);
+    if (existing) return existing;
+  }
+
+  const page = await fetchPublicText(parsed.url);
   if (page.status < 200 || page.status >= 400 || !/html|xhtml/i.test(page.contentType)) {
     throw new AppError("대상 URL에서 HTML 문서를 찾지 못했습니다.", 422, "NOT_HTML");
   }
@@ -226,48 +363,117 @@ export async function runAudit(target: string, manualOverrides: Record<string, b
     optionalFile(new URL("/sitemap.xml", finalUrl).toString()),
   ]);
   const snapshot = parseAuditHtml(page.text, page.url);
-  const scored = scoreAudit(snapshot, { robots, llms, sitemap }, manualOverrides);
+  const scored = scoreAudit(snapshot, { robots, llms, sitemap }, parsed.manualOverrides);
   if (scored.total !== 32) throw new Error(`Audit rule invariant failed: ${scored.total}`);
   const now = new Date().toISOString();
+  const title = parsed.title || snapshot.title || finalUrl.hostname;
   const metadata = {
     finalUrl: page.url,
     title: snapshot.title,
     schemas: snapshot.jsonLdTypes,
     recommendations: scored.items.filter((item) => !item.passed).slice(0, 8).map((item) => item.recommendation),
+    _requestHash: fingerprint,
   };
-  const { orm, sqlite } = getDatabase();
-  let auditId = 0;
-  sqlite.transaction(() => {
-    const inserted = orm.insert(audits).values({
-      url: target,
-      score: scored.score,
-      grade: scored.grade,
-      items: JSON.stringify(scored.items),
-      metadata: JSON.stringify(metadata),
-      createdAt: now,
-    }).returning({ id: audits.id }).get();
-    auditId = inserted.id;
-    orm.insert(auditItems).values(scored.items.map((item) => ({
-      auditId,
-      code: item.code,
-      category: item.category,
-      passed: item.passed,
-      manual: item.manual,
-      detail: item.detail,
-    }))).run();
-  })();
-  return { id: auditId, url: target, createdAt: now, ...scored, metadata };
+  const { sqlite } = getDatabase();
+  return transactionalMutation(sqlite, () => {
+    if (parsed.clientRequestId) {
+      const existing = idempotentAudit(parsed.clientRequestId, active.id, fingerprint);
+      if (existing) return existing;
+    }
+    const inserted = sqlite.prepare(`
+      INSERT INTO audits (project_id, title, notes, client_request_id, url, score, grade, items, metadata, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      active.id,
+      title,
+      parsed.notes,
+      parsed.clientRequestId ?? null,
+      parsed.url,
+      scored.score,
+      scored.grade,
+      JSON.stringify(scored.items),
+      JSON.stringify(metadata),
+      now,
+      now,
+    );
+    const auditId = Number(inserted.lastInsertRowid);
+    const insertItem = sqlite.prepare(`
+      INSERT INTO audit_items (audit_id, code, category, passed, manual, detail) VALUES (?, ?, ?, ?, ?, ?)
+    `);
+    for (const item of scored.items) {
+      insertItem.run(auditId, item.code, item.category, item.passed ? 1 : 0, item.manual ? 1 : 0, item.detail);
+    }
+    return publicAudit(expectFound(findAuditRow(auditId), "진단 이력을 저장하지 못했습니다.", "AUDIT_CREATE_FAILED"));
+  });
+}
+
+/** Backward-compatible engine entry point used by existing callers. */
+export function runAudit(target: string, manualOverrides: Record<string, boolean> = {}) {
+  return createAudit({ url: target, manualOverrides });
+}
+
+export function listAudits(input: unknown) {
+  const query = collectionQuerySchema.parse(input);
+  const active = requireActiveProject();
+  const where = ["project_id = ?"];
+  const parameters: Array<string | number> = [active.id];
+  if (query.q) {
+    const escaped = query.q.replace(/[\\%_]/g, "\\$&");
+    const pattern = `%${escaped}%`;
+    where.push("(title LIKE ? ESCAPE '\\' OR notes LIKE ? ESCAPE '\\' OR url LIKE ? ESCAPE '\\')");
+    parameters.push(pattern, pattern, pattern);
+  }
+  if (query.cursor) {
+    const cursor = decodeCursor(query.cursor);
+    where.push("(created_at < ? OR (created_at = ? AND id < ?))");
+    parameters.push(cursor.timestamp, cursor.timestamp, cursor.id);
+  }
+  const rows = getDatabase().sqlite.prepare(`
+    SELECT * FROM audits WHERE ${where.join(" AND ")}
+    ORDER BY created_at DESC, id DESC LIMIT ?
+  `).all(...parameters, query.limit + 1) as AuditRow[];
+  return cursorPage(rows.map(publicAudit), query.limit, (audit) => ({ timestamp: audit.createdAt, id: audit.id }));
+}
+
+export function getAuditResource(idInput: unknown) {
+  const id = resourceIdSchema.parse(idInput);
+  return publicAudit(ownedAuditRow(id));
+}
+
+export function updateAudit(idInput: unknown, input: unknown) {
+  const id = resourceIdSchema.parse(idInput);
+  const parsed = auditUpdateSchema.parse(input);
+  const { sqlite } = getDatabase();
+  return transactionalMutation(sqlite, () => {
+    const row = ownedAuditRow(id);
+    assertExpectedUpdatedAt(row.updated_at, parsed.expectedUpdatedAt);
+    const previous = Date.parse(row.updated_at);
+    const updatedAt = new Date(Number.isFinite(previous) && previous >= Date.now() ? previous + 1 : Date.now()).toISOString();
+    sqlite.prepare("UPDATE audits SET title = ?, notes = ?, updated_at = ? WHERE id = ?")
+      .run(parsed.title ?? row.title, parsed.notes ?? row.notes, updatedAt, id);
+    return publicAudit(expectFound(findAuditRow(id), "진단 이력을 찾을 수 없습니다.", "AUDIT_NOT_FOUND"));
+  });
+}
+
+export function deleteAudit(idInput: unknown, input: unknown) {
+  const id = resourceIdSchema.parse(idInput);
+  const parsed = auditDeleteSchema.parse(input);
+  const { sqlite } = getDatabase();
+  return transactionalMutation(sqlite, () => {
+    const row = ownedAuditRow(id);
+    assertExpectedUpdatedAt(row.updated_at, parsed.expectedUpdatedAt);
+    const reportPresets = (sqlite.prepare("SELECT COUNT(*) AS count FROM report_presets WHERE audit_id = ?").get(id) as { count: number }).count;
+    assertDeleteAllowed({ reportPresets }, parsed.cascadeConfirmed, "AUDIT_HAS_DEPENDENCIES");
+    sqlite.prepare("DELETE FROM audits WHERE id = ?").run(id);
+  });
 }
 
 export function getAuditHistory(limit = 20) {
-  return getDatabase().orm.select().from(audits).orderBy(desc(audits.createdAt)).limit(limit).all().map((row) => ({
-    ...row,
-    items: JSON.parse(row.items) as AuditItemResult[],
-    metadata: JSON.parse(row.metadata) as Record<string, unknown>,
-  }));
+  return listAudits({ limit }).items;
 }
 
 export function getAudit(id: number) {
-  const row = getDatabase().orm.select().from(audits).where(eq(audits.id, id)).get();
-  return row ? { ...row, items: JSON.parse(row.items) as AuditItemResult[], metadata: JSON.parse(row.metadata) as Record<string, unknown> } : null;
+  const row = findAuditRow(id);
+  if (!row) return null;
+  return publicAudit(ownedAuditRow(id));
 }

@@ -90,7 +90,7 @@ flowchart LR
         settings[설정]
     end
     audit -->|사이트 크롤링| web[(대상 웹사이트)]
-    share -->|질의 반복| llm[(GPT / Claude / Gemini / HyperCLOVA X)]
+    share -->|질의 반복| llm[(GPT / Claude / Gemini / Grok)]
     studio -->|리라이팅·생성| llm
     dash --- share
     dash --- audit
@@ -130,7 +130,7 @@ flowchart LR
 - SEO→GEO 용어 대조표, 케이스 스터디(김캐디·모두싸인·노션·허브스팟 등), **부록 38항목 실행 체크리스트**(체크 상태 저장)
 
 ### 4-7. 설정 `/settings`
-- API 키 관리(OpenAI/Anthropic/Gemini/HyperCLOVA X), 브랜드 프로필, 모델·반복 횟수 기본값
+- API 키 관리(OpenAI/Anthropic/Gemini/Grok), 브랜드 프로필, 모델·반복 횟수 기본값
 
 ### 4-8. 예약 측정 자동화 `/automation`
 - 질문·provider·반복 수·다음 실행·주기를 저장하고 활성/정지·수정·삭제·즉시 실행 제공
@@ -164,7 +164,7 @@ flowchart LR
 
 - 책의 실측정 주의사항 반영: 시크릿 모드 대응은 API 호출로 대체되므로 해당 없음. 반복 횟수 기본 3회/질문, 모델 가중치(예: GPT 40%, Gemini 25%)는 설정 가능 옵션으로 제공
 - API 키는 로컬 SQLite에 저장하고 서버 라우트에서만 사용(클라이언트 노출 금지), `.gitignore`에 DB 파일 포함
-- 후속 확장 아이디어였던 llms.txt 생성기, 전용 서버 PDF 리포트, 멀티모달 감사, 네이버 HyperCLOVA X, 비밀 없는 팀 공유 스냅샷, 예약 측정·영속 큐·비용 한도도 구현 완료
+- 후속 확장 아이디어였던 llms.txt 생성기, 전용 서버 PDF 리포트, 멀티모달 감사, xAI Grok, 비밀 없는 팀 공유 스냅샷, 예약 측정·영속 큐·비용 한도도 구현 완료
 
 ---
 
@@ -176,7 +176,7 @@ flowchart LR
 - [x] Next.js App Router·Tailwind 다크 UI와 12개 반응형 라우트
 - [x] SQLite/better-sqlite3 + Drizzle 14개 테이블, 콜드스타트 부트스트랩과 비파괴 스키마 마이그레이션
 - [x] AES-256-GCM API 키 저장, 브랜드·4개 모델·가중치·반복 수 설정
-- [x] OpenAI·Anthropic·Gemini·NAVER HyperCLOVA X 공통 LLM 인터페이스
+- [x] OpenAI·Anthropic·Gemini·xAI Grok 공통 LLM 인터페이스
 - [x] SSRF/DNS rebinding 방어형 사이트 수집과 32항목 GEO 진단
 - [x] 반복 응답 점유율·문맥·경쟁사·GenRank·퍼널 측정 및 이력
 - [x] SQLite 영속 예약·원자 작업 큐·비용 한도와 호출 시도 정산
@@ -205,7 +205,7 @@ flowchart LR
 1. [x] llms.txt 생성·미리보기·다운로드와 재진단 워크플로 — `/llms`
 2. [x] 진단/응답 점유율 JSON·UTF-8 CSV와 전용 서버 PDF 1.7 리포트 — `/reports`
 3. [x] 이미지 alt·파일명·차트 텍스트·영상 자막/챕터/대본 멀티모달 일괄 감사 — `/multimodal`
-4. [x] 네이버 HyperCLOVA X 공식 v3 제공자 어댑터, 설정·측정·스튜디오·대시보드 통합
+4. [x] xAI Grok 공식 Responses API 제공자 어댑터, 설정·측정·스튜디오·대시보드 통합
 5. [x] 비밀 없는 schema v1 팀 공유 스냅샷, ID 재매핑 병합·확인형 교체·트랜잭션 롤백 — `/workspace`
 6. [x] 예약 측정·SQLite 영속 작업 큐·월/건별 비용 한도·취소/재시도 — `/automation`
 
