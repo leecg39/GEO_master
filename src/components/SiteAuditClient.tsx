@@ -1,7 +1,8 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { CheckCircle2, ChevronDown, LoaderCircle, Play, Plus } from "lucide-react";
+import { CheckCircle2, ChevronDown, LoaderCircle, Play, Plus, Trash2 } from "lucide-react";
+import { ConfirmDialog } from "@/components/CrudPrimitives";
 import { SemforgeGateBanner } from "@/components/SemforgeGateBanner";
 import { SiteAuditBriefing, type SiteAuditBriefingData } from "@/components/SiteAuditBriefing";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
@@ -66,6 +67,7 @@ export function SiteAuditClient() {
   const [briefing, setBriefing] = useState<SiteAuditBriefingData | null>(null);
   const [briefingLoading, setBriefingLoading] = useState(false);
   const [selectedMeta, setSelectedMeta] = useState<{ name: string; domain: string; lastRunAt: string | null } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Campaign | null>(null);
 
   async function load() {
     const data = await parse<{ campaigns: Campaign[]; firecrawl: FirecrawlState }>(await fetch("/api/site-audit"));
@@ -175,6 +177,27 @@ export function SiteAuditClient() {
     }
   }
 
+  async function remove(id: number) {
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      await parse(await fetch(`/api/site-audit?id=${id}`, { method: "DELETE" }));
+      if (selectedId === id) {
+        setSelectedId(null);
+        setBriefing(null);
+        setSelectedMeta(null);
+      }
+      setDeleteTarget(null);
+      await load();
+      setMessage("캠페인이 삭제되었습니다.");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "삭제 실패");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (loading) return <div className="grid min-h-96 place-items-center"><LoaderCircle className="h-7 w-7 animate-spin text-cyan-400" /></div>;
 
   const crawlReady = firecrawl?.configured ?? false;
@@ -243,14 +266,27 @@ export function SiteAuditClient() {
                           {isSelected ? " · 브리핑 펼침" : " · 클릭하여 분석 브리핑 보기"}
                         </p>
                       </button>
-                      <Button
-                        variant="secondary"
-                        disabled={busy || !crawlReady}
-                        onClick={(e) => { e.stopPropagation(); void run(campaign.id); }}
-                      >
-                        {isRunning ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-                        {isRunning ? "크롤 중" : "크롤 실행"}
-                      </Button>
+                      <div className="flex shrink-0 flex-wrap items-center gap-2">
+                        <Button
+                          variant="secondary"
+                          disabled={busy || !crawlReady}
+                          onClick={(e) => { e.stopPropagation(); void run(campaign.id); }}
+                        >
+                          {isRunning ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+                          {isRunning ? "크롤 중" : "크롤 실행"}
+                        </Button>
+                        {campaign.status === "completed" && (
+                          <Button
+                            variant="danger"
+                            disabled={busy}
+                            aria-label={`${campaign.name} 캠페인 삭제`}
+                            onClick={(e) => { e.stopPropagation(); setDeleteTarget(campaign); }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            삭제
+                          </Button>
+                        )}
+                      </div>
                     </li>
                   );
                 })}
@@ -275,6 +311,20 @@ export function SiteAuditClient() {
           <CheckCircle2 className="h-4 w-4" />{message}
         </p>
       )}
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="사이트 진단 캠페인을 삭제할까요?"
+        description={deleteTarget && (
+          <>
+            <strong className="text-white">{deleteTarget.name}</strong> ({deleteTarget.domain})의 크롤 결과·브리핑 데이터가 영구 삭제됩니다.
+          </>
+        )}
+        confirmLabel="캠페인 삭제"
+        destructive
+        busy={busy}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={async () => { if (deleteTarget) await remove(deleteTarget.id); }}
+      />
     </div>
   );
 }

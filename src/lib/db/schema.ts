@@ -143,7 +143,32 @@ export const gbpConnections = sqliteTable("gbp_connections", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   locationName: text("location_name").notNull().default(""),
+  address: text("address").notNull().default(""),
   status: text("status").notNull().default("disconnected"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const mapRankCampaigns = sqliteTable("map_rank_campaigns", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  gbpConnectionId: integer("gbp_connection_id").references(() => gbpConnections.id, { onDelete: "set null" }),
+  name: text("name").notNull(),
+  businessName: text("business_name").notNull(),
+  locationLabel: text("location_label").notNull(),
+  visibility: integer("visibility").notNull().default(0),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const mapRankKeywords = sqliteTable("map_rank_keywords", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  campaignId: integer("campaign_id").notNull().references(() => mapRankCampaigns.id, { onDelete: "cascade" }),
+  keyword: text("keyword").notNull(),
+  mapPosition: integer("map_position"),
+  previousMapPosition: integer("previous_map_position"),
+  inLocalPack: integer("in_local_pack", { mode: "boolean" }).notNull().default(false),
+  deletedAt: text("deleted_at"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });

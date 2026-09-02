@@ -27,10 +27,20 @@ export interface AiOverviewInfo {
   citations: AiOverviewCitation[];
 }
 
+export interface LocalPackItem {
+  position: number;
+  title: string;
+  link: string | null;
+  domain: string | null;
+  rating: number | null;
+  reviews: number | null;
+}
+
 export interface SerpResult {
   query: string;
   engine: SerpEngine;
   organic: SerpOrganicItem[];
+  localPack: LocalPackItem[];
   features: string[];
   aiOverview: AiOverviewInfo;
   capturedAt: Date;
@@ -56,7 +66,12 @@ function mockSerp(input: { q: string; engine?: SerpEngine }): SerpResult {
       { position: 1, title: `${input.q} — 공식`, link: `https://${ownDomain}/`, domain: ownDomain, displayLink: ownDomain, description: "데모 SERP" },
       { position: 2, title: "경쟁사 비교", link: `https://${demoDomain}/`, domain: demoDomain, displayLink: demoDomain, description: "데모" },
     ],
-    features: ["ai_overview", "people_also_ask"],
+    localPack: [
+      { position: 1, title: `${input.q} 강남점`, link: `https://${ownDomain}/`, domain: ownDomain, rating: 4.6, reviews: 128 },
+      { position: 2, title: `${input.q} 경쟁 매장`, link: `https://${demoDomain}/`, domain: demoDomain, rating: 4.2, reviews: 84 },
+      { position: 3, title: "인근 업체", link: null, domain: null, rating: 4.0, reviews: 41 },
+    ],
+    features: ["ai_overview", "people_also_ask", "local_pack"],
     aiOverview: {
       present: true,
       citationsAvailable: true,
@@ -111,9 +126,27 @@ const FEATURE_KEYS: Record<string, string> = {
   google_ai_overview: "ai_overview",
   ai_overview: "ai_overview",
   snack_pack: "local_pack",
+  local_results: "local_pack",
   knowledge: "knowledge_panel",
   people_also_ask: "people_also_ask",
 };
+
+function parseLocalPack(raw: unknown): LocalPackItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((item, index) => {
+    if (!isRecord(item)) return [];
+    const link = typeof item.link === "string" ? item.link
+      : typeof item.website === "string" ? item.website : null;
+    return [{
+      position: Number.isInteger(item.position) && (item.position as number) > 0 ? item.position as number : index + 1,
+      title: String(item.title ?? item.name ?? ""),
+      link,
+      domain: link ? normalizeDomain(link) : null,
+      rating: typeof item.rating === "number" ? item.rating : null,
+      reviews: typeof item.reviews === "number" ? item.reviews : null,
+    }];
+  });
+}
 
 export async function fetchSerp(input: {
   q: string;
@@ -179,10 +212,13 @@ export async function fetchSerp(input: {
     .map(([, name]) => name);
   const aiOverview = parseAiOverview(data.ai_overview ?? data.google_ai_overview);
   if (aiOverview.present && !features.includes("ai_overview")) features.push("ai_overview");
+  const localPack = parseLocalPack(data.snack_pack ?? data.local_results ?? data.local_pack);
+  if (localPack.length > 0 && !features.includes("local_pack")) features.push("local_pack");
   return {
     query: input.q,
     engine,
     organic,
+    localPack,
     features: [...new Set(features)],
     aiOverview,
     capturedAt: new Date(),

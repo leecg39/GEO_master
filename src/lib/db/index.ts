@@ -407,6 +407,41 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       addColumnIfMissing(sqlite, "settings", "firecrawl_api_key", "TEXT");
     },
   },
+  {
+    version: 9,
+    name: "local-business-map-rank",
+    up(sqlite) {
+      addColumnIfMissing(sqlite, "gbp_connections", "address", "TEXT NOT NULL DEFAULT ''");
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS map_rank_campaigns (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          gbp_connection_id INTEGER REFERENCES gbp_connections(id) ON DELETE SET NULL,
+          name TEXT NOT NULL,
+          business_name TEXT NOT NULL,
+          location_label TEXT NOT NULL,
+          visibility INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS map_rank_keywords (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          campaign_id INTEGER NOT NULL REFERENCES map_rank_campaigns(id) ON DELETE CASCADE,
+          keyword TEXT NOT NULL,
+          map_position INTEGER,
+          previous_map_position INTEGER,
+          in_local_pack INTEGER NOT NULL DEFAULT 0,
+          deleted_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_map_rank_campaigns ON map_rank_campaigns(project_id, updated_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_map_rank_keywords ON map_rank_keywords(campaign_id, deleted_at);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

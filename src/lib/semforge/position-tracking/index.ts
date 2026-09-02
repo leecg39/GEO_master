@@ -127,12 +127,6 @@ export function listGscConnections() {
   return sqlite.prepare("SELECT id, site_url AS siteUrl, status, updated_at AS updatedAt FROM gsc_connections WHERE project_id = ?").all(project.id);
 }
 
-export function listGbpConnections() {
-  const project = requireActiveProject();
-  const { sqlite } = getDatabase();
-  return sqlite.prepare("SELECT id, location_name AS locationName, status, updated_at AS updatedAt FROM gbp_connections WHERE project_id = ?").all(project.id);
-}
-
 export function connectGscPlaceholder(siteUrl: string) {
   requireSemforgeSubscription();
   const project = requireActiveProject();
@@ -144,13 +138,6 @@ export function connectGscPlaceholder(siteUrl: string) {
     INSERT INTO gsc_connections (project_id, site_url, status, created_at, updated_at) VALUES (?, ?, 'pending_oauth', ?, ?)
   `).run(project.id, siteUrl, now, now);
   return { oauthUrl: `/api/semforge/gsc/oauth?site=${encodeURIComponent(siteUrl)}`, status: "pending_oauth" };
-}
-
-export function getLocalBusinessOverview() {
-  requireActiveProject();
-  const locked = (() => { try { requireSemforgeSubscription(); return false; } catch { return true; } })();
-  const connections = listGbpConnections();
-  return { locked, connections, mapRankAvailable: talordataMode() === "live" };
 }
 
 export function listSites() {

@@ -1,12 +1,14 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { LoaderCircle, Play, Plus } from "lucide-react";
+import { PositionTrackingBriefing } from "@/components/PositionTrackingBriefing";
 import { SemforgeGateBanner } from "@/components/SemforgeGateBanner";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
+import { buildPositionTrackingBriefing } from "@/lib/semforge/position-tracking/briefing";
 
-interface Campaign { id: number; name: string; domain: string; visibility: number }
-interface Keyword { id: number; keyword: string; position: number | null; previousPosition: number | null }
+interface Campaign { id: number; name: string; domain: string; visibility: number; updatedAt?: string }
+interface Keyword { id: number; keyword: string; position: number | null; previousPosition: number | null; updatedAt?: string }
 
 async function parse<T>(response: Response): Promise<T> {
   const body = await response.json() as T & { error?: string };
@@ -16,7 +18,7 @@ async function parse<T>(response: Response): Promise<T> {
 
 export function PositionTrackingClient() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [selected, setSelected] = useState<number | null>(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
   const [locked, setLocked] = useState(false);
   const [name, setName] = useState("");
@@ -48,10 +50,10 @@ export function PositionTrackingClient() {
     return () => { active = false; };
   }, []);
 
-  async function loadKeywords(campaignId: number) {
-    const data = await parse<{ keywords: Keyword[] }>(await fetch(`/api/position-tracking?campaignId=${campaignId}`));
+  async function loadKeywords(campaign: Campaign) {
+    const data = await parse<{ keywords: Keyword[] }>(await fetch(`/api/position-tracking?campaignId=${campaign.id}`));
     setKeywords(data.keywords);
-    setSelected(campaignId);
+    setSelectedCampaign(campaign);
   }
 
   async function create(event: FormEvent) {
@@ -67,30 +69,37 @@ export function PositionTrackingClient() {
 
   async function addKeyword(event: FormEvent) {
     event.preventDefault();
-    if (!selected) return;
+    if (!selectedCampaign) return;
     setBusy(true); setError("");
     try {
-      await parse(await fetch("/api/position-tracking", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ campaignId: selected, keyword }) }));
+      await parse(await fetch("/api/position-tracking", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ campaignId: selectedCampaign.id, keyword }) }));
       setKeyword("");
-      await loadKeywords(selected);
+      await loadKeywords(selectedCampaign);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "키워드 추가 실패"); }
     finally { setBusy(false); }
   }
 
   async function collect() {
-    if (!selected) return;
+    if (!selectedCampaign) return;
     setBusy(true); setError("");
     try {
-      await parse(await fetch(`/api/position-tracking?campaignId=${selected}`, {
+      await parse(await fetch(`/api/position-tracking?campaignId=${selectedCampaign.id}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: "{}",
       }));
-      await loadKeywords(selected);
-      await loadCampaigns();
+      const refreshed = await parse<{ campaigns: Campaign[] }>(await fetch("/api/position-tracking"));
+      setCampaigns(refreshed.campaigns);
+      const updated = refreshed.campaigns.find((campaign) => campaign.id === selectedCampaign.id) ?? selectedCampaign;
+      await loadKeywords(updated);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "수집 실패"); }
     finally { setBusy(false); }
   }
+
+  const briefing = useMemo(
+    () => buildPositionTrackingBriefing(keywords, selectedCampaign?.visibility ?? 0),
+    [keywords, selectedCampaign?.visibility],
+  );
 
   if (loading) return <div className="grid min-h-96 place-items-center"><LoaderCircle className="h-7 w-7 animate-spin text-cyan-400" /></div>;
 
@@ -114,7 +123,7 @@ export function PositionTrackingClient() {
                 <ul className="space-y-2">
                   {campaigns.map((c) => (
                     <li key={c.id}>
-                      <button type="button" onClick={() => void loadKeywords(c.id)} className={`w-full rounded-xl border px-4 py-3 text-left ${selected === c.id ? "border-cyan-400/30 bg-cyan-400/10" : "border-white/7 bg-slate-950/35"}`}>
+                      <button type="button" onClick={() => void loadKeywords(c)} className={`w-full rounded-xl border px-4 py-3 text-left ${selectedCampaign?.id === c.id ? "border-cyan-400/30 bg-cyan-400/10" : "border-white/7 bg-slate-950/35"}`}>
                         <div className="flex items-center justify-between gap-2"><strong className="text-white">{c.name}</strong><Badge tone="cyan">가시성 {c.visibility}</Badge></div>
                         <p className="mt-1 text-xs text-slate-500">{c.domain}</p>
                       </button>
@@ -126,9 +135,9 @@ export function PositionTrackingClient() {
             <Card>
               <div className="mb-4 flex items-center justify-between gap-3">
                 <h2 className="font-semibold text-white">키워드</h2>
-                {selected && <Button variant="secondary" disabled={busy} onClick={() => void collect()}><Play className="h-4 w-4" />순위 수집</Button>}
+                {selectedCampaign && <Button variant="secondary" disabled={busy} onClick={() => void collect()}><Play className="h-4 w-4" />순위 수집</Button>}
               </div>
-              {selected ? (
+              {selectedCampaign ? (
                 <>
                   <form onSubmit={addKeyword} className="mb-4 flex gap-2">
                     <input className="flex-1" value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="키워드" />
@@ -143,6 +152,15 @@ export function PositionTrackingClient() {
               ) : <EmptyState>캠페인을 선택하세요.</EmptyState>}
             </Card>
           </div>
+
+          {selectedCampaign && (
+            <PositionTrackingBriefing
+              campaignName={selectedCampaign.name}
+              domain={selectedCampaign.domain}
+              updatedAt={selectedCampaign.updatedAt ?? null}
+              briefing={briefing}
+            />
+          )}
         </>
       )}
       {error && <p role="alert" className="mt-5 text-sm text-rose-300">{error}</p>}

@@ -38,7 +38,7 @@ export const semforgeFeatures: SemforgeFeature[] = [
   {
     href: "/local-business",
     label: "지역 SEO",
-    description: "Google Business Profile 연결과 Map Rank 키워드 추적을 준비합니다.",
+    description: "Google Business Profile 연결과 Local Pack Map Rank 키워드 추적.",
     icon: MapPin,
   },
 ];

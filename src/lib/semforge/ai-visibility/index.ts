@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { buildAiSeoQueryBriefing } from "@/lib/semforge/ai-visibility/briefing";
 import { getDatabase } from "@/lib/db";
 import { semforgeError } from "@/lib/semforge/errors";
 import { fetchSerp, talordataConfigured, talordataMode, talordataSource } from "@/lib/semforge/talordata/client";
@@ -185,6 +186,83 @@ export function getAiVisibilityOverviewPublic(domainInput: string): Omit<AiVisib
       queries: [],
     };
   }
+}
+
+export function getAiVisibilityQueryReport(queryIdInput: unknown) {
+  requireSemforgeSubscription();
+  const project = requireActiveProject();
+  const queryId = z.coerce.number().int().positive().parse(queryIdInput);
+  const { sqlite } = getDatabase();
+  const query = sqlite.prepare(`
+    SELECT id, domain, query, country_code AS countryCode, device, created_at AS createdAt
+    FROM ai_visibility_queries WHERE id = ? AND project_id = ? AND deleted_at IS NULL
+  `).get(queryId, project.id) as {
+    id: number;
+    domain: string;
+    query: string;
+    countryCode: string;
+    device: string;
+    createdAt: string;
+  } | undefined;
+  if (!query) throw semforgeError("NOT_FOUND", "추적 쿼리를 찾을 수 없습니다.");
+
+  const rows = sqlite.prepare(`
+    SELECT aio_present AS aioPresent, cited, cited_url AS citedUrl, cited_domains AS citedDomains,
+           organic_position AS organicPosition, features, source, captured_at AS capturedAt
+    FROM ai_visibility_snapshots WHERE query_id = ? ORDER BY captured_at DESC, id DESC LIMIT 12
+  `).all(queryId) as Array<{
+    aioPresent: number;
+    cited: number | null;
+    citedUrl: string | null;
+    citedDomains: string;
+    organicPosition: number | null;
+    features: string;
+    source: string;
+    capturedAt: string;
+  }>;
+
+  const briefing = buildAiSeoQueryBriefing({
+    query: query.query,
+    domain: query.domain,
+    countryCode: query.countryCode,
+    device: query.device,
+    snapshots: rows.map((row) => ({
+      aioPresent: Boolean(row.aioPresent),
+      cited: row.cited === null || row.cited === undefined ? null : Boolean(row.cited),
+      citedUrl: row.citedUrl,
+      citedDomains: (() => {
+        try {
+          const parsed = JSON.parse(row.citedDomains) as unknown;
+          return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+        } catch {
+          return [];
+        }
+      })(),
+      organicPosition: row.organicPosition,
+      features: (() => {
+        try {
+          const parsed = JSON.parse(row.features) as unknown;
+          return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+        } catch {
+          return [];
+        }
+      })(),
+      source: row.source,
+      capturedAt: row.capturedAt,
+    })),
+  });
+
+  return {
+    query: {
+      id: query.id,
+      domain: query.domain,
+      query: query.query,
+      countryCode: query.countryCode,
+      device: query.device,
+      createdAt: query.createdAt,
+    },
+    briefing,
+  };
 }
 
 export async function collectAiVisibility(input: { domain: string; forceRefresh?: boolean }) {

@@ -215,6 +215,22 @@ export async function runSiteAuditCampaign(idInput: unknown) {
   }
 }
 
+export function deleteSiteAuditCampaign(idInput: unknown) {
+  requireSemforgeSubscription();
+  const project = requireActiveProject();
+  const id = z.coerce.number().int().positive().parse(idInput);
+  const { sqlite } = getDatabase();
+  const campaign = sqlite.prepare(`
+    SELECT id, name, status FROM site_audit_campaigns WHERE id = ? AND project_id = ?
+  `).get(id, project.id) as { id: number; name: string; status: string } | undefined;
+  if (!campaign) throw semforgeError("NOT_FOUND", "사이트 진단 캠페인을 찾을 수 없습니다.");
+  if (campaign.status !== "completed") {
+    throw semforgeError("VALIDATION_ERROR", "크롤이 완료된 캠페인만 삭제할 수 있습니다.");
+  }
+  sqlite.prepare("DELETE FROM site_audit_campaigns WHERE id = ?").run(id);
+  return { id, deleted: true, name: campaign.name };
+}
+
 export function getSiteAuditOverview(campaignIdInput: unknown) {
   const project = requireActiveProject();
   const campaignId = z.coerce.number().int().positive().parse(campaignIdInput);

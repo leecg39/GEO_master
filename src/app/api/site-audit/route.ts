@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { errorResponse } from "@/lib/errors";
-import { createSiteAuditCampaign, getSiteAuditOverview, getSiteAuditWorkspace } from "@/lib/semforge/siteaudit";
+import { createSiteAuditCampaign, deleteSiteAuditCampaign, getSiteAuditOverview, getSiteAuditWorkspace } from "@/lib/semforge/siteaudit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,6 +29,15 @@ export async function PATCH(request: NextRequest) {
     const id = z.coerce.number().int().positive().parse(request.nextUrl.searchParams.get("id"));
     const { runSiteAuditCampaign } = await import("@/lib/semforge/siteaudit");
     return NextResponse.json({ result: await runSiteAuditCampaign(id) });
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const id = z.coerce.number().int().positive().parse(request.nextUrl.searchParams.get("id"));
+    return NextResponse.json(deleteSiteAuditCampaign(id));
   } catch (error) {
     return errorResponse(error);
   }
