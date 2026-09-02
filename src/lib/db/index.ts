@@ -393,6 +393,20 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 7,
+    name: "settings-talordata-api-token",
+    up(sqlite) {
+      addColumnIfMissing(sqlite, "settings", "talordata_api_token", "TEXT");
+    },
+  },
+  {
+    version: 8,
+    name: "settings-firecrawl-api-key",
+    up(sqlite) {
+      addColumnIfMissing(sqlite, "settings", "firecrawl_api_key", "TEXT");
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;
@@ -451,6 +465,8 @@ function bootstrap(sqlite: Database.Database) {
       gemini_api_key TEXT,
       grok_api_key TEXT,
       subscription_pin TEXT,
+      talordata_api_token TEXT,
+      firecrawl_api_key TEXT,
       models TEXT NOT NULL DEFAULT '{}',
       repetitions INTEGER NOT NULL DEFAULT 3,
       model_weights TEXT NOT NULL DEFAULT '{}',

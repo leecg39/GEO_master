@@ -159,6 +159,8 @@ export const settings = sqliteTable("settings", {
   geminiApiKey: text("gemini_api_key"),
   grokApiKey: text("grok_api_key"),
   subscriptionPin: text("subscription_pin"),
+  talordataApiToken: text("talordata_api_token"),
+  firecrawlApiKey: text("firecrawl_api_key"),
   models: text("models").notNull().default("{}"),
   repetitions: integer("repetitions").notNull().default(3),
   modelWeights: text("model_weights").notNull().default("{}"),

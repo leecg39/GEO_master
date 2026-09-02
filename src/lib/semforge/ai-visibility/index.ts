@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { getDatabase } from "@/lib/db";
 import { semforgeError } from "@/lib/semforge/errors";
-import { fetchSerp, talordataConfigured } from "@/lib/semforge/talordata/client";
+import { fetchSerp, talordataConfigured, talordataMode, talordataSource } from "@/lib/semforge/talordata/client";
 import { normalizeDomain } from "@/lib/semforge/utils/domain";
 import { requireSemforgeSubscription } from "@/lib/semforge-subscription";
 import { requireActiveProject } from "@/lib/projects";
@@ -119,9 +119,12 @@ export function getAiVisibilityOverview(domainInput: string): AiVisibilityOvervi
   const domain = normalizeDomain(domainInput);
   const subscription = requireSemforgeSubscription();
   void subscription;
-  const talordata = talordataConfigured()
-    ? providerLive("talordata", { configured: true })
-    : providerUnavailable("talordata", "TALORDATA_API_TOKEN 이 서버에 설정되지 않았습니다.");
+  const mode = talordataMode();
+  const talordata = mode === "live"
+    ? providerLive("talordata", { configured: true, mode: "live" })
+    : mode === "mock"
+      ? providerLive("mock-dev", { configured: true, mode: "mock", reason: "SEMFORGE_MOCK_TALORDATA=1 데모 SERP" })
+      : providerUnavailable("talordata", "TalorData API 토큰이 설정되지 않았습니다. 설정 화면에서 저장하거나 .env.local 에 TALORDATA_API_TOKEN 을 추가하세요. 로컬 데모는 SEMFORGE_MOCK_TALORDATA=1 을 사용할 수 있습니다.");
   const { sqlite } = getDatabase();
   const queries = sqlite.prepare(`
     SELECT * FROM ai_visibility_queries WHERE project_id = ? AND domain = ? AND deleted_at IS NULL ORDER BY created_at DESC
@@ -187,7 +190,7 @@ export function getAiVisibilityOverviewPublic(domainInput: string): Omit<AiVisib
 export async function collectAiVisibility(input: { domain: string; forceRefresh?: boolean }) {
   requireSemforgeSubscription();
   if (!talordataConfigured()) {
-    throw semforgeError("INTERNAL", "TALORDATA_API_TOKEN 이 설정되지 않았습니다.");
+    throw semforgeError("INTERNAL", "TalorData가 연결되지 않았습니다. 설정 화면에서 TalorData API 토큰을 저장하거나 .env.local 에 TALORDATA_API_TOKEN 을 추가하세요. 로컬 데모는 SEMFORGE_MOCK_TALORDATA=1 을 사용할 수 있습니다.");
   }
   const domain = normalizeDomain(input.domain);
   const queries = listAiVisibilityQueries(domain).slice(0, MAX_QUERIES_PER_RUN);
@@ -214,7 +217,7 @@ export async function collectAiVisibility(input: { domain: string; forceRefresh?
       sqlite.prepare(`
         INSERT INTO ai_visibility_snapshots
           (query_id, aio_present, cited, cited_url, cited_domains, organic_position, features, source, captured_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'talordata', ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         tracked.id,
         aioPresent ? 1 : 0,
@@ -223,6 +226,7 @@ export async function collectAiVisibility(input: { domain: string; forceRefresh?
         JSON.stringify(citedDomains),
         organicHit?.position ?? null,
         JSON.stringify(serp.features),
+        talordataSource(),
         capturedAt,
       );
       outcomes.push({ queryId: tracked.id, query: tracked.query, aioPresent, cited, error: undefined });

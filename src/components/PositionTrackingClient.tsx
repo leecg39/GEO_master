@@ -81,7 +81,11 @@ export function PositionTrackingClient() {
     if (!selected) return;
     setBusy(true); setError("");
     try {
-      await parse(await fetch(`/api/position-tracking?campaignId=${selected}`, { method: "PATCH" }));
+      await parse(await fetch(`/api/position-tracking?campaignId=${selected}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: "{}",
+      }));
       await loadKeywords(selected);
       await loadCampaigns();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "수집 실패"); }

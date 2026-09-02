@@ -9,6 +9,7 @@ interface Overview {
   locked: boolean;
   message?: string;
   domain: string;
+  talordata?: { status: string; source: string; reason?: string };
   stats: { queryCount: number; collectedCount: number; aioCount: number; citedCount: number; lastCollectedAt: string | null };
   queries: Array<{ id: number; query: string; aioPresent: boolean | null; cited: boolean | null; organicPosition: number | null }>;
 }
@@ -80,12 +81,27 @@ export function AiSeoClient() {
     finally { setBusy(false); }
   }
 
+  const talordataReady = overview?.talordata?.status === "live" || overview?.talordata?.source === "mock-dev";
+
   if (loading) return <div className="grid min-h-96 place-items-center"><LoaderCircle className="h-7 w-7 animate-spin text-cyan-400" /></div>;
 
   return (
     <div>
-      <PageHeader eyebrow="SEMForge" title="AI SEO (SERP)" description="Google AI Overview 출현·자사 도메인 인용을 TalorData 실측 SERP로 추적합니다. GEO LLM Answer Share와 상보적인 SERP 신호입니다." action={overview && !overview.locked && <Button disabled={busy} onClick={() => void collect()}><Play className="h-4 w-4" />실측 수집</Button>} />
+      <PageHeader eyebrow="SEMForge" title="AI SEO (SERP)" description="Google AI Overview 출현·자사 도메인 인용을 TalorData 실측 SERP로 추적합니다. GEO LLM Answer Share와 상보적인 SERP 신호입니다." action={overview && !overview.locked && <Button disabled={busy || !talordataReady} onClick={() => void collect()}><Play className="h-4 w-4" />실측 수집</Button>} />
       {overview?.locked && <SemforgeGateBanner message={overview.message} />}
+      {overview && !overview.locked && overview.talordata?.status === "unavailable" && (
+        <Card className="mb-5 border-amber-400/20 bg-amber-400/5">
+          <p className="text-sm font-semibold text-amber-200">TalorData 연결 필요</p>
+          <p className="mt-2 text-sm leading-6 text-slate-400">{overview.talordata.reason ?? "TALORDATA_API_TOKEN 이 서버에 설정되지 않았습니다."}</p>
+          <p className="mt-2 text-xs text-slate-500"><a href="/settings" className="text-cyan-300 hover:underline">설정</a>에서 TalorData API 토큰을 저장하거나, `.env.local`에 <code className="text-slate-300">TALORDATA_API_TOKEN=...</code> 추가 후 서버를 재시작하세요. 로컬 데모용 <code className="text-slate-300">SEMFORGE_MOCK_TALORDATA=1</code> 도 사용할 수 있습니다.</p>
+        </Card>
+      )}
+      {overview && !overview.locked && overview.talordata?.source === "mock-dev" && (
+        <Card className="mb-5 border-cyan-400/20 bg-cyan-400/5">
+          <p className="text-sm font-semibold text-cyan-200">데모 SERP 모드</p>
+          <p className="mt-1 text-sm text-slate-400">실제 TalorData 대신 mock-dev 소스로 수집합니다. 운영 전 토큰을 연결하세요.</p>
+        </Card>
+      )}
       {overview && !overview.locked && (
         <>
           <div className="mb-5 grid gap-4 sm:grid-cols-4">

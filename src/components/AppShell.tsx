@@ -3,19 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarChart3, BookOpen, Bot, CalendarClock, CreditCard, FileCode2, FileDown, FilePenLine, Gauge, Globe2, Images, MapPin, Menu, PackageOpen, SearchCheck, Settings, Target, TrendingUp, X } from "lucide-react";
-import { useState } from "react";
+import { BarChart3, BookOpen, Bot, CalendarClock, CreditCard, FileCode2, FileDown, FilePenLine, Gauge, Images, LoaderCircle, Menu, PackageOpen, SearchCheck, Settings, Sparkles, Target, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
+import { isSemforgePath, SEMFORGE_HUB_PATH } from "@/lib/semforge/navigation";
 import { cn } from "@/lib/utils";
 
-const navigation = [
+const coreNavigation = [
   { href: "/", label: "대시보드", icon: Gauge },
   { href: "/audit", label: "GEO 진단", icon: SearchCheck },
-  { href: "/ai-seo", label: "AI SEO (SERP)", icon: Globe2 },
-  { href: "/site-audit", label: "사이트 진단", icon: SearchCheck },
-  { href: "/position-tracking", label: "포지션 추적", icon: TrendingUp },
-  { href: "/analytics/overview", label: "도메인 개요", icon: BarChart3 },
-  { href: "/local-business", label: "지역 SEO", icon: MapPin },
   { href: "/multimodal", label: "멀티모달 감사", icon: Images },
   { href: "/llms", label: "llms.txt", icon: FileCode2 },
   { href: "/share", label: "응답 점유율", icon: BarChart3 },
@@ -25,26 +21,88 @@ const navigation = [
   { href: "/strategy", label: "전략 워크스페이스", icon: Target },
   { href: "/learn", label: "학습 센터", icon: BookOpen },
   { href: "/workspace", label: "팀 공유", icon: PackageOpen },
-  { href: "/subscription", label: "SEMForge Pro", icon: CreditCard },
-  { href: "/settings", label: "설정", icon: Settings },
 ];
 
-function Navigation({ close }: { close?: () => void }) {
+const semforgeNavigation = { href: SEMFORGE_HUB_PATH, label: "SEMForge", icon: Sparkles };
+const subscriptionNavigation = { href: "/subscription", label: "SEMForge Pro", icon: CreditCard };
+
+function NavLink({
+  href,
+  label,
+  icon: Icon,
+  active,
+  close,
+}: {
+  href: string;
+  label: string;
+  icon: typeof Gauge;
+  active: boolean;
+  close?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={close}
+      className={cn(
+        "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+        active ? "bg-cyan-400/12 text-cyan-300" : "text-slate-400 hover:bg-white/5 hover:text-slate-100",
+      )}
+    >
+      <Icon className={cn("h-4.5 w-4.5", active ? "text-cyan-300" : "text-slate-500 group-hover:text-slate-300")} />
+      {label}
+    </Link>
+  );
+}
+
+function Navigation({ close, semforgeActive }: { close?: () => void; semforgeActive: boolean | null }) {
   const pathname = usePathname();
+  const semforgeCurrent = isSemforgePath(pathname);
+
   return (
     <nav className="mt-8 space-y-1.5" aria-label="주요 메뉴">
-      {navigation.map(({ href, label, icon: Icon }) => {
+      {coreNavigation.map(({ href, label, icon }) => {
         const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
-        return (
-          <Link key={href} href={href} onClick={close} className={cn(
-            "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-            active ? "bg-cyan-400/12 text-cyan-300" : "text-slate-400 hover:bg-white/5 hover:text-slate-100",
-          )}>
-            <Icon className={cn("h-4.5 w-4.5", active ? "text-cyan-300" : "text-slate-500 group-hover:text-slate-300")} />
-            {label}
-          </Link>
-        );
+        return <NavLink key={href} href={href} label={label} icon={icon} active={active} close={close} />;
       })}
+
+      {semforgeActive === null ? (
+        <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-500">
+          <LoaderCircle className="h-4.5 w-4.5 animate-spin" />
+          SEMForge 확인 중
+        </div>
+      ) : semforgeActive ? (
+        <div className="pt-4">
+          <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400">SEMForge Pro</p>
+          <NavLink
+            href={semforgeNavigation.href}
+            label={semforgeNavigation.label}
+            icon={semforgeNavigation.icon}
+            active={semforgeCurrent}
+            close={close}
+          />
+        </div>
+      ) : (
+        <div className="pt-4">
+          <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400">Pro 업그레이드</p>
+          <NavLink
+            href={subscriptionNavigation.href}
+            label={subscriptionNavigation.label}
+            icon={subscriptionNavigation.icon}
+            active={pathname.startsWith(subscriptionNavigation.href)}
+            close={close}
+          />
+        </div>
+      )}
+
+      <div className="pt-2">
+        <NavLink
+          href="/settings"
+          label="설정"
+          icon={Settings}
+          active={pathname.startsWith("/settings")}
+          close={close}
+        />
+      </div>
     </nav>
   );
 }
@@ -60,12 +118,27 @@ function Brand() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [semforgeActive, setSemforgeActive] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const response = await fetch("/api/semforge/subscription");
+        if (!response.ok) return;
+        const data = await response.json() as { subscription?: { active?: boolean } };
+        setSemforgeActive(Boolean(data.subscription?.active));
+      } catch {
+        setSemforgeActive(false);
+      }
+    })();
+  }, []);
+
   return (
     <div className="min-h-screen">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-white/7 bg-slate-950/85 p-6 backdrop-blur-xl lg:block">
         <Brand />
         <ProjectSwitcher />
-        <Navigation />
+        <Navigation semforgeActive={semforgeActive} />
         <div className="absolute inset-x-6 bottom-6 rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-3.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-300"><span className="h-2 w-2 rounded-full bg-emerald-400" />로컬 퍼스트</div>
           <p className="mt-1.5 text-xs leading-5 text-slate-400">데이터와 API 키는 이 기기의 SQLite에만 저장됩니다.</p>
@@ -79,7 +152,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <aside className="h-full w-72 border-r border-white/10 bg-slate-950 p-5" onClick={(event) => event.stopPropagation()}>
           <div className="flex items-center justify-between"><Brand /><button type="button" onClick={() => setOpen(false)} aria-label="메뉴 닫기" className="p-2 text-slate-400"><X /></button></div>
           <ProjectSwitcher />
-          <Navigation close={() => setOpen(false)} />
+          <Navigation close={() => setOpen(false)} semforgeActive={semforgeActive} />
         </aside>
       </div>}
       <main className="lg:pl-72"><div className="w-full max-w-[2400px] px-4 py-6 sm:px-8 lg:px-10 xl:px-12 2xl:px-16 lg:py-8 xl:py-10">{children}</div></main>

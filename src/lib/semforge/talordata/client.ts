@@ -1,4 +1,5 @@
 import { AppError } from "@/lib/errors";
+import { getTalordataApiToken } from "@/lib/settings";
 import { normalizeDomain } from "@/lib/semforge/utils/domain";
 
 const ENDPOINT = "https://serpapi.talordata.net/serp/v1/request";
@@ -36,7 +37,43 @@ export interface SerpResult {
 }
 
 function getToken(): string | null {
-  return process.env.TALORDATA_API_TOKEN?.trim() || null;
+  return getTalordataApiToken();
+}
+
+function mockTalordataEnabled(): boolean {
+  return process.env.SEMFORGE_MOCK_TALORDATA?.trim() === "1";
+}
+
+function mockSerp(input: { q: string; engine?: SerpEngine }): SerpResult {
+  const engine = input.engine ?? "google";
+  const seed = input.q.length % 3;
+  const demoDomain = seed === 0 ? "example.com" : seed === 1 ? "competitor.co.kr" : "wikipedia.org";
+  const ownDomain = "annatar.co.kr";
+  return {
+    query: input.q,
+    engine,
+    organic: [
+      { position: 1, title: `${input.q} — 공식`, link: `https://${ownDomain}/`, domain: ownDomain, displayLink: ownDomain, description: "데모 SERP" },
+      { position: 2, title: "경쟁사 비교", link: `https://${demoDomain}/`, domain: demoDomain, displayLink: demoDomain, description: "데모" },
+    ],
+    features: ["ai_overview", "people_also_ask"],
+    aiOverview: {
+      present: true,
+      citationsAvailable: true,
+      citations: [{ url: `https://${ownDomain}/guide`, domain: ownDomain, title: "가이드" }],
+    },
+    capturedAt: new Date(),
+  };
+}
+
+export function talordataMode(): "live" | "mock" | "unavailable" {
+  if (getToken()) return "live";
+  if (mockTalordataEnabled()) return "mock";
+  return "unavailable";
+}
+
+export function talordataConfigured(): boolean {
+  return talordataMode() !== "unavailable";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -86,9 +123,11 @@ export async function fetchSerp(input: {
   hl?: string;
   device?: "desktop" | "mobile";
 }): Promise<SerpResult> {
+  const mode = talordataMode();
+  if (mode === "mock") return mockSerp(input);
   const token = getToken();
   if (!token) {
-    throw new AppError("TALORDATA_API_TOKEN 이 설정되지 않았습니다.", 503, "TALORDATA_UNAVAILABLE");
+    throw new AppError("TalorData API 토큰이 설정되지 않았습니다. 설정 화면에서 저장하거나 .env.local 에 TALORDATA_API_TOKEN 을 추가하세요. 로컬 데모는 SEMFORGE_MOCK_TALORDATA=1 을 사용할 수 있습니다.", 503, "TALORDATA_UNAVAILABLE");
   }
   const engine = input.engine ?? "google";
   const body = new URLSearchParams({
@@ -150,6 +189,6 @@ export async function fetchSerp(input: {
   };
 }
 
-export function talordataConfigured(): boolean {
-  return Boolean(getToken());
+export function talordataSource(): string {
+  return talordataMode() === "mock" ? "mock-dev" : "talordata";
 }

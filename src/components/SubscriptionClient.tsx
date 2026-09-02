@@ -75,7 +75,7 @@ export function SubscriptionClient() {
       }));
       setSubscription(data.subscription);
       setCheckout(null);
-      setMessage("SEMForge Pro 구독이 활성화되었습니다. AI SEO·사이트 진단·포지션 추적을 사용할 수 있습니다.");
+      setMessage("SEMForge Pro 구독이 활성화되었습니다. SEMForge 워크스페이스로 이동하세요.");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "결제 확인 실패"); }
     finally { setBusy(false); }
   }
@@ -119,7 +119,7 @@ export function SubscriptionClient() {
             <div><h2 className="font-semibold text-white">결제</h2><p className="text-xs text-slate-500">운영: Toss Payments · 개발: 확인 토큰</p></div>
           </div>
           {subscription?.active ? (
-            <p className="text-sm text-emerald-300">구독이 활성화되어 있습니다. <Link href="/ai-seo" className="underline">AI SEO</Link> 또는 <Link href="/site-audit" className="underline">사이트 진단</Link>으로 이동하세요.</p>
+            <p className="text-sm text-emerald-300">구독이 활성화되어 있습니다. <Link href="/semforge" className="underline">SEMForge 워크스페이스</Link>에서 AI SEO·사이트 진단·포지션 추적을 시작하세요.</p>
           ) : (
             <>
               <Button disabled={busy} onClick={() => void startCheckout()} className="w-full sm:w-auto">{busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}월 구독 결제 시작</Button>

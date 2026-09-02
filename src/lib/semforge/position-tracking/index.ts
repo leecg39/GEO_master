@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { getDatabase } from "@/lib/db";
 import { semforgeError } from "@/lib/semforge/errors";
-import { fetchSerp, talordataConfigured } from "@/lib/semforge/talordata/client";
+import { fetchSerp, talordataConfigured, talordataMode } from "@/lib/semforge/talordata/client";
 import { normalizeDomain } from "@/lib/semforge/utils/domain";
 import { requireSemforgeSubscription } from "@/lib/semforge-subscription";
 import { requireActiveProject } from "@/lib/projects";
@@ -69,7 +69,7 @@ export function listTrackedKeywords(campaignIdInput: unknown) {
 
 export async function collectCampaignRankings(campaignIdInput: unknown) {
   requireSemforgeSubscription();
-  if (!talordataConfigured()) throw semforgeError("INTERNAL", "TALORDATA_API_TOKEN 이 설정되지 않았습니다.");
+  if (!talordataConfigured()) throw semforgeError("INTERNAL", "TalorData API 토큰이 설정되지 않았습니다. 설정 화면에서 저장하거나 .env.local 에 TALORDATA_API_TOKEN 을 추가하세요.");
   const project = requireActiveProject();
   const campaignId = z.coerce.number().int().positive().parse(campaignIdInput);
   const { sqlite } = getDatabase();
@@ -150,7 +150,7 @@ export function getLocalBusinessOverview() {
   requireActiveProject();
   const locked = (() => { try { requireSemforgeSubscription(); return false; } catch { return true; } })();
   const connections = listGbpConnections();
-  return { locked, connections, mapRankAvailable: Boolean(process.env.TALORDATA_API_TOKEN?.trim()) };
+  return { locked, connections, mapRankAvailable: talordataMode() === "live" };
 }
 
 export function listSites() {

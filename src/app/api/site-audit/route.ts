@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { errorResponse } from "@/lib/errors";
-import { createSiteAuditCampaign, getSiteAuditOverview, listSiteAuditCampaigns } from "@/lib/semforge/siteaudit";
+import { createSiteAuditCampaign, getSiteAuditOverview, getSiteAuditWorkspace } from "@/lib/semforge/siteaudit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +10,7 @@ export function GET(request: NextRequest) {
   try {
     const id = request.nextUrl.searchParams.get("id");
     if (id) return NextResponse.json({ overview: getSiteAuditOverview(id) });
-    return NextResponse.json({ campaigns: listSiteAuditCampaigns() });
+    return NextResponse.json(getSiteAuditWorkspace());
   } catch (error) {
     return errorResponse(error);
   }

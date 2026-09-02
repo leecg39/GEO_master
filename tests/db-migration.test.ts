@@ -55,7 +55,7 @@ describe("settings and CRUD schema migration", () => {
   it("applies v1-v4, scopes legacy data, backfills revisions, and preserves existing rows", () => {
     const sqlite = getDatabase().sqlite;
     const settingsColumns = (sqlite.pragma("table_info(settings)") as { name: string }[]).map((column) => column.name);
-    expect(settingsColumns).toEqual(expect.arrayContaining(["grok_api_key", "subscription_pin", "active_project_id"]));
+    expect(settingsColumns).toEqual(expect.arrayContaining(["grok_api_key", "subscription_pin", "active_project_id", "talordata_api_token", "firecrawl_api_key"]));
     expect((sqlite.prepare("SELECT brand_name FROM settings WHERE id=1").get() as { brand_name: string }).brand_name).toBe("기존 브랜드");
 
     const project = sqlite.prepare("SELECT id, brand_name FROM projects LIMIT 1").get() as { id: number; brand_name: string };
@@ -73,7 +73,7 @@ describe("settings and CRUD schema migration", () => {
 
     const migrationVersions = (sqlite.prepare("SELECT version FROM schema_migrations ORDER BY version").all() as { version: number }[])
       .map((row) => row.version);
-    expect(migrationVersions).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(migrationVersions).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
     const tables = (sqlite.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as { name: string }[]).map((row) => row.name);
     expect(tables).toEqual(expect.arrayContaining([
       "content_revisions", "llms_documents", "report_presets", "workspace_backups",
