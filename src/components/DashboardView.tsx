@@ -47,10 +47,10 @@ import type { DashboardData } from "@/lib/dashboard";
 import { formatDate } from "@/lib/utils";
 
 const modelMeta: Record<string, { label: string; short: string; color: string }> = {
-  openai: { label: "ChatGPT", short: "GPT", color: "#27e3a2" },
-  anthropic: { label: "Claude", short: "CLD", color: "#ff9d52" },
-  gemini: { label: "Gemini", short: "GEM", color: "#a78bfa" },
-  grok: { label: "Grok", short: "GRK", color: "#4dc8ff" },
+  openai: { label: "ChatGPT", short: "GPT", color: "#c2ef4e" },
+  anthropic: { label: "Claude", short: "CLD", color: "#fa7faa" },
+  gemini: { label: "Gemini", short: "GEM", color: "#6a5fc1" },
+  grok: { label: "Grok", short: "GRK", color: "#79628c" },
 };
 
 const stageDescriptions: Record<string, string> = {
@@ -61,13 +61,13 @@ const stageDescriptions: Record<string, string> = {
 };
 
 const chartTooltip = {
-  background: "#07142f",
-  border: "1px solid rgba(125, 164, 255, 0.28)",
+  background: "#150f23",
+  border: "1px solid #362d59",
   borderRadius: 8,
-  color: "#e6efff",
-  fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+  color: "#ffffff",
+  fontFamily: "Rubik, -apple-system, system-ui, sans-serif",
   fontSize: 11,
-  boxShadow: "0 16px 40px rgba(0, 0, 0, 0.4)",
+  boxShadow: "0 16px 40px rgba(21, 15, 35, 0.55)",
 };
 
 function clamp(value: number) {
@@ -88,7 +88,7 @@ function Delta({ value, suffix = "%p" }: { value: number | null; suffix?: string
   }
   const positive = value > 0;
   return (
-    <span className={`inline-flex items-center gap-1 text-xs font-bold ${positive ? "text-emerald-400" : "text-rose-400"}`}>
+    <span className={`inline-flex items-center gap-1 text-xs font-bold ${positive ? "text-[color:var(--color-accent-lime)]" : "text-[color:var(--color-accent-pink)]"}`}>
       {positive ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
       {positive ? "+" : ""}{value.toFixed(1)}{suffix}
     </span>
@@ -97,7 +97,7 @@ function Delta({ value, suffix = "%p" }: { value: number | null; suffix?: string
 
 function Panel({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <section className={`overflow-hidden rounded-xl border border-[#45629a]/45 bg-[#09142d]/90 shadow-[0_16px_48px_rgba(0,5,20,0.28)] ${className}`}>
+    <section className={`overflow-hidden rounded-[12px] border border-dash-line bg-dash-panel ${className}`}>
       {children}
     </section>
   );
@@ -113,44 +113,12 @@ function PanelHeader({
   meta?: ReactNode;
 }) {
   return (
-    <header className="flex min-h-12 items-center justify-between gap-3 border-b border-[#45629a]/35 px-4 py-3">
+    <header className="flex min-h-12 items-center justify-between gap-3 border-b border-dash-line px-4 py-3">
       <div className="flex min-w-0 items-center gap-2">
-        {Icon && <Icon className="h-4 w-4 shrink-0 text-cyan-300" />}
-        <h2 className="truncate text-sm font-bold tracking-tight text-slate-100">{title}</h2>
+        {Icon && <Icon className="h-4 w-4 shrink-0 text-[color:var(--color-accent-lime)]" />}
+        <h2 className="truncate text-sm font-bold tracking-tight text-white">{title}</h2>
       </div>
-      {meta && <div className="shrink-0 text-[10px] font-medium text-slate-400 sm:text-xs">{meta}</div>}
-    </header>
-  );
-}
-
-function SplitPanelHeader({
-  left,
-  right,
-}: {
-  left: { title: string; icon?: LucideIcon; meta?: ReactNode };
-  right: { title: string; icon?: LucideIcon; meta?: ReactNode };
-}) {
-  const renderSide = (side: { title: string; icon?: LucideIcon; meta?: ReactNode }) => {
-    const SideIcon = side.icon;
-    return (
-      <>
-        <div className="flex min-w-0 items-center gap-2">
-          {SideIcon && <SideIcon className="h-4 w-4 shrink-0 text-cyan-300" />}
-          <h2 className="truncate text-sm font-bold tracking-tight text-slate-100">{side.title}</h2>
-        </div>
-        {side.meta && <div className="shrink-0 text-[10px] font-medium text-slate-400 sm:text-xs">{side.meta}</div>}
-      </>
-    );
-  };
-
-  return (
-    <header className="grid min-h-12 grid-cols-2 border-b border-[#45629a]/35">
-      <div className="flex items-center justify-between gap-3 border-r border-[#45629a]/35 px-4 py-3">
-        {renderSide(left)}
-      </div>
-      <div className="flex items-center justify-between gap-3 px-4 py-3">
-        {renderSide(right)}
-      </div>
+      {meta && <div className="shrink-0 text-[10px] font-medium text-[color:var(--color-on-dark-muted)] sm:text-xs">{meta}</div>}
     </header>
   );
 }
@@ -158,7 +126,7 @@ function SplitPanelHeader({
 function HalfGauge({
   value,
   available,
-  color = "#27e3a2",
+  color = "#c2ef4e",
   label,
   detail,
 }: {
@@ -191,8 +159,8 @@ function HalfGauge({
               stroke="none"
               isAnimationActive={available}
             >
-              <Cell fill={available ? color : "#26344f"} />
-              <Cell fill="#1b2945" />
+              <Cell fill={available ? color : "#362d59"} />
+              <Cell fill="#2a2045" />
             </Pie>
           </PieChart>
         </ResponsiveContainer>
@@ -204,7 +172,7 @@ function HalfGauge({
           <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</span>
         </div>
       </div>
-      <div className="mt-2 flex items-center justify-between border-t border-[#45629a]/25 pt-3 text-xs">
+      <div className="mt-2 flex items-center justify-between border-t border-dash-line/25 pt-3 text-xs">
         <span className="text-slate-500">이전 측정 대비</span>
         {detail}
       </div>
@@ -237,8 +205,8 @@ function DonutMetric({
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie data={chartData} dataKey="value" innerRadius={42} outerRadius={57} stroke="none">
-              <Cell fill={available ? color : "#26344f"} />
-              <Cell fill="#1b2945" />
+              <Cell fill={available ? color : "#362d59"} />
+              <Cell fill="#2a2045" />
             </Pie>
           </PieChart>
         </ResponsiveContainer>
@@ -294,7 +262,7 @@ function EmptyData({
         <BarChart3 className="mx-auto h-7 w-7 text-slate-600" />
         <h3 className="mt-3 text-sm font-bold text-slate-300">{title}</h3>
         <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-slate-500">{description}</p>
-        <Link href="/share" className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-cyan-300">
+        <Link href="/share" className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-[color:var(--color-accent-lime)]">
           측정 시작 <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>
@@ -315,82 +283,41 @@ function ProviderDot({ provider, size = "md" }: { provider: string; size?: "md" 
 
 function ShareBar({ value, color = "#27e3a2" }: { value: number; color?: string }) {
   return (
-    <div className="h-2 overflow-hidden rounded-full bg-[#1b2945]" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(value)}>
+    <div className="h-2 overflow-hidden rounded-full bg-dash-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(value)}>
       <div className="h-full rounded-full transition-all duration-500" style={{ width: `${clamp(value)}%`, backgroundColor: color }} />
     </div>
   );
 }
 
-function RadarModelDot({
+function SeriesDot({
   cx,
   cy,
-  index,
-  models,
+  color,
   faded = false,
 }: {
   cx?: number;
   cy?: number;
-  index?: number;
-  models: DashboardData["models"];
+  color: string;
   faded?: boolean;
 }) {
-  if (cx == null || cy == null || index == null) return null;
-  const model = models[index];
-  if (!model) return null;
-  const color = modelMeta[model.provider]?.color ?? "#8b949e";
-
+  if (cx == null || cy == null) return null;
   return (
     <circle
       cx={cx}
       cy={cy}
       r={faded ? 3 : 4}
       fill={color}
-      stroke="#07142f"
+      stroke="#150f23"
       strokeWidth={1.5}
-      opacity={faded ? 0.55 : 1}
+      opacity={faded ? 0.7 : 1}
     />
-  );
-}
-
-function RadarModelAxisTick({
-  x,
-  y,
-  payload,
-  models,
-}: {
-  x?: string | number;
-  y?: string | number;
-  payload?: { value?: string };
-  models: DashboardData["models"];
-}) {
-  const tickX = typeof x === "number" ? x : Number(x);
-  const tickY = typeof y === "number" ? y : Number(y);
-  if (!Number.isFinite(tickX) || !Number.isFinite(tickY) || !payload?.value) return null;
-
-  const model = models.find((item) => (modelMeta[item.provider]?.label ?? item.provider) === payload.value);
-  const color = model ? modelMeta[model.provider]?.color ?? "#cbd5e1" : "#cbd5e1";
-
-  return (
-    <text
-      x={tickX}
-      y={tickY}
-      textAnchor="middle"
-      dominantBaseline="central"
-      fill={color}
-      fontSize={11}
-      fontWeight={700}
-    >
-      {payload.value}
-    </text>
   );
 }
 
 function ModelComparisonSection({
   models,
-  compact = false,
 }: {
   models: DashboardData["models"];
-  compact?: boolean;
 }) {
   const sortedModels = [...models].sort((left, right) => right.share - left.share);
   const radarData = sortedModels.map((model) => ({
@@ -399,111 +326,106 @@ function ModelComparisonSection({
     previous: model.previousShare ?? 0,
   }));
   const radarMax = Math.max(
-    100,
+    20,
     ...sortedModels.flatMap((model) => [model.share, model.previousShare ?? 0]),
   );
-  const radarCeil = Math.min(100, Math.ceil(radarMax / 10) * 10);
-  const chartHeight = compact ? 400 : 440;
+  const radarCeil = Math.min(100, Math.max(20, Math.ceil(radarMax / 10) * 10));
 
   return (
     <div
-      className="flex h-full min-h-[500px] flex-col bg-[#070f22]/70"
+      className="grid gap-0 lg:grid-cols-2 lg:items-stretch"
       role="region"
-      aria-label="AI 모델 점유율 비교 — 레이더 차트와 표"
+      aria-label="AI 모델별 언급률 — 레이더 차트와 표"
     >
-      <div className="grid flex-1 lg:grid-cols-2 lg:items-stretch">
-        <div className="flex flex-col border-b border-[#45629a]/30 lg:border-b-0 lg:border-r">
-          <div
-            className="flex flex-1 items-center px-2 pt-3 sm:px-4"
-            role="img"
-            aria-label="AI 모델별 현재와 이전 점유율 레이더 차트"
-          >
-            <ResponsiveContainer width="100%" height={chartHeight}>
-              <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="78%">
-                <PolarGrid stroke="#2a3548" strokeDasharray="3 3" />
-                <PolarAngleAxis
-                  dataKey="model"
-                  tick={(props) => <RadarModelAxisTick {...props} models={sortedModels} />}
-                  tickLine={false}
-                />
-                <PolarRadiusAxis domain={[0, radarCeil]} tick={false} axisLine={false} />
-                <Radar
-                  name="기존"
-                  dataKey="previous"
-                  stroke="#ff9d52"
-                  fill="#ff9d52"
-                  fillOpacity={0.1}
-                  strokeWidth={2}
-                  dot={(props) => <RadarModelDot {...props} models={sortedModels} faded />}
-                />
-                <Radar
-                  name="현재"
-                  dataKey="current"
-                  stroke="#27e3a2"
-                  fill="#27e3a2"
-                  fillOpacity={0.16}
-                  strokeWidth={2.5}
-                  dot={(props) => <RadarModelDot {...props} models={sortedModels} />}
-                />
-                <Tooltip
-                  contentStyle={chartTooltip}
-                  formatter={(value, name) => [`${Number(value).toFixed(1)}%`, name === "current" ? "현재" : "기존"]}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-auto flex items-center justify-center gap-8 border-t border-[#45629a]/25 px-4 py-3 text-xs text-slate-400">
-            <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#ff9d52]" aria-hidden="true" />
-              기존
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#27e3a2]" aria-hidden="true" />
-              현재
-            </span>
-          </div>
-        </div>
-
+      <div className="flex flex-col border-b border-dash-line lg:border-b-0 lg:border-r lg:border-dash-line">
+        <h3 className="px-5 pt-5 text-sm font-semibold text-white">AI 모델별 언급률</h3>
         <div
-          className="flex flex-col justify-center overflow-x-auto px-4 py-4 outline-none focus-visible:bg-white/[0.02] sm:px-6 sm:py-5"
-          aria-label="AI 모델 점유율 비교 표"
-          tabIndex={0}
+          className="flex flex-1 items-center px-2 pt-1 sm:px-4"
+          role="img"
+          aria-label="AI 모델별 현재와 이전 언급률 레이더 차트"
         >
-          <table className="w-full min-w-[300px] text-left text-xs sm:text-sm">
-            <thead>
-              <tr className="border-b border-[#45629a]/35 text-[10px] uppercase tracking-[0.16em] text-slate-500">
-                <th className="pb-3 font-semibold">모델</th>
-                <th className="pb-3 text-right font-semibold">기존</th>
-                <th className="pb-3 text-right font-semibold">현재</th>
-                <th className="pb-3 text-right font-semibold">변화</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedModels.map((model) => (
-                <tr
-                  key={model.provider}
-                  className="border-b border-[#45629a]/15 transition hover:bg-white/[0.02] last:border-0"
-                >
-                  <td className="py-3.5 text-slate-200">
-                    <ProviderDot provider={model.provider} />
-                  </td>
-                  <td className="py-3.5 text-right tabular-nums text-slate-400">
-                    {model.previousShare === null ? "—" : `${model.previousShare.toFixed(1)}%`}
-                  </td>
-                  <td
-                    className="py-3.5 text-right font-bold tabular-nums"
-                    style={{ color: modelMeta[model.provider]?.color ?? "#f8fafc" }}
-                  >
-                    {model.share.toFixed(1)}%
-                  </td>
-                  <td className="py-3.5 text-right">
-                    <Delta value={model.delta} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <ResponsiveContainer width="100%" height={320}>
+            <RadarChart data={radarData} cx="50%" cy="52%" outerRadius="68%">
+              <PolarGrid stroke="#3a3a3a" strokeOpacity={0.9} />
+              <PolarAngleAxis
+                dataKey="model"
+                tick={{ fill: "#e5e7eb", fontSize: 12, fontWeight: 600 }}
+                tickLine={false}
+              />
+              <PolarRadiusAxis domain={[0, radarCeil]} tick={false} axisLine={false} />
+              <Radar
+                name="기존"
+                dataKey="previous"
+                stroke="#fa7faa"
+                fill="#fa7faa"
+                fillOpacity={0.18}
+                strokeWidth={2}
+                dot={(props) => <SeriesDot {...props} color="#fa7faa" faded />}
+              />
+              <Radar
+                name="현재"
+                dataKey="current"
+                stroke="#c2ef4e"
+                fill="#c2ef4e"
+                fillOpacity={0.22}
+                strokeWidth={2.5}
+                dot={(props) => <SeriesDot {...props} color="#c2ef4e" />}
+              />
+              <Tooltip
+                contentStyle={chartTooltip}
+                formatter={(value, name) => [`${Number(value).toFixed(1)}%`, name === "current" ? "현재" : "기존"]}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
         </div>
+        <div className="flex items-center justify-center gap-8 px-4 pb-5 pt-1 text-xs text-slate-400">
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#fa7faa]" aria-hidden="true" />
+            기존
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#c2ef4e]" aria-hidden="true" />
+            현재
+          </span>
+        </div>
+      </div>
+
+      <div
+        className="flex flex-col justify-center overflow-x-auto px-5 py-5 outline-none focus-visible:bg-white/[0.02] sm:px-7"
+        aria-label="AI 모델 언급률 비교 표"
+        tabIndex={0}
+      >
+        <table className="w-full min-w-[300px] text-left text-sm">
+          <thead>
+            <tr className="border-b border-dash-line text-xs text-slate-500">
+              <th className="pb-3.5 font-medium">모델</th>
+              <th className="pb-3.5 text-right font-medium">기존</th>
+              <th className="pb-3.5 text-right font-medium">현재</th>
+              <th className="pb-3.5 text-right font-medium">변화</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedModels.map((model) => (
+              <tr
+                key={model.provider}
+                className="border-b border-dash-line/40 transition hover:bg-white/[0.02] last:border-0"
+              >
+                <td className="py-4 text-slate-200">
+                  <ProviderDot provider={model.provider} />
+                </td>
+                <td className="py-4 text-right tabular-nums text-slate-400">
+                  {model.previousShare === null ? "—" : `${model.previousShare.toFixed(1)}%`}
+                </td>
+                <td className="py-4 text-right font-semibold tabular-nums text-white">
+                  {model.share.toFixed(1)}%
+                </td>
+                <td className="py-4 text-right">
+                  <Delta value={model.delta} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -549,10 +471,10 @@ export function DashboardView({ data }: { data: DashboardData }) {
 
   return (
     <div className="font-mono text-slate-300">
-      <header className="mb-4 rounded-xl border border-[#45629a]/45 bg-[#07142f]/95 px-4 py-4 shadow-[0_16px_50px_rgba(0,4,18,0.3)] sm:px-5">
+      <header className="mb-4 rounded-xl border border-dash-line/45 bg-dash-header/95 px-4 py-4 shadow-[0_16px_50px_rgba(0,4,18,0.3)] sm:px-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">
+            <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--color-accent-lime)]">
               <CircleDot className="h-3.5 w-3.5" />
               GEO intelligence control room
               <span className={`ml-1 inline-flex items-center gap-1.5 rounded-full border px-2 py-1 tracking-[0.12em] ${hasRuns ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" : "border-slate-600/50 bg-slate-800/50 text-slate-400"}`}>
@@ -567,16 +489,16 @@ export function DashboardView({ data }: { data: DashboardData }) {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="grid grid-cols-3 divide-x divide-[#45629a]/35 rounded-lg border border-[#45629a]/35 bg-[#0b1b3c] text-center">
+            <div className="grid grid-cols-3 divide-x divide-dash-line/35 rounded-lg border border-dash-line/35 bg-dash-inset text-center">
               <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.questionCount}</strong><span className="text-[9px] uppercase tracking-wider text-slate-500">queries</span></div>
               <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.modelCount}</strong><span className="text-[9px] uppercase tracking-wider text-slate-500">models</span></div>
               <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.recentRunCount}</strong><span className="text-[9px] uppercase tracking-wider text-slate-500">runs</span></div>
             </div>
             <div className="flex gap-2">
-              <Link href="/share" className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-300 px-4 py-2 text-xs font-black text-[#041126] transition hover:bg-cyan-200 sm:flex-none">
+              <Link href="/share" className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-[color:var(--app-cta-bg)] px-4 py-2 text-xs font-black uppercase tracking-[0.2px] text-[color:var(--app-cta-text)] transition hover:opacity-95 sm:flex-none">
                 새 측정 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
-              <Link href="/reports" aria-label="리포트 열기" className="grid min-h-10 min-w-10 place-items-center rounded-lg border border-[#45629a]/45 bg-[#102247] text-slate-300 transition hover:bg-[#17305f]">
+              <Link href="/reports" aria-label="리포트 열기" className="grid min-h-10 min-w-10 place-items-center rounded-lg border border-dash-line/45 bg-dash-icon text-slate-300 transition hover:bg-dash-icon-hover">
                 <FileSearch className="h-4 w-4" />
               </Link>
             </div>
@@ -614,7 +536,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
             color="#4dc8ff"
             footnote={
               <>
-                <strong className="block text-lg text-cyan-300">{hasRuns ? `${data.overview.positiveRate.toFixed(1)}%` : "데이터 없음"}</strong>
+                <strong className="block text-lg text-[color:var(--color-accent-lime)]">{hasRuns ? `${data.overview.positiveRate.toFixed(1)}%` : "데이터 없음"}</strong>
                 브랜드 언급 중 긍정 응답 비율
               </>
             }
@@ -645,8 +567,8 @@ export function DashboardView({ data }: { data: DashboardData }) {
 
         <Panel className="sm:col-span-2 xl:col-span-4 2xl:col-span-1">
           <PanelHeader title="관제 상태" icon={Radio} meta={hasRuns ? "정상" : "측정 필요"} />
-          <div className="divide-y divide-[#45629a]/25 px-4 py-2 text-xs">
-            <div className="flex items-center justify-between py-3"><span className="text-slate-500">현재 퍼널</span><strong className="text-cyan-300">{data.funnel.stage}</strong></div>
+          <div className="divide-y divide-dash-line/25 px-4 py-2 text-xs">
+            <div className="flex items-center justify-between py-3"><span className="text-slate-500">현재 퍼널</span><strong className="text-[color:var(--color-accent-lime)]">{data.funnel.stage}</strong></div>
             <div className="flex items-center justify-between py-3"><span className="text-slate-500">최신 응답</span><strong className="text-white">{hasRuns ? `${data.overview.totalResponses}건` : "—"}</strong></div>
             <div className="flex items-center justify-between py-3"><span className="text-slate-500">실행 준비도</span><strong className="text-amber-300">{data.checklist.percent}%</strong></div>
             <div className="flex items-center justify-between py-3"><span className="text-slate-500">개선 사이클</span><strong className="text-emerald-300">{cycleComplete}/4</strong></div>
@@ -654,72 +576,73 @@ export function DashboardView({ data }: { data: DashboardData }) {
         </Panel>
       </div>
 
-      <Panel className="mt-4 overflow-hidden">
-        <SplitPanelHeader
-          left={{
-            title: "전체 언급율",
-            icon: Activity,
-            meta: hasRuns ? `최근 ${runTrend.length}회 실행` : "측정 대기",
-          }}
-          right={{
-            title: "AI 모델 언급율",
-            icon: BarChart3,
-            meta: hasRuns && hasModelData ? `${data.models.filter((model) => model.total > 0).length}개 모델` : "측정 대기",
-          }}
-        />
+      <Panel className="mt-4 overflow-hidden !border-dash-line !bg-[color:var(--color-surface-night)]">
+        <header className="flex min-h-12 items-center justify-between gap-3 border-b border-dash-line px-4 py-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <Activity className="h-4 w-4 shrink-0 text-[#c2ef4e]" />
+            <h2 className="truncate text-sm font-bold tracking-tight text-white">전체 언급률</h2>
+          </div>
+          <div className="shrink-0 text-[10px] font-medium text-slate-400 sm:text-xs">
+            {hasRuns ? `최근 ${runTrend.length}회 실행 · 모델 ${hasModelData ? data.models.filter((model) => model.total > 0).length : 0}개` : "측정 대기"}
+          </div>
+        </header>
         {!hasRuns ? (
-          <EmptyData title="측정 데이터가 아직 없습니다" description="브랜드를 포함하지 않은 핵심 질문을 여러 AI 모델에 실행하면 전체 언급율 추이와 모델별 비교가 표시됩니다." />
+          <EmptyData title="측정 데이터가 아직 없습니다" description="브랜드를 포함하지 않은 핵심 질문을 여러 AI 모델에 실행하면 전체 언급률 추이와 모델별 비교가 표시됩니다." />
         ) : (
-          <div className="grid lg:grid-cols-2 lg:items-stretch">
-            <div className="flex min-h-[560px] flex-col border-b border-[#45629a]/30 lg:border-b-0 lg:border-r">
-              <div className="flex flex-1 flex-col px-3 pb-2 pt-4 sm:px-5" role="img" aria-label="최근 실행별 전체 Answer Share 추이">
-                <ResponsiveContainer width="100%" height={400}>
-                  <AreaChart data={runTrend} margin={{ left: -12, right: 8, top: 8, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="overallMentionArea" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#27e3a2" stopOpacity={0.42} />
-                        <stop offset="100%" stopColor="#27e3a2" stopOpacity={0.02} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid stroke="#26395f" strokeDasharray="2 5" vertical={false} />
-                    <XAxis dataKey="label" tick={{ fill: "#7183a6", fontSize: 10 }} tickLine={false} axisLine={false} />
-                    <YAxis
-                      domain={[trendMin, trendMax]}
-                      tick={{ fill: "#7183a6", fontSize: 10 }}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(value) => `${value}%`}
-                    />
-                    <Tooltip contentStyle={chartTooltip} formatter={(value) => [`${Number(value).toFixed(1)}%`, "전체 언급율"]} />
-                    <Area
-                      type="monotone"
-                      dataKey="overall"
-                      stroke="#27e3a2"
-                      strokeWidth={2.5}
-                      fill="url(#overallMentionArea)"
-                      dot={{ r: 2.5, fill: "#07142f", stroke: "#27e3a2", strokeWidth: 2 }}
-                      activeDot={{ r: 4, fill: "#27e3a2" }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-[#45629a]/30 bg-[#0b1b3c] px-4 py-3 text-xs sm:justify-start sm:px-5 sm:text-sm">
-                <span className="text-slate-400">전체 언급율</span>
-                <div className="flex flex-wrap items-center gap-2">
-                  <strong className="text-slate-300">{previousShare === null ? "—" : `${previousShare.toFixed(1)}%`}</strong>
-                  <Delta value={data.overview.answerShareDelta} />
-                  <span className="text-slate-500">→</span>
-                  <strong className="text-lg font-black tracking-tight text-emerald-300">{data.funnel.answerShare.toFixed(1)}%</strong>
-                </div>
-              </div>
+          <div className="bg-dash-well/80">
+            <div className="px-3 pb-2 pt-5 sm:px-6" role="img" aria-label="최근 실행별 전체 언급률 추이">
+              <ResponsiveContainer width="100%" height={280}>
+                <AreaChart data={runTrend} margin={{ left: -8, right: 12, top: 8, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="overallMentionArea" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#c2ef4e" stopOpacity={0.45} />
+                      <stop offset="55%" stopColor="#c2ef4e" stopOpacity={0.12} />
+                      <stop offset="100%" stopColor="#c2ef4e" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid stroke="#362d59" strokeDasharray="3 6" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fill: "#bdb8c0", fontSize: 11 }} tickLine={false} axisLine={false} />
+                  <YAxis
+                    domain={[trendMin, trendMax]}
+                    tick={{ fill: "#bdb8c0", fontSize: 11 }}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => `${value}%`}
+                    width={44}
+                  />
+                  <Tooltip contentStyle={chartTooltip} formatter={(value) => [`${Number(value).toFixed(1)}%`, "전체 언급률"]} />
+                  <Area
+                    type="monotone"
+                    dataKey="overall"
+                    stroke="#c2ef4e"
+                    strokeWidth={2.5}
+                    fill="url(#overallMentionArea)"
+                    dot={{ r: 3, fill: "#150f23", stroke: "#c2ef4e", strokeWidth: 2 }}
+                    activeDot={{ r: 5, fill: "#c2ef4e", stroke: "#150f23", strokeWidth: 2 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
 
-            <div className="flex min-h-[560px] flex-col">
+            <div className="mx-3 mb-4 rounded-xl border border-dash-line bg-dash-inset px-4 py-3.5 sm:mx-6 sm:px-5">
+              <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm text-slate-300">
+                <span className="text-slate-400">전체 언급률:</span>
+                <span className="tabular-nums text-slate-200">
+                  {previousShare === null ? "—" : `${previousShare.toFixed(1)}%`}
+                </span>
+                <Delta value={data.overview.answerShareDelta} />
+                <span className="text-slate-500">→</span>
+                <strong className="text-2xl font-black tracking-tight text-white tabular-nums">
+                  {data.funnel.answerShare.toFixed(1)}%
+                </strong>
+              </p>
+            </div>
+
+            <div className="border-t border-dash-line">
               {!hasModelData ? (
-                <EmptyData compact title="모델 측정 데이터가 없습니다" description="질문 세트를 실행하면 모델별 현재·이전 점유율이 표시됩니다." />
+                <EmptyData compact title="모델 측정 데이터가 없습니다" description="질문 세트를 실행하면 모델별 현재·이전 언급률이 표시됩니다." />
               ) : (
-                <ModelComparisonSection compact models={data.models} />
+                <ModelComparisonSection models={data.models} />
               )}
             </div>
           </div>
@@ -754,14 +677,14 @@ export function DashboardView({ data }: { data: DashboardData }) {
           <div className="px-4 py-4">
             <div className="grid grid-cols-4 gap-1.5">
               {data.funnel.stages.map((stage, index) => (
-                <div key={stage} className={`rounded-lg border px-1 py-3 text-center ${index <= activeIndex ? "border-cyan-300/35 bg-cyan-300/10" : "border-[#45629a]/25 bg-[#0b1b3c]"}`}>
-                  <span className={`block text-[9px] font-bold ${index <= activeIndex ? "text-cyan-300" : "text-slate-600"}`}>0{index + 1}</span>
+                <div key={stage} className={`rounded-lg border px-1 py-3 text-center ${index <= activeIndex ? "border-[color:var(--color-accent-lime)]/35 bg-[color:var(--color-accent-lime)]/10" : "border-dash-line/25 bg-dash-inset"}`}>
+                  <span className={`block text-[9px] font-bold ${index <= activeIndex ? "text-[color:var(--color-accent-lime)]" : "text-slate-600"}`}>0{index + 1}</span>
                   <strong className={`mt-1 block text-[11px] ${index <= activeIndex ? "text-white" : "text-slate-500"}`}>{stage}</strong>
                 </div>
               ))}
             </div>
-            <div className="mt-4 rounded-lg border border-[#45629a]/25 bg-[#0b1b3c] p-3">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-cyan-300">현재 단계 · {data.funnel.stage}</p>
+            <div className="mt-4 rounded-lg border border-dash-line/25 bg-dash-inset p-3">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-accent-lime)]">현재 단계 · {data.funnel.stage}</p>
               <p className="mt-2 text-xs leading-5 text-slate-400">{stageDescriptions[data.funnel.stage]}</p>
             </div>
           </div>
@@ -777,7 +700,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
             <div className="mt-5"><ShareBar value={data.checklist.percent} color="#fbbf24" /></div>
             <div className="mt-5 grid grid-cols-10 gap-1" aria-hidden="true">
               {Array.from({ length: 10 }, (_, index) => (
-                <span key={index} className={`h-3 rounded-sm ${index < Math.round(data.checklist.percent / 10) ? "bg-amber-300" : "bg-[#1b2945]"}`} />
+                <span key={index} className={`h-3 rounded-sm ${index < Math.round(data.checklist.percent / 10) ? "bg-amber-300" : "bg-dash-track"}`} />
               ))}
             </div>
             <Link href="/learn" className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-amber-300">체크 계속 <ArrowRight className="h-3.5 w-3.5" /></Link>
@@ -786,7 +709,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
 
         <Panel>
           <PanelHeader title="4주 개선 사이클" icon={CalendarCheck} meta={`${cycleComplete}/4 완료`} />
-          <div className="divide-y divide-[#45629a]/20 px-4 py-2">
+          <div className="divide-y divide-dash-line/20 px-4 py-2">
             {data.cycle.map((item) => (
               <div key={item.week} className="flex items-center gap-3 py-3 text-xs">
                 {item.done ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" /> : <Circle className="h-4 w-4 shrink-0 text-slate-600" />}
@@ -823,15 +746,15 @@ function QuestionMonitor({
     <Panel className="mt-4">
       <PanelHeader title="모니터링 질문 관제" icon={Activity} meta={`${data.questions.length}개 질문`} />
       <div className="grid xl:grid-cols-[340px_minmax(0,1fr)]">
-        <div className="border-b border-[#45629a]/30 p-3 xl:border-b-0 xl:border-r">
+        <div className="border-b border-dash-line/30 p-3 xl:border-b-0 xl:border-r">
           <button
             type="button"
             onClick={() => onSelect(null)}
             aria-pressed={!selectedQuestionText}
-            className={`mb-2 flex w-full items-center justify-between rounded-lg border px-3 py-3 text-left transition ${!selectedQuestionText ? "border-cyan-300/35 bg-cyan-300/10" : "border-[#45629a]/25 bg-[#0b1b3c] hover:bg-[#102247]"}`}
+            className={`mb-2 flex w-full items-center justify-between rounded-lg border px-3 py-3 text-left transition ${!selectedQuestionText ? "border-[color:var(--color-accent-lime)]/35 bg-[color:var(--color-accent-lime)]/10" : "border-dash-line/25 bg-dash-inset hover:bg-dash-icon"}`}
           >
             <span><strong className="block text-xs text-white">전체 관제 현황</strong><small className="mt-1 block text-[10px] text-slate-500">통합 KPI와 실행 상태</small></span>
-            <ChevronRight className={`h-4 w-4 ${!selectedQuestionText ? "text-cyan-300" : "text-slate-600"}`} />
+            <ChevronRight className={`h-4 w-4 ${!selectedQuestionText ? "text-[color:var(--color-accent-lime)]" : "text-slate-600"}`} />
           </button>
           <div className="max-h-[500px] space-y-2 overflow-y-auto pr-1">
             {data.questions.map((question, index) => {
@@ -842,22 +765,22 @@ function QuestionMonitor({
                   type="button"
                   onClick={() => onSelect(question.text)}
                   aria-pressed={selected}
-                  className={`w-full rounded-lg border p-3 text-left transition ${selected ? "border-emerald-400/35 bg-emerald-400/10" : "border-[#45629a]/25 bg-[#0b1b3c] hover:border-[#5a79b4]/60 hover:bg-[#102247]"}`}
+                  className={`w-full rounded-lg border p-3 text-left transition ${selected ? "border-emerald-400/35 bg-emerald-400/10" : "border-dash-line/25 bg-dash-inset hover:border-dash-line-hover/60 hover:bg-dash-icon"}`}
                 >
                   <div className="flex items-start gap-2.5">
                     <span className="mt-0.5 text-[10px] font-black text-slate-600">Q{String(index + 1).padStart(2, "0")}</span>
                     <p className="line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200">{question.text}</p>
                   </div>
-                  <div className="mt-2.5 grid grid-cols-3 border-t border-[#45629a]/20 pt-2 text-[10px]">
+                  <div className="mt-2.5 grid grid-cols-3 border-t border-dash-line/20 pt-2 text-[10px]">
                     <span className="text-slate-500">점유율 <strong className="ml-1 text-emerald-300">{question.share}%</strong></span>
-                    <span className="text-center text-slate-500">순위 <strong className="ml-1 text-cyan-300">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></span>
+                    <span className="text-center text-slate-500">순위 <strong className="ml-1 text-[color:var(--color-accent-lime)]">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></span>
                     <span className="text-right text-slate-500">긍정 <strong className="ml-1 text-amber-300">{question.positiveRate}%</strong></span>
                   </div>
                 </button>
               );
             })}
             {!data.questions.length && (
-              <div className="rounded-lg border border-dashed border-[#45629a]/35 px-4 py-8 text-center text-xs leading-5 text-slate-500">
+              <div className="rounded-lg border border-dashed border-dash-line/35 px-4 py-8 text-center text-xs leading-5 text-slate-500">
                 측정을 실행하면 질문별 GEO 성과가 표시됩니다.
               </div>
             )}
@@ -870,12 +793,12 @@ function QuestionMonitor({
           ) : (
             <div className="grid min-h-[420px] place-items-center px-6 py-10 text-center">
               <div>
-                <CircleDot className="mx-auto h-8 w-8 text-cyan-300" />
+                <CircleDot className="mx-auto h-8 w-8 text-[color:var(--color-accent-lime)]" />
                 <h3 className="mt-4 text-base font-bold text-white">질문별 상세 신호를 확인하세요</h3>
                 <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-slate-500">왼쪽 질문을 선택하면 모델별 언급률, 평균 순위, 긍정 문맥과 실행별 추이를 드릴다운합니다.</p>
-                <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 divide-x divide-[#45629a]/30 rounded-lg border border-[#45629a]/30 bg-[#0b1b3c]">
+                <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 divide-x divide-dash-line/30 rounded-lg border border-dash-line/30 bg-dash-inset">
                   <div className="px-3 py-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">질문</span><strong className="mt-1 block text-xl text-white">{data.questions.length}</strong></div>
-                  <div className="px-3 py-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">응답</span><strong className="mt-1 block text-xl text-cyan-300">{data.overview.totalResponses}</strong></div>
+                  <div className="px-3 py-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">응답</span><strong className="mt-1 block text-xl text-[color:var(--color-accent-lime)]">{data.overview.totalResponses}</strong></div>
                   <div className="px-3 py-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">긍정</span><strong className="mt-1 block text-xl text-amber-300">{data.recentRuns.length ? `${data.overview.positiveRate}%` : "—"}</strong></div>
                 </div>
               </div>
@@ -892,20 +815,20 @@ function QuestionDetail({ question }: { question: DashboardData["questions"][num
 
   return (
     <div>
-      <div className="border-b border-[#45629a]/30 px-4 py-4 sm:px-5">
+      <div className="border-b border-dash-line/30 px-4 py-4 sm:px-5">
         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">selected query analysis</p>
         <h3 className="mt-2 max-w-5xl text-sm font-bold leading-6 text-white sm:text-base">{question.text}</h3>
       </div>
 
-      <div className="grid grid-cols-2 divide-x divide-y divide-[#45629a]/25 border-b border-[#45629a]/30 sm:grid-cols-4 sm:divide-y-0">
+      <div className="grid grid-cols-2 divide-x divide-y divide-dash-line/25 border-b border-dash-line/30 sm:grid-cols-4 sm:divide-y-0">
         <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">Answer Share</span><strong className="mt-1.5 block text-2xl text-emerald-300">{question.share}%</strong></div>
         <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">이전 대비</span><div className="mt-2.5"><Delta value={question.delta} /></div></div>
-        <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">평균 순위</span><strong className="mt-1.5 block text-2xl text-cyan-300">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></div>
+        <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">평균 순위</span><strong className="mt-1.5 block text-2xl text-[color:var(--color-accent-lime)]">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></div>
         <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">긍정 문맥</span><strong className="mt-1.5 block text-2xl text-amber-300">{question.positiveRate}%</strong></div>
       </div>
 
       <div className="grid 2xl:grid-cols-[0.8fr_1.2fr]">
-        <div className="border-b border-[#45629a]/30 p-4 2xl:border-b-0 2xl:border-r">
+        <div className="border-b border-dash-line/30 p-4 2xl:border-b-0 2xl:border-r">
           <h4 className="text-xs font-bold text-slate-200">모델별 질문 성과</h4>
           <div className="mt-4 space-y-4">
             {activeModels.map((model) => (

@@ -20,7 +20,7 @@ export function SemforgeGateBanner({ message }: { message?: string }) {
             </p>
           </div>
         </div>
-        <Link href="/subscription" className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-300">
+        <Link href="/subscription" className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-black transition hover:bg-cyan-300">
           <CreditCard className="h-4 w-4" />구독하기
         </Link>
       </div>
