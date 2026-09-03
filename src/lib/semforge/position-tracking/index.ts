@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { getDatabase } from "@/lib/db";
 import { semforgeError } from "@/lib/semforge/errors";
-import { fetchSerp, talordataConfigured, talordataMode } from "@/lib/semforge/talordata/client";
+import { fetchSerp, talordataConfigured } from "@/lib/semforge/talordata/client";
 import { normalizeDomain } from "@/lib/semforge/utils/domain";
 import { requireSemforgeSubscription } from "@/lib/semforge-subscription";
 import { requireActiveProject } from "@/lib/projects";

@@ -93,9 +93,6 @@ function buildRadar(snapshot: AiSeoSnapshotInput, visibilityScore: number): AiSe
   const featureCoverage = snapshot.features.length > 0
     ? Math.min(100, snapshot.features.length * 20)
     : 0;
-  const geoReadiness = snapshot.aioPresent
-    ? (snapshot.cited ? 90 : snapshot.cited === false ? 35 : 55)
-    : snapshot.organicPosition !== null && snapshot.organicPosition <= 10 ? 50 : 20;
 
   return [
     { axis: "AIO 출현", score: snapshot.aioPresent ? 100 : 0, hint: snapshot.aioPresent ? "Google AI Overview가 노출됩니다." : "AI Overview가 없습니다." },

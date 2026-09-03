@@ -62,17 +62,22 @@ function NavLink({
 function SemforgeNavDropdown({ close }: { close?: () => void }) {
   const pathname = usePathname();
   const semforgeCurrent = isSemforgePath(pathname);
-  const [open, setOpen] = useState(semforgeCurrent);
+  const pathKey = semforgeCurrent ? "semforge" : "other";
+  const [pathBucket, setPathBucket] = useState(pathKey);
+  const [openOverride, setOpenOverride] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    if (semforgeCurrent) setOpen(true);
-  }, [semforgeCurrent]);
+  if (pathBucket !== pathKey) {
+    setPathBucket(pathKey);
+    setOpenOverride(null);
+  }
+
+  const open = openOverride ?? semforgeCurrent;
 
   return (
     <div className="pt-2">
       <button
         type="button"
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => setOpenOverride(!open)}
         aria-expanded={open}
         className={cn(
           "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",

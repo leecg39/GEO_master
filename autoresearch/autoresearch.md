@@ -1,36 +1,34 @@
-# Autoresearch Session — Dashboard QA + Recursive Upgrade
+# Autoresearch Session — SEMForge Analysis + Dashboard RSI
 
 ## Target
-`src/components/DashboardView.tsx` — 관제형 대시보드 `/`
+`src/components/DashboardView.tsx` + SEMForge GEO 통합 QA
 
 ## Goal
-QA + 오토리서치 재귀 개선·업그레이드 (2026-09-02)
+https://github.com/leecg39/SEMForge.git 분석 → GEO Master QA → Frozen Metric 재귀 개선 (2026-09-03)
 
-## Baseline QA
-- lint ✓ · typecheck ✓ · annatar test ✓
-- autoresearch score: **104/104 (100%)**
-- console errors: **0**
-- API project: 안나타르
+## Analysis
+- 원본: `docs/semforge-analysis.md`
+- 이식됨: AI SEO / Site Audit / Position Tracking / Analytics Overview / Local Business / Subscription
+- 미이식: GSC, GBP, PageSpeed, cron scheduler, Semrush 공개 랜딩 클론
+
+## Baseline → Current QA
+| Gate | Result |
+|------|--------|
+| lint | ✓ (AppShell effect 제거, unused vars 정리) |
+| typecheck | ✓ |
+| vitest | ✓ 190/190 (schema v9) |
+| SEMForge API smoke | ✓ 200 on dashboard/subscription/ai-seo/position/site-audit/local/analytics |
+| autoresearch score | **104/104 (100%)** |
 
 ## Experiments (KEEP)
 
-| # | Hypothesis | Browser evidence | Decision |
-|---|-----------|------------------|----------|
-| 1 | 레이더·표 `items-stretch` + 범례를 레이더 컬럼 하단만 | radarTableSideBySide ✓, legendUnderRadar ✓ | KEEP |
-| 2 | 좌 Area 400px · 패널 min-h 560 대칭 | leftH=rightH=560, heightDelta=0 | KEEP |
-| 3 | 표 focus-visible 포커스 피드백 | a11y polish | KEEP |
-
-## Final browser metrics (1920×907)
-- headersSameRow / sideBySide: true (from prior)
-- radarTableSideBySide: true
-- legendUnderRadar: true
-- heightDelta: 0
-- overflowX: false
-- console errors: 0
+| # | Hypothesis | Evidence | Decision |
+|---|-----------|----------|----------|
+| 1 | QA 회귀(lint/migration/layout metric) 복구 | guards ✓ · layout +29 · score 104 | KEEP |
+| 2 | 레이더 축 tick·표 현재% 모델색 복원 (equal-score) | score 104 · program hint #3 | KEEP |
 
 ## Run
 ```bash
+npm run lint && npm run typecheck && npm test
 npm run autoresearch:dashboard
-npm run lint && npm run typecheck
-npm test -- tests/annatar-mock.integration.test.ts
 ```

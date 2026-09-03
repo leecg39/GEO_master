@@ -69,7 +69,6 @@ export function buildLocalBusinessBriefing(
     { bucket: "미노출", count: totalKeywords - rankedCount },
   ];
 
-  const top3Score = totalKeywords ? Math.round((top3Count / totalKeywords) * 100) : 0;
   const packScore = totalKeywords ? Math.round((localPackCount / totalKeywords) * 100) : 0;
   const momentumScore = totalKeywords
     ? Math.max(0, Math.min(100, Math.round(50 + ((improved - declined) / totalKeywords) * 50)))
