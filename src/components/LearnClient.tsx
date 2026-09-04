@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BookOpen, CheckCircle2, ChevronRight, GraduationCap, LoaderCircle } from "lucide-react";
 import { ConfirmDialog } from "@/components/CrudPrimitives";
 import { Badge, Card, PageHeader, Progress } from "@/components/ui";
-import { CASE_STUDIES, GEO_PRINCIPLES, GEO_TOOLS, LEARN_CHECKLIST, LEARN_CONCEPTS, PARADIGM_SHIFTS, TERM_MAP } from "@/lib/learn-content";
+import { CASE_STUDIES, CITATION_TRUTH_NOTE, EXTERNAL_TOOL_WORKFLOW, GEO_PRINCIPLES, GEO_TOOLS, LEARN_CHECKLIST, LEARN_CONCEPTS, PARADIGM_SHIFTS, PRODUCT_BOUNDARY_NOTE, TERM_MAP } from "@/lib/learn-content";
 
 async function json<T>(response: Response): Promise<T> { const data = await response.json() as T & { error?: string }; if (!response.ok) throw new Error(data.error ?? "요청에 실패했습니다."); return data; }
 
@@ -55,6 +55,12 @@ export function LearnClient() {
     setResetTarget(null);
   }
   return <div><PageHeader eyebrow="GEO playbook" title="학습 센터" description="제로클릭 시대의 핵심 개념을 빠르게 익히고, 지식을 실제 실행 체크리스트로 전환하세요." action={<Badge tone="cyan"><GraduationCap className="mr-1 h-3.5 w-3.5" />실행형 요약</Badge>} />
+    <Card className="mb-6 border-cyan-400/15 bg-cyan-400/5">
+      <p className="text-xs font-bold uppercase tracking-widest text-cyan-400">연구 보조 파이프</p>
+      <p className="mt-2 text-sm font-medium text-slate-200">{EXTERNAL_TOOL_WORKFLOW}</p>
+      <p className="mt-3 text-sm leading-6 text-slate-400">{CITATION_TRUTH_NOTE}</p>
+      <p className="mt-3 border-t border-white/8 pt-3 text-sm leading-6 text-slate-500">{PRODUCT_BOUNDARY_NOTE}</p>
+    </Card>
     <section className="grid gap-4 md:grid-cols-2">{LEARN_CONCEPTS.map((concept, index) => <Card key={concept.title} className="relative overflow-hidden"><span className="absolute right-4 top-3 text-5xl font-black text-white/[0.025]">0{index + 1}</span><BookOpen className="h-5 w-5 text-cyan-400" /><h2 className="mt-4 text-lg font-semibold text-white">{concept.title}</h2><p className="mt-2 text-sm leading-6 text-slate-400">{concept.summary}</p></Card>)}</section>
     <section className="mt-6 grid gap-5 xl:grid-cols-[1.2fr_0.8fr]"><Card><div className="mb-5"><p className="text-xs font-bold uppercase tracking-widest text-violet-300">Framework 1.0</p><h2 className="mt-1 text-xl font-semibold text-white">GEO 7가지 도구</h2></div><div className="grid gap-3 sm:grid-cols-2">{GEO_TOOLS.map(([name, description], index) => <div key={name} className="rounded-xl border border-white/7 bg-slate-950/35 p-4"><div className="flex items-center gap-2"><span className="grid h-6 w-6 place-items-center rounded-lg bg-violet-400/10 text-xs font-bold text-violet-300">{index + 1}</span><strong className="text-sm text-slate-200">{name}</strong></div><p className="mt-2 text-xs leading-5 text-slate-500">{description}</p></div>)}</div></Card><Card><h2 className="text-xl font-semibold text-white">실행 6원칙</h2><div className="mt-4 space-y-3">{GEO_PRINCIPLES.map((principle, index) => <div key={principle} className="flex gap-3"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" /><p className="text-sm leading-5 text-slate-400"><span className="mr-1 text-xs text-slate-600">{index + 1}.</span>{principle}</p></div>)}</div><h3 className="mt-7 font-semibold text-white">패러다임 시프트 7</h3><div className="mt-3 flex flex-wrap gap-2">{PARADIGM_SHIFTS.map((shift) => <Badge key={shift}>{shift}</Badge>)}</div></Card></section>
     <section className="mt-6 grid gap-5 lg:grid-cols-2"><Card><h2 className="mb-4 text-lg font-semibold text-white">SEO → GEO 용어 대조</h2><div className="divide-y divide-white/5">{TERM_MAP.map(([seo, geo]) => <div key={seo} className="grid grid-cols-[1fr_auto_1.3fr] items-center gap-3 py-3 text-sm"><span className="text-slate-500">{seo}</span><ChevronRight className="h-3.5 w-3.5 text-cyan-700" /><strong className="text-cyan-200">{geo}</strong></div>)}</div></Card><Card><h2 className="mb-4 text-lg font-semibold text-white">케이스 스터디</h2><div className="space-y-3">{CASE_STUDIES.map(([name, lesson]) => <div key={name} className="rounded-xl bg-slate-950/40 p-4"><strong className="text-sm text-slate-200">{name}</strong><p className="mt-1.5 text-xs leading-5 text-slate-500">{lesson}</p></div>)}</div></Card></section>

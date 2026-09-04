@@ -12,6 +12,8 @@ interface Project {
   brandName: string;
   category: string;
   competitors: string[];
+  competitorNotes: string;
+  externalResearchNotes: string;
   active: boolean;
   createdAt: string;
   updatedAt: string;
@@ -42,6 +44,8 @@ interface ProjectDraft {
   brandName: string;
   category: string;
   competitors: string;
+  competitorNotes: string;
+  externalResearchNotes: string;
   activate: boolean;
   expectedUpdatedAt?: string;
 }
@@ -78,7 +82,7 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 function emptyDraft(): ProjectDraft {
-  return { name: "", brandName: "", category: "", competitors: "", activate: true };
+  return { name: "", brandName: "", category: "", competitors: "", competitorNotes: "", externalResearchNotes: "", activate: true };
 }
 
 function draftFor(project: Project): ProjectDraft {
@@ -88,6 +92,8 @@ function draftFor(project: Project): ProjectDraft {
     brandName: project.brandName,
     category: project.category,
     competitors: project.competitors.join(", "),
+    competitorNotes: project.competitorNotes ?? "",
+    externalResearchNotes: project.externalResearchNotes ?? "",
     activate: false,
     expectedUpdatedAt: project.updatedAt,
   };
@@ -176,6 +182,8 @@ export function ProjectSwitcher() {
         brandName: draft.brandName,
         category: draft.category,
         competitors: competitorList(draft.competitors),
+        competitorNotes: draft.competitorNotes,
+        externalResearchNotes: draft.externalResearchNotes,
       };
       if (draft.id) {
         await api<{ project: Project }>(`/api/projects/${draft.id}`, {
@@ -292,7 +300,10 @@ export function ProjectSwitcher() {
         <label className="block text-xs">프로젝트 이름<input className="mt-1.5" required maxLength={120} value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} /></label>
         <label className="block text-xs">브랜드 이름<input className="mt-1.5" maxLength={120} value={draft.brandName} onChange={(event) => setDraft({ ...draft, brandName: event.target.value })} /></label>
         <label className="block text-xs">카테고리<input className="mt-1.5" maxLength={120} value={draft.category} onChange={(event) => setDraft({ ...draft, category: event.target.value })} /></label>
-        <label className="block text-xs">경쟁사 <span className="text-slate-600">(쉼표 또는 줄바꿈)</span><textarea className="mt-1.5 min-h-24" maxLength={2500} value={draft.competitors} onChange={(event) => setDraft({ ...draft, competitors: event.target.value })} /></label>
+        <label className="block text-xs">경쟁사 도메인/이름 <span className="text-slate-600">(쉼표 또는 줄바꿈 · RankSEO Easy-Win·SERP에서 손으로 옮긴 값)</span><textarea className="mt-1.5 min-h-24" maxLength={2500} value={draft.competitors} onChange={(event) => setDraft({ ...draft, competitors: event.target.value })} placeholder="예: competitor.com, 경쟁사 B" /></label>
+        <label className="block text-xs">경쟁사 메모 <span className="text-slate-600">(선택 · Easy-Win·키워드 힌트)</span><textarea className="mt-1.5 min-h-20" maxLength={5000} value={draft.competitorNotes} onChange={(event) => setDraft({ ...draft, competitorNotes: event.target.value })} placeholder="RankSEO에서 본 Easy-Win·SERP 메모를 붙여 넣으세요" /></label>
+        <label className="block text-xs">외부 연구 메모 <span className="text-slate-600">(선택)</span><textarea className="mt-1.5 min-h-20" maxLength={10000} value={draft.externalResearchNotes} onChange={(event) => setDraft({ ...draft, externalResearchNotes: event.target.value })} placeholder="Glippy 준비도·기타 외부 연구 인사이트" /></label>
+        <p className="rounded-lg border border-amber-400/15 bg-amber-400/5 px-3 py-2 text-[11px] leading-5 text-amber-200/80">RankSEO DA/DR·GEO 배지는 참고용입니다. 실인용·점유율은 /share 측정과 GenRank를 기준으로 하세요.</p>
         {!draft.id && <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={draft.activate} onChange={(event) => setDraft({ ...draft, activate: event.target.checked })} />생성 후 활성 프로젝트로 전환</label>}
         <div className="flex justify-end gap-2"><Button type="button" variant="secondary" onClick={() => setDraft(null)}>취소</Button><Button type="submit" disabled={busy || !draft.name.trim()}>{busy ? "저장 중…" : "저장"}</Button></div>
       </form>}

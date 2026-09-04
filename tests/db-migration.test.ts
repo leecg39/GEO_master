@@ -73,12 +73,14 @@ describe("settings and CRUD schema migration", () => {
 
     const migrationVersions = (sqlite.prepare("SELECT version FROM schema_migrations ORDER BY version").all() as { version: number }[])
       .map((row) => row.version);
-    expect(migrationVersions).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(migrationVersions).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     const tables = (sqlite.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as { name: string }[]).map((row) => row.name);
     expect(tables).toEqual(expect.arrayContaining([
       "content_revisions", "llms_documents", "report_presets", "workspace_backups",
       "semforge_subscriptions", "ai_visibility_queries", "site_audit_campaigns",
     ]));
+    expect((sqlite.pragma("table_info(projects)") as { name: string }[]).map((column) => column.name))
+      .toEqual(expect.arrayContaining(["competitor_notes", "external_research_notes"]));
     expect(sqlite.pragma("foreign_key_check")).toEqual([]);
   });
 });

@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { CalendarDays, CheckCircle2, Circle, GitBranch, LayoutList, LoaderCircle, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { ConfirmDialog, DetailDrawer } from "@/components/CrudPrimitives";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
+import { listGeoPrompts } from "@/lib/geo-prompt-catalog";
 
 type ItemType = "question" | "pillar" | "cluster" | "supporting" | "calendar" | "cycle";
 type Tab = "question" | "cluster" | "calendar" | "cycle";
@@ -186,14 +187,36 @@ export function StrategyClient() {
   const statusTone = (status: StrategyItem["status"]) => status === "완료" ? "good" : status === "진행" ? "cyan" : "default";
   if (loading) return <div className="grid min-h-96 place-items-center"><LoaderCircle className="h-7 w-7 animate-spin text-cyan-400" /></div>;
   return <div>
-    <PageHeader eyebrow="Strategy system" title="전략 워크스페이스" description="질문을 의도·고객·여정으로 분류하고, 토픽 생태계와 월별 계획, 반복 개선 루프까지 연결합니다." />
+    <PageHeader eyebrow="Strategy system" title="전략 워크스페이스" description="질문을 의도·고객·여정으로 분류하고, 토픽 생태계와 월별 계획, 반복 개선 루프까지 연결합니다. RankSEO·Glippy 인사이트는 질문 소스·실행 메모에만 붙여 넣고, 인용 성과는 /share로 검증하세요." />
+    <Card className="mb-5 border-cyan-400/10">
+      <p className="text-xs font-bold uppercase tracking-widest text-cyan-400">Prompt playbook · 1클릭 시드</p>
+      <p className="mt-1 text-xs text-slate-500">로컬 카탈로그입니다. 선택하면 제목·유형이 채워지며, 본문 스펙은 SEMForge GEO Blocks에서 생성하세요.</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {listGeoPrompts("strategy").map((prompt) => (
+          <button
+            key={prompt.id}
+            type="button"
+            className="rounded-lg border border-white/8 bg-slate-950/40 px-2.5 py-1.5 text-left text-[11px] text-slate-400 hover:border-cyan-400/25 hover:text-cyan-200"
+            onClick={() => {
+              if (prompt.strategySeed?.type === "question") setTab("question");
+              else setTab("cluster");
+              if (prompt.strategySeed?.type === "pillar" || prompt.strategySeed?.type === "cluster") setSubtype(prompt.strategySeed.type);
+              setTitle(prompt.strategySeed?.title ?? prompt.title);
+            }}
+          >
+            {prompt.title}
+          </button>
+        ))}
+        <a href="/geo-blocks" className="rounded-lg border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1.5 text-[11px] font-semibold text-cyan-200">GEO Blocks에서 초안 →</a>
+      </div>
+    </Card>
     <div className="mb-5 flex gap-2 overflow-x-auto pb-1">{tabInfo.map(({ id, label, icon: Icon }) => <button type="button" key={id} onClick={() => setTab(id)} className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold ${tab === id ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-300" : "border-white/7 bg-slate-900/50 text-slate-500"}`}><Icon className="h-4 w-4" />{label}</button>)}</div>
     <Card>
       <form onSubmit={create}>
         <div className="grid gap-3 lg:grid-cols-6">
           {tab !== "cycle" && <label className="lg:col-span-2 text-xs">{tab === "question" ? "고객 질문" : tab === "cluster" ? "콘텐츠 주제" : "콘텐츠 제목"}<input className="mt-1.5" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder={tab === "question" ? "고객이 실제로 묻는 질문" : "항목 제목"} /></label>}
           {tab === "question" && <>
-            <label className="text-xs">질문 소스<select className="mt-1.5" value={source} onChange={(e) => setSource(e.target.value)}>{guide.sources.map((value) => <option key={value}>{value}</option>)}</select></label>
+            <label className="text-xs">질문 소스 <span className="text-slate-600">(외부 연구 포함)</span><select className="mt-1.5" value={source} onChange={(e) => setSource(e.target.value)}>{guide.sources.map((value) => <option key={value}>{value}</option>)}</select></label>
             <label className="text-xs">의도<select className="mt-1.5" value={intent} onChange={(e) => setIntent(e.target.value)}>{guide.intents.map((value) => <option key={value}>{value}</option>)}</select></label>
             <label className="text-xs">고객 세그먼트<input className="mt-1.5" value={segment} onChange={(e) => setSegment(e.target.value)} placeholder="예: B2B 마케터" /></label>
             <label className="text-xs">구매 단계<select className="mt-1.5" value={journey} onChange={(e) => setJourney(e.target.value)}>{guide.journeyStages.map((value) => <option key={value}>{value}</option>)}</select></label>
@@ -213,7 +236,7 @@ export function StrategyClient() {
           </>}
           {tab === "cycle" && <>
             <label className="lg:col-span-2 text-xs">주차<select className="mt-1.5" value={week} onChange={(e) => setWeek(Number(e.target.value))}>{guide.cycle.map((value, index) => <option key={value} value={index + 1}>{index + 1}주차 · {value}</option>)}</select></label>
-            <label className="lg:col-span-3 text-xs">이번 실행 메모<input className="mt-1.5" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="이번 주에 완료할 구체적인 작업" /></label>
+            <label className="lg:col-span-3 text-xs">이번 실행 메모 <span className="text-slate-600">(외부 연구 인사이트 포함 가능)</span><input className="mt-1.5" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="이번 주에 완료할 작업 · RankSEO/Glippy 힌트 반영" /></label>
           </>}
           <div className="flex items-end"><Button className="w-full" disabled={saving}>{saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}추가</Button></div>
         </div>

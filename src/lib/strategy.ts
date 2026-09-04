@@ -222,7 +222,7 @@ export function deleteStrategyItem(idInput: unknown, input?: unknown) {
 }
 
 export const STRATEGY_GUIDE = {
-  sources: ["고객 상담", "챗봇 로그", "SNS·커뮤니티", "서치콘솔", "AI 직접 질문"],
+  sources: ["고객 상담", "챗봇 로그", "SNS·커뮤니티", "서치콘솔", "AI 직접 질문", "외부 연구(RankSEO·SERP)"],
   intents: ["정보 탐색형", "비교·평가형", "구매 결정형", "문제 해결형"],
   journeyStages: ["탐색", "비교", "구매 결정"],
   calendar: ["기반 구축", "세그먼트 확장", "문제 해결 강화", "지원 자료", "업데이트", "공백 보완"],

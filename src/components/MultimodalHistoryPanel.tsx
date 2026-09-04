@@ -37,7 +37,7 @@ interface ApiFailure extends Error { code?: string }
 
 const changedEvent = "geo-master:multimodal-audit-changed";
 const projectChangedEvent = "geo-master:project-changed";
-const statuses = ["generated", "draft", "review", "approved", "archived", "failed"] as const;
+const statuses = ["generated", "dry_run_preview", "draft", "review", "approved", "archived", "failed"] as const;
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, { cache: "no-store", ...init });
@@ -54,9 +54,10 @@ export function notifyMultimodalAuditChanged() {
   window.dispatchEvent(new Event(changedEvent));
 }
 
-function statusTone(status: string): "good" | "warn" | "cyan" | "default" {
+function statusTone(status: string): "good" | "warn" | "cyan" | "bad" | "default" {
   if (status === "approved") return "good";
-  if (status === "review") return "warn";
+  if (status === "dry_run_preview" || status === "review") return "warn";
+  if (status === "failed") return "bad";
   if (status === "generated") return "cyan";
   return "default";
 }

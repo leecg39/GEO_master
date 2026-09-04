@@ -7,6 +7,8 @@ export const projects = sqliteTable("projects", {
   domain: text("domain").notNull().default(""),
   category: text("category").notNull().default(""),
   competitors: text("competitors").notNull().default("[]"),
+  competitorNotes: text("competitor_notes").notNull().default(""),
+  externalResearchNotes: text("external_research_notes").notNull().default(""),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { CheckCircle2, KeyRound, LoaderCircle, Radar, RotateCcw, Save, ShieldCheck } from "lucide-react";
+import { CheckCircle2, KeyRound, LoaderCircle, NotebookPen, Radar, RotateCcw, Save, ShieldCheck } from "lucide-react";
 import { ConfirmDialog } from "@/components/CrudPrimitives";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
 
@@ -15,14 +15,23 @@ type Provider = keyof typeof providerInfo;
 interface KeyState { configured: boolean; preview: string | null; error: boolean }
 interface SettingsState {
   brandName: string; category: string; competitors: string[];
-  activeProject: { id: number; name: string; brandName: string; category: string; competitors: string[]; updatedAt: string };
+  activeProject: {
+    id: number; name: string; brandName: string; category: string; competitors: string[];
+    competitorNotes: string; externalResearchNotes: string; updatedAt: string;
+  };
   models: Record<Provider, string>; repetitions: number; modelWeights: Record<Provider, number>;
   apiKeys: Record<Provider, KeyState>; subscriptionPin: KeyState; talordataApiToken: KeyState; firecrawlApiKey: KeyState; updatedAt: string;
 }
 const defaultModels: SettingsState["models"] = { openai: "gpt-4.1-mini", anthropic: "claude-sonnet-4-5", gemini: "gemini-2.5-flash", grok: "grok-4.6" };
 const defaultModelWeights: SettingsState["modelWeights"] = { openai: 0.3, anthropic: 0.25, gemini: 0.2, grok: 0.25 };
 const defaultRepetitions = 3;
-const initial: SettingsState = { brandName: "", category: "", competitors: [], activeProject: { id: 0, name: "", brandName: "", category: "", competitors: [], updatedAt: "" }, models: defaultModels, repetitions: defaultRepetitions, modelWeights: defaultModelWeights, apiKeys: { openai: { configured: false, preview: null, error: false }, anthropic: { configured: false, preview: null, error: false }, gemini: { configured: false, preview: null, error: false }, grok: { configured: false, preview: null, error: false } }, subscriptionPin: { configured: false, preview: null, error: false }, talordataApiToken: { configured: false, preview: null, error: false }, firecrawlApiKey: { configured: false, preview: null, error: false }, updatedAt: "" };
+const initial: SettingsState = {
+  brandName: "", category: "", competitors: [],
+  activeProject: { id: 0, name: "", brandName: "", category: "", competitors: [], competitorNotes: "", externalResearchNotes: "", updatedAt: "" },
+  models: defaultModels, repetitions: defaultRepetitions, modelWeights: defaultModelWeights,
+  apiKeys: { openai: { configured: false, preview: null, error: false }, anthropic: { configured: false, preview: null, error: false }, gemini: { configured: false, preview: null, error: false }, grok: { configured: false, preview: null, error: false } },
+  subscriptionPin: { configured: false, preview: null, error: false }, talordataApiToken: { configured: false, preview: null, error: false }, firecrawlApiKey: { configured: false, preview: null, error: false }, updatedAt: "",
+};
 
 async function parseResponse<T>(response: Response): Promise<T> { const body = await response.json() as T & { error?: string }; if (!response.ok) throw new Error(body.error ?? "요청에 실패했습니다."); return body; }
 
@@ -36,13 +45,33 @@ export function SettingsClient() {
   const [clearTalordataApiToken, setClearTalordataApiToken] = useState(false);
   const [firecrawlApiKey, setFirecrawlApiKey] = useState("");
   const [clearFirecrawlApiKey, setClearFirecrawlApiKey] = useState(false);
+  const [competitorNotes, setCompetitorNotes] = useState("");
+  const [externalResearchNotes, setExternalResearchNotes] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingResearch, setSavingResearch] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [resetDefaultsOpen, setResetDefaultsOpen] = useState(false);
 
-  useEffect(() => { void (async () => { try { const data = await parseResponse<{ settings: SettingsState }>(await fetch("/api/settings")); setSettings(data.settings); } catch (cause) { setError(cause instanceof Error ? cause.message : "설정을 불러오지 못했습니다."); } finally { setLoading(false); } })(); }, []);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await parseResponse<{ settings: SettingsState }>(await fetch("/api/settings"));
+        setSettings(data.settings);
+        setCompetitorNotes(data.settings.activeProject.competitorNotes ?? "");
+        setExternalResearchNotes(data.settings.activeProject.externalResearchNotes ?? "");
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : "설정을 불러오지 못했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    void load();
+    const onProject = () => { void load().catch(() => undefined); };
+    window.addEventListener("geo-master:project-changed", onProject);
+    return () => window.removeEventListener("geo-master:project-changed", onProject);
+  }, []);
 
   async function submit(event: FormEvent) {
     event.preventDefault(); setSaving(true); setError(""); setMessage("");
@@ -60,6 +89,37 @@ export function SettingsClient() {
       setSettings(data.settings); setKeys({ openai: "", anthropic: "", gemini: "", grok: "" }); setClearKeys([]); setSubscriptionPin(""); setClearSubscriptionPin(false); setTalordataApiToken(""); setClearTalordataApiToken(false); setFirecrawlApiKey(""); setClearFirecrawlApiKey(false); setMessage("전역 설정이 안전하게 저장되었습니다.");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "저장에 실패했습니다."); }
     finally { setSaving(false); }
+  }
+
+  async function saveResearchNotes(event: FormEvent) {
+    event.preventDefault();
+    if (!settings.activeProject.id) return;
+    setSavingResearch(true); setError(""); setMessage("");
+    try {
+      const response = await fetch(`/api/projects/${settings.activeProject.id}`, {
+        method: "PATCH", headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          competitorNotes,
+          externalResearchNotes,
+          expectedUpdatedAt: settings.activeProject.updatedAt,
+        }),
+      });
+      const data = await parseResponse<{ project: SettingsState["activeProject"] & { updatedAt: string } }>(response);
+      setSettings((current) => ({
+        ...current,
+        activeProject: {
+          ...current.activeProject,
+          competitorNotes: data.project.competitorNotes ?? "",
+          externalResearchNotes: data.project.externalResearchNotes ?? "",
+          updatedAt: data.project.updatedAt,
+        },
+      }));
+      setCompetitorNotes(data.project.competitorNotes ?? "");
+      setExternalResearchNotes(data.project.externalResearchNotes ?? "");
+      setMessage("외부 연구 메모가 활성 프로젝트에 저장되었습니다.");
+      window.dispatchEvent(new Event("geo-master:project-changed"));
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "연구 메모 저장에 실패했습니다."); }
+    finally { setSavingResearch(false); }
   }
 
   async function resetMeasurementDefaults() {
@@ -92,6 +152,32 @@ export function SettingsClient() {
         <Button disabled={saving} className="min-w-36">{saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}{saving ? "저장 중" : "설정 저장"}</Button>
       </div>
     </form>
+
+    <form onSubmit={saveResearchNotes} className="mt-5">
+      <Card>
+        <div className="mb-5 flex items-start gap-3">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-amber-400/10"><NotebookPen className="h-4 w-4 text-amber-300" /></span>
+          <div>
+            <h2 className="font-semibold text-white">외부 연구 보조</h2>
+            <p className="mt-1 text-xs leading-5 text-slate-500">RankSEO·Glippy 결과는 제품에 이식하지 않고, 손으로 옮긴 힌트만 활성 프로젝트에 보관합니다. Moz/Ahrefs 등 제3자 메트릭 API는 연결하지 않습니다.</p>
+          </div>
+        </div>
+        <p className="mb-4 rounded-xl border border-amber-400/15 bg-amber-400/5 px-3 py-2.5 text-xs leading-5 text-amber-100/85">RankSEO DA/DR·GEO 배지는 참고용입니다. 실인용·점유율은 /share 측정과 GenRank를 기준으로 하세요.</p>
+        <p className="mb-4 text-xs text-slate-500">경쟁사 목록은 사이드바 프로젝트 관리에서 편집합니다. 현재: {settings.activeProject.competitors.length ? settings.activeProject.competitors.join(", ") : "미설정"}</p>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <label className="block text-sm">경쟁사 메모 <span className="text-xs text-slate-600">(RankSEO Easy-Win·SERP에서 손으로 옮긴 텍스트)</span>
+            <textarea className="mt-2 min-h-32" maxLength={5000} value={competitorNotes} onChange={(e) => setCompetitorNotes(e.target.value)} placeholder="예: competitor.com — Easy-Win 키워드, SERP 갭 메모" />
+          </label>
+          <label className="block text-sm">외부 연구 메모 <span className="text-xs text-slate-600">(선택)</span>
+            <textarea className="mt-2 min-h-32" maxLength={10000} value={externalResearchNotes} onChange={(e) => setExternalResearchNotes(e.target.value)} placeholder="Glippy 스키마·llms.txt·크롤러 이슈 등 연구 메모" />
+          </label>
+        </div>
+        <div className="mt-4 flex justify-end">
+          <Button type="submit" disabled={savingResearch} className="min-w-36">{savingResearch ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}{savingResearch ? "저장 중" : "연구 메모 저장"}</Button>
+        </div>
+      </Card>
+    </form>
+
     <ConfirmDialog
       open={resetDefaultsOpen}
       title="측정 기본값을 되돌릴까요?"

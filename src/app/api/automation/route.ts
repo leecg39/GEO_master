@@ -14,6 +14,7 @@ import {
   updateSchedule,
 } from "@/lib/automation";
 import { errorResponse } from "@/lib/errors";
+import { suggestContentFromShareJob } from "@/lib/semforge/geo-blocks";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -60,6 +61,9 @@ export async function POST(request: NextRequest) {
         break;
       case "queue.process":
         result = await processAutomationQueue();
+        break;
+      case "content.suggestFromShare":
+        result = await suggestContentFromShareJob({ runId: input.runId, limit: input.limit });
         break;
     }
     startAutomationWorker();

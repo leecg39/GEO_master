@@ -19,7 +19,7 @@ const MAX_INPUT_BYTES = 2_000_000;
 const MAX_OUTPUT_BYTES = 8_000_000;
 const MAX_METADATA_BYTES = 100_000;
 
-export const contentStatuses = ["generated", "draft", "review", "approved", "archived", "failed"] as const;
+export const contentStatuses = ["generated", "dry_run_preview", "draft", "review", "approved", "archived", "failed"] as const;
 export const contentRevisionOrigins = ["generated", "edited", "restored"] as const;
 
 const contentToolSchema = z.string().trim().min(1).max(64).regex(/^[a-z0-9][a-z0-9-]*$/);

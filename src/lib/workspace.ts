@@ -44,7 +44,10 @@ const snapshotDataSchema = z.object({
   projects: z.array(z.object({
     id, name: short, brandName: z.string().max(120), domain: z.string().max(253).optional().default(""),
     category: z.string().max(120),
-    competitors: encodedJson(200_000, jsonArray), createdAt: timestamp, updatedAt: timestamp,
+    competitors: encodedJson(200_000, jsonArray),
+    competitorNotes: z.string().max(5_000).optional().default(""),
+    externalResearchNotes: z.string().max(10_000).optional().default(""),
+    createdAt: timestamp, updatedAt: timestamp,
   }).strict()).max(20_000),
   questionSets: z.array(z.object({
     id, projectId: optionalId, name: short, createdAt: timestamp, updatedAt: timestamp.optional(),
@@ -194,7 +197,9 @@ export function buildWorkspaceSnapshot(): WorkspaceSnapshot {
     },
     projects: orm.select().from(projects).orderBy(asc(projects.id)).all().map((row) => ({
       id: row.id, name: row.name, brandName: row.brandName, domain: row.domain ?? "",
-      category: row.category, competitors: row.competitors, createdAt: row.createdAt, updatedAt: row.updatedAt,
+      category: row.category, competitors: row.competitors,
+      competitorNotes: row.competitorNotes ?? "", externalResearchNotes: row.externalResearchNotes ?? "",
+      createdAt: row.createdAt, updatedAt: row.updatedAt,
     })),
     questionSets: orm.select().from(questionSets).orderBy(asc(questionSets.id)).all().map((row) => ({
       id: row.id, projectId: row.projectId, name: row.name, createdAt: row.createdAt, updatedAt: row.updatedAt || row.createdAt,
@@ -291,7 +296,9 @@ export function importWorkspace(input: unknown) {
     for (const row of data.projects) {
       const inserted = orm.insert(projects).values({
         ...(parsed.mode === "replace" ? { id: row.id } : {}), name: row.name, brandName: row.brandName,
-        domain: row.domain ?? "", category: row.category, competitors: row.competitors, createdAt: row.createdAt, updatedAt: row.updatedAt,
+        domain: row.domain ?? "", category: row.category, competitors: row.competitors,
+        competitorNotes: row.competitorNotes ?? "", externalResearchNotes: row.externalResearchNotes ?? "",
+        createdAt: row.createdAt, updatedAt: row.updatedAt,
       }).returning({ id: projects.id }).get();
       projectMap.set(row.id, inserted.id);
     }

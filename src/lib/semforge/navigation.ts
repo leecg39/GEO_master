@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { BarChart3, Globe2, MapPin, SearchCheck, TrendingUp } from "lucide-react";
+import { BarChart3, Blocks, Globe2, MapPin, SearchCheck, TrendingUp } from "lucide-react";
 
 export const SEMFORGE_HUB_PATH = "/semforge";
 
@@ -11,6 +11,12 @@ export interface SemforgeFeature {
 }
 
 export const semforgeFeatures: SemforgeFeature[] = [
+  {
+    href: "/geo-blocks",
+    label: "GEO Blocks",
+    description: "인용용 Hero/TL;DR/FAQ/Speakable 블록 스펙 초안·dry-run·승인 (CMS 게시 없음).",
+    icon: Blocks,
+  },
   {
     href: "/ai-seo",
     label: "AI SEO (SERP)",

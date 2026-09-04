@@ -49,7 +49,7 @@ interface ApiFailure extends Error { code?: string }
 
 const changedEvent = "geo-master:studio-content-changed";
 const projectChangedEvent = "geo-master:project-changed";
-const statuses = ["generated", "draft", "review", "approved", "archived", "failed"] as const;
+const statuses = ["generated", "dry_run_preview", "draft", "review", "approved", "archived", "failed"] as const;
 const toolLabels: Record<StudioTool, string> = { rewrite: "리라이팅", intro: "도입부", faq: "FAQ", entity: "엔티티" };
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {
@@ -70,7 +70,7 @@ export function notifyStudioContentChanged() {
 function statusTone(status: string): "good" | "bad" | "warn" | "cyan" | "default" {
   if (status === "approved") return "good";
   if (status === "failed") return "bad";
-  if (status === "review") return "warn";
+  if (status === "review" || status === "dry_run_preview") return "warn";
   if (status === "generated") return "cyan";
   return "default";
 }

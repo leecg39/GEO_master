@@ -174,6 +174,8 @@ export function getPublicSettings() {
       brandName: project.brandName,
       category: project.category,
       competitors,
+      competitorNotes: project.competitorNotes ?? "",
+      externalResearchNotes: project.externalResearchNotes ?? "",
       updatedAt: project.updatedAt,
     },
     models: resolvedModels(row.models, Boolean(gudokpinEnvironmentKey() || row.subscriptionPin)),

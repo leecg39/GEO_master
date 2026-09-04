@@ -442,6 +442,14 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 10,
+    name: "project-external-research-notes",
+    up(sqlite) {
+      addColumnIfMissing(sqlite, "projects", "competitor_notes", "TEXT NOT NULL DEFAULT ''");
+      addColumnIfMissing(sqlite, "projects", "external_research_notes", "TEXT NOT NULL DEFAULT ''");
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

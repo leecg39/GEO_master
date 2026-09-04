@@ -120,6 +120,17 @@ export const CASE_STUDIES = [
   ["허브스팟", "장기간 누적한 교육 콘텐츠와 도구가 주제 권위를 형성했습니다."],
 ] as const;
 
+/** RankSEO·Glippy는 연구 보조, 인용 진실은 /share — 제품에 이식하지 않음 */
+export const EXTERNAL_TOOL_WORKFLOW =
+  "RankSEO(경쟁·Easy-Win) → settings → Glippy(준비도) → audit → share(실인용)";
+
+export const CITATION_TRUTH_NOTE =
+  "외부 툴(RankSEO·Glippy)은 연구 보조로만 사용합니다. DA/DR·GEO 배지·준비도 점수는 GenRank와 합산·동일 척도로 비교하지 않으며, 인용·점유율의 진실은 /share 실측정과 GenRank에만 둡니다.";
+
+/** CMS 운영이 아닌 인용 측정·준비 — WP x MCP는 블록 스펙·승인 UX만 참고 */
+export const PRODUCT_BOUNDARY_NOTE =
+  "GEO Master는 CMS 운영자가 아니라 인용 측정·준비 워크스페이스입니다. WP x MCP류 패턴은 GEO 블록 스펙·dry-run·승인 UX만 참고하며, 라이브 사이트 조작은 SEMForge GEO Blocks에서도 하지 않습니다.";
+
 if (LEARN_CHECKLIST.length !== 38) {
   throw new Error(`Learn checklist invariant failed: ${LEARN_CHECKLIST.length}`);
 }

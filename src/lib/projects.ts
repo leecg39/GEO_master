@@ -18,10 +18,14 @@ const projectFields = {
   brandName: z.string().trim().max(120),
   category: z.string().trim().max(120),
   competitors: z.array(z.string().trim().min(1).max(120)).max(20),
+  competitorNotes: z.string().trim().max(5_000),
+  externalResearchNotes: z.string().trim().max(10_000),
 };
 
 export const projectCreateSchema = z.object({
   ...projectFields,
+  competitorNotes: projectFields.competitorNotes.optional().default(""),
+  externalResearchNotes: projectFields.externalResearchNotes.optional().default(""),
   activate: z.boolean().optional().default(false),
 }).strict();
 
@@ -30,9 +34,12 @@ export const projectUpdateSchema = z.object({
   brandName: projectFields.brandName.optional(),
   category: projectFields.category.optional(),
   competitors: projectFields.competitors.optional(),
+  competitorNotes: projectFields.competitorNotes.optional(),
+  externalResearchNotes: projectFields.externalResearchNotes.optional(),
   expectedUpdatedAt: z.string().min(1).max(64),
 }).strict().refine(
-  (value) => value.name !== undefined || value.brandName !== undefined || value.category !== undefined || value.competitors !== undefined,
+  (value) => value.name !== undefined || value.brandName !== undefined || value.category !== undefined
+    || value.competitors !== undefined || value.competitorNotes !== undefined || value.externalResearchNotes !== undefined,
   { message: "수정할 프로젝트 필드를 하나 이상 입력해 주세요." },
 );
 
@@ -49,6 +56,8 @@ interface ProjectRow {
   domain: string;
   category: string;
   competitors: string;
+  competitor_notes: string;
+  external_research_notes: string;
   created_at: string;
   updated_at: string;
 }
@@ -69,6 +78,8 @@ export interface ProjectResource {
   domain: string;
   category: string;
   competitors: string[];
+  competitorNotes: string;
+  externalResearchNotes: string;
   active: boolean;
   createdAt: string;
   updatedAt: string;
@@ -108,6 +119,8 @@ function toProject(row: ProjectRow, activeProjectId: number | null): ProjectReso
     domain: row.domain ?? "",
     category: row.category,
     competitors: parseCompetitors(row.competitors),
+    competitorNotes: row.competitor_notes ?? "",
+    externalResearchNotes: row.external_research_notes ?? "",
     active: row.id === activeProjectId,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -243,13 +256,15 @@ export function createProject(input: unknown) {
     const currentActive = settings.active_project_id ? findProjectRow(settings.active_project_id) : undefined;
     const now = new Date().toISOString();
     const result = sqlite.prepare(`
-      INSERT INTO projects (name, brand_name, category, competitors, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO projects (name, brand_name, category, competitors, competitor_notes, external_research_notes, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       parsed.name,
       parsed.brandName,
       parsed.category,
       JSON.stringify(normalizeCompetitors(parsed.competitors)),
+      parsed.competitorNotes,
+      parsed.externalResearchNotes,
       now,
       now,
     );
@@ -272,12 +287,14 @@ export function updateProject(idInput: unknown, input: unknown) {
     assertExpectedUpdatedAt(row.updated_at, parsed.expectedUpdatedAt);
     const updatedAt = nextTimestamp(row.updated_at);
     sqlite.prepare(`
-      UPDATE projects SET name = ?, brand_name = ?, category = ?, competitors = ?, updated_at = ? WHERE id = ?
+      UPDATE projects SET name = ?, brand_name = ?, category = ?, competitors = ?, competitor_notes = ?, external_research_notes = ?, updated_at = ? WHERE id = ?
     `).run(
       parsed.name ?? row.name,
       parsed.brandName ?? row.brand_name,
       parsed.category ?? row.category,
       parsed.competitors === undefined ? row.competitors : JSON.stringify(normalizeCompetitors(parsed.competitors)),
+      parsed.competitorNotes ?? row.competitor_notes ?? "",
+      parsed.externalResearchNotes ?? row.external_research_notes ?? "",
       updatedAt,
       id,
     );

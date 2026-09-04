@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Rubik, Space_Grotesk } from "next/font/google";
+import Script from "next/script";
 import { Agentation } from "agentation";
 import { AppShell } from "@/components/AppShell";
 import { DEFAULT_THEME, themeInitScript } from "@/lib/theme";
@@ -26,10 +27,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="ko" data-theme={DEFAULT_THEME} className={`${rubik.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript() }} />
-      </head>
       <body>
+        <Script id="geo-master-theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeInitScript() }} />
         <AppShell>{children}</AppShell>
         {process.env.NODE_ENV === "development" && <Agentation />}
       </body>

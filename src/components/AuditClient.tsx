@@ -48,6 +48,7 @@ export function AuditClient() {
 
   return <div className="space-y-6">
     <PageHeader eyebrow="Site intelligence" title="GEO 진단" description="사이트의 SEO 기반, AI 친화 구조, 신뢰 신호와 크롤러 접근성을 32개 통합 항목과 AI 엔진으로 정밀 분석합니다." />
+    <p className="rounded-xl border border-white/8 bg-slate-950/40 px-4 py-3 text-xs leading-5 text-slate-400">연구 보조 파이프: RankSEO(경쟁·Easy-Win) → settings → Glippy(준비도) → audit → share(실인용). Glippy 준비도 이슈는 여기 진단·체크에 반영하고, 인용 진실은 /share에서 측정하세요.</p>
     <Card className="border-cyan-400/20 bg-slate-900/80 p-6 sm:p-7">
       <form onSubmit={submit} className="grid gap-3.5 md:grid-cols-[0.8fr_1.4fr_auto]">
         <label className="sr-only" htmlFor="audit-title">진단 제목</label>
@@ -58,6 +59,7 @@ export function AuditClient() {
       </form>
       <details className="mt-4"><summary className="cursor-pointer text-xs font-semibold text-slate-400 hover:text-slate-200">수동 사전 체크 (선택 사항 · 미체크 시 GEO 엔진이 본문 기반으로 자동 분석합니다)</summary><div className="mt-3.5 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">{manualRules.map(([code, label]) => <label key={code} className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-white/5 bg-slate-950/50 p-3 text-xs text-slate-300 transition hover:bg-slate-950/80"><input type="checkbox" checked={Boolean(manual[code])} onChange={(e) => { setManual((state) => ({ ...state, [code]: e.target.checked })); requestId.current = null; }} className="rounded" />{label}</label>)}</div></details>
       <p className="mt-4 flex items-center gap-2 text-xs text-slate-500"><AlertTriangle className="h-3.5 w-3.5 text-amber-400" />외부 사이트에 실시간 진단 요청을 보냅니다. 사설망·로컬 주소와 2MB 초과 문서는 차단됩니다.</p>
+      {audit && <p className="mt-3 text-xs text-slate-500">실패 항목은 SEMForge <a className="text-cyan-300 hover:underline" href="/geo-blocks">GEO Blocks</a>에서 스펙 초안으로 변환할 수 있습니다.</p>}
       {error && <p role="alert" className="mt-4 rounded-xl border border-rose-400/20 bg-rose-400/10 p-4 text-sm text-rose-300">{error}</p>}
     </Card>
 

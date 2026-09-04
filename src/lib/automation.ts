@@ -52,6 +52,11 @@ export const automationActionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("job.retry"), id: z.number().int().positive() }).strict(),
   z.object({ action: z.literal("queue.process") }).strict(),
   z.object({ action: z.literal("policy.update"), policy: automationPolicySchema }).strict(),
+  z.object({
+    action: z.literal("content.suggestFromShare"),
+    runId: z.number().int().positive().optional(),
+    limit: z.number().int().min(1).max(10).optional().default(5),
+  }).strict(),
 ]);
 
 export type AutomationPolicy = z.infer<typeof automationPolicySchema>;
