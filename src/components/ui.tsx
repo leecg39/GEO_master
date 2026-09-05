@@ -5,9 +5,9 @@ export function PageHeader({ eyebrow, title, description, action }: { eyebrow: s
   return (
     <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-cyan-400">{eyebrow}</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400 sm:text-base">{description}</p>
+        <p className="mb-2 text-[15px] font-medium uppercase tracking-[0.2px] text-[color:var(--color-accent-violet-mid)]">{eyebrow}</p>
+        <h1 className="font-display text-[30px] font-medium leading-[1.2] tracking-tight text-white sm:text-[36px]">{title}</h1>
+        <p className="mt-3 max-w-3xl text-base font-normal leading-[2] text-[color:var(--color-on-dark-muted)]">{description}</p>
       </div>
       {action}
     </header>
@@ -15,33 +15,78 @@ export function PageHeader({ eyebrow, title, description, action }: { eyebrow: s
 }
 
 export function Card({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("rounded-2xl border border-white/8 bg-slate-900/65 p-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur", className)} {...props}>{children}</div>;
+  return (
+    <div
+      className={cn(
+        "rounded-[18px] border border-[color:var(--app-card-border)] bg-[color:var(--app-card-bg)] p-5",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function Badge({ children, tone = "default", className }: { children: ReactNode; tone?: "default" | "good" | "warn" | "bad" | "cyan"; className?: string }) {
   const tones = {
-    default: "border-slate-700 bg-slate-800 text-slate-300",
-    good: "border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
+    default: "border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)] text-white",
+    good: "border-[color:var(--color-accent-lime)]/30 bg-[color:var(--color-accent-lime)]/15 text-[color:var(--color-accent-lime)]",
     warn: "border-amber-400/25 bg-amber-400/10 text-amber-300",
-    bad: "border-rose-400/25 bg-rose-400/10 text-rose-300",
-    cyan: "border-cyan-400/25 bg-cyan-400/10 text-cyan-300",
+    bad: "border-[color:var(--color-accent-pink)]/30 bg-[color:var(--color-accent-pink)]/10 text-[color:var(--color-accent-pink)]",
+    cyan: "border-[color:var(--color-accent-violet)]/30 bg-[color:var(--color-accent-violet)]/15 text-[color:var(--color-accent-violet)]",
   };
-  return <span className={cn("inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold", tones[tone], className)}>{children}</span>;
+  return (
+    <span className={cn("inline-flex rounded-[4px] border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.25px]", tones[tone], className)}>
+      {children}
+    </span>
+  );
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "danger" }>(function Button({ className, variant = "primary", ...props }, ref) {
   const variants = {
-    primary: "bg-cyan-400 text-slate-950 hover:bg-cyan-300 disabled:bg-cyan-900 disabled:text-slate-500",
-    secondary: "border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 disabled:text-slate-600",
-    danger: "border border-rose-400/20 bg-rose-400/10 text-rose-300 hover:bg-rose-400/20",
+    primary:
+      "bg-[color:var(--app-cta-bg)] text-[color:var(--app-cta-text)] shadow-[rgba(0,0,0,0.08)_0_2px_8px_0] hover:opacity-95 active:bg-[color:var(--app-cta-pressed-bg)] active:text-[color:var(--app-cta-pressed-text)] disabled:bg-[color:var(--color-hairline-cloud)] disabled:text-[color:var(--color-on-dark-muted)] disabled:shadow-none",
+    secondary:
+      "border border-[color:var(--color-hairline-violet)] bg-[color:var(--color-on-dark-faint)] text-white hover:bg-[color:var(--color-accent-violet-mid)]/40 disabled:text-[color:var(--color-on-dark-muted)]",
+    danger:
+      "border border-[color:var(--color-accent-pink)]/25 bg-[color:var(--color-accent-pink)]/10 text-[color:var(--color-accent-pink)] hover:bg-[color:var(--color-accent-pink)]/20",
   };
-  return <button ref={ref} className={cn("inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-cyan-400/50 disabled:cursor-not-allowed", variants[variant], className)} {...props} />;
+  return (
+    <button
+      ref={ref}
+      className={cn(
+        "inline-flex min-h-11 items-center justify-center gap-2 rounded-[8px] px-4 py-3 text-[14px] font-bold uppercase tracking-[0.2px] transition focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring-focus)] disabled:cursor-not-allowed",
+        variants[variant],
+        className,
+      )}
+      {...props}
+    />
+  );
 });
 
 export function Progress({ value, className, ariaLabel = "진행률" }: { value: number; className?: string; ariaLabel?: string }) {
-  return <div role="progressbar" aria-label={ariaLabel} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(Math.max(0, Math.min(100, value)))} className={cn("h-2 overflow-hidden rounded-full bg-slate-800", className)}><div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 transition-all" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} /></div>;
+  return (
+    <div
+      role="progressbar"
+      aria-label={ariaLabel}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(Math.max(0, Math.min(100, value)))}
+      className={cn("h-2 overflow-hidden rounded-full bg-[color:var(--color-hairline-violet)]", className)}
+    >
+      <div
+        className="h-full rounded-full bg-gradient-to-r from-[color:var(--color-accent-violet)] to-[color:var(--color-accent-pink)] transition-all"
+        style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
+      />
+    </div>
+  );
 }
 
 export function EmptyState({ children }: { children: ReactNode }) {
-  return <div className="flex min-h-36 items-center justify-center rounded-xl border border-dashed border-white/10 px-6 text-center text-sm text-slate-500">{children}</div>;
+  return (
+    <div className="flex min-h-36 items-center justify-center rounded-[12px] border border-dashed border-[color:var(--color-hairline-violet)] px-6 text-center text-sm text-[color:var(--color-on-dark-muted)]">
+      {children}
+    </div>
+  );
 }

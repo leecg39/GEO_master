@@ -4,7 +4,7 @@ import path from "node:path";
 import { NextRequest } from "next/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { closeDatabase, getDatabase } from "@/lib/db";
-import { getPublicSettings, getServerSettings } from "@/lib/settings";
+import { getPublicSettings, getServerSettings, getFirecrawlApiKey, getTalordataApiToken } from "@/lib/settings";
 import { GET, PUT } from "@/app/api/settings/route";
 
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "geo-master-test-"));
@@ -13,12 +13,16 @@ const previousDb = process.env.GEO_DB_PATH;
 const previousKey = process.env.GEO_MASTER_KEY;
 const previousGrokKey = process.env.GROK_API_KEY;
 const previousXaiKey = process.env.XAI_API_KEY;
+const previousTalordataToken = process.env.TALORDATA_API_TOKEN;
+const previousFirecrawlKey = process.env.FIRECRAWL_API_KEY;
 
 beforeAll(() => {
   process.env.GEO_DB_PATH = databasePath;
   process.env.GEO_MASTER_KEY = "integration-test-master-key-32-characters-minimum";
   delete process.env.GROK_API_KEY;
   delete process.env.XAI_API_KEY;
+  delete process.env.TALORDATA_API_TOKEN;
+  delete process.env.FIRECRAWL_API_KEY;
 });
 afterAll(() => {
   closeDatabase(databasePath);
@@ -27,6 +31,8 @@ afterAll(() => {
   if (previousKey === undefined) delete process.env.GEO_MASTER_KEY; else process.env.GEO_MASTER_KEY = previousKey;
   if (previousGrokKey === undefined) delete process.env.GROK_API_KEY; else process.env.GROK_API_KEY = previousGrokKey;
   if (previousXaiKey === undefined) delete process.env.XAI_API_KEY; else process.env.XAI_API_KEY = previousXaiKey;
+  if (previousTalordataToken === undefined) delete process.env.TALORDATA_API_TOKEN; else process.env.TALORDATA_API_TOKEN = previousTalordataToken;
+  if (previousFirecrawlKey === undefined) delete process.env.FIRECRAWL_API_KEY; else process.env.FIRECRAWL_API_KEY = previousFirecrawlKey;
 });
 
 describe.sequential("settings API and cold-start database", () => {
@@ -35,6 +41,7 @@ describe.sequential("settings API and cold-start database", () => {
     const response = GET();
     expect(response.status).toBe(200);
     expect(fs.existsSync(databasePath)).toBe(true);
+    expect((await response.json()).settings.models.openai).toBe("gpt-6-astra");
     const table = getDatabase().sqlite.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='measure_results'").get();
     expect(table).toBeTruthy();
   });
@@ -157,6 +164,93 @@ describe.sequential("settings API and cold-start database", () => {
     const clearResponse = await PUT(clearRequest);
     expect(JSON.parse(await clearResponse.text()).settings.subscriptionPin.configured).toBe(false);
     expect(getServerSettings().decryptedSubscriptionPin).toBeNull();
+  });
+
+  it("round-trips the TalorData API token without exposing plaintext", async () => {
+    const token = "td_serp-integration-token-1357";
+    const request = new NextRequest("http://localhost/api/settings", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        expectedUpdatedAt: getPublicSettings().updatedAt,
+        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", grok: "grok-4.6" },
+        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, grok: .25 },
+        talordataApiToken: token,
+      }),
+    });
+    const putResponse = await PUT(request);
+    expect(putResponse.status).toBe(200);
+    const putText = await putResponse.text();
+    expect(putText).not.toContain(token);
+    expect(JSON.parse(putText).settings.talordataApiToken).toMatchObject({ configured: true, error: false });
+    expect(putText).toContain("••••••••1357");
+
+    const stored = getDatabase().sqlite.prepare("SELECT talordata_api_token FROM settings WHERE id=1").get() as { talordata_api_token: string };
+    expect(stored.talordata_api_token).not.toContain(token);
+    expect(getTalordataApiToken()).toBe(token);
+
+    const clearRequest = new NextRequest("http://localhost/api/settings", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        expectedUpdatedAt: getPublicSettings().updatedAt,
+        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", grok: "grok-4.6" },
+        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, grok: .25 },
+        clearTalordataApiToken: true,
+      }),
+    });
+    const clearResponse = await PUT(clearRequest);
+    expect(JSON.parse(await clearResponse.text()).settings.talordataApiToken.configured).toBe(false);
+    expect(getTalordataApiToken()).toBeNull();
+  });
+
+  it("prefers the TalorData environment token over the stored token", async () => {
+    const request = new NextRequest("http://localhost/api/settings", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        expectedUpdatedAt: getPublicSettings().updatedAt,
+        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", grok: "grok-4.6" },
+        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, grok: .25 },
+        talordataApiToken: "td_stored-token-9999",
+      }),
+    });
+    await PUT(request);
+    process.env.TALORDATA_API_TOKEN = "td_environment-token-8888";
+    expect(getTalordataApiToken()).toBe("td_environment-token-8888");
+    expect(getPublicSettings().talordataApiToken).toMatchObject({ configured: true, source: "environment" });
+    delete process.env.TALORDATA_API_TOKEN;
+    expect(getTalordataApiToken()).toBe("td_stored-token-9999");
+  });
+
+  it("round-trips the Firecrawl API key without exposing plaintext", async () => {
+    const key = "fc_integration-firecrawl-key-2468";
+    const request = new NextRequest("http://localhost/api/settings", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        expectedUpdatedAt: getPublicSettings().updatedAt,
+        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", grok: "grok-4.6" },
+        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, grok: .25 },
+        firecrawlApiKey: key,
+      }),
+    });
+    const putResponse = await PUT(request);
+    expect(putResponse.status).toBe(200);
+    const putText = await putResponse.text();
+    expect(putText).not.toContain(key);
+    expect(JSON.parse(putText).settings.firecrawlApiKey).toMatchObject({ configured: true, error: false });
+    expect(putText).toContain("••••••••2468");
+    expect(getFirecrawlApiKey()).toBe(key);
+
+    const clearRequest = new NextRequest("http://localhost/api/settings", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        expectedUpdatedAt: getPublicSettings().updatedAt,
+        models: { openai: "gpt-test", anthropic: "claude-test", gemini: "gemini-test", grok: "grok-4.6" },
+        repetitions: 3, modelWeights: { openai: .3, anthropic: .25, gemini: .2, grok: .25 },
+        clearFirecrawlApiKey: true,
+      }),
+    });
+    const clearResponse = await PUT(clearRequest);
+    expect(JSON.parse(await clearResponse.text()).settings.firecrawlApiKey.configured).toBe(false);
+    expect(getFirecrawlApiKey()).toBeNull();
   });
 
   it("prefers environment keys and validates the Gudokpin csk_ prefix", () => {

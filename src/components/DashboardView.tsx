@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   Activity,
   ArrowRight,
@@ -14,19 +14,25 @@ import {
   FileSearch,
   Gauge,
   ListFilter,
+  Radio,
   SearchCheck,
   Sparkles,
   Target,
   TrendingDown,
   TrendingUp,
+  Minus,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import {
   Area,
   AreaChart,
   CartesianGrid,
+  Cell,
   Legend,
   Line,
   LineChart,
+  Pie,
+  PieChart,
   PolarAngleAxis,
   PolarGrid,
   PolarRadiusAxis,
@@ -41,10 +47,10 @@ import type { DashboardData } from "@/lib/dashboard";
 import { formatDate } from "@/lib/utils";
 
 const modelMeta: Record<string, { label: string; short: string; color: string }> = {
-  openai: { label: "ChatGPT", short: "GPT", color: "#21e6a5" },
-  anthropic: { label: "Claude", short: "CLD", color: "#ff9d42" },
-  gemini: { label: "Gemini", short: "GEM", color: "#9b8cff" },
-  grok: { label: "Grok", short: "GRK", color: "#54d8ff" },
+  openai: { label: "ChatGPT", short: "GPT", color: "#c2ef4e" },
+  anthropic: { label: "Claude", short: "CLD", color: "#fa7faa" },
+  gemini: { label: "Gemini", short: "GEM", color: "#6a5fc1" },
+  grok: { label: "Grok", short: "GRK", color: "#79628c" },
 };
 
 const stageDescriptions: Record<string, string> = {
@@ -55,68 +61,442 @@ const stageDescriptions: Record<string, string> = {
 };
 
 const chartTooltip = {
-  background: "#0c0f12",
-  border: "1px solid #2a3036",
-  borderRadius: 10,
-  color: "#e8edf2",
-  fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-  fontSize: 12,
+  background: "#150f23",
+  border: "1px solid #362d59",
+  borderRadius: 8,
+  color: "#ffffff",
+  fontFamily: "Rubik, -apple-system, system-ui, sans-serif",
+  fontSize: 11,
+  boxShadow: "0 16px 40px rgba(21, 15, 35, 0.55)",
 };
 
+function clamp(value: number) {
+  return Math.max(0, Math.min(100, value));
+}
+
 function Delta({ value, suffix = "%p" }: { value: number | null; suffix?: string }) {
-  if (value === null) return <span className="text-xs text-zinc-400">비교 데이터 없음</span>;
-  const positive = value >= 0;
+  if (value === null) {
+    return <span className="text-[11px] text-slate-500">비교 데이터 없음</span>;
+  }
+  if (value === 0) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-500">
+        <Minus className="h-3.5 w-3.5" />
+        0.0{suffix}
+      </span>
+    );
+  }
+  const positive = value > 0;
   return (
-    <span className={`inline-flex items-center gap-1 text-xs sm:text-sm font-bold ${positive ? "text-emerald-400" : "text-rose-400"}`}>
+    <span className={`inline-flex items-center gap-1 text-xs font-bold ${positive ? "text-[color:var(--color-accent-lime)]" : "text-[color:var(--color-accent-pink)]"}`}>
       {positive ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
       {positive ? "+" : ""}{value.toFixed(1)}{suffix}
     </span>
   );
 }
 
-function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <section className={`rounded-2xl border border-white/[0.08] bg-[#0b0e11] shadow-[0_12px_40px_rgba(0,0,0,0.2)] ${className}`}>{children}</section>;
+function Panel({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return (
+    <section className={`overflow-hidden rounded-[12px] border border-dash-line bg-dash-panel ${className}`}>
+      {children}
+    </section>
+  );
 }
 
-function PanelHeader({ eyebrow, title, meta }: { eyebrow: string; title: string; meta?: React.ReactNode }) {
+function PanelHeader({
+  title,
+  icon: Icon,
+  meta,
+}: {
+  title: string;
+  icon?: LucideIcon;
+  meta?: ReactNode;
+}) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-3 border-b border-white/[0.07] px-5 py-4 sm:px-6">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-[0.24em] text-emerald-400">{eyebrow}</p>
-        <h2 className="mt-1 text-base font-bold text-zinc-100 sm:text-lg xl:text-xl">{title}</h2>
+    <header className="flex min-h-12 items-center justify-between gap-3 border-b border-dash-line px-4 py-3">
+      <div className="flex min-w-0 items-center gap-2">
+        {Icon && <Icon className="h-4 w-4 shrink-0 text-[color:var(--color-accent-lime)]" />}
+        <h2 className="truncate text-sm font-bold tracking-tight text-white">{title}</h2>
       </div>
-      {meta && <div className="text-xs sm:text-sm text-zinc-400 font-medium">{meta}</div>}
+      {meta && <div className="shrink-0 text-[10px] font-medium text-[color:var(--color-on-dark-muted)] sm:text-xs">{meta}</div>}
     </header>
   );
 }
 
-function MetricCell({ label, value, detail, icon: Icon, color = "text-zinc-100" }: {
-  label: string;
-  value: React.ReactNode;
-  detail: React.ReactNode;
-  icon: typeof Activity;
-  color?: string;
+function SplitPanelHeader({
+  left,
+  right,
+}: {
+  left: { title: string; icon?: LucideIcon; meta?: ReactNode };
+  right: { title: string; icon?: LucideIcon; meta?: ReactNode };
 }) {
+  const renderSide = (side: { title: string; icon?: LucideIcon; meta?: ReactNode }) => {
+    const SideIcon = side.icon;
+    return (
+      <>
+        <div className="flex min-w-0 items-center gap-2">
+          {SideIcon && <SideIcon className="h-4 w-4 shrink-0 text-[color:var(--color-accent-lime)]" />}
+          <h2 className="truncate text-sm font-bold tracking-tight text-white">{side.title}</h2>
+        </div>
+        {side.meta && <div className="shrink-0 text-[10px] font-medium text-[color:var(--color-on-dark-muted)] sm:text-xs">{side.meta}</div>}
+      </>
+    );
+  };
+
   return (
-    <div className="min-w-0 border-white/[0.07] p-5 sm:p-6 lg:p-7 [&:not(:last-child)]:border-r">
-      <div className="flex items-center justify-between gap-2 text-xs sm:text-sm font-bold uppercase tracking-[0.18em] text-zinc-400">
-        <span>{label}</span><Icon className="h-4 w-4 text-zinc-400" />
+    <header className="grid min-h-12 grid-cols-2 border-b border-dash-line">
+      <div className="flex items-center justify-between gap-3 border-r border-dash-line px-4 py-3">
+        {renderSide(left)}
       </div>
-      <div className={`mt-3 truncate text-3xl font-bold tracking-[-0.04em] sm:text-4xl xl:text-5xl ${color}`}>{value}</div>
-      <div className="mt-2.5 min-h-5 text-xs sm:text-sm text-zinc-400">{detail}</div>
+      <div className="flex items-center justify-between gap-3 px-4 py-3">
+        {renderSide(right)}
+      </div>
+    </header>
+  );
+}
+
+function HalfGauge({
+  value,
+  available,
+  color = "#c2ef4e",
+  label,
+  detail,
+}: {
+  value: number;
+  available: boolean;
+  color?: string;
+  label: string;
+  detail: ReactNode;
+}) {
+  const safeValue = clamp(value);
+  const gaugeData = [
+    { name: "value", value: safeValue },
+    { name: "remaining", value: 100 - safeValue },
+  ];
+
+  return (
+    <div className="px-4 pb-4 pt-2">
+      <div className="relative h-36" role="img" aria-label={`${label} ${available ? `${safeValue.toFixed(1)}%` : "데이터 없음"}`}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={gaugeData}
+              dataKey="value"
+              cx="50%"
+              cy="82%"
+              startAngle={180}
+              endAngle={0}
+              innerRadius="61%"
+              outerRadius="84%"
+              stroke="none"
+              isAnimationActive={available}
+            >
+              <Cell fill={available ? color : "#362d59"} />
+              <Cell fill="#2a2045" />
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="absolute inset-x-0 bottom-0 text-center">
+          <strong className="block text-3xl font-black tracking-[-0.06em] text-white">
+            {available ? safeValue.toFixed(1) : "—"}
+            {available && <span className="ml-0.5 text-xs font-bold text-slate-400">%</span>}
+          </strong>
+          <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</span>
+        </div>
+      </div>
+      <div className="mt-2 flex items-center justify-between border-t border-dash-line/25 pt-3 text-xs">
+        <span className="text-slate-500">이전 측정 대비</span>
+        {detail}
+      </div>
     </div>
   );
 }
 
-function ProviderDot({ provider }: { provider: string }) {
-  const meta = modelMeta[provider] ?? { color: "#8b949e", short: provider, label: provider };
-  return <span className="inline-flex items-center gap-2.5 text-xs sm:text-sm font-medium"><span className="h-2 w-2 rounded-full" style={{ backgroundColor: meta.color }} />{meta.label}</span>;
+function DonutMetric({
+  value,
+  available,
+  label,
+  color,
+  footnote,
+}: {
+  value: number;
+  available: boolean;
+  label: string;
+  color: string;
+  footnote: ReactNode;
+}) {
+  const safeValue = clamp(value);
+  const chartData = [
+    { name: "value", value: safeValue },
+    { name: "remaining", value: 100 - safeValue },
+  ];
+
+  return (
+    <div className="grid grid-cols-[128px_minmax(0,1fr)] items-center gap-2 px-4 py-4">
+      <div className="relative h-32" role="img" aria-label={`${label} ${available ? `${safeValue.toFixed(1)}%` : "데이터 없음"}`}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie data={chartData} dataKey="value" innerRadius={42} outerRadius={57} stroke="none">
+              <Cell fill={available ? color : "#362d59"} />
+              <Cell fill="#2a2045" />
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="absolute inset-0 grid place-items-center text-center">
+          <strong className="text-xl font-black tracking-tight text-white">{available ? `${safeValue.toFixed(0)}%` : "—"}</strong>
+        </div>
+      </div>
+      <div className="min-w-0">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</p>
+        <div className="mt-2 text-xs leading-5 text-slate-300">{footnote}</div>
+      </div>
+    </div>
+  );
 }
 
-function ShareBar({ value, color = "#21e6a5" }: { value: number; color?: string }) {
+function BigMetric({
+  label,
+  value,
+  suffix,
+  detail,
+  color = "text-amber-300",
+}: {
+  label: string;
+  value: string;
+  suffix?: string;
+  detail: ReactNode;
+  color?: string;
+}) {
   return (
-    <div className="h-2 overflow-hidden rounded-full bg-white/[0.08]" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(value)}>
-      <div className="h-full rounded-full transition-all" style={{ width: `${Math.max(0, Math.min(100, value))}%`, backgroundColor: color }} />
+    <div className="flex min-h-44 flex-col justify-center px-5 py-4 text-center">
+      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</p>
+      <strong className={`mt-4 text-5xl font-black tracking-[-0.07em] ${color}`}>
+        {value}
+        {suffix && <span className="ml-1 text-xs tracking-normal text-slate-400">{suffix}</span>}
+      </strong>
+      <div className="mt-4 text-xs text-slate-400">{detail}</div>
+    </div>
+  );
+}
+
+function EmptyData({
+  title,
+  description,
+  compact = false,
+}: {
+  title: string;
+  description: string;
+  compact?: boolean;
+}) {
+  return (
+    <div className={`grid place-items-center px-6 text-center ${compact ? "min-h-48 py-6" : "min-h-72 py-10"}`}>
+      <div>
+        <BarChart3 className="mx-auto h-7 w-7 text-slate-600" />
+        <h3 className="mt-3 text-sm font-bold text-slate-300">{title}</h3>
+        <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-slate-500">{description}</p>
+        <Link href="/share" className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-[color:var(--color-accent-lime)]">
+          측정 시작 <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function ProviderDot({ provider, size = "md" }: { provider: string; size?: "md" | "lg" }) {
+  const meta = modelMeta[provider] ?? { color: "#8b949e", short: provider, label: provider };
+  const diamondClass = size === "lg" ? "h-3.5 w-3.5" : "h-3 w-3";
+  return (
+    <span className="inline-flex items-center gap-2 text-xs font-medium text-slate-300">
+      <span className={`${diamondClass} rotate-45`} style={{ backgroundColor: meta.color }} aria-hidden="true" />
+      {meta.label}
+    </span>
+  );
+}
+
+function ShareBar({ value, color = "#c2ef4e" }: { value: number; color?: string }) {
+  return (
+    <div className="h-2 overflow-hidden rounded-full bg-dash-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(value)}>
+      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${clamp(value)}%`, backgroundColor: color }} />
+    </div>
+  );
+}
+
+function SeriesDot({
+  cx,
+  cy,
+  color,
+  faded = false,
+}: {
+  cx?: number;
+  cy?: number;
+  color: string;
+  faded?: boolean;
+}) {
+  if (cx == null || cy == null) return null;
+  return (
+    <circle
+      cx={cx}
+      cy={cy}
+      r={faded ? 3 : 4}
+      fill={color}
+      stroke="#150f23"
+      strokeWidth={1.5}
+      opacity={faded ? 0.7 : 1}
+    />
+  );
+}
+
+function RadarModelAxisTick({
+  x,
+  y,
+  payload,
+}: {
+  x?: string | number;
+  y?: string | number;
+  payload?: { value?: string };
+}) {
+  const tickX = typeof x === "number" ? x : Number(x);
+  const tickY = typeof y === "number" ? y : Number(y);
+  if (!Number.isFinite(tickX) || !Number.isFinite(tickY) || !payload?.value) return null;
+
+  const match = Object.values(modelMeta).find((item) => item.label === payload.value);
+  const color = match?.color ?? "#e5e7eb";
+
+  return (
+    <text
+      x={tickX}
+      y={tickY}
+      textAnchor="middle"
+      dominantBaseline="central"
+      fill={color}
+      fontSize={11}
+      fontWeight={700}
+    >
+      {payload.value}
+    </text>
+  );
+}
+
+function ModelComparisonSection({
+  models,
+  compact = false,
+}: {
+  models: DashboardData["models"];
+  compact?: boolean;
+}) {
+  const sortedModels = [...models].sort((left, right) => right.share - left.share);
+  const radarData = sortedModels.map((model) => ({
+    model: modelMeta[model.provider]?.label ?? model.provider,
+    current: model.share,
+    previous: model.previousShare ?? 0,
+  }));
+  const radarMax = Math.max(
+    20,
+    ...sortedModels.flatMap((model) => [model.share, model.previousShare ?? 0]),
+  );
+  const radarCeil = Math.min(100, Math.max(20, Math.ceil(radarMax / 10) * 10));
+  const chartHeight = compact ? 400 : 440;
+
+  return (
+    <div
+      className="flex h-full min-h-[500px] flex-col bg-dash-well/70"
+      role="region"
+      aria-label="AI 모델별 언급률 — 레이더 차트와 표"
+    >
+      <div className="grid flex-1 lg:grid-cols-2 lg:items-stretch">
+        <div className="flex flex-col border-b border-dash-line lg:border-b-0 lg:border-r">
+          <div
+            className="flex flex-1 items-center px-2 pt-3 sm:px-4"
+            role="img"
+            aria-label="AI 모델별 현재와 이전 언급률 레이더 차트"
+          >
+            <ResponsiveContainer width="100%" height={chartHeight}>
+              <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="78%">
+                <PolarGrid stroke="#362d59" />
+                <PolarAngleAxis
+                  dataKey="model"
+                  tick={(props) => <RadarModelAxisTick {...props} />}
+                  tickLine={false}
+                />
+                <PolarRadiusAxis domain={[0, radarCeil]} tick={false} axisLine={false} />
+                <Radar
+                  name="기존"
+                  dataKey="previous"
+                  stroke="#fa7faa"
+                  fill="#fa7faa"
+                  fillOpacity={0.18}
+                  strokeWidth={2}
+                  dot={(props) => <SeriesDot {...props} color="#fa7faa" faded />}
+                />
+                <Radar
+                  name="현재"
+                  dataKey="current"
+                  stroke="#c2ef4e"
+                  fill="#c2ef4e"
+                  fillOpacity={0.22}
+                  strokeWidth={2.5}
+                  dot={(props) => <SeriesDot {...props} color="#c2ef4e" />}
+                />
+                <Tooltip
+                  contentStyle={chartTooltip}
+                  formatter={(value, name) => [`${Number(value).toFixed(1)}%`, name === "current" ? "현재" : "기존"]}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-auto flex items-center justify-center gap-8 border-t border-dash-line/40 px-4 py-3 text-xs text-slate-400">
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#fa7faa]" aria-hidden="true" />
+              기존
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#c2ef4e]" aria-hidden="true" />
+              현재
+            </span>
+          </div>
+        </div>
+
+        <div
+          className="flex flex-col justify-center overflow-x-auto px-4 py-4 outline-none focus-visible:bg-white/[0.02] sm:px-6 sm:py-5"
+          aria-label="AI 모델 언급률 비교 표"
+          tabIndex={0}
+        >
+          <table className="w-full min-w-[300px] text-left text-xs sm:text-sm">
+            <thead>
+              <tr className="border-b border-dash-line text-[10px] uppercase tracking-[0.16em] text-slate-500">
+                <th className="pb-3 font-semibold">모델</th>
+                <th className="pb-3 text-right font-semibold">기존</th>
+                <th className="pb-3 text-right font-semibold">현재</th>
+                <th className="pb-3 text-right font-semibold">변화</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedModels.map((model) => (
+                <tr
+                  key={model.provider}
+                  className="border-b border-dash-line/40 transition hover:bg-white/[0.02] last:border-0"
+                >
+                  <td className="py-3.5 text-slate-200">
+                    <ProviderDot provider={model.provider} />
+                  </td>
+                  <td className="py-3.5 text-right tabular-nums text-slate-400">
+                    {model.previousShare === null ? "—" : `${model.previousShare.toFixed(1)}%`}
+                  </td>
+                  <td
+                    className="py-3.5 text-right font-bold tabular-nums"
+                    style={{ color: modelMeta[model.provider]?.color ?? "#ffffff" }}
+                  >
+                    {model.share.toFixed(1)}%
+                  </td>
+                  <td className="py-3.5 text-right">
+                    <Delta value={model.delta} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
@@ -127,167 +507,438 @@ export function DashboardView({ data }: { data: DashboardData }) {
     () => data.questions.find((question) => question.text === selectedQuestionText) ?? null,
     [data.questions, selectedQuestionText],
   );
-  const activeIndex = Math.max(0, data.funnel.stages.indexOf(data.funnel.stage));
+
   const hasRuns = data.recentRuns.length > 0;
-  const runTrend = data.runTrends.length > 1
+  const hasModelData = data.models.some((model) => model.total > 0);
+  const activeIndex = Math.max(0, data.funnel.stages.indexOf(data.funnel.stage));
+  const runTrend = data.runTrends.length > 0
     ? data.runTrends
     : data.trends.map((item) => ({ ...item, label: item.month.slice(5), runId: 0 }));
-  const radarData = data.models.map((model) => ({
-    model: modelMeta[model.provider]?.short ?? model.provider,
-    current: model.share,
-    previous: model.previousShare ?? 0,
-  }));
-  const activeModels = data.models.filter((model) => model.total > 0 || (model.previousShare ?? 0) > 0);
-  const bestModel = [...activeModels].sort((a, b) => b.share - a.share)[0] ?? null;
-  const weakestModel = [...activeModels].sort((a, b) => a.share - b.share)[0] ?? null;
-  const hasModelSpread = activeModels.length > 1 && bestModel !== null && weakestModel !== null && bestModel.share !== weakestModel.share;
-  const previousShare = data.overview.answerShareDelta === null ? null : data.funnel.answerShare - data.overview.answerShareDelta;
+  const previousShare = data.overview.answerShareDelta === null
+    ? null
+    : Number((data.funnel.answerShare - data.overview.answerShareDelta).toFixed(1));
+  const trendValues = runTrend.map((item) => item.overall);
+  const trendMin = trendValues.length
+    ? Math.max(0, Math.floor(Math.min(...trendValues) / 5) * 5 - 2)
+    : 0;
+  const trendMax = trendValues.length
+    ? Math.min(100, Math.ceil(Math.max(...trendValues) / 5) * 5 + 2)
+    : 100;
+  const competitorData = hasRuns
+    ? [
+        { name: data.project.brandName, value: data.funnel.answerShare, color: "#c2ef4e" },
+        ...data.overview.competitors.map((item, index) => ({
+          name: item.name,
+          value: item.share,
+          color: ["#6a5fc1", "#fa7faa", "#79628c", "#422082"][index] ?? "#64748b",
+        })),
+      ].filter((item) => item.value > 0)
+    : [];
+  const auditPercent = data.latestAudit
+    ? clamp((data.latestAudit.score / Math.max(1, data.latestAudit.total)) * 100)
+    : 0;
+  const cycleComplete = data.cycle.filter((item) => item.done).length;
 
   return (
-    <div className="font-mono text-zinc-300">
-      <section className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#17191c] shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
-        <div className="flex flex-col gap-6 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between">
+    <div className="text-slate-300">
+      <header className="mb-4 rounded-xl border border-dash-line/45 bg-dash-header/95 px-4 py-4 shadow-[0_16px_50px_rgba(0,4,18,0.3)] sm:px-5">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.26em] text-cyan-300">
-              <CircleDot className="h-3.5 w-3.5" /> GEO intelligence console
+            <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--color-accent-lime)]">
+              <CircleDot className="h-3.5 w-3.5" />
+              GEO intelligence control room
+              <span className={`ml-1 inline-flex items-center gap-1.5 rounded-full border px-2 py-1 tracking-[0.12em] ${hasRuns ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" : "border-slate-600/50 bg-slate-800/50 text-slate-400"}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${hasRuns ? "animate-pulse bg-emerald-400" : "bg-slate-500"}`} />
+                {hasRuns ? "LIVE" : "STANDBY"}
+              </span>
             </div>
-            <h1 className="mt-2 truncate text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl xl:text-5xl">{data.project.name}</h1>
-            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-zinc-400">브랜드: <span className="font-medium text-zinc-200">{data.project.brandName}</span> · 카테고리: <span className="font-medium text-zinc-200">{data.project.category}</span> · 최신 측정: <span className="font-medium text-zinc-200">{formatDate(data.funnel.measuredAt)}</span></p>
+            <h1 className="mt-2 truncate text-xl font-black tracking-[-0.04em] text-white sm:text-2xl">{data.project.name}</h1>
+            <p className="mt-1.5 truncate text-xs text-slate-400">
+              {data.project.brandName} · {data.project.category} · 최신 측정 {formatDate(data.funnel.measuredAt)}
+            </p>
           </div>
-          <div className="grid grid-cols-3 divide-x divide-white/[0.07] rounded-xl border border-white/[0.07] bg-black/30 px-3 py-3.5 text-center sm:min-w-[360px]">
-            <div className="px-2"><strong className="block text-base sm:text-lg font-bold text-zinc-100">{data.project.questionCount}</strong><span className="text-xs uppercase tracking-wider text-zinc-400">questions</span></div>
-            <div className="px-2"><strong className="block text-base sm:text-lg font-bold text-zinc-100">{data.project.modelCount}</strong><span className="text-xs uppercase tracking-wider text-zinc-400">models</span></div>
-            <div className="px-2"><strong className="block text-base sm:text-lg font-bold text-zinc-100">{data.project.recentRunCount}</strong><span className="text-xs uppercase tracking-wider text-zinc-400">recent runs</span></div>
-          </div>
-          <div className="flex flex-wrap gap-2.5">
-            <Link href="/share" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-zinc-100 px-4 py-2.5 text-xs sm:text-sm font-bold text-zinc-950 transition hover:bg-white">새 측정 <ArrowRight className="h-3.5 w-3.5" /></Link>
-            <Link href="/reports" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-xs sm:text-sm font-bold text-zinc-300 transition hover:bg-white/[0.1]"><FileSearch className="h-3.5 w-3.5" />리포트</Link>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="grid grid-cols-3 divide-x divide-dash-line/35 rounded-lg border border-dash-line/35 bg-dash-inset text-center">
+              <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.questionCount}</strong><span className="text-[9px] uppercase tracking-wider text-slate-500">queries</span></div>
+              <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.modelCount}</strong><span className="text-[9px] uppercase tracking-wider text-slate-500">models</span></div>
+              <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.recentRunCount}</strong><span className="text-[9px] uppercase tracking-wider text-slate-500">runs</span></div>
+            </div>
+            <div className="flex gap-2">
+              <Link href="/share" className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-[color:var(--app-cta-bg)] px-4 py-2 text-xs font-black uppercase tracking-[0.2px] text-[color:var(--app-cta-text)] transition hover:opacity-95 sm:flex-none">
+                새 측정 <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+              <Link href="/reports" aria-label="리포트 열기" className="grid min-h-10 min-w-10 place-items-center rounded-lg border border-dash-line/45 bg-dash-icon text-slate-300 transition hover:bg-dash-icon-hover">
+                <FileSearch className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 border-t border-white/[0.07] lg:grid-cols-4">
-          <MetricCell label="Answer share" icon={Activity} value={`${data.funnel.answerShare.toFixed(1)}%`} detail={<Delta value={data.overview.answerShareDelta} />} color="text-emerald-300" />
-          <MetricCell label="GenRank" icon={Sparkles} value={data.funnel.genrank.toFixed(1)} detail={<Delta value={data.overview.genrankDelta} suffix="" />} color="text-cyan-300" />
-          <MetricCell label="Funnel stage" icon={Gauge} value={data.funnel.stage} detail={`${activeIndex + 1} / ${data.funnel.stages.length} 단계`} color="text-amber-300" />
-          <MetricCell label="Latest audit" icon={SearchCheck} value={data.latestAudit ? `${data.latestAudit.score}/${data.latestAudit.total}` : "—"} detail={data.latestAudit?.grade ?? "진단 이력 없음"} />
-        </div>
-      </section>
+      </header>
 
-      <div className="mt-6 grid items-start gap-6 xl:grid-cols-[380px_minmax(0,1fr)] 2xl:grid-cols-[440px_minmax(0,1fr)]">
-        <aside className="space-y-5 xl:sticky xl:top-6">
-          <Panel className="overflow-hidden">
-            <PanelHeader eyebrow="monitoring query set" title="모니터링 질문 목록" meta={`${data.questions.length}개 질문`} />
-            <div className="max-h-[720px] space-y-2.5 overflow-y-auto p-4">
-              <button type="button" onClick={() => setSelectedQuestionText(null)} aria-pressed={!selectedQuestion} className={`flex w-full items-center justify-between rounded-xl border p-4 text-left transition ${!selectedQuestion ? "border-emerald-400/30 bg-emerald-400/[0.08]" : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"}`}>
-                <span><strong className="block text-sm sm:text-base font-bold text-zinc-100">전체 대시보드</strong><small className="mt-1 block text-xs text-zinc-400">모든 질문 통합 성과</small></span>
-                <ChevronRight className={`h-4 w-4 ${!selectedQuestion ? "text-emerald-400" : "text-zinc-400"}`} />
-              </button>
-              {data.questions.map((question, index) => {
-                const selected = selectedQuestion?.text === question.text;
-                return (
-                  <button key={question.text} type="button" onClick={() => setSelectedQuestionText(question.text)} aria-pressed={selected} className={`w-full rounded-xl border p-4 text-left transition ${selected ? "border-cyan-400/30 bg-cyan-400/[0.07]" : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.04]"}`}>
-                    <div className="flex items-start gap-2.5">
-                      <span className="mt-0.5 text-xs font-bold text-zinc-400">Q{String(index + 1).padStart(2, "0")}</span>
-                      <p className="line-clamp-2 flex-1 text-xs sm:text-sm font-semibold leading-relaxed text-zinc-200">{question.text}</p>
-                    </div>
-                    <div className="mt-3.5 grid grid-cols-3 gap-2 border-t border-white/[0.05] pt-2.5 text-xs">
-                      <div><span className="block text-zinc-400">점유율</span><strong className="mt-1 block text-sm font-bold text-emerald-400">{question.share}%</strong></div>
-                      <div><span className="block text-zinc-400">변화</span><strong className={`mt-1 block text-sm font-bold ${(question.delta ?? 0) >= 0 ? "text-cyan-400" : "text-rose-400"}`}>{question.delta === null ? "—" : `${question.delta >= 0 ? "+" : ""}${question.delta}%p`}</strong></div>
-                      <div><span className="block text-zinc-400">평균 순위</span><strong className="mt-1 block text-sm font-bold text-zinc-300">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></div>
-                    </div>
-                  </button>
-                );
-              })}
-              {!data.questions.length && <div className="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center"><p className="text-xs sm:text-sm leading-relaxed text-zinc-400">측정을 실행하면 질문별 GEO 성과가 이곳에 표시됩니다.</p><Link href="/share" className="mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-emerald-400">첫 측정 시작 <ArrowRight className="h-3.5 w-3.5" /></Link></div>}
-            </div>
-          </Panel>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
+        <Panel>
+          <PanelHeader title="실시간 Answer Share" icon={Gauge} meta={hasRuns ? "0–100%" : "대기"} />
+          <HalfGauge
+            value={data.funnel.answerShare}
+            available={hasRuns}
+            label="answer share"
+            detail={<Delta value={data.overview.answerShareDelta} />}
+          />
+        </Panel>
 
-          <Panel className="p-5">
-            <div className="flex items-center gap-2.5"><CalendarCheck className="h-4.5 w-4.5 text-amber-400" /><h2 className="text-sm sm:text-base font-bold text-zinc-200">4주 개선 사이클</h2></div>
-            <div className="mt-4 space-y-2.5">{data.cycle.map((item) => <div key={item.week} className="flex items-center gap-2.5 text-xs sm:text-sm">{item.done ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <Circle className="h-4 w-4 text-zinc-400" />}<span className={item.done ? "text-zinc-200 font-medium" : "text-zinc-400"}>{item.label}</span></div>)}</div>
-            <Link href="/strategy" className="mt-4 inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-cyan-400">사이클 관리 <ArrowRight className="h-3.5 w-3.5" /></Link>
-          </Panel>
-        </aside>
+        <Panel>
+          <PanelHeader title="현재 GenRank" icon={Sparkles} meta="종합 점수" />
+          <BigMetric
+            label="generative rank"
+            value={hasRuns ? data.funnel.genrank.toFixed(1) : "—"}
+            detail={<Delta value={data.overview.genrankDelta} suffix="" />}
+            color="text-amber-300"
+          />
+        </Panel>
 
-        <main className="min-w-0 space-y-5">
-          {!selectedQuestion ? (
-            <>
-              <Panel className="overflow-hidden">
-                <PanelHeader eyebrow="overview / visibility trend" title="전체 대시보드" meta={`최근 응답 ${data.overview.totalResponses}건`} />
-                {!hasRuns ? <div className="grid min-h-72 place-items-center p-8 text-center"><div><BarChart3 className="mx-auto h-8 w-8 text-zinc-400" /><h3 className="mt-3 text-base font-bold text-zinc-300">측정 데이터가 아직 없습니다</h3><p className="mt-2 max-w-sm text-xs sm:text-sm leading-relaxed text-zinc-400">브랜드를 포함하지 않은 핵심 질문을 여러 AI 모델에 실행하면 점유율·순위·문맥을 한 화면에서 비교할 수 있습니다.</p><Link href="/share" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-2.5 text-xs sm:text-sm font-bold text-zinc-950">측정 시작 <ArrowRight className="h-3.5 w-3.5" /></Link></div></div> : <div className="p-5 sm:p-6 lg:p-7">
-                  <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h3 className="text-sm sm:text-base font-bold text-zinc-200">주차별 전체 언급률</h3><p className="mt-1 text-xs sm:text-sm text-zinc-400">완료된 최근 실행 기준 · 0–100%</p></div><span className="rounded-md border border-emerald-400/20 bg-emerald-400/[0.08] px-2.5 py-1 text-xs font-bold text-emerald-400">LIVE DATA</span></div>
-                  <div className="h-72 sm:h-80 lg:h-96 xl:h-[380px]" role="img" aria-label="최근 실행별 전체 응답 점유율 추이"><ResponsiveContainer width="100%" height="100%"><AreaChart data={runTrend} margin={{ left: -15, right: 12, top: 15, bottom: 0 }}><defs><linearGradient id="shareArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#21e6a5" stopOpacity={0.35} /><stop offset="100%" stopColor="#21e6a5" stopOpacity={0} /></linearGradient></defs><CartesianGrid stroke="#252a2f" strokeDasharray="2 5" vertical={false} /><XAxis dataKey="label" stroke="#a1a1aa" tick={{ fontSize: 11, fill: "#a1a1aa" }} tickLine={false} axisLine={false} /><YAxis domain={[0, 100]} stroke="#a1a1aa" tick={{ fontSize: 11, fill: "#a1a1aa" }} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} /><Tooltip contentStyle={chartTooltip} formatter={(value) => [`${Number(value).toFixed(1)}%`, "전체 점유율"]} /><Area type="monotone" dataKey="overall" stroke="#21e6a5" strokeWidth={3} fill="url(#shareArea)" dot={{ r: 3, fill: "#0b0e11", strokeWidth: 2 }} activeDot={{ r: 5 }} /></AreaChart></ResponsiveContainer></div>
-                  <div className="mt-6 grid divide-y divide-white/[0.06] rounded-xl border border-white/[0.06] bg-black/30 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-                    <div className="p-4 sm:p-5"><span className="text-xs uppercase tracking-wider text-zinc-400">previous</span><strong className="mt-1.5 block text-2xl sm:text-3xl font-bold text-zinc-400">{previousShare === null ? "—" : `${previousShare.toFixed(1)}%`}</strong></div>
-                    <div className="p-4 sm:p-5"><span className="text-xs uppercase tracking-wider text-zinc-400">current</span><strong className="mt-1.5 block text-2xl sm:text-3xl font-bold text-zinc-100">{data.funnel.answerShare.toFixed(1)}%</strong></div>
-                    <div className="p-4 sm:p-5"><span className="text-xs uppercase tracking-wider text-zinc-400">change</span><div className="mt-2"><Delta value={data.overview.answerShareDelta} /></div></div>
-                  </div>
-                </div>}
-              </Panel>
+        <Panel>
+          <PanelHeader title="긍정 문맥 비율" icon={Activity} meta="최신 응답" />
+          <DonutMetric
+            value={data.overview.positiveRate}
+            available={hasRuns}
+            label="positive context"
+            color="#4dc8ff"
+            footnote={
+              <>
+                <strong className="block text-lg text-[color:var(--color-accent-lime)]">{hasRuns ? `${data.overview.positiveRate.toFixed(1)}%` : "데이터 없음"}</strong>
+                브랜드 언급 중 긍정 응답 비율
+              </>
+            }
+          />
+        </Panel>
 
-              <Panel className="overflow-hidden">
-                <PanelHeader eyebrow="model comparison" title="AI 모델 언급률" meta="현재 vs 이전 측정" />
-                <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
-                  <div className="min-h-80 border-b border-white/[0.07] p-4 lg:border-b-0 lg:border-r" role="img" aria-label="AI 모델별 현재와 이전 점유율 레이더 차트">
-                    <ResponsiveContainer width="100%" height={340}><RadarChart data={radarData} outerRadius="68%"><PolarGrid stroke="#32383f" /><PolarAngleAxis dataKey="model" tick={{ fill: "#9ca3af", fontSize: 12, fontWeight: "bold" }} /><PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} /><Radar name="이전" dataKey="previous" stroke="#ff9d42" fill="#ff9d42" fillOpacity={0.08} strokeWidth={1.5} /><Radar name="현재" dataKey="current" stroke="#21e6a5" fill="#21e6a5" fillOpacity={0.16} strokeWidth={2.5} /><Legend iconType="circle" wrapperStyle={{ fontSize: 12, color: "#71717a" }} /></RadarChart></ResponsiveContainer>
-                  </div>
-                  <div className="overflow-x-auto p-5 sm:p-6" role="region" aria-label="AI 모델 점유율 비교 표" tabIndex={0}>
-                    <table className="w-full min-w-[440px] text-left text-xs sm:text-sm"><thead><tr className="border-b border-white/[0.07] text-xs uppercase tracking-[0.14em] text-zinc-400"><th className="pb-3.5 font-semibold">모델</th><th className="pb-3.5 text-right font-semibold">기존</th><th className="pb-3.5 text-right font-semibold">현재</th><th className="pb-3.5 text-right font-semibold">변화</th><th className="pb-3.5 text-right font-semibold">언급</th></tr></thead><tbody>{data.models.map((model) => { return <tr key={model.provider} className="border-b border-white/[0.05] last:border-0"><td className="py-3.5 text-zinc-300"><ProviderDot provider={model.provider} /></td><td className="py-3.5 text-right text-zinc-400">{model.previousShare === null ? "—" : `${model.previousShare.toFixed(1)}%`}</td><td className="py-3.5 text-right font-bold text-zinc-100">{model.share.toFixed(1)}%</td><td className={`py-3.5 text-right font-bold ${(model.delta ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400"}`}>{model.delta === null ? "—" : `${model.delta >= 0 ? "+" : ""}${model.delta.toFixed(1)}%p`}</td><td className="py-3.5 text-right text-zinc-400">{model.mentions}/{model.total}</td></tr>; })}</tbody></table>
-                    <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/[0.06] p-4"><span className="text-xs font-bold uppercase tracking-wider text-emerald-400">best signal</span><p className="mt-1.5 text-xs sm:text-sm font-medium text-zinc-200">{bestModel ? `${modelMeta[bestModel.provider]?.label} ${bestModel.share.toFixed(1)}%` : "측정 필요"}</p></div>
-                      <div className="rounded-xl border border-amber-400/15 bg-amber-400/[0.06] p-4"><span className="text-xs font-bold uppercase tracking-wider text-amber-400">attention</span><p className="mt-1.5 text-xs sm:text-sm font-medium text-zinc-200">{hasModelSpread && weakestModel ? `${modelMeta[weakestModel.provider]?.label} ${weakestModel.share.toFixed(1)}%` : activeModels.length < 2 ? "비교 모델이 더 필요합니다" : "모델 간 점유율이 동일합니다"}</p></div>
-                    </div>
-                  </div>
-                </div>
-              </Panel>
+        <Panel>
+          <PanelHeader title="최신 GEO 진단" icon={SearchCheck} meta={data.latestAudit?.grade ?? "미실행"} />
+          <DonutMetric
+            value={auditPercent}
+            available={Boolean(data.latestAudit)}
+            label="audit score"
+            color="#a78bfa"
+            footnote={
+              data.latestAudit ? (
+                <>
+                  <strong className="block text-lg text-violet-300">{data.latestAudit.score}/{data.latestAudit.total}</strong>
+                  {formatDate(data.latestAudit.createdAt)}
+                </>
+              ) : (
+                <Link href="/audit" className="inline-flex items-center gap-1 text-violet-300">
+                  첫 진단 실행 <ArrowRight className="h-3 w-3" />
+                </Link>
+              )
+            }
+          />
+        </Panel>
 
-              <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-                <Panel className="p-5 sm:p-6">
-                  <div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">funnel diagnosis</p><h2 className="mt-1.5 text-base sm:text-lg font-bold text-zinc-100">현재 단계 · {data.funnel.stage}</h2></div><Target className="h-5 w-5 text-cyan-400" /></div>
-                  <p className="mt-3 text-xs sm:text-sm leading-relaxed text-zinc-400">{stageDescriptions[data.funnel.stage] ?? "측정 결과를 확인해 현재 퍼널 단계를 다시 진단하세요."}</p>
-                  <div className="mt-5 grid grid-cols-4 gap-2">{data.funnel.stages.map((stage, index) => <div key={stage} className={`rounded-xl border px-3 py-3.5 text-center ${index <= activeIndex ? "border-cyan-400/30 bg-cyan-400/[0.08]" : "border-white/[0.05] bg-black/20"}`}><span className={`block text-xs font-bold ${index <= activeIndex ? "text-cyan-400" : "text-zinc-400"}`}>0{index + 1}</span><strong className={`mt-1.5 block text-xs sm:text-sm font-bold ${index <= activeIndex ? "text-zinc-100" : "text-zinc-400"}`}>{stage}</strong></div>)}</div>
-                </Panel>
-                <Panel className="p-5 sm:p-6">
-                  <div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-400">execution readiness</p><h2 className="mt-1.5 text-base sm:text-lg font-bold text-zinc-100">체크리스트 {data.checklist.completed}/{data.checklist.total}</h2></div><ListFilter className="h-5 w-5 text-amber-400" /></div>
-                  <div className="mt-5"><div className="mb-2.5 flex justify-between text-xs sm:text-sm"><span className="text-zinc-400">완료율</span><strong className="text-zinc-100 font-bold">{data.checklist.percent}%</strong></div><ShareBar value={data.checklist.percent} color="#ffb84d" /></div>
-                  <Link href="/learn" className="mt-5 inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-amber-400">실행 체크 계속 <ArrowRight className="h-3.5 w-3.5" /></Link>
-                </Panel>
-              </div>
-            </>
-          ) : (
-            <QuestionDashboard question={selectedQuestion} />
-          )}
-        </main>
+        <Panel className="sm:col-span-2 xl:col-span-4 2xl:col-span-1">
+          <PanelHeader title="관제 상태" icon={Radio} meta={hasRuns ? "정상" : "측정 필요"} />
+          <div className="divide-y divide-dash-line/25 px-4 py-2 text-xs">
+            <div className="flex items-center justify-between py-3"><span className="text-slate-500">현재 퍼널</span><strong className="text-[color:var(--color-accent-lime)]">{data.funnel.stage}</strong></div>
+            <div className="flex items-center justify-between py-3"><span className="text-slate-500">최신 응답</span><strong className="text-white">{hasRuns ? `${data.overview.totalResponses}건` : "—"}</strong></div>
+            <div className="flex items-center justify-between py-3"><span className="text-slate-500">실행 준비도</span><strong className="text-amber-300">{data.checklist.percent}%</strong></div>
+            <div className="flex items-center justify-between py-3"><span className="text-slate-500">개선 사이클</span><strong className="text-emerald-300">{cycleComplete}/4</strong></div>
+          </div>
+        </Panel>
       </div>
+
+      <Panel className="mt-4 overflow-hidden">
+        <SplitPanelHeader
+          left={{
+            title: "전체 언급율",
+            icon: Activity,
+            meta: hasRuns ? `최근 ${runTrend.length}회 실행` : "측정 대기",
+          }}
+          right={{
+            title: "AI 모델 언급율",
+            icon: BarChart3,
+            meta: hasRuns && hasModelData ? `${data.models.filter((model) => model.total > 0).length}개 모델` : "측정 대기",
+          }}
+        />
+        {!hasRuns ? (
+          <EmptyData title="측정 데이터가 아직 없습니다" description="브랜드를 포함하지 않은 핵심 질문을 여러 AI 모델에 실행하면 전체 언급률 추이와 모델별 비교가 표시됩니다." />
+        ) : (
+          <div className="grid lg:grid-cols-2 lg:items-stretch">
+            <div className="flex min-h-[560px] flex-col border-b border-dash-line lg:border-b-0 lg:border-r">
+              <div className="flex flex-1 flex-col px-3 pb-2 pt-4 sm:px-5" role="img" aria-label="최근 실행별 전체 언급률 추이">
+                <ResponsiveContainer width="100%" height={400}>
+                  <AreaChart data={runTrend} margin={{ left: -12, right: 8, top: 8, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="overallMentionArea" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#c2ef4e" stopOpacity={0.45} />
+                        <stop offset="55%" stopColor="#c2ef4e" stopOpacity={0.12} />
+                        <stop offset="100%" stopColor="#c2ef4e" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid stroke="#362d59" strokeDasharray="3 6" vertical={false} />
+                    <XAxis dataKey="label" tick={{ fill: "#bdb8c0", fontSize: 11 }} tickLine={false} axisLine={false} />
+                    <YAxis
+                      domain={[trendMin, trendMax]}
+                      tick={{ fill: "#bdb8c0", fontSize: 11 }}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${value}%`}
+                    />
+                    <Tooltip contentStyle={chartTooltip} formatter={(value) => [`${Number(value).toFixed(1)}%`, "전체 언급률"]} />
+                    <Area
+                      type="monotone"
+                      dataKey="overall"
+                      stroke="#c2ef4e"
+                      strokeWidth={2.5}
+                      fill="url(#overallMentionArea)"
+                      dot={{ r: 3, fill: "#150f23", stroke: "#c2ef4e", strokeWidth: 2 }}
+                      activeDot={{ r: 5, fill: "#c2ef4e", stroke: "#150f23", strokeWidth: 2 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-dash-line bg-dash-inset px-4 py-3 text-xs sm:justify-start sm:px-5 sm:text-sm">
+                <span className="text-slate-400">전체 언급률</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <strong className="text-slate-300">{previousShare === null ? "—" : `${previousShare.toFixed(1)}%`}</strong>
+                  <Delta value={data.overview.answerShareDelta} />
+                  <span className="text-slate-500">→</span>
+                  <strong className="text-lg font-black tracking-tight text-[color:var(--color-accent-lime)]">{data.funnel.answerShare.toFixed(1)}%</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex min-h-[560px] flex-col">
+              {!hasModelData ? (
+                <EmptyData compact title="모델 측정 데이터가 없습니다" description="질문 세트를 실행하면 모델별 현재·이전 언급률이 표시됩니다." />
+              ) : (
+                <ModelComparisonSection compact models={data.models} />
+              )}
+            </div>
+          </div>
+        )}
+      </Panel>
+
+      <div className="mt-4 grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
+        <Panel>
+          <PanelHeader title="경쟁 브랜드 점유율" icon={Target} meta={`${data.overview.competitors.length}개 비교`} />
+          {competitorData.length ? (
+            <div className="space-y-4 px-4 py-5" role="img" aria-label="브랜드와 경쟁사별 Answer Share 비교">
+              {competitorData.slice(0, 5).map((item) => (
+                <div key={item.name}>
+                  <div className="mb-2 flex items-center justify-between gap-2 text-[11px]">
+                    <span className="flex min-w-0 items-center gap-2 text-slate-400">
+                      <i className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
+                      <span className="truncate">{item.name}</span>
+                    </span>
+                    <strong className="text-white">{item.value.toFixed(1)}%</strong>
+                  </div>
+                  <ShareBar value={item.value} color={item.color} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyData compact title="경쟁사 비교 데이터 없음" description="측정 응답에 경쟁 브랜드가 포함되면 점유율을 비교합니다." />
+          )}
+        </Panel>
+
+        <Panel>
+          <PanelHeader title="GEO 퍼널 상태" icon={Gauge} meta={`${activeIndex + 1}/${data.funnel.stages.length} 단계`} />
+          <div className="px-4 py-4">
+            <div className="grid grid-cols-4 gap-1.5">
+              {data.funnel.stages.map((stage, index) => (
+                <div key={stage} className={`rounded-lg border px-1 py-3 text-center ${index <= activeIndex ? "border-[color:var(--color-accent-lime)]/35 bg-[color:var(--color-accent-lime)]/10" : "border-dash-line/25 bg-dash-inset"}`}>
+                  <span className={`block text-[9px] font-bold ${index <= activeIndex ? "text-[color:var(--color-accent-lime)]" : "text-slate-600"}`}>0{index + 1}</span>
+                  <strong className={`mt-1 block text-[11px] ${index <= activeIndex ? "text-white" : "text-slate-500"}`}>{stage}</strong>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 rounded-lg border border-dash-line/25 bg-dash-inset p-3">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-accent-lime)]">현재 단계 · {data.funnel.stage}</p>
+              <p className="mt-2 text-xs leading-5 text-slate-400">{stageDescriptions[data.funnel.stage]}</p>
+            </div>
+          </div>
+        </Panel>
+
+        <Panel>
+          <PanelHeader title="실행 준비도" icon={ListFilter} meta={`${data.checklist.completed}/${data.checklist.total}`} />
+          <div className="px-4 py-5">
+            <div className="flex items-end justify-between">
+              <div><span className="text-[10px] uppercase tracking-wider text-slate-500">체크리스트 완료율</span><strong className="mt-1 block text-4xl font-black tracking-tight text-amber-300">{data.checklist.percent}%</strong></div>
+              <span className="text-xs text-slate-500">{data.checklist.total - data.checklist.completed}개 남음</span>
+            </div>
+            <div className="mt-5"><ShareBar value={data.checklist.percent} color="#fbbf24" /></div>
+            <div className="mt-5 grid grid-cols-10 gap-1" aria-hidden="true">
+              {Array.from({ length: 10 }, (_, index) => (
+                <span key={index} className={`h-3 rounded-sm ${index < Math.round(data.checklist.percent / 10) ? "bg-amber-300" : "bg-dash-track"}`} />
+              ))}
+            </div>
+            <Link href="/learn" className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-amber-300">체크 계속 <ArrowRight className="h-3.5 w-3.5" /></Link>
+          </div>
+        </Panel>
+
+        <Panel>
+          <PanelHeader title="4주 개선 사이클" icon={CalendarCheck} meta={`${cycleComplete}/4 완료`} />
+          <div className="divide-y divide-dash-line/20 px-4 py-2">
+            {data.cycle.map((item) => (
+              <div key={item.week} className="flex items-center gap-3 py-3 text-xs">
+                {item.done ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" /> : <Circle className="h-4 w-4 shrink-0 text-slate-600" />}
+                <span className={item.done ? "font-medium text-slate-200" : "text-slate-500"}>{item.label}</span>
+              </div>
+            ))}
+            <Link href="/strategy" className="inline-flex items-center gap-1.5 py-3 text-xs font-bold text-emerald-300">사이클 관리 <ArrowRight className="h-3.5 w-3.5" /></Link>
+          </div>
+        </Panel>
+      </div>
+
+      <QuestionMonitor
+        data={data}
+        selectedQuestion={selectedQuestion}
+        selectedQuestionText={selectedQuestionText}
+        onSelect={setSelectedQuestionText}
+      />
     </div>
   );
 }
 
-function QuestionDashboard({ question }: { question: DashboardData["questions"][number] }) {
-  const activeQuestionModels = question.models.filter((model) => model.total > 0);
+function QuestionMonitor({
+  data,
+  selectedQuestion,
+  selectedQuestionText,
+  onSelect,
+}: {
+  data: DashboardData;
+  selectedQuestion: DashboardData["questions"][number] | null;
+  selectedQuestionText: string | null;
+  onSelect: (value: string | null) => void;
+}) {
   return (
-    <>
-      <Panel className="overflow-hidden">
-        <PanelHeader eyebrow="selected query analysis" title="선택 질문 분석" meta={`${question.total}회 응답`} />
-        <div className="p-5 sm:p-6 lg:p-7">
-          <p className="max-w-5xl text-base sm:text-lg xl:text-xl font-bold leading-relaxed text-zinc-100">{question.text}</p>
-          <div className="mt-6 grid grid-cols-2 divide-x divide-y divide-white/[0.06] overflow-hidden rounded-xl border border-white/[0.06] bg-black/30 sm:grid-cols-4 sm:divide-y-0">
-            <div className="p-4 sm:p-5"><span className="text-xs uppercase tracking-wider text-zinc-400">점유율</span><strong className="mt-1.5 block text-2xl sm:text-3xl font-bold text-emerald-300">{question.share}%</strong></div>
-            <div className="p-4 sm:p-5"><span className="text-xs uppercase tracking-wider text-zinc-400">이전 대비</span><div className="mt-2.5"><Delta value={question.delta} /></div></div>
-            <div className="p-4 sm:p-5"><span className="text-xs uppercase tracking-wider text-zinc-400">평균 순위</span><strong className="mt-1.5 block text-2xl sm:text-3xl font-bold text-cyan-300">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></div>
-            <div className="p-4 sm:p-5"><span className="text-xs uppercase tracking-wider text-zinc-400">긍정 문맥</span><strong className="mt-1.5 block text-2xl sm:text-3xl font-bold text-amber-300">{question.positiveRate}%</strong></div>
+    <Panel className="mt-4">
+      <PanelHeader title="모니터링 질문 관제" icon={Activity} meta={`${data.questions.length}개 질문`} />
+      <div className="grid xl:grid-cols-[340px_minmax(0,1fr)]">
+        <div className="border-b border-dash-line/30 p-3 xl:border-b-0 xl:border-r">
+          <button
+            type="button"
+            onClick={() => onSelect(null)}
+            aria-pressed={!selectedQuestionText}
+            className={`mb-2 flex w-full items-center justify-between rounded-lg border px-3 py-3 text-left transition ${!selectedQuestionText ? "border-[color:var(--color-accent-lime)]/35 bg-[color:var(--color-accent-lime)]/10" : "border-dash-line/25 bg-dash-inset hover:bg-dash-icon"}`}
+          >
+            <span><strong className="block text-xs text-white">전체 관제 현황</strong><small className="mt-1 block text-[10px] text-slate-500">통합 KPI와 실행 상태</small></span>
+            <ChevronRight className={`h-4 w-4 ${!selectedQuestionText ? "text-[color:var(--color-accent-lime)]" : "text-slate-600"}`} />
+          </button>
+          <div className="max-h-[500px] space-y-2 overflow-y-auto pr-1">
+            {data.questions.map((question, index) => {
+              const selected = selectedQuestionText === question.text;
+              return (
+                <button
+                  key={question.text}
+                  type="button"
+                  onClick={() => onSelect(question.text)}
+                  aria-pressed={selected}
+                  className={`w-full rounded-lg border p-3 text-left transition ${selected ? "border-emerald-400/35 bg-emerald-400/10" : "border-dash-line/25 bg-dash-inset hover:border-dash-line-hover/60 hover:bg-dash-icon"}`}
+                >
+                  <div className="flex items-start gap-2.5">
+                    <span className="mt-0.5 text-[10px] font-black text-slate-600">Q{String(index + 1).padStart(2, "0")}</span>
+                    <p className="line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200">{question.text}</p>
+                  </div>
+                  <div className="mt-2.5 grid grid-cols-3 border-t border-dash-line/20 pt-2 text-[10px]">
+                    <span className="text-slate-500">점유율 <strong className="ml-1 text-emerald-300">{question.share}%</strong></span>
+                    <span className="text-center text-slate-500">순위 <strong className="ml-1 text-[color:var(--color-accent-lime)]">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></span>
+                    <span className="text-right text-slate-500">긍정 <strong className="ml-1 text-amber-300">{question.positiveRate}%</strong></span>
+                  </div>
+                </button>
+              );
+            })}
+            {!data.questions.length && (
+              <div className="rounded-lg border border-dashed border-dash-line/35 px-4 py-8 text-center text-xs leading-5 text-slate-500">
+                측정을 실행하면 질문별 GEO 성과가 표시됩니다.
+              </div>
+            )}
           </div>
         </div>
-      </Panel>
 
-      <Panel className="overflow-hidden">
-        <PanelHeader eyebrow="provider signal" title="모델별 질문 성과" meta="언급률 · 평균 순위" />
-        <div className="divide-y divide-white/[0.06]">{activeQuestionModels.map((model) => { const meta = modelMeta[model.provider]; return <div key={model.provider} className="grid gap-3 p-4.5 sm:grid-cols-[180px_minmax(0,1fr)_80px_80px] sm:items-center sm:px-6"><div className="text-xs sm:text-sm font-medium text-zinc-300"><ProviderDot provider={model.provider} /></div><ShareBar value={model.share} color={meta?.color} /><div className="text-right text-xs sm:text-sm font-bold text-zinc-100">{model.share}%</div><div className="text-right text-xs sm:text-sm text-zinc-400">{model.averageRank ? `${model.averageRank}위` : "순위 —"}</div></div>; })}{!activeQuestionModels.length && <div className="p-8 text-center text-xs sm:text-sm text-zinc-400">이 질문의 모델별 결과가 없습니다.</div>}</div>
-      </Panel>
+        <div className="min-w-0">
+          {selectedQuestion ? (
+            <QuestionDetail question={selectedQuestion} />
+          ) : (
+            <div className="grid min-h-[420px] place-items-center px-6 py-10 text-center">
+              <div>
+                <CircleDot className="mx-auto h-8 w-8 text-[color:var(--color-accent-lime)]" />
+                <h3 className="mt-4 text-base font-bold text-white">질문별 상세 신호를 확인하세요</h3>
+                <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-slate-500">왼쪽 질문을 선택하면 모델별 언급률, 평균 순위, 긍정 문맥과 실행별 추이를 드릴다운합니다.</p>
+                <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 divide-x divide-dash-line/30 rounded-lg border border-dash-line/30 bg-dash-inset">
+                  <div className="px-3 py-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">질문</span><strong className="mt-1 block text-xl text-white">{data.questions.length}</strong></div>
+                  <div className="px-3 py-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">응답</span><strong className="mt-1 block text-xl text-[color:var(--color-accent-lime)]">{data.overview.totalResponses}</strong></div>
+                  <div className="px-3 py-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">긍정</span><strong className="mt-1 block text-xl text-amber-300">{data.recentRuns.length ? `${data.overview.positiveRate}%` : "—"}</strong></div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </Panel>
+  );
+}
 
-      <Panel className="overflow-hidden">
-        <PanelHeader eyebrow="query visibility trend" title="질문별 모델 추이" meta={`${question.trends.length}개 측정 시점`} />
-        {question.trends.length ? <div className="p-4 sm:p-6"><div className="h-80 sm:h-96 xl:h-[420px]" role="img" aria-label="선택 질문의 최근 12회 모델별 점유율 추이"><ResponsiveContainer width="100%" height="100%"><LineChart data={question.trends} margin={{ left: -15, right: 12, top: 15, bottom: 4 }}><CartesianGrid stroke="#2b3036" strokeDasharray="2 4" /><XAxis dataKey="label" stroke="#a1a1aa" tick={{ fontSize: 11, fill: "#a1a1aa" }} tickLine={false} /><YAxis domain={[0, 100]} stroke="#a1a1aa" tick={{ fontSize: 11, fill: "#a1a1aa" }} tickFormatter={(value) => `${value}%`} /><Tooltip contentStyle={chartTooltip} formatter={(value, name) => [`${Number(value).toFixed(1)}%`, modelMeta[String(name)]?.label ?? name]} /><Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} formatter={(value) => modelMeta[String(value)]?.label ?? value} /><Line type="monotone" dataKey="overall" name="전체" stroke="#f4f4f5" strokeWidth={3} dot={{ r: 3.5 }} connectNulls />{Object.entries(modelMeta).map(([provider, meta]) => <Line key={provider} type="monotone" dataKey={provider} name={provider} stroke={meta.color} strokeWidth={2} dot={{ r: 2.5 }} connectNulls />)}</LineChart></ResponsiveContainer></div></div> : <div className="grid min-h-64 place-items-center p-8 text-center"><div><Activity className="mx-auto h-7 w-7 text-zinc-400" /><p className="mt-3 text-xs sm:text-sm text-zinc-400">반복 측정하면 이 질문의 모델별 변화가 표시됩니다.</p></div></div>}
-      </Panel>
-    </>
+function QuestionDetail({ question }: { question: DashboardData["questions"][number] }) {
+  const activeModels = question.models.filter((model) => model.total > 0);
+
+  return (
+    <div>
+      <div className="border-b border-dash-line/30 px-4 py-4 sm:px-5">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">selected query analysis</p>
+        <h3 className="mt-2 max-w-5xl text-sm font-bold leading-6 text-white sm:text-base">{question.text}</h3>
+      </div>
+
+      <div className="grid grid-cols-2 divide-x divide-y divide-dash-line/25 border-b border-dash-line/30 sm:grid-cols-4 sm:divide-y-0">
+        <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">Answer Share</span><strong className="mt-1.5 block text-2xl text-emerald-300">{question.share}%</strong></div>
+        <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">이전 대비</span><div className="mt-2.5"><Delta value={question.delta} /></div></div>
+        <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">평균 순위</span><strong className="mt-1.5 block text-2xl text-[color:var(--color-accent-lime)]">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></div>
+        <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">긍정 문맥</span><strong className="mt-1.5 block text-2xl text-amber-300">{question.positiveRate}%</strong></div>
+      </div>
+
+      <div className="grid 2xl:grid-cols-[0.8fr_1.2fr]">
+        <div className="border-b border-dash-line/30 p-4 2xl:border-b-0 2xl:border-r">
+          <h4 className="text-xs font-bold text-slate-200">모델별 질문 성과</h4>
+          <div className="mt-4 space-y-4">
+            {activeModels.map((model) => (
+              <div key={model.provider}>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <ProviderDot provider={model.provider} />
+                  <span className="text-[10px] text-slate-500">{model.averageRank ? `평균 ${model.averageRank}위` : "순위 없음"} · <strong className="text-white">{model.share}%</strong></span>
+                </div>
+                <ShareBar value={model.share} color={modelMeta[model.provider]?.color} />
+              </div>
+            ))}
+            {!activeModels.length && <p className="py-10 text-center text-xs text-slate-500">이 질문의 모델별 결과가 없습니다.</p>}
+          </div>
+        </div>
+
+        <div className="min-w-0 p-4">
+          <h4 className="text-xs font-bold text-slate-200">모델별 Answer Share 추이</h4>
+          {question.trends.length ? (
+            <div className="mt-3 h-72" role="img" aria-label="선택 질문의 최근 모델별 Answer Share 추이">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={question.trends} margin={{ left: -20, right: 10, top: 8, bottom: 0 }}>
+                  <CartesianGrid stroke="#26395f" strokeDasharray="2 4" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fill: "#7183a6", fontSize: 10 }} tickLine={false} axisLine={false} />
+                  <YAxis domain={[0, 100]} tick={{ fill: "#7183a6", fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} />
+                  <Tooltip contentStyle={chartTooltip} formatter={(value, name) => [`${Number(value).toFixed(1)}%`, name === "overall" ? "전체" : modelMeta[String(name)]?.label ?? name]} />
+                  <Legend iconType="line" wrapperStyle={{ fontSize: 10 }} formatter={(value) => value === "overall" ? "전체" : modelMeta[String(value)]?.label ?? value} />
+                  <Line type="monotone" dataKey="overall" stroke="#f8fafc" strokeWidth={2.4} dot={{ r: 2.5 }} connectNulls />
+                  {Object.entries(modelMeta).map(([provider, meta]) => (
+                    <Line key={provider} type="monotone" dataKey={provider} stroke={meta.color} strokeWidth={1.7} dot={false} connectNulls />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="grid min-h-64 place-items-center text-center">
+              <div><Activity className="mx-auto h-6 w-6 text-slate-600" /><p className="mt-3 text-xs text-slate-500">반복 측정하면 질문별 추이가 표시됩니다.</p></div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

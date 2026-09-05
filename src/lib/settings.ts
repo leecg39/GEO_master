@@ -10,7 +10,7 @@ export const providers = ["openai", "anthropic", "gemini", "grok"] as const;
 export type Provider = (typeof providers)[number];
 
 export const defaultModels: Record<Provider, string> = {
-  openai: "gpt-4.1-mini",
+  openai: "gpt-6-astra",
   anthropic: "claude-sonnet-4-5",
   gemini: "gemini-2.5-flash",
   grok: "grok-4.6",
@@ -48,6 +48,10 @@ export const settingsInputSchema = z.object({
     message: "구독핀 API 키는 csk_로 시작해야 합니다.",
   }).optional(),
   clearSubscriptionPin: z.boolean().optional(),
+  talordataApiToken: z.string().trim().max(500).optional(),
+  clearTalordataApiToken: z.boolean().optional(),
+  firecrawlApiKey: z.string().trim().max(500).optional(),
+  clearFirecrawlApiKey: z.boolean().optional(),
   clearApiKeys: z.array(z.enum(providers)).max(providers.length).optional(),
   expectedUpdatedAt: z.string().min(1).max(64),
 }).strict();
@@ -182,6 +186,8 @@ export function getPublicSettings() {
       grok: publicKeyState(row.grokApiKey, providerEnvironmentKey("grok")),
     },
     subscriptionPin: publicKeyState(row.subscriptionPin, gudokpinEnvironmentKey()),
+    talordataApiToken: publicKeyState(row.talordataApiToken, environmentValue("TALORDATA_API_TOKEN")),
+    firecrawlApiKey: publicKeyState(row.firecrawlApiKey, environmentValue("FIRECRAWL_API_KEY")),
     updatedAt: row.updatedAt,
   };
 }
@@ -210,6 +216,16 @@ export function updateSettings(input: unknown) {
         : parsed.subscriptionPin
           ? encryptSecret(parsed.subscriptionPin)
           : row.subscriptionPin,
+      talordataApiToken: parsed.clearTalordataApiToken
+        ? null
+        : parsed.talordataApiToken
+          ? encryptSecret(parsed.talordataApiToken)
+          : row.talordataApiToken,
+      firecrawlApiKey: parsed.clearFirecrawlApiKey
+        ? null
+        : parsed.firecrawlApiKey
+          ? encryptSecret(parsed.firecrawlApiKey)
+          : row.firecrawlApiKey,
       updatedAt,
     }).where(eq(settings.id, 1)).run();
   });
@@ -274,4 +290,42 @@ export function getServerSettings(requiredProviders: readonly Provider[] = []) {
     },
     decryptedSubscriptionPin: shouldExposeDecryptedPin ? (gudokpinEnvironmentKey() ?? decryptSubscriptionPin()) : null,
   };
+}
+
+export function getTalordataApiToken(): string | null {
+  const environmentToken = environmentValue("TALORDATA_API_TOKEN");
+  if (environmentToken) return environmentToken;
+  const row = ensureSettingsRow();
+  if (!row.talordataApiToken) return null;
+  try {
+    return decryptSecret(row.talordataApiToken);
+  } catch (error) {
+    if (error instanceof SecretDecryptionError) {
+      throw new AppError("TalorData API 토큰을 복호화할 수 없습니다. 설정에서 다시 저장해 주세요.", 409, "INVALID_TALORDATA_TOKEN_STORAGE");
+    }
+    throw error;
+  }
+}
+
+export function resolveFirecrawlApiKey(): { value: string | null; storageError: boolean } {
+  const environmentKey = environmentValue("FIRECRAWL_API_KEY");
+  if (environmentKey) return { value: environmentKey, storageError: false };
+  const row = ensureSettingsRow();
+  if (!row.firecrawlApiKey) return { value: null, storageError: false };
+  try {
+    return { value: decryptSecret(row.firecrawlApiKey), storageError: false };
+  } catch (error) {
+    if (error instanceof SecretDecryptionError) {
+      return { value: null, storageError: true };
+    }
+    throw error;
+  }
+}
+
+export function getFirecrawlApiKey(): string | null {
+  const resolved = resolveFirecrawlApiKey();
+  if (resolved.storageError) {
+    throw new AppError("Firecrawl API 키를 복호화할 수 없습니다. 설정에서 다시 저장해 주세요.", 409, "INVALID_FIRECRAWL_API_KEY_STORAGE");
+  }
+  return resolved.value;
 }

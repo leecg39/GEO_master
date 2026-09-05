@@ -36,11 +36,17 @@ export function ConfirmDialog({
     if (!open) return;
     previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     cancelRef.current?.focus();
+    return () => {
+      previousFocus.current?.focus();
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
     const escape = (event: KeyboardEvent) => { if (event.key === "Escape") close(); };
     document.addEventListener("keydown", escape);
     return () => {
       document.removeEventListener("keydown", escape);
-      previousFocus.current?.focus();
     };
   }, [close, open]);
 
@@ -74,11 +80,17 @@ export function DetailDrawer({ open, title, description, children, footer, busy 
     if (!open) return;
     previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     closeRef.current?.focus();
+    return () => {
+      previousFocus.current?.focus();
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
     const escape = (event: KeyboardEvent) => { if (event.key === "Escape" && !busy) onClose(); };
     document.addEventListener("keydown", escape);
     return () => {
       document.removeEventListener("keydown", escape);
-      previousFocus.current?.focus();
     };
   }, [busy, onClose, open]);
 

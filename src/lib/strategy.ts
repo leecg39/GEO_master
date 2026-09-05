@@ -2,6 +2,9 @@ import { z } from "zod";
 import {
   assertDeleteAllowed,
   assertExpectedUpdatedAt,
+  collectionQuerySchema,
+  cursorPage,
+  decodeCursor,
   expectFound,
   resourceIdSchema,
   transactionalMutation,
@@ -37,6 +40,10 @@ export const strategyUpdateSchema = z.object({
 export const strategyDeleteSchema = z.object({
   expectedUpdatedAt: z.string().min(1).max(64).optional(),
   cascadeConfirmed: z.boolean().default(false),
+}).strict();
+
+export const strategyListQuerySchema = collectionQuerySchema.extend({
+  type: z.enum(strategyTypes).optional(),
 }).strict();
 
 interface StrategyRow {
@@ -109,6 +116,31 @@ export function listStrategyItems() {
     SELECT * FROM strategy_items WHERE project_id = ? ORDER BY created_at DESC, id DESC
   `).all(active.id) as StrategyRow[];
   return rows.map(deserialize);
+}
+
+export function listStrategyItemsPage(input: unknown) {
+  const query = strategyListQuerySchema.parse(input);
+  const active = requireActiveProject();
+  const where = ["project_id = ?"];
+  const parameters: Array<string | number> = [active.id];
+  if (query.type) {
+    where.push("type = ?");
+    parameters.push(query.type);
+  }
+  if (query.q) {
+    where.push("title LIKE ? ESCAPE '\\'");
+    parameters.push(`%${query.q.replace(/[\\%_]/g, "\\$&")}%`);
+  }
+  if (query.cursor) {
+    const cursor = decodeCursor(query.cursor);
+    where.push("(created_at < ? OR (created_at = ? AND id < ?))");
+    parameters.push(cursor.timestamp, cursor.timestamp, cursor.id);
+  }
+  const rows = getDatabase().sqlite.prepare(`
+    SELECT * FROM strategy_items WHERE ${where.join(" AND ")}
+    ORDER BY created_at DESC, id DESC LIMIT ?
+  `).all(...parameters, query.limit + 1) as StrategyRow[];
+  return cursorPage(rows.map(deserialize), query.limit, (item) => ({ timestamp: item.createdAt, id: item.id }));
 }
 
 export function createStrategyItem(input: unknown) {

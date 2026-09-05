@@ -2,6 +2,8 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { getDatabase } from "./db";
 import { audits, checklistStates, measureResults, measureRuns, projects, strategyItems } from "./db/schema";
 import { requireActiveProject } from "./projects";
+import { getSemforgeSubscription } from "./semforge-subscription";
+import { normalizeDomain, projectDomainFromBrand } from "./semforge/utils/domain";
 import { providers, type Provider } from "./settings";
 
 const cycleLabels = ["1주차 · 모니터링", "2주차 · 분석", "3주차 · 우선순위", "4주차 · 콘텐츠 개선"];
@@ -227,6 +229,32 @@ export function getDashboardData() {
     ? latestSummary.positiveRate
     : summarizeQuestionRows(latestRows).positiveRate;
 
+  const semforgeSubscription = getSemforgeSubscription();
+  let semforgeAio: { citedRate: number | null; queryCount: number } | null = null;
+  if (semforgeSubscription.active) {
+    const domain = normalizeDomain(active.domain || project?.domain || projectDomainFromBrand(active.brandName));
+    if (domain) {
+      const { sqlite } = getDatabase();
+      const queryCount = (sqlite.prepare(`
+        SELECT COUNT(*) AS count FROM ai_visibility_queries WHERE project_id = ? AND domain = ? AND deleted_at IS NULL
+      `).get(active.id, domain) as { count: number }).count;
+      const cited = (sqlite.prepare(`
+        SELECT COUNT(*) AS count FROM ai_visibility_snapshots s
+        JOIN ai_visibility_queries q ON q.id = s.query_id
+        WHERE q.project_id = ? AND q.domain = ? AND q.deleted_at IS NULL AND s.cited = 1
+      `).get(active.id, domain) as { count: number }).count;
+      const judgeable = (sqlite.prepare(`
+        SELECT COUNT(*) AS count FROM ai_visibility_snapshots s
+        JOIN ai_visibility_queries q ON q.id = s.query_id
+        WHERE q.project_id = ? AND q.domain = ? AND q.deleted_at IS NULL AND s.cited IS NOT NULL
+      `).get(active.id, domain) as { count: number }).count;
+      semforgeAio = {
+        queryCount,
+        citedRate: judgeable > 0 ? Number(((cited / judgeable) * 100).toFixed(1)) : null,
+      };
+    }
+  }
+
   return {
     project: {
       name: project?.name || project?.brandName || "GEO Master",
@@ -287,6 +315,11 @@ export function getDashboardData() {
       funnelStage: run.funnelStage,
       createdAt: run.createdAt,
     })),
+    semforge: {
+      subscriptionActive: semforgeSubscription.active,
+      amountKrw: semforgeSubscription.amountKrw,
+      aio: semforgeAio,
+    },
   };
 }
 

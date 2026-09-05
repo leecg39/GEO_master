@@ -1,8 +1,22 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Rubik, Space_Grotesk } from "next/font/google";
 import { Agentation } from "agentation";
 import { AppShell } from "@/components/AppShell";
+import { DEFAULT_THEME, themeInitScript } from "@/lib/theme";
 import "./globals.css";
+
+const rubik = Rubik({
+  subsets: ["latin"],
+  variable: "--font-rubik",
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-display-face",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: { default: "GEO Master", template: "%s · GEO Master" },
@@ -11,7 +25,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" data-theme={DEFAULT_THEME} className={`${rubik.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript() }} />
+      </head>
       <body>
         <AppShell>{children}</AppShell>
         {process.env.NODE_ENV === "development" && <Agentation />}

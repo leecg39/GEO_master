@@ -4,8 +4,171 @@ export const projects = sqliteTable("projects", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   brandName: text("brand_name").notNull(),
+  domain: text("domain").notNull().default(""),
   category: text("category").notNull().default(""),
   competitors: text("competitors").notNull().default("[]"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const semforgeSubscriptions = sqliteTable("semforge_subscriptions", {
+  id: integer("id").primaryKey(),
+  status: text("status").notNull().default("inactive"),
+  amountKrw: integer("amount_krw").notNull().default(300_000),
+  currentPeriodStart: text("current_period_start"),
+  currentPeriodEnd: text("current_period_end"),
+  canceledAt: text("canceled_at"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const semforgePaymentIntents = sqliteTable("semforge_payment_intents", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  amountKrw: integer("amount_krw").notNull(),
+  status: text("status").notNull(),
+  provider: text("provider").notNull().default("toss"),
+  providerOrderId: text("provider_order_id").notNull().unique(),
+  confirmTokenHash: text("confirm_token_hash"),
+  checkoutUrl: text("checkout_url"),
+  paidAt: text("paid_at"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const sites = sqliteTable("sites", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  domain: text("domain").notNull(),
+  name: text("name").notNull().default(""),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const aiVisibilityQueries = sqliteTable("ai_visibility_queries", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  domain: text("domain").notNull(),
+  query: text("query").notNull(),
+  normalizedQuery: text("normalized_query").notNull(),
+  countryCode: text("country_code").notNull().default("KR"),
+  device: text("device").notNull().default("desktop"),
+  deletedAt: text("deleted_at"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const aiVisibilitySnapshots = sqliteTable("ai_visibility_snapshots", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  queryId: integer("query_id").notNull().references(() => aiVisibilityQueries.id, { onDelete: "cascade" }),
+  aioPresent: integer("aio_present", { mode: "boolean" }).notNull().default(false),
+  cited: integer("cited", { mode: "boolean" }),
+  citedUrl: text("cited_url"),
+  citedDomains: text("cited_domains").notNull().default("[]"),
+  organicPosition: integer("organic_position"),
+  features: text("features").notNull().default("[]"),
+  source: text("source").notNull().default("talordata"),
+  capturedAt: text("captured_at").notNull(),
+});
+
+export const siteAuditCampaigns = sqliteTable("site_audit_campaigns", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  domain: text("domain").notNull(),
+  status: text("status").notNull().default("idle"),
+  siteHealth: integer("site_health"),
+  lastRunAt: text("last_run_at"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const siteAuditPages = sqliteTable("site_audit_pages", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  campaignId: integer("campaign_id").notNull().references(() => siteAuditCampaigns.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  statusCode: integer("status_code").notNull().default(0),
+  title: text("title"),
+  depth: integer("depth").notNull().default(0),
+  responseMs: integer("response_ms"),
+  bytes: integer("bytes").notNull().default(0),
+  capturedAt: text("captured_at").notNull(),
+});
+
+export const siteAuditIssues = sqliteTable("site_audit_issues", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  campaignId: integer("campaign_id").notNull().references(() => siteAuditCampaigns.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  severity: text("severity").notNull(),
+  category: text("category").notNull(),
+  title: text("title").notNull(),
+  detail: text("detail").notNull().default(""),
+  createdAt: text("created_at").notNull(),
+});
+
+export const positionTrackingCampaigns = sqliteTable("position_tracking_campaigns", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  domain: text("domain").notNull(),
+  searchEngine: text("search_engine").notNull().default("google"),
+  device: text("device").notNull().default("desktop"),
+  location: text("location").notNull().default("KR"),
+  visibility: integer("visibility").notNull().default(0),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const trackedKeywords = sqliteTable("tracked_keywords", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  campaignId: integer("campaign_id").notNull().references(() => positionTrackingCampaigns.id, { onDelete: "cascade" }),
+  keyword: text("keyword").notNull(),
+  position: integer("position"),
+  previousPosition: integer("previous_position"),
+  volume: integer("volume"),
+  deletedAt: text("deleted_at"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const gscConnections = sqliteTable("gsc_connections", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  siteUrl: text("site_url").notNull(),
+  status: text("status").notNull().default("disconnected"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const gbpConnections = sqliteTable("gbp_connections", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  locationName: text("location_name").notNull().default(""),
+  address: text("address").notNull().default(""),
+  status: text("status").notNull().default("disconnected"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const mapRankCampaigns = sqliteTable("map_rank_campaigns", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  gbpConnectionId: integer("gbp_connection_id").references(() => gbpConnections.id, { onDelete: "set null" }),
+  name: text("name").notNull(),
+  businessName: text("business_name").notNull(),
+  locationLabel: text("location_label").notNull(),
+  visibility: integer("visibility").notNull().default(0),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const mapRankKeywords = sqliteTable("map_rank_keywords", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  campaignId: integer("campaign_id").notNull().references(() => mapRankCampaigns.id, { onDelete: "cascade" }),
+  keyword: text("keyword").notNull(),
+  mapPosition: integer("map_position"),
+  previousMapPosition: integer("previous_map_position"),
+  inLocalPack: integer("in_local_pack", { mode: "boolean" }).notNull().default(false),
+  deletedAt: text("deleted_at"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
@@ -21,6 +184,8 @@ export const settings = sqliteTable("settings", {
   geminiApiKey: text("gemini_api_key"),
   grokApiKey: text("grok_api_key"),
   subscriptionPin: text("subscription_pin"),
+  talordataApiToken: text("talordata_api_token"),
+  firecrawlApiKey: text("firecrawl_api_key"),
   models: text("models").notNull().default("{}"),
   repetitions: integer("repetitions").notNull().default(3),
   modelWeights: text("model_weights").notNull().default("{}"),

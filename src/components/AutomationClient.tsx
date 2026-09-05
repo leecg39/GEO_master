@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CalendarClock, CircleDollarSign, Clock3, LoaderCircle, Pause, Pencil, Play, RefreshCw, RotateCcw, Save, Trash2, XCircle } from "lucide-react";
+import { ConfirmDialog, CursorPagination } from "@/components/CrudPrimitives";
 import { Badge, Button, Card, EmptyState, PageHeader, Progress } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 
@@ -11,7 +12,7 @@ interface Policy { monthlyBudgetUsd: number; maxRunCostUsd: number; providerCall
 interface Budget { period: string; usedUsd: number; reservedUsd: number; consumedUsd: number; remainingUsd: number; usagePercent: number; alert: boolean }
 interface Schedule { id: number; name: string; questions: string[]; providers: Provider[]; repetitions: number; intervalMinutes: number; nextRunAt: string; enabled: boolean; lastErrorCode: string | null; createdAt: string; updatedAt: string; estimate: { baseCalls: number; maximumCalls: number; estimatedCostUsd: number } }
 interface Job { id: number; scheduleId: number | null; runId: number | null; attemptOfId: number | null; status: JobStatus; providers: Provider[]; questionCount: number; repetitions: number; estimatedCostUsd: number; incurredCostUsd: number; budgetPeriod: string; errorCode: string | null; cancelRequested: boolean; availableAt: string; createdAt: string; startedAt: string | null; completedAt: string | null }
-interface AutomationState { policy: Policy; budget: Budget; schedules: Schedule[]; jobs: Job[] }
+interface AutomationState { policy: Policy; budget: Budget; schedules: Schedule[]; jobs: Job[]; jobsPage?: { nextCursor: string | null; hasMore: boolean } }
 
 const providerLabels: Record<Provider, string> = { openai: "GPT", anthropic: "Claude", gemini: "Gemini", grok: "Grok" };
 const providers = Object.keys(providerLabels) as Provider[];
@@ -72,10 +73,16 @@ export function AutomationClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [jobsCursor, setJobsCursor] = useState<string | null>(null);
+  const [jobsBackStack, setJobsBackStack] = useState<Array<string | null>>([]);
+  const [deleteScheduleTarget, setDeleteScheduleTarget] = useState<Schedule | null>(null);
+  const [runNowTarget, setRunNowTarget] = useState<Schedule | null>(null);
 
-  const refresh = useCallback(async (quiet = false) => {
+  const refresh = useCallback(async (quiet = false, cursor: string | null = jobsCursor) => {
     try {
-      const data = await responseJson<AutomationState>(await fetch("/api/automation", { cache: "no-store" }));
+      const parameters = new URLSearchParams({ limit: "20" });
+      if (cursor) parameters.set("cursor", cursor);
+      const data = await responseJson<AutomationState>(await fetch(`/api/automation?${parameters}`, { cache: "no-store" }));
       setState(data);
       setPolicy((current) => current ?? data.policy);
       setNextRunAt((current) => current || localInputValue(new Date(Date.now() + 24 * 60 * 60_000)));
@@ -85,13 +92,15 @@ export function AutomationClient() {
     } finally {
       if (!quiet) setLoading(false);
     }
-  }, []);
+  }, [jobsCursor]);
 
   useEffect(() => {
     let active = true;
     async function load(quiet: boolean) {
       try {
-        const data = await responseJson<AutomationState>(await fetch("/api/automation", { cache: "no-store" }));
+        const parameters = new URLSearchParams({ limit: "20" });
+        if (jobsCursor) parameters.set("cursor", jobsCursor);
+        const data = await responseJson<AutomationState>(await fetch(`/api/automation?${parameters}`, { cache: "no-store" }));
         if (!active) return;
         setState(data);
         setPolicy((current) => current ?? data.policy);
@@ -105,8 +114,14 @@ export function AutomationClient() {
     }
     void load(false);
     const timer = window.setInterval(() => { void load(true); }, 15_000);
-    return () => { active = false; window.clearInterval(timer); };
-  }, []);
+    const onProject = () => {
+      setJobsCursor(null);
+      setJobsBackStack([]);
+      void load(false);
+    };
+    window.addEventListener("geo-master:project-changed", onProject);
+    return () => { active = false; window.clearInterval(timer); window.removeEventListener("geo-master:project-changed", onProject); };
+  }, [jobsCursor]);
 
   const questionList = useMemo(() => questions.split("\n").map((item) => item.trim()).filter(Boolean), [questions]);
   const selectedProviders = useMemo(() => providers.filter((provider) => selected[provider]), [selected]);
@@ -190,9 +205,13 @@ export function AutomationClient() {
     </section>
 
     <Card className="mt-6"><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold text-white">예약 목록</h2><p className="mt-1 text-xs text-slate-500">중단 기간의 누락 슬롯은 한 건으로 합치며 대량 따라잡기를 실행하지 않습니다.</p></div><Button type="button" variant="secondary" disabled={Boolean(busy)} onClick={() => void action({ action: "queue.process" }, "큐 1건 처리")}><Play className="h-4 w-4" />지금 큐 1건 처리</Button></div>
-      {state.schedules.length ? <div className="grid gap-3 lg:grid-cols-2">{state.schedules.map((schedule) => <div key={schedule.id} className="rounded-xl border border-white/8 bg-slate-950/35 p-4"><div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2"><strong className="text-sm text-white">{schedule.name}</strong><Badge tone={schedule.enabled ? "good" : "default"}>{schedule.enabled ? "활성" : "일시 정지"}</Badge></div><p className="mt-1 text-xs text-slate-500">다음 {formatDate(schedule.nextRunAt)} · 질문 {schedule.questions.length}개 · 최대 {schedule.estimate.maximumCalls}회 / {usd(schedule.estimate.estimatedCostUsd)}</p>{schedule.lastErrorCode && <p className="mt-1 text-xs text-amber-300">{errorLabels[schedule.lastErrorCode] ?? schedule.lastErrorCode}</p>}</div><button type="button" aria-label={`${schedule.name} 수정`} className="p-1.5 text-slate-500 hover:text-white" onClick={() => editSchedule(schedule)}><Pencil className="h-4 w-4" /></button></div><div className="mt-4 flex flex-wrap gap-2"><Button type="button" variant="secondary" disabled={Boolean(busy)} onClick={() => void action({ action: "schedule.toggle", id: schedule.id, enabled: !schedule.enabled }, schedule.enabled ? "예약 일시 정지" : "예약 활성화")}>{schedule.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}{schedule.enabled ? "일시 정지" : "활성화"}</Button><Button type="button" variant="secondary" disabled={Boolean(busy)} onClick={() => { if (window.confirm("비용 한도를 확인한 뒤 이 예약을 지금 큐에 추가할까요?")) void action({ action: "schedule.runNow", id: schedule.id }, "즉시 실행 예약"); }}><Clock3 className="h-4 w-4" />지금 실행</Button><Button type="button" variant="danger" disabled={Boolean(busy)} onClick={() => { if (window.confirm("예약을 삭제할까요? 기존 작업 이력은 보존됩니다.")) void action({ action: "schedule.delete", id: schedule.id }, "예약 삭제"); }}><Trash2 className="h-4 w-4" />삭제</Button></div></div>)}</div> : <EmptyState>예약을 저장하면 여기에 다음 실행 시각과 비용 상한이 표시됩니다.</EmptyState>}
+      {state.schedules.length ? <div className="grid gap-3 lg:grid-cols-2">{state.schedules.map((schedule) => <div key={schedule.id} className="rounded-xl border border-white/8 bg-slate-950/35 p-4"><div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2"><strong className="text-sm text-white">{schedule.name}</strong><Badge tone={schedule.enabled ? "good" : "default"}>{schedule.enabled ? "활성" : "일시 정지"}</Badge></div><p className="mt-1 text-xs text-slate-500">다음 {formatDate(schedule.nextRunAt)} · 질문 {schedule.questions.length}개 · 최대 {schedule.estimate.maximumCalls}회 / {usd(schedule.estimate.estimatedCostUsd)}</p>{schedule.lastErrorCode && <p className="mt-1 text-xs text-amber-300">{errorLabels[schedule.lastErrorCode] ?? schedule.lastErrorCode}</p>}</div><button type="button" aria-label={`${schedule.name} 수정`} className="p-1.5 text-slate-500 hover:text-white" onClick={() => editSchedule(schedule)}><Pencil className="h-4 w-4" /></button></div><div className="mt-4 flex flex-wrap gap-2"><Button type="button" variant="secondary" disabled={Boolean(busy)} onClick={() => void action({ action: "schedule.toggle", id: schedule.id, enabled: !schedule.enabled }, schedule.enabled ? "예약 일시 정지" : "예약 활성화")}>{schedule.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}{schedule.enabled ? "일시 정지" : "활성화"}</Button><Button type="button" variant="secondary" disabled={Boolean(busy)} onClick={() => setRunNowTarget(schedule)}><Clock3 className="h-4 w-4" />지금 실행</Button><Button type="button" variant="danger" disabled={Boolean(busy)} onClick={() => setDeleteScheduleTarget(schedule)}><Trash2 className="h-4 w-4" />삭제</Button></div></div>)}</div> : <EmptyState>예약을 저장하면 여기에 다음 실행 시각과 비용 상한이 표시됩니다.</EmptyState>}
     </Card>
 
-    <Card className="mt-6"><div className="mb-5 flex items-center gap-2"><Clock3 className="h-4 w-4 text-slate-400" /><h2 className="font-semibold text-white">영속 작업 큐</h2></div>{state.jobs.length ? <div className="overflow-x-auto"><table className="w-full min-w-[780px] text-left text-sm"><thead className="text-xs text-slate-500"><tr><th className="pb-3">작업</th><th className="pb-3">상태</th><th className="pb-3">측정량</th><th className="pb-3">비용 계상</th><th className="pb-3">시각</th><th className="pb-3 text-right">제어</th></tr></thead><tbody className="divide-y divide-white/5">{state.jobs.map((job) => <tr key={job.id}><td className="py-3 text-slate-300">#{job.id}{job.attemptOfId ? <small className="ml-1 text-slate-600">재시도 #{job.attemptOfId}</small> : null}</td><td className="py-3"><Badge tone={jobTone(job.status)}>{statusLabels[job.status]}{job.cancelRequested ? " · 취소 대기" : ""}</Badge>{job.errorCode && <p className="mt-1 max-w-56 text-xs text-slate-500">{errorLabels[job.errorCode] ?? job.errorCode}</p>}</td><td className="py-3 text-xs text-slate-400">{job.questionCount}문항 × {job.providers.map((provider) => providerLabels[provider]).join(", ")} × {job.repetitions}회</td><td className="py-3 text-slate-300">{usd(job.status === "queued" || job.status === "running" ? job.estimatedCostUsd : job.incurredCostUsd)}<small className="block text-[10px] text-slate-600">상한 {usd(job.estimatedCostUsd)}</small></td><td className="py-3 text-xs text-slate-500">{formatDate(job.createdAt)}</td><td className="py-3 text-right">{(job.status === "queued" || job.status === "running") && <button type="button" disabled={Boolean(busy) || job.cancelRequested} onClick={() => void action({ action: "job.cancel", id: job.id }, "작업 취소")} className="mr-3 text-xs font-semibold text-rose-300 disabled:text-slate-600">취소</button>}{(["failed", "blocked", "canceled"] as JobStatus[]).includes(job.status) && <button type="button" disabled={Boolean(busy)} onClick={() => void action({ action: "job.retry", id: job.id }, "작업 재시도")} className="text-xs font-semibold text-cyan-300 disabled:text-slate-600"><RotateCcw className="mr-1 inline h-3.5 w-3.5" />재시도</button>}</td></tr>)}</tbody></table></div> : <EmptyState>예약 실행 또는 지금 실행을 사용하면 작업 상태가 서버 재시작 후에도 보존됩니다.</EmptyState>}</Card>
+    <Card className="mt-6"><div className="mb-5 flex items-center gap-2"><Clock3 className="h-4 w-4 text-slate-400" /><h2 className="font-semibold text-white">영속 작업 큐</h2></div>{state.jobs.length ? <div className="overflow-x-auto"><table className="w-full min-w-[780px] text-left text-sm"><thead className="text-xs text-slate-500"><tr><th className="pb-3">작업</th><th className="pb-3">상태</th><th className="pb-3">측정량</th><th className="pb-3">비용 계상</th><th className="pb-3">시각</th><th className="pb-3 text-right">제어</th></tr></thead><tbody className="divide-y divide-white/5">{state.jobs.map((job) => <tr key={job.id}><td className="py-3 text-slate-300">#{job.id}{job.attemptOfId ? <small className="ml-1 text-slate-600">재시도 #{job.attemptOfId}</small> : null}</td><td className="py-3"><Badge tone={jobTone(job.status)}>{statusLabels[job.status]}{job.cancelRequested ? " · 취소 대기" : ""}</Badge>{job.errorCode && <p className="mt-1 max-w-56 text-xs text-slate-500">{errorLabels[job.errorCode] ?? job.errorCode}</p>}</td><td className="py-3 text-xs text-slate-400">{job.questionCount}문항 × {job.providers.map((provider) => providerLabels[provider]).join(", ")} × {job.repetitions}회</td><td className="py-3 text-slate-300">{usd(job.status === "queued" || job.status === "running" ? job.estimatedCostUsd : job.incurredCostUsd)}<small className="block text-[10px] text-slate-600">상한 {usd(job.estimatedCostUsd)}</small></td><td className="py-3 text-xs text-slate-500">{formatDate(job.createdAt)}</td><td className="py-3 text-right">{(job.status === "queued" || job.status === "running") && <button type="button" disabled={Boolean(busy) || job.cancelRequested} onClick={() => void action({ action: "job.cancel", id: job.id }, "작업 취소")} className="mr-3 text-xs font-semibold text-rose-300 disabled:text-slate-600">취소</button>}{(["failed", "blocked", "canceled"] as JobStatus[]).includes(job.status) && <button type="button" disabled={Boolean(busy)} onClick={() => void action({ action: "job.retry", id: job.id }, "작업 재시도")} className="text-xs font-semibold text-cyan-300 disabled:text-slate-600"><RotateCcw className="mr-1 inline h-3.5 w-3.5" />재시도</button>}</td></tr>)}</tbody></table></div> : <EmptyState>예약 실행 또는 지금 실행을 사용하면 작업 상태가 서버 재시작 후에도 보존됩니다.</EmptyState>}
+      <div className="mt-4"><CursorPagination canPrevious={jobsBackStack.length > 0} hasMore={Boolean(state.jobsPage?.hasMore)} busy={Boolean(busy)} onPrevious={() => { const stack = [...jobsBackStack]; setJobsCursor(stack.pop() ?? null); setJobsBackStack(stack); }} onNext={() => { if (!state.jobsPage?.nextCursor) return; setJobsBackStack((stack) => [...stack, jobsCursor]); setJobsCursor(state.jobsPage.nextCursor); }} /></div>
+    </Card>
+    <ConfirmDialog open={Boolean(runNowTarget)} title="지금 실행할까요?" description={runNowTarget && <>{runNowTarget.name} 예약을 비용 한도 확인 후 큐에 추가합니다.</>} confirmLabel="지금 실행" busy={Boolean(busy)} onClose={() => setRunNowTarget(null)} onConfirm={async () => { if (!runNowTarget) return; await action({ action: "schedule.runNow", id: runNowTarget.id }, "즉시 실행 예약"); setRunNowTarget(null); }} />
+    <ConfirmDialog open={Boolean(deleteScheduleTarget)} title="예약을 삭제할까요?" description={deleteScheduleTarget && <>{deleteScheduleTarget.name} 예약을 삭제합니다. 기존 작업 이력은 보존됩니다.</>} confirmLabel="예약 삭제" destructive busy={Boolean(busy)} onClose={() => setDeleteScheduleTarget(null)} onConfirm={async () => { if (!deleteScheduleTarget) return; await action({ action: "schedule.delete", id: deleteScheduleTarget.id }, "예약 삭제"); setDeleteScheduleTarget(null); }} />
   </div>;
 }
