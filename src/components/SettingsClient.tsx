@@ -19,7 +19,7 @@ interface SettingsState {
   models: Record<Provider, string>; repetitions: number; modelWeights: Record<Provider, number>;
   apiKeys: Record<Provider, KeyState>; subscriptionPin: KeyState; talordataApiToken: KeyState; firecrawlApiKey: KeyState; updatedAt: string;
 }
-const defaultModels: SettingsState["models"] = { openai: "gpt-4.1-mini", anthropic: "claude-sonnet-4-5", gemini: "gemini-2.5-flash", grok: "grok-4.6" };
+const defaultModels: SettingsState["models"] = { openai: "gpt-6-astra", anthropic: "claude-sonnet-4-5", gemini: "gemini-2.5-flash", grok: "grok-4.6" };
 const defaultModelWeights: SettingsState["modelWeights"] = { openai: 0.3, anthropic: 0.25, gemini: 0.2, grok: 0.25 };
 const defaultRepetitions = 3;
 const initial: SettingsState = { brandName: "", category: "", competitors: [], activeProject: { id: 0, name: "", brandName: "", category: "", competitors: [], updatedAt: "" }, models: defaultModels, repetitions: defaultRepetitions, modelWeights: defaultModelWeights, apiKeys: { openai: { configured: false, preview: null, error: false }, anthropic: { configured: false, preview: null, error: false }, gemini: { configured: false, preview: null, error: false }, grok: { configured: false, preview: null, error: false } }, subscriptionPin: { configured: false, preview: null, error: false }, talordataApiToken: { configured: false, preview: null, error: false }, firecrawlApiKey: { configured: false, preview: null, error: false }, updatedAt: "" };

@@ -41,6 +41,7 @@ describe.sequential("settings API and cold-start database", () => {
     const response = GET();
     expect(response.status).toBe(200);
     expect(fs.existsSync(databasePath)).toBe(true);
+    expect((await response.json()).settings.models.openai).toBe("gpt-6-astra");
     const table = getDatabase().sqlite.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='measure_results'").get();
     expect(table).toBeTruthy();
   });

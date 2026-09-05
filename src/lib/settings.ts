@@ -10,7 +10,7 @@ export const providers = ["openai", "anthropic", "gemini", "grok"] as const;
 export type Provider = (typeof providers)[number];
 
 export const defaultModels: Record<Provider, string> = {
-  openai: "gpt-4.1-mini",
+  openai: "gpt-6-astra",
   anthropic: "claude-sonnet-4-5",
   gemini: "gemini-2.5-flash",
   grok: "grok-4.6",
