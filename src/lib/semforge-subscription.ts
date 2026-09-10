@@ -7,6 +7,7 @@ import { subscriptionRequiredError } from "./semforge/errors";
 
 export const SEMFORGE_MONTHLY_PRICE_KRW = 300_000;
 export const SEMFORGE_BILLING_PERIOD_DAYS = 30;
+export const SEMFORGE_TRIAL_DAYS = 7;
 
 export type SemforgeSubscriptionStatus = "inactive" | "pending" | "active" | "past_due" | "canceled";
 export type PaymentIntentStatus = "pending" | "paid" | "failed" | "expired";
@@ -18,6 +19,8 @@ interface SubscriptionRow {
   current_period_start: string | null;
   current_period_end: string | null;
   canceled_at: string | null;
+  trial_started_at: string | null;
+  is_trial: number;
   created_at: string;
   updated_at: string;
 }
@@ -42,6 +45,9 @@ export interface SemforgeSubscriptionPublic {
   currentPeriodStart: string | null;
   currentPeriodEnd: string | null;
   daysRemaining: number | null;
+  isTrial: boolean;
+  trialAvailable: boolean;
+  trialDays: number;
   features: string[];
 }
 
@@ -63,13 +69,18 @@ function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
+function isCurrentlyActive(row: SubscriptionRow) {
+  const end = row.current_period_end ? Date.parse(row.current_period_end) : Number.NaN;
+  return row.status === "active" && Number.isFinite(end) && end > Date.now();
+}
+
 function ensureSubscriptionRow(sqlite: ReturnType<typeof getDatabase>["sqlite"]): SubscriptionRow {
   const existing = sqlite.prepare("SELECT * FROM semforge_subscriptions WHERE id = 1").get() as SubscriptionRow | undefined;
   if (existing) return existing;
   const now = new Date().toISOString();
   sqlite.prepare(`
-    INSERT INTO semforge_subscriptions (id, status, amount_krw, created_at, updated_at)
-    VALUES (1, 'inactive', ?, ?, ?)
+    INSERT INTO semforge_subscriptions (id, status, amount_krw, is_trial, created_at, updated_at)
+    VALUES (1, 'inactive', ?, 0, ?, ?)
   `).run(SEMFORGE_MONTHLY_PRICE_KRW, now, now);
   return sqlite.prepare("SELECT * FROM semforge_subscriptions WHERE id = 1").get() as SubscriptionRow;
 }
@@ -81,6 +92,7 @@ function toPublic(row: SubscriptionRow): SemforgeSubscriptionPublic {
   const daysRemaining = active && Number.isFinite(end)
     ? Math.max(0, Math.ceil((end - now) / (24 * 60 * 60 * 1000)))
     : null;
+  const isTrial = active && Boolean(row.is_trial);
   return {
     status: active ? "active" : row.status,
     active,
@@ -88,11 +100,15 @@ function toPublic(row: SubscriptionRow): SemforgeSubscriptionPublic {
     currentPeriodStart: row.current_period_start,
     currentPeriodEnd: row.current_period_end,
     daysRemaining,
+    isTrial,
+    trialAvailable: !row.trial_started_at && !active,
+    trialDays: SEMFORGE_TRIAL_DAYS,
     features: [
       "Google SERP AI Overview 가시성",
       "Firecrawl 사이트 진단",
       "포지션 추적 · 도메인 개요",
       "GSC · GBP · Map Rank 지역 SEO",
+      "GEO Blocks 스펙 초안·승인",
     ],
   };
 }
@@ -109,15 +125,47 @@ export function requireSemforgeSubscription(): SemforgeSubscriptionPublic {
   return subscription;
 }
 
+function activatePeriod(now: Date, days: number) {
+  const start = now.toISOString();
+  const end = new Date(now.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+  return { start, end };
+}
+
+/** 워크스페이스당 1회 · 결제 없이 7일 Pro 활성 */
+export function startSemforgeTrial(): SemforgeSubscriptionPublic {
+  const { sqlite } = getDatabase();
+  return transactionalMutation(sqlite, () => {
+    const subscription = ensureSubscriptionRow(sqlite);
+    if (isCurrentlyActive(subscription)) {
+      throw new AppError("이미 활성 구독이 있습니다.", 409, "SEMFORGE_ALREADY_ACTIVE");
+    }
+    if (subscription.trial_started_at) {
+      throw new AppError("무료 체험은 워크스페이스당 한 번만 시작할 수 있습니다. 월 구독 결제로 이어가세요.", 409, "SEMFORGE_TRIAL_USED");
+    }
+    const now = new Date();
+    const { start, end } = activatePeriod(now, SEMFORGE_TRIAL_DAYS);
+    const iso = now.toISOString();
+    sqlite.prepare(`
+      UPDATE semforge_subscriptions
+      SET status = 'active',
+          current_period_start = ?,
+          current_period_end = ?,
+          canceled_at = NULL,
+          trial_started_at = ?,
+          is_trial = 1,
+          updated_at = ?
+      WHERE id = 1
+    `).run(start, end, iso, iso);
+    return toPublic(ensureSubscriptionRow(sqlite));
+  });
+}
+
 export function createSemforgeCheckout(): CheckoutResult {
   const { sqlite } = getDatabase();
   return transactionalMutation(sqlite, () => {
     const subscription = ensureSubscriptionRow(sqlite);
-    if (subscription.status === "active" && subscription.current_period_end) {
-      const end = Date.parse(subscription.current_period_end);
-      if (Number.isFinite(end) && end > Date.now()) {
-        throw new AppError("이미 활성 구독이 있습니다.", 409, "SEMFORGE_ALREADY_ACTIVE");
-      }
+    if (isCurrentlyActive(subscription)) {
+      throw new AppError("이미 활성 구독이 있습니다.", 409, "SEMFORGE_ALREADY_ACTIVE");
     }
     const now = new Date().toISOString();
     const orderId = `sf-${Date.now()}-${randomBytes(4).toString("hex")}`;
@@ -150,12 +198,6 @@ const confirmSchema = z.object({
   confirmToken: z.string().trim().min(16).max(128).optional(),
 }).strict();
 
-function activatePeriod(now: Date) {
-  const start = now.toISOString();
-  const end = new Date(now.getTime() + SEMFORGE_BILLING_PERIOD_DAYS * 24 * 60 * 60 * 1000).toISOString();
-  return { start, end };
-}
-
 export function confirmSemforgePayment(input: unknown): SemforgeSubscriptionPublic {
   const parsed = confirmSchema.parse(input);
   const { sqlite } = getDatabase();
@@ -183,14 +225,14 @@ export function confirmSemforgePayment(input: unknown): SemforgeSubscriptionPubl
     }
 
     const now = new Date();
-    const { start, end } = activatePeriod(now);
+    const { start, end } = activatePeriod(now, SEMFORGE_BILLING_PERIOD_DAYS);
     const iso = now.toISOString();
     sqlite.prepare(`
       UPDATE semforge_payment_intents SET status = 'paid', paid_at = ?, updated_at = ? WHERE id = ?
     `).run(iso, iso, intent.id);
     sqlite.prepare(`
       UPDATE semforge_subscriptions
-      SET status = 'active', current_period_start = ?, current_period_end = ?, canceled_at = NULL, updated_at = ?
+      SET status = 'active', current_period_start = ?, current_period_end = ?, canceled_at = NULL, is_trial = 0, updated_at = ?
       WHERE id = 1
     `).run(start, end, iso);
     return toPublic(ensureSubscriptionRow(sqlite));
@@ -202,7 +244,7 @@ export function cancelSemforgeSubscription(): SemforgeSubscriptionPublic {
   return transactionalMutation(sqlite, () => {
     const now = new Date().toISOString();
     sqlite.prepare(`
-      UPDATE semforge_subscriptions SET status = 'canceled', canceled_at = ?, updated_at = ? WHERE id = 1
+      UPDATE semforge_subscriptions SET status = 'canceled', canceled_at = ?, is_trial = 0, updated_at = ? WHERE id = 1
     `).run(now, now);
     return toPublic(ensureSubscriptionRow(sqlite));
   });

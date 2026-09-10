@@ -4,6 +4,7 @@ import {
   contentRequestHash,
   duplicateContent,
   findContentByRequest,
+  getContent,
   listContents,
   storeGeneratedContent,
   updateContent,
@@ -23,6 +24,7 @@ import { requireActiveProject } from "@/lib/projects";
 import { requireSemforgeSubscription } from "@/lib/semforge-subscription";
 import { getPublicSettings, getServerSettings, providers, type Provider } from "@/lib/settings";
 import { listStrategyItems } from "@/lib/strategy";
+import { getWordpressConnectionPublic, previewWordpressDraft, pushWordpressDraft } from "@/lib/wordpress-publish";
 
 const TOOL = "geo-blocks";
 
@@ -33,6 +35,7 @@ function lockedPayload(message: string) {
     prompts: listGeoPrompts("studio"),
     recent: [] as ReturnType<typeof listContents>["items"],
     strategyOptions: [] as { id: number; type: string; title: string }[],
+    wordpress: getWordpressConnectionPublic(),
   };
 }
 
@@ -247,6 +250,7 @@ export function getGeoBlocksOverviewPublic() {
     prompts: listGeoPrompts("studio"),
     strategyOptions,
     recent,
+    wordpress: getWordpressConnectionPublic(),
   };
 }
 
@@ -295,12 +299,25 @@ export const geoBlocksSuggestAuditSchema = z.object({
   clientRequestId: idempotencyKeySchema.optional(),
 }).strict();
 
+export const geoBlocksPreviewWpSchema = z.object({
+  action: z.literal("previewWordpressDraft"),
+  contentId: z.number().int().positive(),
+}).strict();
+
+export const geoBlocksPublishWpSchema = z.object({
+  action: z.literal("publishWordpressDraft"),
+  contentId: z.number().int().positive(),
+  confirmWrite: z.boolean(),
+}).strict();
+
 export const geoBlocksActionSchema = z.discriminatedUnion("action", [
   geoBlocksGenerateSchema,
   geoBlocksStatusSchema,
   geoBlocksDuplicateSchema,
   geoBlocksSuggestShareSchema,
   geoBlocksSuggestAuditSchema,
+  geoBlocksPreviewWpSchema,
+  geoBlocksPublishWpSchema,
 ]);
 
 function strategyRefs(ids: number[]) {
@@ -497,6 +514,46 @@ export async function suggestGeoBlocksFromAudit(input: z.infer<typeof geoBlocksS
   return { ...result, auditId: full.id, failedCount: failed.length };
 }
 
+export async function previewGeoBlocksWordpressDraft(input: z.infer<typeof geoBlocksPreviewWpSchema>) {
+  requireSemforgeSubscription();
+  requireActiveProject();
+  const content = getContent(input.contentId);
+  if (content.tool !== TOOL) throw new AppError("GEO Blocks 콘텐츠가 아닙니다.", 404, "GEO_BLOCKS_NOT_FOUND");
+  if (content.status !== "approved") {
+    throw new AppError("승인(approved)된 스펙만 WordPress draft로 미리볼 수 있습니다.", 422, "GEO_BLOCKS_NOT_APPROVED");
+  }
+  const spec = geoPageSpecSchema.parse(content.output);
+  return { content, preview: previewWordpressDraft(spec), riskLevel: "write" as const };
+}
+
+export async function publishGeoBlocksWordpressDraft(input: z.infer<typeof geoBlocksPublishWpSchema>) {
+  requireSemforgeSubscription();
+  requireActiveProject();
+  if (!input.confirmWrite) {
+    throw new AppError("원격 draft 쓰기를 확인해야 합니다 (confirmWrite).", 422, "GEO_BLOCKS_WP_CONFIRM_REQUIRED");
+  }
+  const content = getContent(input.contentId);
+  if (content.tool !== TOOL) throw new AppError("GEO Blocks 콘텐츠가 아닙니다.", 404, "GEO_BLOCKS_NOT_FOUND");
+  if (content.status !== "approved") {
+    throw new AppError("승인(approved)된 스펙만 WordPress draft로 게시할 수 있습니다.", 422, "GEO_BLOCKS_NOT_APPROVED");
+  }
+  const result = await pushWordpressDraft(content.output);
+  const updated = updateContent(input.contentId, {
+    metadata: {
+      ...(typeof content.metadata === "object" && content.metadata ? content.metadata as Record<string, unknown> : {}),
+      wordpressDraft: {
+        postId: result.postId,
+        status: result.status,
+        editHint: result.editHint,
+        viewUrl: result.viewUrl,
+        pushedAt: new Date().toISOString(),
+      },
+    },
+    expectedUpdatedAt: content.updatedAt,
+  });
+  return { content: updated, ...result, riskLevel: "write" as const };
+}
+
 export async function runGeoBlocksAction(input: unknown) {
   const parsed = geoBlocksActionSchema.parse(input);
   switch (parsed.action) {
@@ -510,6 +567,10 @@ export async function runGeoBlocksAction(input: unknown) {
       return { action: parsed.action, ...(await suggestGeoBlocksFromShare(parsed)) };
     case "suggestFromAudit":
       return { action: parsed.action, ...(await suggestGeoBlocksFromAudit(parsed)) };
+    case "previewWordpressDraft":
+      return { action: parsed.action, ...(await previewGeoBlocksWordpressDraft(parsed)) };
+    case "publishWordpressDraft":
+      return { action: parsed.action, ...(await publishGeoBlocksWordpressDraft(parsed)) };
     default:
       throw new AppError("지원하지 않는 GEO Blocks 액션입니다.", 422, "GEO_BLOCKS_UNKNOWN_ACTION");
   }

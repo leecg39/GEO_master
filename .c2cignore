@@ -1,0 +1,21 @@
+# Local databases, backups and encryption keys are not source code.
+data/
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
+# Git internals and local agent/browser state.
+.git/
+.commandcode/
+.omo/
+.gstack/
+.firecrawl/
+playwright-report/
+test-results/
+*.log
+
+# The connector serves the GEO Master source, not its own dependency tree.
+tools/codex-with-chatgpt/

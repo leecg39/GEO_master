@@ -7,7 +7,7 @@ export function PageHeader({ eyebrow, title, description, action }: { eyebrow: s
       <div>
         <p className="mb-2 text-[15px] font-medium uppercase tracking-[0.2px] text-[color:var(--color-accent-violet-mid)]">{eyebrow}</p>
         <h1 className="font-display text-[30px] font-medium leading-[1.2] tracking-tight text-white sm:text-[36px]">{title}</h1>
-        <p className="mt-3 max-w-3xl text-base font-normal leading-[2] text-[color:var(--color-on-dark-muted)]">{description}</p>
+        <p className="mt-3 max-w-3xl break-keep text-base font-normal leading-[1.7] text-[color:var(--color-on-dark-muted)]">{description}</p>
       </div>
       {action}
     </header>

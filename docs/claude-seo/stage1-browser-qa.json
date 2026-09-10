@@ -1,0 +1,7 @@
+{
+  "analysis": "근거 기반 기술 진단 · 100점 · 검사 범위 100%\n\n자체 기술 검사입니다. 미확인·해당 없음은 점수에서 제외하며, 권고와 검색 성과는 별도로 봅니다. 규칙 seo-analysis/1\n\n확인 · 실제 HTTP 200 응답입니다.\n\n기술 검사 · technical/1 · page_snapshots/1#statusCode, page_snapshots/1#finalUrl\n\n확인 · 수집한 HTML에 제목이 있습니다.\n\n기술 검사 · technical/1 · page_snapshots/1#metadata.title\n\n미확인 · 페이지 내용을 설명하는 meta description을 검토하세요.\n\n유형별 권고 · technical/1 · page_snapshots/1#metadata.description\n\n미확인 · 대표 URL을 확인하세요.\n\n유형별 권고 · technical/1 · page_snapshots/1#metadata.canonical\n\n확인 · 색인 정책: 메타 미지정 / HTTP: 미지정. 공개 의도에 맞게 검토하세요.\n\n유형별 권고 · technical/1 · page_snapshots/1#metadata.robots\n\n해당 없음 · JSON-LD가 없어 문법 검사를 적용하지 않습니다. 스키마 부재 자체는 필수 오류가 아닙니다.\n\n기술 검사 · schema/1 · page_snapshots/1#metadata.jsonLdErrors, page_snapshots/1#metadata.jsonLd\n\n해당 없음 · 유효한 JSON-LD가 있을 때 동일 @id 중복을 검사합니다.\n\n기술 검사 · schema/1 · page_snapshots/1#metadata.jsonLd\n\n해당 없음 · 유효한 JSON-LD가 있을 때 유형 형식을 검사합니다.\n\n기술 검사 · schema/1 · page_snapshots/1#metadata.jsonLd",
+  "consoleChecked": true,
+  "scrollWidth": 604,
+  "url": "http://127.0.0.1:3318/site-audit",
+  "viewport": 614
+}

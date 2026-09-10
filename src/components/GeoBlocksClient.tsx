@@ -21,6 +21,7 @@ interface Overview {
   prompts: PromptItem[];
   strategyOptions: StrategyOption[];
   recent: ContentRow[];
+  wordpress?: { siteUrl: string; username: string; ready: boolean };
 }
 
 async function parse<T>(response: Response): Promise<T> {
@@ -48,6 +49,8 @@ export function GeoBlocksClient() {
   const [strategyIds, setStrategyIds] = useState<number[]>([]);
   const [useLlm, setUseLlm] = useState(false);
   const [preview, setPreview] = useState<{ content: ContentRow; spec: GeoPageSpec } | null>(null);
+  const [wpPreviewHtml, setWpPreviewHtml] = useState("");
+  const [wpConfirm, setWpConfirm] = useState(false);
 
   async function load() {
     const data = await parse<{ overview: Overview }>(await fetch("/api/geo-blocks"));
@@ -114,9 +117,39 @@ export function GeoBlocksClient() {
         }),
       }));
       setPreview((current) => current ? { ...current, content: { ...current.content, ...data.content } } : current);
-      setMessage(status === "dry_run_preview" ? "dry-run 미리보기 완료 (로컬만, 원격 게시 없음)." : "승인됨. 원격 CMS 적용은 아직 지원하지 않습니다.");
+      setMessage(status === "dry_run_preview" ? "dry-run 미리보기 완료 (로컬만)." : "승인됨. Settings에 WP 연결이 있으면 draft로 푸시할 수 있습니다.");
       await load();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "상태 변경 실패"); }
+    finally { setBusy(false); }
+  }
+
+  async function previewWp() {
+    if (!preview) return;
+    setBusy(true); setError(""); setMessage("");
+    try {
+      const data = await parse<{ preview: { contentHtml: string; title: string; slug: string; endpoint: string; note: string } }>(await fetch("/api/geo-blocks", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "previewWordpressDraft", contentId: preview.content.id }),
+      }));
+      setWpPreviewHtml(data.preview.contentHtml);
+      setMessage(`WP draft 미리보기: ${data.preview.title} → ${data.preview.slug}`);
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "WP 미리보기 실패"); }
+    finally { setBusy(false); }
+  }
+
+  async function publishWp() {
+    if (!preview || !wpConfirm) return;
+    setBusy(true); setError(""); setMessage("");
+    try {
+      const data = await parse<{ postId: number; editHint: string; status: string; content: ContentRow }>(await fetch("/api/geo-blocks", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "publishWordpressDraft", contentId: preview.content.id, confirmWrite: true }),
+      }));
+      setPreview((current) => current ? { ...current, content: { ...current.content, ...data.content } } : current);
+      setMessage(`WordPress draft #${data.postId} 생성됨 (${data.status}). 편집: ${data.editHint}`);
+      setWpConfirm(false);
+      await load();
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "WP 게시 실패"); }
     finally { setBusy(false); }
   }
 
@@ -172,8 +205,8 @@ export function GeoBlocksClient() {
     <PageHeader
       eyebrow="SEMForge · GEO Blocks"
       title="GEO 블록 스펙"
-      description="WP 빌더가 아닌 HeroAnswer·TL;DR·FAQ·Speakable·CTA 공통 스펙입니다. markdown + JSON-LD로 저장하며 원격 CMS 게시는 하지 않습니다."
-      action={<Badge tone="cyan"><Blocks className="mr-1 h-3.5 w-3.5" />write · dry-run</Badge>}
+      description="HeroAnswer·TL;DR·FAQ·Speakable 공통 스펙 → markdown/JSON-LD. 승인 후 Application Password로 WP draft만 푸시할 수 있습니다 (publish 상태·Elementor/SQL 없음)."
+      action={<Badge tone="cyan"><Blocks className="mr-1 h-3.5 w-3.5" />write · dry-run · draft</Badge>}
     />
 
     <div className="mb-5 flex flex-wrap gap-2">
@@ -230,7 +263,23 @@ export function GeoBlocksClient() {
               <Button type="button" disabled={busy || preview.content.status !== "dry_run_preview"} onClick={() => void advance("approved")}><CheckCircle2 className="h-4 w-4" />승인 (로컬)</Button>
               <Button type="button" variant="secondary" disabled={busy} onClick={() => void duplicate(preview.content.id)}><Copy className="h-4 w-4" />복제</Button>
             </div>
-            <p className="text-[11px] text-slate-600">파괴적 원격 적용은 없습니다. 승인 = 로컬 contents 상태만 변경합니다.</p>
+            {preview.content.status === "approved" && (
+              <div className="space-y-2 rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-3">
+                <p className="text-xs text-slate-400">
+                  WordPress: {overview?.wordpress?.ready ? `${overview.wordpress.siteUrl} · ready` : "Settings에서 Application Password를 저장하세요."}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="secondary" disabled={busy || !overview?.wordpress?.ready} onClick={() => void previewWp()}>Gutenberg draft 미리보기</Button>
+                  <Button type="button" disabled={busy || !overview?.wordpress?.ready || !wpConfirm} onClick={() => void publishWp()}>WP draft 푸시</Button>
+                </div>
+                <label className="flex items-center gap-2 text-[11px] text-amber-200/90">
+                  <input type="checkbox" checked={wpConfirm} onChange={(e) => setWpConfirm(e.target.checked)} />
+                  원격 write 확인 (draft만, publish 안 함)
+                </label>
+                {wpPreviewHtml && <pre className="max-h-40 overflow-auto whitespace-pre-wrap text-[10px] text-slate-500">{wpPreviewHtml}</pre>}
+              </div>
+            )}
+            <p className="text-[11px] text-slate-600">선택 플러그인 <code>extras/wp-x-mcp</code>는 WP에만 설치합니다. GEO Master는 REST draft 어댑터만 사용합니다.</p>
           </div>
         )}
       </Card>

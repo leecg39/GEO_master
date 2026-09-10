@@ -28,7 +28,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const id = z.coerce.number().int().positive().parse(request.nextUrl.searchParams.get("id"));
     const { runSiteAuditCampaign } = await import("@/lib/semforge/siteaudit");
-    return NextResponse.json({ result: await runSiteAuditCampaign(id) });
+    return NextResponse.json({ result: await runSiteAuditCampaign(id, request.signal, request.headers.get("idempotency-key") ?? undefined) });
   } catch (error) {
     return errorResponse(error);
   }

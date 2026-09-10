@@ -5,5 +5,5 @@ import nextTypescript from "eslint-config-next/typescript";
 export default defineConfig([
   ...nextVitals,
   ...nextTypescript,
-  globalIgnores([".next/**", "coverage/**", "data/**", "next-env.d.ts"]),
+  globalIgnores([".next/**", "coverage/**", "data/**", "next-env.d.ts", "tools/codex-with-chatgpt/**"]),
 ]);

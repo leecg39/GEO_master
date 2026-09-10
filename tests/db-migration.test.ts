@@ -55,7 +55,7 @@ describe("settings and CRUD schema migration", () => {
   it("applies v1-v4, scopes legacy data, backfills revisions, and preserves existing rows", () => {
     const sqlite = getDatabase().sqlite;
     const settingsColumns = (sqlite.pragma("table_info(settings)") as { name: string }[]).map((column) => column.name);
-    expect(settingsColumns).toEqual(expect.arrayContaining(["grok_api_key", "subscription_pin", "active_project_id", "talordata_api_token", "firecrawl_api_key"]));
+    expect(settingsColumns).toEqual(expect.arrayContaining(["grok_api_key", "subscription_pin", "active_project_id", "talordata_api_token", "firecrawl_api_key", "wordpress_site_url", "wordpress_username", "wordpress_application_password"]));
     expect((sqlite.prepare("SELECT brand_name FROM settings WHERE id=1").get() as { brand_name: string }).brand_name).toBe("기존 브랜드");
 
     const project = sqlite.prepare("SELECT id, brand_name FROM projects LIMIT 1").get() as { id: number; brand_name: string };
@@ -73,7 +73,7 @@ describe("settings and CRUD schema migration", () => {
 
     const migrationVersions = (sqlite.prepare("SELECT version FROM schema_migrations ORDER BY version").all() as { version: number }[])
       .map((row) => row.version);
-    expect(migrationVersions).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(migrationVersions).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
     const tables = (sqlite.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as { name: string }[]).map((row) => row.name);
     expect(tables).toEqual(expect.arrayContaining([
       "content_revisions", "llms_documents", "report_presets", "workspace_backups",
@@ -81,6 +81,8 @@ describe("settings and CRUD schema migration", () => {
     ]));
     expect((sqlite.pragma("table_info(projects)") as { name: string }[]).map((column) => column.name))
       .toEqual(expect.arrayContaining(["competitor_notes", "external_research_notes"]));
+    expect((sqlite.pragma("table_info(semforge_subscriptions)") as { name: string }[]).map((column) => column.name))
+      .toEqual(expect.arrayContaining(["trial_started_at", "is_trial"]));
     expect(sqlite.pragma("foreign_key_check")).toEqual([]);
   });
 });

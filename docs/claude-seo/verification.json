@@ -1,0 +1,49 @@
+{
+  "completedAt": "2026-09-10T05:02:26.082733+00:00",
+  "scope": "Integration plan section 15, stages 1 and 2",
+  "tests": {
+    "filesPassed": 41,
+    "testsPassed": 246
+  },
+  "checks": {
+    "tests": {
+      "command": "npm test -- --reporter=dot",
+      "exitCode": 0,
+      "outputSha256": "a266416fe291994f36ccb0206feda1e0c49aa734c4702bb17d3f397265835ff6",
+      "outputPath": "checks/tests.log"
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "outputSha256": "2ca3a01da6ad4aa2dc86dafebf2c2208207c24420c9d0ad43880c4d0a6b7e09e",
+      "outputPath": "checks/typecheck.log"
+    },
+    "lint": {
+      "command": "npm run lint",
+      "exitCode": 0,
+      "outputSha256": "d479e339be8833aac76c223e145185574e55cca13fe541ca96adcb27f36331dd",
+      "outputPath": "checks/lint.log"
+    },
+    "build": {
+      "command": "npm run build",
+      "exitCode": 0,
+      "outputSha256": "f06330e47f85e7b5f3d83d3c32cb844ee763f4121be3d11e272e140253dd78e2",
+      "outputPath": "checks/build.log"
+    }
+  },
+  "browserQa": {
+    "stage1": "stage1-browser-qa.json",
+    "stage2": "stage2-browser-qa.json",
+    "api": "stage2-api-qa.json",
+    "isolatedDatabase": true,
+    "externalSiteModified": false
+  },
+  "sourceMdByteIdentical": true,
+  "changedCodeManifest": "change-manifest.json",
+  "finalChatGPTReview": {
+    "state": "DONE",
+    "iteration": 4,
+    "artifact": "chatgpt-final-review.md",
+    "url": "https://chatgpt.com/c/6aa22dbb-e6bc-83e8-9c84-248583e2acd4"
+  }
+}

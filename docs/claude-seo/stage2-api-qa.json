@@ -1,0 +1,72 @@
+{
+  "isolatedDatabase": true,
+  "url": "https://example.com/",
+  "transitions": [
+    {
+      "action": "approve",
+      "status": "approved"
+    },
+    {
+      "action": "deliver",
+      "status": "delivered"
+    },
+    {
+      "action": "verify",
+      "status": "verification_pending"
+    }
+  ],
+  "baselineSnapshotId": 2,
+  "verification": {
+    "message": "일부 대상 필드가 아직 원본 값입니다. 게시 후 다시 확인하세요.",
+    "fields": {
+      "title": false
+    },
+    "snapshotId": 5,
+    "drift": {
+      "version": "drift/1",
+      "baselineSnapshotId": 2,
+      "currentSnapshotId": 5,
+      "comparable": true,
+      "fields": {
+        "title": false
+      },
+      "counts": {
+        "expected": 0,
+        "pending": 1,
+        "unexpected": 0,
+        "unknown": 0
+      },
+      "events": [
+        {
+          "field": "title",
+          "classification": "pending",
+          "approvedChange": true,
+          "before": "Example Domain",
+          "after": "Example Domain",
+          "expectedValue": "Example Domain — GEO 검증 초안",
+          "ruleId": "title-pending",
+          "detail": "페이지 제목: 아직 승인 전 원본 값입니다.",
+          "ruleVersion": "drift/1"
+        }
+      ]
+    }
+  },
+  "events": [
+    {
+      "id": 1,
+      "baselineSnapshotId": 2,
+      "currentSnapshotId": 5,
+      "field": "title",
+      "classification": "pending",
+      "approvedChange": true,
+      "before": "Example Domain",
+      "after": "Example Domain",
+      "expectedValue": "Example Domain — GEO 검증 초안",
+      "ruleId": "title-pending",
+      "ruleVersion": "drift/1",
+      "detail": "페이지 제목: 아직 승인 전 원본 값입니다.",
+      "createdAt": "2026-09-10T04:45:51.562Z"
+    }
+  ],
+  "externalPublished": false
+}

@@ -1,0 +1,47 @@
+{
+  "commit": "a1480c7e590b16001bd9dc1627eacdcd44d580f9",
+  "files": [
+    {
+      "path": "LICENSE",
+      "upstreamPath": "LICENSE",
+      "url": "https://raw.githubusercontent.com/AgriciDaniel/claude-seo/a1480c7e590b16001bd9dc1627eacdcd44d580f9/LICENSE",
+      "sha256": "a42b3b0253cecea9af810c5207a67b0be8c9a0cfbf52b9302c3d26b063e7a86b",
+      "modified": false
+    },
+    {
+      "path": "selected/skills/seo-technical/SKILL.md",
+      "upstreamPath": "skills/seo-technical/SKILL.md",
+      "url": "https://raw.githubusercontent.com/AgriciDaniel/claude-seo/a1480c7e590b16001bd9dc1627eacdcd44d580f9/skills/seo-technical/SKILL.md",
+      "sha256": "c7c1c298f83e15f44f68d5a55500d4c0a920398ca85ab65ce5205cbc984ddb9c",
+      "modified": false
+    },
+    {
+      "path": "selected/skills/seo-schema/SKILL.md",
+      "upstreamPath": "skills/seo-schema/SKILL.md",
+      "url": "https://raw.githubusercontent.com/AgriciDaniel/claude-seo/a1480c7e590b16001bd9dc1627eacdcd44d580f9/skills/seo-schema/SKILL.md",
+      "sha256": "2bbfa3dfccea85ca2c55e6052887764a34f749300c5c467c1a4245058b4c8960",
+      "modified": false
+    },
+    {
+      "path": "selected/skills/seo-drift/SKILL.md",
+      "upstreamPath": "skills/seo-drift/SKILL.md",
+      "url": "https://raw.githubusercontent.com/AgriciDaniel/claude-seo/a1480c7e590b16001bd9dc1627eacdcd44d580f9/skills/seo-drift/SKILL.md",
+      "sha256": "1780f507af735e333b87790ce7310abd9e3b21b3a8b29f0a6ea022f9562e130e",
+      "modified": false
+    },
+    {
+      "path": "selected/scripts/drift_compare.py",
+      "upstreamPath": "scripts/drift_compare.py",
+      "url": "https://raw.githubusercontent.com/AgriciDaniel/claude-seo/a1480c7e590b16001bd9dc1627eacdcd44d580f9/scripts/drift_compare.py",
+      "sha256": "2e493900b27b540126650a433f9509ef59adc82e69e961a7eb7b3eb47315e739",
+      "modified": false
+    },
+    {
+      "path": "selected/scripts/drift_baseline.py",
+      "upstreamPath": "scripts/drift_baseline.py",
+      "url": "https://raw.githubusercontent.com/AgriciDaniel/claude-seo/a1480c7e590b16001bd9dc1627eacdcd44d580f9/scripts/drift_baseline.py",
+      "sha256": "988a18f802bcada05b1c75351ddf6bfc92f94bfab9c5a5efb624e21f2837ceb5",
+      "modified": false
+    }
+  ]
+}

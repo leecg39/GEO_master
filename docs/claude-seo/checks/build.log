@@ -1,0 +1,105 @@
+
+> geo-master@0.1.0 build
+> next build
+
+▲ Next.js 16.3.3 (Turbopack)
+- Environments: .env.local
+✓ Running next.config.ts took 61ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1918ms
+  Running TypeScript ...
+  Finished TypeScript in 2.1s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/21) ...
+  Generating static pages using 7 workers (5/21) 
+  Generating static pages using 7 workers (10/21) 
+  Generating static pages using 7 workers (15/21) 
+✓ Generating static pages using 7 workers (21/21) in 330ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ○ /ai-seo
+├ ○ /analytics/overview
+├ ƒ /api/ai-seo/collect
+├ ƒ /api/ai-seo/overview
+├ ƒ /api/ai-seo/queries
+├ ƒ /api/analytics/overview
+├ ƒ /api/audits
+├ ƒ /api/audits/[id]
+├ ƒ /api/automation
+├ ƒ /api/checklist
+├ ƒ /api/contents
+├ ƒ /api/contents/[id]
+├ ƒ /api/contents/[id]/duplicate
+├ ƒ /api/contents/[id]/revisions
+├ ƒ /api/dashboard
+├ ƒ /api/geo-blocks
+├ ƒ /api/llms
+├ ƒ /api/llms-documents
+├ ƒ /api/llms-documents/[id]
+├ ƒ /api/llms-documents/[id]/duplicate
+├ ƒ /api/llms-documents/[id]/remote
+├ ƒ /api/llms-documents/[id]/revisions
+├ ƒ /api/llms-documents/[id]/validate
+├ ƒ /api/local-business
+├ ƒ /api/measure-runs
+├ ƒ /api/measure-runs/[id]
+├ ƒ /api/measure-runs/[id]/results
+├ ƒ /api/multimodal
+├ ƒ /api/position-tracking
+├ ƒ /api/projects
+├ ƒ /api/projects/[id]
+├ ƒ /api/projects/[id]/activate
+├ ƒ /api/question-sets
+├ ƒ /api/question-sets/[id]
+├ ƒ /api/question-sets/[id]/questions
+├ ƒ /api/question-sets/[id]/reorder
+├ ƒ /api/questions/[id]
+├ ƒ /api/report-presets
+├ ƒ /api/report-presets/[id]
+├ ƒ /api/report-presets/[id]/duplicate
+├ ƒ /api/reports
+├ ƒ /api/semforge/all-in
+├ ƒ /api/semforge/sites
+├ ƒ /api/semforge/subscription
+├ ƒ /api/semforge/subscription/checkout
+├ ƒ /api/semforge/subscription/confirm
+├ ƒ /api/semforge/subscription/trial
+├ ƒ /api/settings
+├ ƒ /api/share
+├ ƒ /api/share/run
+├ ƒ /api/site-audit
+├ ƒ /api/site-ops
+├ ƒ /api/strategy
+├ ƒ /api/studio
+├ ƒ /api/workspace
+├ ƒ /api/workspace/backups
+├ ƒ /api/workspace/backups/[id]
+├ ƒ /api/workspace/backups/[id]/restore
+├ ○ /audit
+├ ○ /automation
+├ ○ /geo-blocks
+├ ○ /learn
+├ ○ /llms
+├ ○ /local-business
+├ ○ /multimodal
+├ ○ /position-tracking
+├ ○ /reports
+├ ○ /semforge
+├ ○ /settings
+├ ○ /share
+├ ○ /site-audit
+├ ○ /strategy
+├ ○ /studio
+├ ○ /subscription
+└ ○ /workspace
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

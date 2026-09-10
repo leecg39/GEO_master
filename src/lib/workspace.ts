@@ -102,6 +102,8 @@ const snapshotDataSchema = z.object({
     createdAt: timestamp, updatedAt: timestamp,
   }).strict()).max(100_000),
   llmsDocuments: z.array(z.object({
+    targetPath: z.string().max(2048).optional().default("/llms.txt"),
+    language: z.string().max(12).optional().default("ko"),
     id, projectId: optionalId, title: short, website: z.string().max(2048), brandName: z.string().max(200),
     summary: z.string().max(500), details: z.string().max(2000), resources: encodedJson(200_000, jsonArray),
     document: z.string().max(102_400), validation: encodedJson(200_000, jsonObject), status: short,
@@ -241,6 +243,7 @@ export function buildWorkspaceSnapshot(): WorkspaceSnapshot {
       data: row.data, status: row.status, createdAt: row.createdAt, updatedAt: row.updatedAt,
     })),
     llmsDocuments: orm.select().from(llmsDocuments).orderBy(asc(llmsDocuments.id)).all().map((row) => ({
+      targetPath: row.targetPath, language: row.language,
       id: row.id, projectId: row.projectId, title: row.title, website: row.website, brandName: row.brandName,
       summary: row.summary, details: row.details, resources: row.resources, document: row.document,
       validation: row.validation, status: row.status, remoteUrl: row.remoteUrl,
@@ -416,6 +419,7 @@ export function importWorkspace(input: unknown) {
     }
     for (const row of data.llmsDocuments) {
       orm.insert(llmsDocuments).values({
+        targetPath: row.targetPath, language: row.language,
         ...(parsed.mode === "replace" ? { id: row.id } : {}),
         projectId: mapped(projectMap, row.projectId, "llms/프로젝트"),
         title: row.title, website: row.website, brandName: row.brandName, summary: row.summary,

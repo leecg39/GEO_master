@@ -1,0 +1,330 @@
+{
+  "version": "1.0",
+  "count": 21,
+  "prompts": [
+    {
+      "id": "correlation-visualization",
+      "name": "Correlation Visualization — Competitor Common Query",
+      "category": "Competitor Analysis",
+      "icon": "📊",
+      "shortDesc": "Visualize competitor relevance vs cost-to-outrank (Ahrefs/SEMrush export)",
+      "placeholder": "{{selected_text}}",
+      "prompt": "You will build a correlation visualization from a Top Competing Domains export with columns: domain, competitor's keywords, common keywords, share, target's keywords, DR, traffic, traffic value, pages.\n\nMeaning: common keywords = topical overlap (relevance); share = semantic proximity; traffic value = authority + cost-to-outrank signal (weight this most); DR = link-graph position. High DR + high share = expensive but highly relevant; low share + high traffic = different topical domain, lower priority. Low share means we need more pages.\n\nBuild an interactive HTML chart (Chart.js) with two Y-axes: a bar chart of common-keyword count per domain (left axis) and a line chart of traffic value per domain (right axis). Sort domains by traffic value descending, color-code by share (warm = high share, cool = low), add hover tooltips with all metrics, a legend, and a summary table below. Title it \"Competitor Relevance & Cost-to-Outrank Dashboard\". Export as a standalone HTML file.\n\nData:\n{{selected_text}}",
+      "tags": [
+        "competitor",
+        "visualization",
+        "ahrefs",
+        "cost"
+      ]
+    },
+    {
+      "id": "backlink-analysis",
+      "name": "Backlink Analysis & Visualization",
+      "category": "Link Analysis",
+      "icon": "🔗",
+      "shortDesc": "Compare two sites' backlink quality with DR bins + traffic overlay",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Compare the backlink profiles of two websites from their Referring Domains exports (columns include Domain, DR, Traffic).\n\nDefinitions: backlinks = authority via link-graph position; DR = domain popularity by link count; traffic = organic traffic of the linking domain. High DR + high traffic linking domain = high-quality backlink.\n\nBuild an interactive HTML chart: bar chart of referring-domain counts bucketed into DR bins (1-10, 10-20, 20-30, …) with both sites side by side in each bin, plus a dual-axis line chart of average linking-domain traffic per bin. Use warm colors for site 1, cool colors for site 2. Title: \"Backlink Quality Distribution Comparison\"; X axis \"DR Bin\"; left Y \"Number of Referring Domains\"; right Y \"Average Organic Traffic\". Add a summary box (total backlinks, average DR, average traffic per site). Export as standalone HTML.\n\nProvide the two datasets and site names here:\n{{selected_text}}",
+      "tags": [
+        "backlinks",
+        "visualization",
+        "DR",
+        "competitor"
+      ]
+    },
+    {
+      "id": "topical-cluster",
+      "name": "Topical Cluster Builder & Visualization",
+      "category": "Topical Authority",
+      "icon": "🗺️",
+      "shortDesc": "Cluster keywords by semantic relevance + chart cluster size vs volume",
+      "placeholder": "{{selected_text}}",
+      "prompt": "From the keyword list below (columns: keywords, volume, keyword intent), build semantic topical clusters by relevance and similarity. A cluster grows with the number of queries assigned to it.\n\nUse only the keywords column for clustering, volume for search demand, and keyword intent (Informational/Navigational/Transactional/Commercial) for the intent mix. Put keywords that fit nothing into an \"Other\" cluster. Drop any cluster with fewer than 20 queries.\n\nOutput: (1) a combined chart — bar = cluster size by query count with the count printed on top of each bar, line = total search volume per cluster, dual Y-axes, warm colors; (2) a data table with cluster name, query count, total volume, and intent distribution; (3) CSV-ready and JSON versions for charting. Export the chart as standalone HTML.\n\nKeywords:\n{{selected_text}}",
+      "tags": [
+        "topical",
+        "clusters",
+        "keywords",
+        "visualization"
+      ]
+    },
+    {
+      "id": "topical-map",
+      "name": "Topical Map Creator",
+      "category": "Topical Authority",
+      "icon": "🧭",
+      "shortDesc": "Build a complete topical map: pillars, sub-topics, entities, link plan",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Create a comprehensive topical map for the niche below, following Holistic SEO methodology.\n\nDeliver:\n1) Pillar topics (5-8): name, primary intent, volume tier, content type.\n2) Sub-topics (5-10 per pillar): name, parent, target queries, format (H2 within pillar vs separate URL), internal links to/from.\n3) Support topics (10-15): definitions, edge cases, tool comparisons, and their role in the map.\n4) Entity coverage per pillar: key entities, expert voices to mention, data sources to cite.\n5) Content priority queue: the 10 pieces to create first, ranked by competitor weakness, volume, business relevance, and internal-linking value.\n6) Internal-linking blueprint: hub-and-spoke (text diagram), key anchor texts, PageRank flow direction.\n\nNiche/topic:\n{{selected_text}}",
+      "tags": [
+        "topical map",
+        "authority",
+        "planning",
+        "internal links"
+      ]
+    },
+    {
+      "id": "topical-authority-audit",
+      "name": "Topical Authority Audit & Score",
+      "category": "Topical Authority",
+      "icon": "🎯",
+      "shortDesc": "Audit coverage, score authority, and produce a prioritized roadmap",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Audit the website/content below for topical authority.\n\n1) Topical map analysis: list the clusters this site should cover; mark each COVERED / PARTIAL / MISSING and depth Shallow/Medium/Deep.\n2) Entity gap analysis: entities and connections that should exist but don't.\n3) Knowledge-domain classification: domain + audience type (expert/apprentice/layperson).\n4) Heuristic authority score (0-100) across four pillars — Coverage, Entity Depth, Intent Coverage, Supporting Documents — as a scorecard table.\n5) Priority content roadmap: 20 pieces ranked by gap size, semantic potential, and entity density; for each give a title, three H2s, entity focus, and internal-link targets.\n6) Internal-link architecture: how to connect existing → new pages, merge candidates, and anchor-text strategy.\n\nWebsite/content:\n{{selected_text}}",
+      "tags": [
+        "audit",
+        "authority",
+        "roadmap",
+        "gaps"
+      ]
+    },
+    {
+      "id": "semantic-keyword-research",
+      "name": "Semantic Keyword Research",
+      "category": "Keyword Research",
+      "icon": "🔍",
+      "shortDesc": "Expand a seed into a semantic cluster with intent + entity mapping",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Perform semantic keyword research for the seed below.\n\n1) Seed analysis: primary intent, knowledge domain, personas, SERP-feature expectations.\n2) Expansion: 20 related queries each tagged Informational/Navigational/Transactional/Local and grouped by relevance.\n3) Entity-based queries: entity-seeking (who/what is), answer-seeking (how/why), comparison (vs), and crisis queries if relevant.\n4) Topical borders: what's inside vs outside the border, and adjacent topics to keep separate.\n5) Query templates: 5 templates that each spawn 10+ variations, e.g. \"How does [entity] affect [attribute] when [condition]?\".\n6) Content gaps: underserved queries and unique angles.\n7) Volume tiers: head, medium, long-tail, and valuable zero-volume queries.\n\nSeed keyword/topic:\n{{selected_text}}",
+      "tags": [
+        "keywords",
+        "semantic",
+        "research",
+        "intent"
+      ]
+    },
+    {
+      "id": "semantic-content-brief",
+      "name": "Semantic Content Brief Generator",
+      "category": "Content Strategy",
+      "icon": "📝",
+      "shortDesc": "Full Holistic SEO brief: heading vectors, entities, EEAT, POS rules",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Create a complete Holistic SEO content brief for the topic below.\n\n1) Primary target query + intent + persona + SERP feature to target.\n2) Heading-vector structure (H1 → H2 → H3): H1 signals the topic; H2 = short-form grouper questions; H3 = condition/qualifier questions. Build a contextual journey for Google's Context Scoring Adjustments for Answer Passages.\n3) Entity layer: primary/secondary/peripheral entities, subject-predicate-object connection map, attributes to mention, missing entities to add, and Schema.org recommendations.\n4) EEAT, style & linguistics: experience/expertise/authority/trust signals; one idea per sentence with short dependency trees; POS patterns to target by intent; 5 unique facts competitors likely lack.\n5) Deliverables: full heading vector with context notes, entity checklist, content-format + POS guidance, sentence-structure rules, internal-link plan (anchors + targets), and freshness recommendations.\n\nTopic/query:\n{{selected_text}}",
+      "tags": [
+        "content brief",
+        "EEAT",
+        "heading vectors",
+        "entities"
+      ]
+    },
+    {
+      "id": "heading-vectors",
+      "name": "Heading Vectors Generator",
+      "category": "Semantic SEO",
+      "icon": "🧭",
+      "shortDesc": "Generate H1→H2→H3 vectors aligned to answer-passage scoring",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Create heading vectors for the content below per Semantic SEO methodology and Google's \"Context Scoring Adjustments for Answer Passages\" patent.\n\nRules: H2 = grouper questions (short-form, under ~10 words); H3 = condition/qualifier questions that add a condition, qualifier, statement, or declaration to the parent H2. Ask unique questions, never repeat intent. Each H3 must be a sub-intent of its H2 so the hierarchy forms a contextual journey.\n\nDeliver: the full H1 > H2 > H3 structure; for each heading note the sub-intent, included entities, POS-tag pattern, and best answer format (paragraph/list/table); then a \"Heading Vector Analysis\" explaining how the hierarchy guides passage indexing, plus featured-snippet opportunities per H2.\n\nContent/topic:\n{{selected_text}}",
+      "tags": [
+        "headings",
+        "semantic",
+        "featured snippets",
+        "passages"
+      ]
+    },
+    {
+      "id": "h2-h3-questions",
+      "name": "H2/H3 Question Structure Generator",
+      "category": "Content Structure",
+      "icon": "❓",
+      "shortDesc": "Short-form H2 groupers + qualified H3s with direct answers",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Create an H2/H3 question structure for the topic below.\n\nH2 grouper questions: short-form (<10 words), each a major sub-intent, answerable in 40-60 words (featured-snippet length) — include the answer directly beneath each H2.\nH3 connected questions: 2-4 per H2, each adding a condition/qualifier (\"When…\", \"For…\", \"If…\"), each a unique angle with a unique answer.\nRules: ask questions competitors don't; use qualifiers like \"What happens when…\", \"How does X affect Y when Z…\".\nFormat every entry as H2 + 40-60-word answer, then nested H3 + specific answer. Produce at least 6 H2s with 3 H3s each.\n\nContent/topic:\n{{selected_text}}",
+      "tags": [
+        "H2",
+        "H3",
+        "questions",
+        "snippets"
+      ]
+    },
+    {
+      "id": "featured-snippet-writer",
+      "name": "Featured Snippet Writer Mode",
+      "category": "Content Structure",
+      "icon": "✂️",
+      "shortDesc": "Strict ≤40-word / ~320-char snippet answers, 5 variants",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Featured Snippet Writer Mode.\n\nFor the heading/question below, write a direct answer: max 40 words or ~320 characters, one clear claim, short dependency trees, suitable for an H2/H3 short-form question. Produce 5 distinct snippet versions (paragraph form), then one list-format version and one table-format version if the query supports them.\n\nHeading/question:\n{{selected_text}}",
+      "tags": [
+        "featured snippets",
+        "answers",
+        "structure"
+      ]
+    },
+    {
+      "id": "entity-connection-mapper",
+      "name": "Entity Connection Mapper",
+      "category": "Entity SEO",
+      "icon": "🕸️",
+      "shortDesc": "Map entity connections for Knowledge-Graph richness",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Build an entity connection map for the content/entity below.\n\n1) Entity hub map: 30+ related entities, each with type (Person/Place/Org/Concept/Product/Event), connection type (is_a, part_of, created_by, located_in, used_for) and confidence 1-10.\n2) Attribute table for the primary entity: attribute | value | source | semantic role.\n3) Contextual groups: primary/secondary/peripheral, and where each should appear (H2, H3, body).\n4) 10 subject-predicate-object sentence templates connecting the primary entity to key related entities, with the NLP role of each.\n5) Knowledge-Graph signals: Schema.org types, Wikipedia/Wikidata connections to establish, external authority sources to be mentioned on.\n\nContent/entity:\n{{selected_text}}",
+      "tags": [
+        "entities",
+        "knowledge graph",
+        "NEL",
+        "semantic"
+      ]
+    },
+    {
+      "id": "entity-extraction",
+      "name": "Entity Extraction Assistant",
+      "category": "Entity SEO",
+      "icon": "🔮",
+      "shortDesc": "Extract entities + related/missing entities for full coverage",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Extract and expand entities from the content below.\n\n1) Named-entity extraction: list every entity with type and confidence.\n2) Related entities via autocomplete/PAA-style expansion.\n3) Wikipedia/Wikidata cross-reference connections.\n4) Missing entities required for full topical coverage.\n5) NER gaps and the knowledge domain with its domain-specific terms.\n6) Entity prominence ranking for this topic.\n7) Ready-to-use subject-predicate-object sentence templates.\n\nContent:\n{{selected_text}}",
+      "tags": [
+        "entities",
+        "NER",
+        "extraction",
+        "coverage"
+      ]
+    },
+    {
+      "id": "eeat-style-table",
+      "name": "EEAT Style Differentiation Table",
+      "category": "EEAT & Style",
+      "icon": "✍️",
+      "shortDesc": "Authoritative vs experience-focused styles compared via NLP table",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Rule 1: Hold the ~100 most important concepts for the topic below in your attention window. Rule 2: Do not output those concepts or their definitions.\n\nThen:\n1) Write an instruction list (based on those concepts) that protects and informs the reader with actionable, safe guidance.\n2) Produce two variants of it: (a) more authoritative/expert/trustworthy — rich in mechanisms and evidence; (b) more experience-focused and opinionated — first-person lived experience.\n3) Compare all three in a table with columns: Content Style, Tonality, Sentiment Structure, Entity Types, Attribute Focus, Context Framing, POS Patterns, EEAT Signal Type, Heading-Vector Style, Best Use Case.\n\nTopic/content:\n{{selected_text}}",
+      "tags": [
+        "EEAT",
+        "style",
+        "NLP",
+        "expertise"
+      ]
+    },
+    {
+      "id": "content-refresher",
+      "name": "Content Refresher & Quality Booster",
+      "category": "Content Freshness",
+      "icon": "🔄",
+      "shortDesc": "Remove fluff, add entities, tighten sentences, lift EEAT",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Refresh the content below using Holistic SEO content-refresh rules.\n\n1) Fluff removal: flag and remove sentences with no unique information value.\n2) Dependency-tree fix: rewrite long sentences as shorter, denser ones — one question answered per sentence.\n3) Entity enrichment: add missing entities, attributes, and connections (including ones emerging in the last 3-6 months).\n4) Unique information gain: add ≥5 facts/stats competitors likely lack.\n5) POS alignment: comparatives/superlatives for comparison intent; correct verb forms for instructional content.\n6) Heading-vector update: convert key claims into H2/H3 short-form questions targeting snippets.\n7) Freshness: what to update; add a Last-Updated signal.\n8) EEAT scoring: rate Experience/Expertise/Authoritativeness/Trust 1-10 with fixes.\n9) Output the revised content plus a change-summary table (removed / updated / added + why) and an entity map of additions.\n\nContent:\n{{selected_text}}",
+      "tags": [
+        "content",
+        "refresh",
+        "EEAT",
+        "freshness"
+      ]
+    },
+    {
+      "id": "thin-content-fixer",
+      "name": "Thin Content Fixer",
+      "category": "Content Strategy",
+      "icon": "🔧",
+      "shortDesc": "Diagnose thin content and produce a concrete fix or merge/redirect call",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Audit the content below for thin-content issues and fix it.\n\n1) Diagnosis: is it thin and why (word count, unique value, entity density)? Type (empty/duplicate/machine-created/bridge/doorway), soft-404 and keyword-stuffing risk.\n2) Unique information gain (1-10): what's missing vs competitors; what would make this the definitive resource.\n3) Quality threshold: current vs required for the topic; EEAT signals present/missing.\n4) Fix plan: section-by-section recommendations — entities, data, expert sources, formats (tables/lists/how-tos) to add.\n5) Rewrite the 3 weakest sections from scratch.\n6) Decision: expand in place / merge / delete + redirect / keep — with justification.\n\nContent:\n{{selected_text}}",
+      "tags": [
+        "thin content",
+        "quality",
+        "EEAT",
+        "fix"
+      ]
+    },
+    {
+      "id": "competitor-gap",
+      "name": "Competitor Gap Analysis",
+      "category": "Competitor Analysis",
+      "icon": "📈",
+      "shortDesc": "Find topical, entity, and linguistic gaps vs a competitor page",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Analyze the competitor content below for gaps and opportunities.\n\n1) Quality: EEAT scores (Experience/Expertise/Authoritativeness/Trust 1-10), tier (Expert/Apprentice/Layperson), knowledge domain.\n2) Heading-vector analysis: is the hierarchy contextually correct? missing sub-intents and weak vectors.\n3) Entity gaps: missing entities, underexplored attributes, missing connections.\n4) Information gaps: unanswered questions, missing facts/data, uncovered angles.\n5) Linguistic weaknesses: overlong dependency trees, missing comparatives for comparison intent, passive overuse.\n6) Ways to beat it: 10 specific improvements, unique formats to add, entities/data they missed.\n7) Strategy: new page vs improve; your topical angle; EEAT differentiation.\n\nCompetitor content:\n{{selected_text}}",
+      "tags": [
+        "competitor",
+        "gap",
+        "EEAT",
+        "content"
+      ]
+    },
+    {
+      "id": "internal-link-pagerank",
+      "name": "Internal Link & PageRank Optimizer",
+      "category": "Technical SEO",
+      "icon": "⚙️",
+      "shortDesc": "Optimize internal links for PageRank flow and topical clustering",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Optimize the internal-link and PageRank structure for the site/content below.\n\nPrinciples: link in line with user logical paths and intent; match link flow to the topical hierarchy; the first link's anchor text matters most; cap ~100-150 links per page; breadcrumbs change crawl frequency.\n\n1) Topical hierarchy map: Home → Category → Sub-category → Article, with PageRank weight per level.\n2) PageRank flow: bottlenecks, over-linked (dilution) and under-linked (opportunity) pages, orphans.\n3) Anchor-text strategy per target page: 1 exact-match, 2 partial-match, 1 branded; flag inconsistent anchors (cannibalization).\n4) Link-addition plan: for each priority page, 5 source pages to link from, anchor text, and position (above the fold preferred).\n5) Crawl efficiency: breadcrumb structure, sitemap, nofollow on non-essential links.\n6) Five quick wins to implement this week.\n\nSite structure/content:\n{{selected_text}}",
+      "tags": [
+        "internal links",
+        "pagerank",
+        "technical",
+        "crawl"
+      ]
+    },
+    {
+      "id": "brand-serp",
+      "name": "Brand SERP Optimizer",
+      "category": "Brand SEO",
+      "icon": "🏢",
+      "shortDesc": "Optimize branded SERP, Knowledge Panel, and entity identity",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Analyze and optimize the brand's search presence below.\n\n1) Brand SERP audit: SERP features likely present and ones to trigger (GMB panel, Knowledge Panel, video carousel, PAA, sitelinks, review stars).\n2) Knowledge Panel: is the brand an entity in the Knowledge Graph? attributes to establish; sources needed; Wikidata/Wikipedia strategy.\n3) Trust & reputation: signal gaps, PAA risks, negative-sentiment risks, review strategy.\n4) Entity identity management: disambiguators, key attributes, cross-web consistency (NAP, descriptions), co-occurrence strategy.\n5) 30-day plan (foundation → entity establishment → SERP-feature triggers → monitoring) and the evergreen/video content needed.\n\nBrand information:\n{{selected_text}}",
+      "tags": [
+        "brand SERP",
+        "knowledge panel",
+        "entity",
+        "reputation"
+      ]
+    },
+    {
+      "id": "serp-intent-analyzer",
+      "name": "SERP Intent & Content Format Analyzer",
+      "category": "Content Strategy",
+      "icon": "🔎",
+      "shortDesc": "Derive dominant intent, format, and POS patterns from a SERP",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Analyze the SERP data below for the target query.\n\n1) Intent: canonical intent + 3-5 sub-intents; classify Informational/Navigational/Transactional/Visit-in-Place; flag crisis or entity-seeking patterns.\n2) Format requirements: dominant format (paragraph/list/table/video/how-to); prevalent POS patterns in winning snippets (JJR/JJS = comparison, VBG = process, NN/NNS = definition); typical sentence length.\n3) Knowledge domain + its quality parameters.\n4) Heading-vector recommendations: H1, 5 H2 groupers, 2-3 H3 qualifiers each, with the contextual hierarchy.\n5) Featured-snippet strategy: which headings can win snippets, the 40-word/320-char format, PAA questions to target.\n6) Length recommendation (\"as short as possible, as long as necessary\") with sections to trim vs expand.\n\nTarget query + SERP results:\n{{selected_text}}",
+      "tags": [
+        "SERP",
+        "intent",
+        "format",
+        "POS"
+      ]
+    },
+    {
+      "id": "bulk-seo-posts",
+      "name": "Bulk SEO Post Generator (Koray-style → drafts)",
+      "category": "Content Strategy",
+      "icon": "🏭",
+      "shortDesc": "Niche + keywords -> easy-read (grade-5) Koray-style posts drafted in bulk, with TL;DR + AI-ready FAQs",
+      "placeholder": "{{selected_text}}",
+      "prompt": "You are a Holistic / Semantic SEO content engine. From the niche and seed keywords below, research and produce a batch of complete, publish-ready articles, then save them ALL to the WordPress site as DRAFTS in one go using the bulk_publish_posts tool. Do the research yourself (use web search where available); do not ask me to supply it.\n\nNICHE + KEYWORDS:\n{{selected_text}}\n\nSTEP 1 — Plan the cluster. Build a small topical map and choose the article titles to write (default 5 unless I gave a number). Each title targets a distinct search intent; avoid cannibalisation. Decide which posts should internally link to which (hub/spoke).\n\nSTEP 2 — For EACH article, research and assemble:\n- entities: the real-world entities (people, orgs, products, places, concepts) Google associates with the topic; pick the most prominent.\n- secondary_keywords: LSI / semantically-related terms and n-grams to cover.\n- Heading vectors: H1 root, H2 short-form grouper questions, H3 condition/qualifier questions — a coherent contextual journey for answer-passage scoring.\n- content_html: the full body as clean HTML (h2/h3, p, ul, tables). One idea per sentence, short dependency trees, unique information gain (facts/data competitors lack). Embed 2-4 INTERNAL links (to the other posts in this batch or existing site pages) and 1-3 EXTERNAL authoritative links inline, with descriptive anchors. Include 1-3 <img> references with descriptive alt text where they add value. Write for Generative Engine Optimisation: lead each section with a direct, quotable 40-60 word answer so AI engines can cite it.\n- key_takeaways: 3-5 short TL;DR bullets (see rules below).\n- meta_title (<=60 chars), meta_desc (<=155 chars), slug (kebab-case).\n- faqs: 3-5 {question, answer} pairs (becomes FAQPage schema + a visible block).\n- featured_image_url + featured_image_alt if you can supply a real, license-clear image URL; otherwise omit.\n- schema_type: BlogPosting by default (Article/NewsArticle if more fitting). Add custom_schema only when a richer type genuinely applies (e.g. HowTo, Product) as a valid JSON-LD object.\n- categories (names) and tags (names).\n\n\n\nREADABILITY — write for a 5th-grade reader (this is mandatory):\n- Target Flesch Reading Ease 70-90 and Flesch-Kincaid grade 5 or under. The tool reports the score per post; if a draft comes back above grade 7, rewrite it simpler.\n- Sentences: average 8-14 words, hard cap ~20. One idea per sentence.\n- Paragraphs: 2-3 sentences max. Use short subheads often.\n- Words: prefer common, everyday words. Replace jargon, or define it in plain words the first time. Use 'use' not 'utilise', 'help' not 'facilitate'.\n- Voice: active and direct ('Turn off the router', not 'The router should be turned off'). Speak to the reader as 'you'.\n- Use bullet lists, numbered steps, and small tables to break up text. Bold the key phrase in important lines.\n- Lead every section with the answer in the first sentence, then explain.\n\nKEY TAKEAWAYS (for AI answer engines):\n- For each post supply key_takeaways: 3-5 short, self-contained bullet strings (each under ~20 words) that summarise the article's main answers. The tool renders these as a TL;DR box at the very top and marks them speakable for AI/voice engines.\n\nFAQs — optimise for BOTH classic and AI search engines:\n- 4-6 real questions people actually ask (pull from People-Also-Ask style intent). Use natural, conversational phrasing.\n- Each answer: lead with a direct 1-2 sentence answer (40-60 words, ~320 characters) so it can win a featured snippet AND be quoted verbatim by ChatGPT/Gemini/Perplexity; you may add one short follow-up sentence after.\n- Plain 5th-grade language. Put the most important fact first. Include the entity/keyword naturally in the answer.\n- These become FAQPage JSON-LD (for Google/Bing) and a visible Q&A block (which AI crawlers read). The article also gets SpeakableSpecification automatically.\n\nSTEP 3 — Call bulk_publish_posts with posts = the array of article objects and default_status = 'draft'. Keep each content_html self-contained. Run bulk_publish_posts with dry_run=true FIRST, show me the plan (titles, slugs, intents, internal-link map), and on my confirmation run it again with dry_run=false.\n\nSTEP 4 — Report a table of created drafts: title, slug, edit URL, word count, internal/external link counts, entities and FAQ counts. Note any posts that failed and why. Do not publish anything — leave everything as drafts for my review.",
+      "tags": [
+        "bulk",
+        "content generation",
+        "koray",
+        "drafts",
+        "schema",
+        "GEO",
+        "AEO",
+        "entities",
+        "LSI",
+        "readability",
+        "AEO",
+        "5th-grade",
+        "FAQ"
+      ]
+    },
+    {
+      "id": "readability-rewrite",
+      "name": "Readability Rewrite (5th-grade, AI-friendly)",
+      "category": "Content Freshness",
+      "icon": "📖",
+      "shortDesc": "Rewrite any article to an easy grade-5 reading level without losing meaning or SEO",
+      "placeholder": "{{selected_text}}",
+      "prompt": "Rewrite the content below so a 5th-grade student can read it easily, WITHOUT losing accuracy, entities, keywords, or depth of information.\n\nRules:\n- Target Flesch Reading Ease 70-90 and Flesch-Kincaid grade 5 or under.\n- Sentences average 8-14 words, hard cap ~20; one idea per sentence.\n- Paragraphs of 2-3 sentences. Add clear, frequent subheads (H2/H3 as short questions where it fits).\n- Swap jargon for plain words, or define it simply the first time. Keep important named entities and keywords intact.\n- Active voice; address the reader as 'you'. Lead each section with the answer, then explain.\n- Turn dense passages into bullet lists, numbered steps, or small tables. Bold the key phrase in key lines.\n- Keep every fact, statistic, and link. Do not invent new claims.\n\nDeliver:\n1. The rewritten article as clean HTML (h2/h3, p, ul, ol, table).\n2. A short 'Key Takeaways' list (3-5 bullets) to place at the top for AI answer engines.\n3. A before/after readability note: estimated grade level and reading ease, and what you simplified.\n\nContent to rewrite:\n{{selected_text}}",
+      "tags": [
+        "readability",
+        "rewrite",
+        "5th-grade",
+        "AEO",
+        "content"
+      ]
+    }
+  ]
+}

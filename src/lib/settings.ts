@@ -52,6 +52,10 @@ export const settingsInputSchema = z.object({
   clearTalordataApiToken: z.boolean().optional(),
   firecrawlApiKey: z.string().trim().max(500).optional(),
   clearFirecrawlApiKey: z.boolean().optional(),
+  wordpressSiteUrl: z.string().trim().max(2_048).optional(),
+  wordpressUsername: z.string().trim().max(120).optional(),
+  wordpressApplicationPassword: z.string().trim().max(500).optional(),
+  clearWordpressApplicationPassword: z.boolean().optional(),
   clearApiKeys: z.array(z.enum(providers)).max(providers.length).optional(),
   expectedUpdatedAt: z.string().min(1).max(64),
 }).strict();
@@ -190,6 +194,9 @@ export function getPublicSettings() {
     subscriptionPin: publicKeyState(row.subscriptionPin, gudokpinEnvironmentKey()),
     talordataApiToken: publicKeyState(row.talordataApiToken, environmentValue("TALORDATA_API_TOKEN")),
     firecrawlApiKey: publicKeyState(row.firecrawlApiKey, environmentValue("FIRECRAWL_API_KEY")),
+    wordpressSiteUrl: row.wordpressSiteUrl ?? "",
+    wordpressUsername: row.wordpressUsername ?? "",
+    wordpressApplicationPassword: publicKeyState(row.wordpressApplicationPassword),
     updatedAt: row.updatedAt,
   };
 }
@@ -228,6 +235,13 @@ export function updateSettings(input: unknown) {
         : parsed.firecrawlApiKey
           ? encryptSecret(parsed.firecrawlApiKey)
           : row.firecrawlApiKey,
+      wordpressSiteUrl: parsed.wordpressSiteUrl !== undefined ? parsed.wordpressSiteUrl : row.wordpressSiteUrl,
+      wordpressUsername: parsed.wordpressUsername !== undefined ? parsed.wordpressUsername : row.wordpressUsername,
+      wordpressApplicationPassword: parsed.clearWordpressApplicationPassword
+        ? null
+        : parsed.wordpressApplicationPassword
+          ? encryptSecret(parsed.wordpressApplicationPassword)
+          : row.wordpressApplicationPassword,
       updatedAt,
     }).where(eq(settings.id, 1)).run();
   });

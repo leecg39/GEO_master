@@ -32,3 +32,15 @@ https://github.com/leecg39/SEMForge.git 분석 → GEO Master QA → Frozen Metr
 npm run lint && npm run typecheck && npm test
 npm run autoresearch:dashboard
 ```
+
+## 2026-09-09 QA RSI
+
+Browser QA on `leecg39/feat-settings-research-assist` + keep/revert-style fixes.
+
+| # | Hypothesis | Evidence | Decision |
+|---|-----------|----------|----------|
+| 3 | Apex/www is the same public site for capture | `uinus.co.kr` 301 → www; after fix HTTP 200 본문 확인 | KEEP |
+| 4 | Pin Settings in sidebar footer | Settings visible at 1440×727 without nav scroll | KEEP |
+| 5 | Donut empty copy `break-keep` | "데이터 없음" no longer splits | KEEP |
+
+Frozen metric now 96/104: layout 29/29, guards pass, API 7/15 because this workspace has 0 measure runs.

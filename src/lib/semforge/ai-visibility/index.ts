@@ -95,6 +95,8 @@ export function removeAiVisibilityQuery(idInput: unknown) {
 }
 
 export interface AiVisibilityOverview {
+  observationMode?: "serp_snapshot";
+  dataState?: "live" | "mock" | "unavailable";
   domain: string;
   subscriptionRequired: boolean;
   talordata: ProviderResult<{ configured: boolean }>;
@@ -133,8 +135,9 @@ export function getAiVisibilityOverview(domainInput: string): AiVisibilityOvervi
 
   const statuses = queries.map((query) => {
     const snapshot = sqlite.prepare(`
-      SELECT * FROM ai_visibility_snapshots WHERE query_id = ? ORDER BY captured_at DESC, id DESC LIMIT 1
-    `).get(query.id) as { aio_present: number; cited: number | null; organic_position: number | null; captured_at: string } | undefined;
+      SELECT * FROM ai_visibility_snapshots WHERE query_id = ? AND (CASE WHEN ? = 'mock' THEN source = 'mock-dev' ELSE source != 'mock-dev' END)
+      ORDER BY captured_at DESC, id DESC LIMIT 1
+    `).get(query.id, mode) as { aio_present: number; cited: number | null; organic_position: number | null; captured_at: string } | undefined;
     return {
       id: query.id,
       query: query.query,
@@ -152,6 +155,8 @@ export function getAiVisibilityOverview(domainInput: string): AiVisibilityOvervi
   }, null);
 
   return {
+    observationMode: "serp_snapshot",
+    dataState: mode,
     domain,
     subscriptionRequired: false,
     talordata,

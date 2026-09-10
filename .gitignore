@@ -9,8 +9,12 @@ coverage/
 data/*.db
 data/*.db-*
 data/.master-key
+data/backups/
 playwright-report/
 test-results/
 *.tsbuildinfo
 .gstack/
 .firecrawl/
+
+# Project-local Codex with ChatGPT checkout (installed separately)
+/tools/codex-with-chatgpt/

@@ -129,7 +129,7 @@ export const CITATION_TRUTH_NOTE =
 
 /** CMS 운영이 아닌 인용 측정·준비 — WP x MCP는 블록 스펙·승인 UX만 참고 */
 export const PRODUCT_BOUNDARY_NOTE =
-  "GEO Master는 CMS 운영자가 아니라 인용 측정·준비 워크스페이스입니다. WP x MCP류 패턴은 GEO 블록 스펙·dry-run·승인 UX만 참고하며, 라이브 사이트 조작은 SEMForge GEO Blocks에서도 하지 않습니다.";
+  "GEO Master는 CMS 운영자가 아니라 인용 측정·준비 워크스페이스입니다. WP x MCP류 패턴은 GEO 블록 스펙·dry-run·승인 UX만 참고하며, 원격 적용은 Application Password draft push(선택)로만 얇게 연결합니다. Elementor/SQL/전면 MCP 도구는 이식하지 않습니다.";
 
 if (LEARN_CHECKLIST.length !== 38) {
   throw new Error(`Learn checklist invariant failed: ${LEARN_CHECKLIST.length}`);

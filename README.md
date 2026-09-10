@@ -18,7 +18,7 @@
 | 학습 센터 | 핵심 개념, 7가지 도구, 6원칙, 패러다임 시프트, 용어 대조, 사례, 프로젝트별 38항목 체크리스트와 확인형 초기화 |
 | 팀 공유 | 비밀을 제외한 schema v2 JSON 스냅샷, ID 재매핑 병합, 확인형 교체, 로컬 백업 이름 변경·복원·삭제 |
 | 설정 | 활성 프로젝트 프로필, 외부 연구 보조 메모, 모델·가중치·반복 수 기본값 되돌리기, 암호화된 4사 API 키 관리 |
-| SEMForge GEO Blocks | (유료) 인용용 블록 스펙 초안·dry-run·승인, share 미인용/audit 실패 → 로컬 초안 |
+| SEMForge GEO Blocks | (유료) 인용용 블록 스펙 초안·dry-run·승인, share 미인용/audit 실패 → 로컬 초안, **승인 후 WP Application Password draft push** (선택) |
 
 ## 시작하기
 
@@ -63,7 +63,7 @@ npm start
 
 > **외부 툴은 연구 보조, 인용 진실은 `/share`.** RankSEO·Glippy는 GEO Master에 이식·연동하지 않습니다. DA/DR·GEO 배지·준비도 점수는 GenRank와 합산하거나 동일 척도로 비교하지 말고, 실인용·점유율은 `/share` 다모델 측정과 GenRank만 기준으로 삼으세요. 권장 파이프: RankSEO(경쟁·Easy-Win) → settings → Glippy(준비도) → audit → share(실인용).
 
-> **GEO Master는 CMS 운영자가 아닙니다.** 인용 측정·준비 워크스페이스이며, WordPress MCP류(WP x MCP) 패턴은 **GEO 블록 스펙·dry-run·승인 UX**만 참고합니다. 라이브 사이트 조작·페이지 빌더·DB 쓰기는 제품 범위 밖입니다. SEMForge 유료의 GEO Blocks가 스펙 초안·승인 파이프를 제공합니다.
+> **GEO Master는 CMS 운영자가 아닙니다.** 인용 측정·준비 워크스페이스이며, WordPress MCP류(WP x MCP) 패턴은 **GEO 블록 스펙·dry-run·승인 UX**만 참고합니다. 라이브 사이트 전면 조작·페이지 빌더·DB 쓰기는 제품 범위 밖입니다. SEMForge GEO Blocks는 스펙 초안·승인 후 **Application Password로 draft만** 푸시할 수 있습니다(선택). 선택 동반 플러그인은 `extras/wp-x-mcp`에 두며 Next.js로 이식하지 않습니다.
 
 > LLM 측정과 콘텐츠 생성은 각 제공자의 유료 API를 호출할 수 있습니다. 예약 worker는 활성 일정과 비용 정책을 만족하면 사용자 입력 없이 호출하므로, `/automation`의 상한과 다음 실행 시각을 먼저 확인하세요.
 
@@ -132,8 +132,14 @@ npm run build
 
 ## 기술 스택
 
+큐샵 운영 흐름의 1차 적용은 [Qshop 적용 내역](docs/qshop/README.md)을 참고하세요. 사이트 진단의 실제 페이지 수집·수정안·승인·수동 적용 안내·재검증, 경로별 AI 파일 이력과 내용 비교를 연결했습니다. 전체 DB 백업은 `npm run backup:db`를 사용합니다.
+
+[claude-seo 계획서 1·2단계](docs/claude-seo/IMPLEMENTATION.md)는 근거·버전이 있는 진단과 승인 기준선의 변경 감지를 추가합니다. 최신 검증은 41개 파일·246개 테스트, 타입 검사·lint·프로덕션 빌드 및 격리된 브라우저 QA를 통과했습니다. Studio·GSC 연동 등 후속 로드맵은 구현 기록에 구분했습니다.
+
 Next.js 16 App Router · React 19 · TypeScript 6 · Tailwind CSS 4 · SQLite/better-sqlite3 · Drizzle ORM · OpenAI/Anthropic/Google GenAI SDK · xAI Grok Responses API · Cheerio · Recharts · Vitest
 
 ## 로드맵 상태
+
+개발 도구로 [Codex with ChatGPT](docs/codex-with-chatgpt/README.md)를 프로젝트 내부에 설치했습니다. `npm run c2c:start`로 로컬 서비스를 시작하고 `npm run c2c:status`로 상태를 확인합니다. 프로젝트용 스킬은 `.agents/skills/codex-with-chatgpt/`에 있으며, ChatGPT 계정 연결은 최초 설정이 필요합니다.
 
 핵심 계획과 후속 확장인 llms.txt, 전용 서버 PDF 리포트, 멀티모달 감사, Grok, 휴대 가능한 팀 공유 스냅샷, 예약 측정·영속 큐·비용 한도까지 완료되었습니다. 필수 잔여 범위는 없으며 이후 선택적 발전 항목은 사용자 인증·권한 기반 실시간 협업과 원격 동기화뿐입니다. 상세 구현·보안 불변식은 `docs/IMPLEMENTATION_HANDOFF.md`를 참고하세요.

@@ -176,18 +176,18 @@ function HalfGauge({
 
   return (
     <div className="px-4 pb-4 pt-2">
-      <div className="relative h-36" role="img" aria-label={`${label} ${available ? `${safeValue.toFixed(1)}%` : "데이터 없음"}`}>
+      <div className="relative h-32" role="img" aria-label={`${label} ${available ? `${safeValue.toFixed(1)}%` : "데이터 없음"}`}>
         <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
+          <PieChart margin={{ top: 8, right: 16, left: 16, bottom: 0 }}>
             <Pie
               data={gaugeData}
               dataKey="value"
               cx="50%"
-              cy="82%"
+              cy="100%"
               startAngle={180}
               endAngle={0}
-              innerRadius="61%"
-              outerRadius="84%"
+              innerRadius="68%"
+              outerRadius="100%"
               stroke="none"
               isAnimationActive={available}
             >
@@ -196,13 +196,13 @@ function HalfGauge({
             </Pie>
           </PieChart>
         </ResponsiveContainer>
-        <div className="absolute inset-x-0 bottom-0 text-center">
-          <strong className="block text-3xl font-black tracking-[-0.06em] text-white">
-            {available ? safeValue.toFixed(1) : "—"}
-            {available && <span className="ml-0.5 text-xs font-bold text-slate-400">%</span>}
-          </strong>
-          <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</span>
-        </div>
+      </div>
+      <div className="mt-1 text-center">
+        <strong className="block text-3xl font-black tracking-[-0.06em] text-white">
+          {available ? safeValue.toFixed(1) : "—"}
+          {available && <span className="ml-0.5 text-xs font-bold text-slate-400">%</span>}
+        </strong>
+        <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</span>
       </div>
       <div className="mt-2 flex items-center justify-between border-t border-dash-line/25 pt-3 text-xs">
         <span className="text-slate-500">이전 측정 대비</span>
@@ -232,11 +232,11 @@ function DonutMetric({
   ];
 
   return (
-    <div className="grid grid-cols-[128px_minmax(0,1fr)] items-center gap-2 px-4 py-4">
-      <div className="relative h-32" role="img" aria-label={`${label} ${available ? `${safeValue.toFixed(1)}%` : "데이터 없음"}`}>
+    <div className="grid grid-cols-[minmax(7.5rem,8rem)_minmax(0,1fr)] items-center gap-3 px-4 py-4">
+      <div className="relative aspect-square w-full" role="img" aria-label={`${label} ${available ? `${safeValue.toFixed(1)}%` : "데이터 없음"}`}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={chartData} dataKey="value" innerRadius={42} outerRadius={57} stroke="none">
+            <Pie data={chartData} dataKey="value" innerRadius="62%" outerRadius="88%" stroke="none">
               <Cell fill={available ? color : "#362d59"} />
               <Cell fill="#2a2045" />
             </Pie>
@@ -411,7 +411,7 @@ function ModelComparisonSection({
             aria-label="AI 모델별 현재와 이전 언급률 레이더 차트"
           >
             <ResponsiveContainer width="100%" height={chartHeight}>
-              <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="78%">
+              <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="68%" margin={{ top: 28, right: 28, bottom: 28, left: 28 }}>
                 <PolarGrid stroke="#362d59" />
                 <PolarAngleAxis
                   dataKey="model"
@@ -541,6 +541,11 @@ export function DashboardView({ data }: { data: DashboardData }) {
 
   return (
     <div className="text-slate-300">
+      <div className="mb-4 rounded-xl border border-dash-line/45 p-4 text-xs leading-6 text-slate-400">
+        <p>이 화면의 응답 점유율은 모델 API 답변 관측(model_only)입니다. 실제 검색 인용은 <a href="/ai-seo" className="text-cyan-300 hover:underline">Google AI Overview SERP 관측</a>에서 별도로 확인합니다.</p>
+        <p>{data.overview.comparisonNote}</p>
+        <p>GSC 검색 성과·서버/CDN 봇 방문·CTA/폼 전환은 원천 데이터 미연결 상태이며, 0회로 집계하지 않습니다.</p>
+      </div>
       <header className="mb-4 rounded-xl border border-dash-line/45 bg-dash-header/95 px-4 py-4 shadow-[0_16px_50px_rgba(0,4,18,0.3)] sm:px-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0">
@@ -549,7 +554,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
               GEO intelligence control room
               <span className={`ml-1 inline-flex items-center gap-1.5 rounded-full border px-2 py-1 tracking-[0.12em] ${hasRuns ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" : "border-slate-600/50 bg-slate-800/50 text-slate-400"}`}>
                 <span className={`h-1.5 w-1.5 rounded-full ${hasRuns ? "animate-pulse bg-emerald-400" : "bg-slate-500"}`} />
-                {hasRuns ? "LIVE" : "STANDBY"}
+                {data.overview.observationState === "mock" ? "샘플 기록" : data.overview.observationState === "legacy" ? "과거 기록 · 조건 미확인" : hasRuns ? "MODEL API" : "STANDBY"}
               </span>
             </div>
             <h1 className="mt-2 truncate text-xl font-black tracking-[-0.04em] text-white sm:text-2xl">{data.project.name}</h1>
@@ -606,7 +611,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
             color="#4dc8ff"
             footnote={
               <>
-                <strong className="block text-lg text-[color:var(--color-accent-lime)]">{hasRuns ? `${data.overview.positiveRate.toFixed(1)}%` : "데이터 없음"}</strong>
+                <strong className="block break-keep text-lg text-[color:var(--color-accent-lime)]">{hasRuns ? `${data.overview.positiveRate.toFixed(1)}%` : "데이터 없음"}</strong>
                 브랜드 언급 중 긍정 응답 비율
               </>
             }
@@ -624,7 +629,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
               data.latestAudit ? (
                 <>
                   <strong className="block text-lg text-violet-300">{data.latestAudit.score}/{data.latestAudit.total}</strong>
-                  {formatDate(data.latestAudit.createdAt)}
+                  <span className="break-keep">{formatDate(data.latestAudit.createdAt)}</span>
                 </>
               ) : (
                 <Link href="/audit" className="inline-flex items-center gap-1 text-violet-300">

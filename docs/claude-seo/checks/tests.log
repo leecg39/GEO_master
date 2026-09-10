@@ -1,0 +1,62 @@
+
+> geo-master@0.1.0 test
+> vitest run --reporter=dot
+
+
+ RUN  v4.1.11 /Users/user01/orca/workspaces/GEO_master/jiaolong
+
+·······························stderr | tests/automation.integration.test.ts > persistent measurement automation > keeps automation state readable and records why corrupt schedules are disabled
+Automation schedule disabled INVALID_SCHEDULE_DATA
+
+·····stderr | tests/audits-crud.integration.test.ts > audit evidence CRUD API > creates 32 immutable evidence items and returns an identical retry without another fetch
+GEO AI engine invocation failed, falling back to semantic engine: AppError: Grok API 키 인증에 실패했습니다.
+    at generateText (/Users/user01/orca/workspaces/GEO_master/jiaolong/src/lib/llm.ts:82:13)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at analyzePageWithGeoEngine (/Users/user01/orca/workspaces/GEO_master/jiaolong/src/lib/audit.ts:432:23)
+    at createAudit (/Users/user01/orca/workspaces/GEO_master/jiaolong/src/lib/audit.ts:590:26)
+    at Module.POST (/Users/user01/orca/workspaces/GEO_master/jiaolong/src/app/api/audits/route.ts:19:39)
+    at /Users/user01/orca/workspaces/GEO_master/jiaolong/tests/audits-crud.integration.test.ts:82:22
+    at file:///Users/user01/orca/workspaces/GEO_master/jiaolong/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20 {
+  status: 401,
+  code: 'LLM_AUTH_FAILED',
+  details: undefined
+}
+
+················stderr | tests/audits-crud.integration.test.ts > audit evidence CRUD API > supports cursor list, escaped search, and item detail
+GEO AI engine invocation failed, falling back to semantic engine: AppError: Grok API 키 인증에 실패했습니다.
+    at generateText (/Users/user01/orca/workspaces/GEO_master/jiaolong/src/lib/llm.ts:82:13)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at analyzePageWithGeoEngine (/Users/user01/orca/workspaces/GEO_master/jiaolong/src/lib/audit.ts:432:23)
+    at createAudit (/Users/user01/orca/workspaces/GEO_master/jiaolong/src/lib/audit.ts:590:26)
+    at Module.POST (/Users/user01/orca/workspaces/GEO_master/jiaolong/src/app/api/audits/route.ts:19:39)
+    at /Users/user01/orca/workspaces/GEO_master/jiaolong/tests/audits-crud.integration.test.ts:104:22
+    at file:///Users/user01/orca/workspaces/GEO_master/jiaolong/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20 {
+  status: 401,
+  code: 'LLM_AUTH_FAILED',
+  details: undefined
+}
+
+·······stderr | tests/audits-crud.integration.test.ts > audit evidence CRUD API > isolates history by active project
+GEO AI engine invocation failed, falling back to semantic engine: AppError: Grok API 키 인증에 실패했습니다.
+    at generateText (/Users/user01/orca/workspaces/GEO_master/jiaolong/src/lib/llm.ts:82:13)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at analyzePageWithGeoEngine (/Users/user01/orca/workspaces/GEO_master/jiaolong/src/lib/audit.ts:432:23)
+    at createAudit (/Users/user01/orca/workspaces/GEO_master/jiaolong/src/lib/audit.ts:590:26)
+    at Module.POST (/Users/user01/orca/workspaces/GEO_master/jiaolong/src/app/api/audits/route.ts:19:39)
+    at /Users/user01/orca/workspaces/GEO_master/jiaolong/tests/audits-crud.integration.test.ts:156:17
+    at file:///Users/user01/orca/workspaces/GEO_master/jiaolong/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20 {
+  status: 401,
+  code: 'LLM_AUTH_FAILED',
+  details: undefined
+}
+
+···············stderr | tests/measure-runs-crud.integration.test.ts > measure run evidence CRUD API > persists a failed request and returns it on retry without another provider call
+Unhandled server error Error: provider failed
+
+············································································································································································
+
+ Test Files  41 passed (41)
+      Tests  246 passed (246)
+   Start at  13:59:01
+   Duration  6.87s (transform 2.50s, setup 0ms, import 29.91s, tests 7.83s, environment 1.10s)
+

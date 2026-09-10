@@ -18,6 +18,8 @@ import { generateText } from "./llm";
 import { requireActiveProject } from "./projects";
 import { getPublicSettings, getServerSettings, type Provider } from "./settings";
 import { fetchPublicText } from "./url-security";
+import { observeBotPolicy, robotsAllows } from "./site-ops/bot-policy";
+import { validateLlmsTxt } from "./llms-txt";
 
 export const AUDIT_CATEGORIES = ["기반 SEO", "GEO 콘텐츠 구조", "신뢰도·E-E-A-T", "기술적 GEO", "브랜드 노출"] as const;
 export type AuditCategory = (typeof AUDIT_CATEGORIES)[number];
@@ -144,7 +146,7 @@ export const AUDIT_RULES: Rule[] = [
   { code: "geo-question-headings", category: "GEO 콘텐츠 구조", label: "질문형 소제목", recommendation: "고객의 실제 질문을 H2/H3 제목으로 사용하세요.", check: (s) => result(s.questionHeadings >= 1, `질문형 제목 ${s.questionHeadings}개`) },
   { code: "geo-lists", category: "GEO 콘텐츠 구조", label: "목록 구조", recommendation: "핵심 절차와 조건을 순서·불릿 목록으로 구조화하세요.", check: (s) => result(s.lists >= 1, `목록 ${s.lists}개`) },
   { code: "geo-tables", category: "GEO 콘텐츠 구조", label: "비교 표", recommendation: "비교·평가 정보를 표로 제공하세요.", check: (s) => result(s.tables >= 1, `표 ${s.tables}개`) },
-  { code: "geo-faq", category: "GEO 콘텐츠 구조", label: "FAQ 섹션", recommendation: "실제 고객 언어의 FAQ를 3개 이상 추가하세요.", check: (s) => result(s.faqSignals >= 3, `FAQ 신호 ${s.faqSignals}개`) },
+  { code: "geo-faq", category: "GEO 콘텐츠 구조", label: "FAQ 섹션", recommendation: "실제 고객 언어의 FAQ를 3개 이상 추가하세요.", check: (s) => result(s.faqSignals === 0 || s.faqSignals >= 3, s.faqSignals === 0 ? "FAQ가 없는 페이지: 선택 권고이며 필수 실패가 아닙니다." : `FAQ 신호 ${s.faqSignals}개`) },
   { code: "geo-answer-first", category: "GEO 콘텐츠 구조", label: "결론 선행 도입부", recommendation: "문제→핵심 답변→글의 가치 순서로 도입부를 다시 쓰세요.", check: (s) => result(s.firstParagraph.length >= 40 && s.firstParagraph.length <= 400, `첫 문단 ${s.firstParagraph.length}자`) },
   { code: "geo-search-intent", category: "GEO 콘텐츠 구조", label: "검색 의도 명시", recommendation: "정보·비교·구매·문제 해결 중 목표 의도를 문서에 명확히 반영하세요.", manual: true },
   { code: "geo-journey", category: "GEO 콘텐츠 구조", label: "구매 여정별 구성", recommendation: "탐색→비교→구매 결정에 필요한 내용을 순서대로 배치하세요.", manual: true },
@@ -157,11 +159,12 @@ export const AUDIT_RULES: Rule[] = [
   { code: "trust-transparency", category: "신뢰도·E-E-A-T", label: "회사·연락처 투명성", recommendation: "회사 소개, 연락처, 편집 정책을 쉽게 찾게 하세요.", check: (s) => result(s.hasContact, s.hasContact ? "소개/연락처 신호 있음" : "소개/연락처 신호 없음") },
 
   { code: "tech-jsonld", category: "기술적 GEO", label: "JSON-LD", recommendation: "페이지 성격에 맞는 JSON-LD를 추가하세요.", check: (s) => result(s.jsonLdTypes.length > 0, `스키마: ${s.jsonLdTypes.join(", ") || "없음"}`) },
-  { code: "tech-faq-schema", category: "기술적 GEO", label: "FAQPage 스키마", recommendation: "FAQ 내용과 일치하는 FAQPage JSON-LD를 추가하세요.", check: (s) => result(schemaIncludes(s, ["FAQPage"]), schemaIncludes(s, ["FAQPage"]) ? "FAQPage 있음" : "FAQPage 없음") },
+  { code: "tech-faq-schema", category: "기술적 GEO", label: "FAQPage 스키마", recommendation: "FAQ 내용과 일치하는 FAQPage JSON-LD를 추가하세요.", check: (s) => result(s.faqSignals === 0 || schemaIncludes(s, ["FAQPage"]), s.faqSignals === 0 ? "FAQ 본문 없음: 적용 대상 아님" : schemaIncludes(s, ["FAQPage"]) ? "FAQPage 있음" : "FAQ 본문과 일치하는 스키마 검토") },
   { code: "tech-entity-schema", category: "기술적 GEO", label: "Organization/Article 스키마", recommendation: "Organization과 Article 엔티티를 명시하세요.", check: (s) => result(schemaIncludes(s, ["Organization", "Article", "NewsArticle"]), `엔티티 스키마 ${s.jsonLdTypes.join(", ") || "없음"}`) },
-  { code: "tech-ai-robots", category: "기술적 GEO", label: "AI 크롤러 접근", recommendation: "GPTBot·ClaudeBot·PerplexityBot·Google-Extended 차단 여부를 검토하세요.", check: (_s, f) => {
-    const blocked = blockedAiBots(f.robots ?? "");
-    return result(blocked.length === 0, blocked.length ? `차단: ${blocked.join(", ")}` : "주요 AI 크롤러 접근 가능");
+  { code: "tech-ai-robots", category: "기술적 GEO", label: "AI 검색 수집 정책", recommendation: "OAI-SearchBot·PerplexityBot·Claude-SearchBot의 검색 수집 정책을 검토하세요. 학습 봇 정책과 별개입니다.", check: (_s, f) => {
+    const bots = observeBotPolicy(f.robots).filter(bot => bot.purpose === "search");
+    const blocked = bots.filter(bot => bot.allowed === false).map(bot => bot.bot);
+    return result(f.robots !== null && blocked.length === 0, f.robots === null ? "robots.txt 응답 미확인" : blocked.length ? `검색 수집 제한: ${blocked.join(", ")}` : "robots.txt 기준 검색 봇 제한 없음. 실제 접근·인용은 별도 관측입니다.");
   } },
   { code: "tech-llms", category: "기술적 GEO", label: "llms.txt", recommendation: "핵심 엔티티와 대표 문서를 설명하는 /llms.txt를 제공하세요.", check: (_s, f) => result(Boolean(f.llms?.trim()), f.llms ? "llms.txt 확인" : "llms.txt 없음") },
   { code: "tech-sitemap", category: "기술적 GEO", label: "XML Sitemap", recommendation: "최신 URL과 수정일을 담은 sitemap.xml을 제공하세요.", check: (_s, f) => result(Boolean(f.sitemap?.includes("<url")), f.sitemap ? "sitemap 응답 확인" : "sitemap 없음") },
@@ -236,26 +239,7 @@ export function parseAuditHtml(html: string, pageUrl: string): Snapshot {
 }
 
 export function blockedAiBots(robotsText: string) {
-  if (!robotsText.trim()) return [];
-  const bots = ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended"];
-  const lines = robotsText.split(/\r?\n/).map((line) => line.replace(/#.*$/, "").trim());
-  const groups: { agents: string[]; disallow: string[] }[] = [];
-  let group = { agents: [] as string[], disallow: [] as string[] };
-  for (const line of lines) {
-    const [rawKey, ...rest] = line.split(":");
-    const key = rawKey?.trim().toLowerCase();
-    const value = rest.join(":").trim();
-    if (key === "user-agent") {
-      if (group.disallow.length) { groups.push(group); group = { agents: [], disallow: [] }; }
-      group.agents.push(value.toLowerCase());
-    } else if (key === "disallow" && group.agents.length) {
-      group.disallow.push(value);
-    }
-  }
-  if (group.agents.length) groups.push(group);
-  return bots.filter((bot) => groups.some((entry) =>
-    (entry.agents.includes("*") || entry.agents.includes(bot.toLowerCase())) && entry.disallow.includes("/"),
-  ));
+  return ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended"].filter(bot => !robotsAllows(robotsText, bot));
 }
 
 export function auditGrade(score: number) {
@@ -503,7 +487,7 @@ export function scoreAudit(
     } else {
       checked = rule.check!(snapshot, files);
     }
-    return { ...rule, manual, ...checked };
+    return { ...rule, manual, ...checked, ruleKind: rule.code.startsWith("geo-") || rule.code === "tech-llms" ? "experimental" : rule.code.startsWith("seo-") ? "technical" : "recommendation", rulesVersion: "geo-audit/2" };
   });
   const score = items.filter((item) => item.passed).length;
   const grade = auditGrade(score);
@@ -513,6 +497,7 @@ export function scoreAudit(
 async function optionalFile(url: string) {
   try {
     const fetched = await fetchPublicText(url, 7_000);
+    if (url.endsWith("/llms.txt") && (!/text\/(plain|markdown|x-markdown)/i.test(fetched.contentType) || !validateLlmsTxt(fetched.text).valid)) return null;
     return fetched.status >= 200 && fetched.status < 300 ? fetched.text : null;
   } catch {
     return null;
@@ -615,6 +600,9 @@ export async function createAudit(input: unknown) {
     executiveSummary: engineAnalysis.executiveSummary,
     recommendations: engineAnalysis.recommendations,
     engineMode: engineAnalysis.engineMode,
+    rulesVersion: "geo-audit/2",
+    botPolicies: observeBotPolicy(robots, finalUrl.pathname),
+    scoreLabel: "자체 진단 점수 (검색엔진 공식 점수 아님)",
     _requestHash: fingerprint,
   };
   const { sqlite } = getDatabase();

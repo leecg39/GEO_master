@@ -32,7 +32,7 @@
 | 항목 | 결과 |
 |------|------|
 | SEMForge 구독 게이트 | `requireSemforgeSubscription()` — 비활성 시 overview locked / mutation 402 |
-| 원격 CMS/WP publish | **미구현** (의도적) — approved는 로컬 contents 상태만 |
+| 원격 CMS/WP publish | **구현** — Application Password → WP REST `posts` **draft만** (Gutenberg HTML). publish/Elementor/SQL 없음 |
 | dry-run 승인 | `approved` 전 `dryRunConfirmed` 필수 |
 | LLM 키 | 기존 AES settings 경로 재사용, 신규 제3자 SEO API 키 없음 |
 | SSRF | GEO Blocks는 URL fetch 없음 (audit/share 기존 경로만 참조) |
@@ -61,8 +61,9 @@
 
 ## GEO Blocks 범위 확인
 
-- Phase 5 (WP Application Password / MCP 서버): **미구현** (로드맵 보류와 일치)
-- WP x MCP 코드/툴킷 이식: **없음**
+- Phase 5A (WP Application Password draft push): **구현** — Settings AES + `/geo-blocks` 승인 후 push
+- WP x MCP 코드/툴킷 Next.js 이식: **없음** (선택 플러그인은 `extras/wp-x-mcp`)
+- Phase 5B (GEO Master MCP 서버): **미구현**
 
 ---
 
@@ -70,4 +71,4 @@
 
 1. SEMForge 비활성 계정으로 `/geo-blocks` 접속 시 게이트 배너 확인
 2. `suggestFromShare` limit 기본값(5) 유지
-3. 원격 게시/MCP는 별도 수요 확정 후 Phase 5로만 진행
+3. 원격 게시는 draft만·공개 URL만(SSRF). Application Password는 Settings에서 관리.

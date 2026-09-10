@@ -224,6 +224,14 @@ export async function runShareMeasurement(input: unknown, options: ShareMeasurem
   const { orm, sqlite } = getDatabase();
   const now = new Date().toISOString();
   const repetitions = parsed.repetitions ?? settings.repetitions;
+  const measurementConditions = {
+    mode: "model_only", dataState: "live", language: "ko", country: null, repetitions, promptVersion: "share/1",
+    questionSetHash: createHash("sha256").update(JSON.stringify([...parsed.questions].sort())).digest("hex"),
+    modelConfigHash: createHash("sha256").update(JSON.stringify({
+      models: [...parsed.providers].sort().map(provider => [provider, settings.models[provider], settings.modelWeights[provider]]),
+      brand, competitors: [...settings.competitors].sort(),
+    })).digest("hex"),
+  };
   const run = orm.insert(measureRuns).values({
     projectId: active.id,
     title: parsed.title || `${parsed.questions.length}개 질문 응답 점유율`,
@@ -233,7 +241,7 @@ export async function runShareMeasurement(input: unknown, options: ShareMeasurem
     models: JSON.stringify(parsed.providers.map((provider) => ({ provider, model: settings.models[provider] }))),
     repetitions,
     totalQueries: parsed.questions.length * parsed.providers.length * repetitions,
-    summary: JSON.stringify({ _requestHash: fingerprint }),
+    summary: JSON.stringify({ measurementConditions, _requestHash: fingerprint }),
     createdAt: now,
     updatedAt: now,
   }).returning().get();
@@ -295,7 +303,7 @@ export async function runShareMeasurement(input: unknown, options: ShareMeasurem
         answerShare: summary.answerShare,
         genrank: summary.genrank,
         funnelStage: summary.funnelStage,
-        summary: JSON.stringify({ ...summary, _requestHash: fingerprint }),
+        summary: JSON.stringify({ ...summary, measurementConditions, citations: null, _requestHash: fingerprint }),
         completedAt,
         updatedAt: completedAt,
       }).where(eq(measureRuns.id, run.id)).run();

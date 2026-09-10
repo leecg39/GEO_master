@@ -1,4 +1,4 @@
-export type ProviderStatus = "live" | "unavailable" | "error";
+export type ProviderStatus = "live" | "mock" | "unavailable" | "error";
 
 export interface ProviderResult<T> {
   status: ProviderStatus;
@@ -9,7 +9,7 @@ export interface ProviderResult<T> {
 }
 
 export function providerLive<T>(source: string, data: T): ProviderResult<T> {
-  return { status: "live", data, source, fetchedAt: new Date().toISOString() };
+  return { status: source === "mock-dev" ? "mock" : "live", data, source, fetchedAt: new Date().toISOString() };
 }
 
 export function providerUnavailable<T = never>(source: string, reason: string): ProviderResult<T> {
@@ -31,12 +31,14 @@ export interface ProviderBadgeMeta {
 
 const BADGE_LABEL: Record<ProviderStatus, string> = {
   live: "실시간 수집",
+  mock: "샘플 데이터",
   unavailable: "연결 필요",
   error: "수집 실패",
 };
 
 const BADGE_TONE: Record<ProviderStatus, ProviderBadgeMeta["tone"]> = {
   live: "success",
+  mock: "muted",
   unavailable: "muted",
   error: "danger",
 };

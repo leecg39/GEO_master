@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-09-10T02:51:00.748Z",
+  "result": "PASS",
+  "workspaceRoot": "/Users/user01/orca/workspaces/GEO_master/jiaolong/",
+  "workspaceName": "GEO Master · jiaolong",
+  "scope": "로컬 HTTP와 MCP 클라이언트 검증. ChatGPT 계정 연결 검증은 포함하지 않음.",
+  "publicConnectionStarted": false,
+  "checks": [
+    "인증 없는 접근 차단: HTTP 401",
+    "읽기 전용 도구 9개 확인",
+    "GEO Master 프로젝트 식별",
+    "프로젝트 README.md 읽기 성공",
+    "환경 파일·마스터 키·DB·도구 저장소 읽기 차단",
+    "프로젝트 외부 경로 접근 차단"
+  ]
+}

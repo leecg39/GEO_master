@@ -20,6 +20,8 @@ export const semforgeSubscriptions = sqliteTable("semforge_subscriptions", {
   currentPeriodStart: text("current_period_start"),
   currentPeriodEnd: text("current_period_end"),
   canceledAt: text("canceled_at"),
+  trialStartedAt: text("trial_started_at"),
+  isTrial: integer("is_trial", { mode: "boolean" }).notNull().default(false),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
@@ -73,6 +75,9 @@ export const aiVisibilitySnapshots = sqliteTable("ai_visibility_snapshots", {
 });
 
 export const siteAuditCampaigns = sqliteTable("site_audit_campaigns", {
+  dataState: text("data_state").notNull().default("legacy_estimate"),
+  llmsState: text("llms_state").notNull().default("unknown"),
+  runToken: text("run_token"),
   id: integer("id").primaryKey({ autoIncrement: true }),
   projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
@@ -88,15 +93,19 @@ export const siteAuditPages = sqliteTable("site_audit_pages", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   campaignId: integer("campaign_id").notNull().references(() => siteAuditCampaigns.id, { onDelete: "cascade" }),
   url: text("url").notNull(),
-  statusCode: integer("status_code").notNull().default(0),
+  statusCode: integer("status_code"),
   title: text("title"),
-  depth: integer("depth").notNull().default(0),
+  depth: integer("depth"),
   responseMs: integer("response_ms"),
-  bytes: integer("bytes").notNull().default(0),
-  capturedAt: text("captured_at").notNull(),
+  bytes: integer("bytes"),
+  capturedAt: text("captured_at"),
+  dataState: text("data_state").notNull().default("legacy_estimate"),
+  fetchState: text("fetch_state").notNull().default("discovered"),
+  snapshotId: integer("snapshot_id"),
 });
 
 export const siteAuditIssues = sqliteTable("site_audit_issues", {
+  dataState: text("data_state").notNull().default("legacy_estimate"),
   id: integer("id").primaryKey({ autoIncrement: true }),
   campaignId: integer("campaign_id").notNull().references(() => siteAuditCampaigns.id, { onDelete: "cascade" }),
   url: text("url").notNull(),
@@ -188,6 +197,9 @@ export const settings = sqliteTable("settings", {
   subscriptionPin: text("subscription_pin"),
   talordataApiToken: text("talordata_api_token"),
   firecrawlApiKey: text("firecrawl_api_key"),
+  wordpressSiteUrl: text("wordpress_site_url").notNull().default(""),
+  wordpressUsername: text("wordpress_username").notNull().default(""),
+  wordpressApplicationPassword: text("wordpress_application_password"),
   models: text("models").notNull().default("{}"),
   repetitions: integer("repetitions").notNull().default(3),
   modelWeights: text("model_weights").notNull().default("{}"),
@@ -375,6 +387,10 @@ export const strategyItems = sqliteTable("strategy_items", {
 });
 
 export const llmsDocuments = sqliteTable("llms_documents", {
+  targetPath: text("target_path").notNull().default("/llms.txt"),
+  language: text("language").notNull().default("ko"),
+  remoteDocument: text("remote_document"),
+  remoteMatch: integer("remote_match", { mode: "boolean" }),
   id: integer("id").primaryKey({ autoIncrement: true }),
   projectId: integer("project_id").references(() => projects.id, { onDelete: "cascade" }),
   title: text("title").notNull(),

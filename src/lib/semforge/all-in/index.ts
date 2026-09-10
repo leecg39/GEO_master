@@ -152,8 +152,8 @@ export async function runAllInSemforge(input: unknown): Promise<{
       steps.push({
         key: "site-audit",
         label: "사이트 진단",
-        status: "ok",
-        message: `크롤 완료 · ${result.crawledPages ?? 0}페이지 · 건강 ${result.siteHealth ?? "—"}점`,
+        status: result.status === "completed" ? "ok" : "error",
+        message: `${result.status === "partial" ? "일부 수집 실패" : result.status === "failed" ? "수집 실패" : "수집 완료"} · 실측 ${result.crawledPages ?? 0}페이지 · 자체 기술 점수 ${result.siteHealth ?? "미측정"}${result.source === "mock-dev" ? " (샘플 URL)" : ""}`,
         href: "/site-audit",
         detail: result,
       });

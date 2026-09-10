@@ -13,15 +13,15 @@ export function SemforgeGateBanner({ message }: { message?: string }) {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="font-semibold text-white">SEMForge Pro 필요</h2>
-              <Badge tone="warn">월 300,000원</Badge>
+              <Badge tone="warn">7일 무료 · 이후 월 300,000원</Badge>
             </div>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-400">
-              {message ?? "GEO Master 분석 결과를 바탕으로 SERP·크롤·GSC·GBP 기반 GEO 실행을 하려면 SEMForge Pro 구독이 필요합니다."}
+              {message ?? "GEO Master 분석 결과를 바탕으로 SERP·크롤·GSC·GBP 기반 GEO 실행을 하려면 SEMForge Pro가 필요합니다. 7일 무료로 시작할 수 있습니다."}
             </p>
           </div>
         </div>
         <Link href="/subscription" className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-black transition hover:bg-cyan-300">
-          <CreditCard className="h-4 w-4" />구독하기
+          <CreditCard className="h-4 w-4" />7일 무료 시작
         </Link>
       </div>
     </Card>

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { createHash } from "node:crypto";
 import { AppError } from "./errors";
 import { fetchPublicText, normalizePublicUrl } from "./url-security";
 
@@ -10,7 +11,7 @@ const linkSchema = z.object({
 
 export const llmsDocumentSchema = z.object({
   brandName: z.string().trim().min(1).max(200),
-  summary: z.string().trim().min(20).max(500),
+  summary: z.string().trim().max(500).optional().default(""),
   website: z.string().url().max(2048).refine((value) => ["http:", "https:"].includes(new URL(value).protocol), "http/https URL만 허용됩니다."),
   details: z.string().trim().max(2000).optional().default(""),
   sections: z.array(z.object({
@@ -24,6 +25,12 @@ export interface LlmsValidationIssue {
   code: string;
   message: string;
   line?: number;
+  category?: "format" | "quality" | "compatibility";
+}
+
+export const aiFilePathSchema = z.string().max(2048).regex(/^\/(?:[A-Za-z0-9_-]+\/)*(?:llms(?:-ko)?|ai(?:-ko)?)\.txt$/, "경로 예: /llms.txt, /docs/llms.txt, /llms-ko.txt, /ai.txt, /ai-ko.txt");
+export function documentHash(document: string) {
+  return createHash("sha256").update(document.replaceAll("\r\n", "\n").trim()).digest("hex");
 }
 
 function singleLine(value: string) {
@@ -49,7 +56,8 @@ function safeDetails(value: string) {
 
 export function generateLlmsTxt(input: unknown) {
   const parsed = llmsDocumentSchema.parse(input);
-  const lines = [`# ${singleLine(parsed.brandName)}`, "", `> ${singleLine(parsed.summary)}`];
+  const lines = [`# ${singleLine(parsed.brandName)}`];
+  if (parsed.summary) lines.push("", `> ${singleLine(parsed.summary)}`);
   if (parsed.details) lines.push("", safeDetails(parsed.details));
   for (const section of parsed.sections) {
     lines.push("", `## ${singleLine(section.heading)}`, "");
@@ -77,7 +85,7 @@ export function validateLlmsTxt(document: string, website?: string) {
   if (firstContent >= 0 && !/^#\s+\S/.test(lines[firstContent])) issues.push({ severity: "error", code: "H1_FIRST", message: "첫 번째 콘텐츠 줄은 사이트 이름 H1이어야 합니다.", line: firstContent + 1 });
 
   const summaryIndex = lines.findIndex((line) => /^>\s+\S/.test(line));
-  if (summaryIndex < 0) issues.push({ severity: "error", code: "SUMMARY_MISSING", message: "H1 다음에 사이트 요약을 blockquote(>)로 추가하세요." });
+  if (summaryIndex < 0) issues.push({ severity: "info", category: "quality", code: "SUMMARY_MISSING", message: "요약은 선택 사항입니다. 사이트 맥락을 보충하려면 blockquote(>) 요약을 추가하세요." });
   else if (singleLine(lines[summaryIndex].replace(/^>+\s*/, "")).length < 20) issues.push({ severity: "warning", code: "SUMMARY_SHORT", message: "사이트 요약을 20자 이상 구체적으로 작성하세요.", line: summaryIndex + 1 });
 
   const h2Count = lines.filter((line) => /^##\s+\S/.test(line)).length;
@@ -126,30 +134,37 @@ export function validateLlmsTxt(document: string, website?: string) {
   const warnings = issues.filter((issue) => issue.severity === "warning").length;
   return {
     valid: errors === 0,
+    rulesVersion: "llms-v2/2026-08",
+    scoreLabel: "자체 문서 품질 점수",
     score: Math.max(0, 100 - errors * 20 - warnings * 5),
     issues,
     stats: { bytes, lines: lines.length, sections: h2Count, links: links.length, errors, warnings },
   };
 }
 
-export async function verifyRemoteLlmsTxt(website: string) {
+export async function verifyRemoteLlmsTxt(website: string, targetPath = "/llms.txt", expectedDocument?: string) {
   const site = normalizePublicUrl(website);
-  const target = new URL("/llms.txt", site).toString();
-  const fetched = await fetchPublicText(target, 10_000);
+  const target = new URL(aiFilePathSchema.parse(targetPath), site).toString();
+  const fetched = await fetchPublicText(target, 10_000, { origin: site.origin });
   if (fetched.status < 200 || fetched.status >= 300) {
     throw new AppError(`배포된 llms.txt를 찾지 못했습니다. HTTP ${fetched.status}`, 422, "LLMS_NOT_FOUND");
   }
   const validation = validateLlmsTxt(fetched.text, site.toString());
-  if (fetched.contentType && !/(?:text\/plain|text\/markdown|text\/x-markdown)/i.test(fetched.contentType)) {
-    validation.issues.push({ severity: "warning", code: "CONTENT_TYPE", message: `text/plain 또는 Markdown MIME 유형을 권장합니다. 현재: ${fetched.contentType}` });
-    validation.stats.warnings += 1;
-    validation.score = Math.max(0, validation.score - 5);
+  if (!/(?:text\/plain|text\/markdown|text\/x-markdown)/i.test(fetched.contentType) || /<!doctype\s+html|<html\b|<body\b/i.test(fetched.text)) {
+    validation.issues.push({ severity: "error", category: "format", code: "CONTENT_TYPE", message: "HTML 오류 페이지 또는 확인할 수 없는 MIME입니다. text/plain 또는 Markdown 파일로 게시하세요." });
+    validation.valid = false;
+    validation.stats.errors += 1;
+    validation.score = Math.max(0, validation.score - 20);
   }
+  const matches = expectedDocument === undefined ? null : documentHash(fetched.text) === documentHash(expectedDocument);
   return {
     url: fetched.url,
     status: fetched.status,
     contentType: fetched.contentType,
     document: fetched.text,
+    contentHash: documentHash(fetched.text),
+    matches,
+    verified: validation.valid && matches === true,
     validation,
   };
 }

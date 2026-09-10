@@ -19,8 +19,11 @@ GEO Master의 **분석·측정 UI**(대시보드, Cheerio GEO 진단, LLM 응답
 | Firecrawl 사이트 진단 | — | ✓ |
 | 포지션 추적 / 도메인 개요 | — | ✓ |
 | GBP / Map Rank | — | ✓ |
+| GEO Blocks (스펙·승인·WP draft) | — | ✓ |
 
-결제는 `/subscription`에서 checkout intent를 생성한다. 개발 환경(`SEMFORGE_BILLING_MODE=dev`)에서는 확인 API로 구독을 활성화할 수 있다. 운영 환경에서는 Toss Payments webhook(`SEMFORGE_TOSS_WEBHOOK_SECRET`)으로 결제를 확정한다.
+결제는 `/subscription`에서 7일 무료 체험 또는 checkout intent를 생성한다. 개발 환경(`SEMFORGE_BILLING_MODE=dev`)에서는 확인 API로 구독을 활성화할 수 있다. 운영 환경에서는 Toss Payments webhook(`SEMFORGE_TOSS_WEBHOOK_SECRET`)으로 결제를 확정한다.
+
+승인된 GEO Blocks는 Settings의 WordPress Application Password로 **draft**만 푸시할 수 있다. 선택 동반 플러그인(`extras/wp-x-mcp`)은 WordPress에만 설치하며 GEO Master 코어로 이식하지 않는다.
 
 ## 이식 범위
 

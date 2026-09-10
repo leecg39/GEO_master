@@ -45,9 +45,10 @@ function NavLink({
     <Link
       href={href}
       onClick={close}
+      aria-current={active ? "page" : undefined}
       className={cn(
         "group flex items-center gap-3 rounded-xl px-3 font-medium transition",
-        nested ? "py-2 text-xs" : "py-2.5 text-sm",
+        nested ? "py-2 text-xs" : "py-2 text-sm",
         active
           ? "bg-[color:var(--color-accent-lime)]/12 text-[color:var(--color-accent-lime)]"
           : "text-[color:var(--color-on-dark-muted)] hover:bg-white/5 hover:text-white",
@@ -113,15 +114,20 @@ function SemforgeNavDropdown({ close }: { close?: () => void }) {
 function Navigation({ close, semforgeActive }: { close?: () => void; semforgeActive: boolean | null }) {
   const pathname = usePathname();
 
+  useEffect(() => {
+    const active = document.querySelector('nav[aria-label="주요 메뉴"] [aria-current="page"]');
+    active?.scrollIntoView({ block: "center" });
+  }, [pathname, semforgeActive]);
+
   return (
-    <nav className="mt-8 space-y-1.5" aria-label="주요 메뉴">
+    <nav className="mt-6 space-y-1" aria-label="주요 메뉴">
       {coreNavigation.map(({ href, label, icon }) => {
         const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
         return <NavLink key={href} href={href} label={label} icon={icon} active={active} close={close} />;
       })}
 
       {semforgeActive === null ? (
-        <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-500">
+        <div className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-500">
           <LoaderCircle className="h-4.5 w-4.5 animate-spin" />
           SEMForge 확인 중
         </div>
@@ -138,16 +144,6 @@ function Navigation({ close, semforgeActive }: { close?: () => void; semforgeAct
           />
         </div>
       )}
-
-      <div className="pt-2">
-        <NavLink
-          href="/settings"
-          label="설정"
-          icon={Settings}
-          active={pathname.startsWith("/settings")}
-          close={close}
-        />
-      </div>
     </nav>
   );
 }
@@ -167,6 +163,7 @@ function Brand() {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [semforgeActive, setSemforgeActive] = useState<boolean | null>(null);
 
@@ -188,10 +185,16 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)]/95 p-6 backdrop-blur-xl lg:flex">
         <Brand />
         <ProjectSwitcher />
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
           <Navigation semforgeActive={semforgeActive} />
         </div>
-        <div className="mt-4 shrink-0 space-y-3">
+        <div className="relative z-10 mt-4 shrink-0 space-y-3 bg-[color:var(--color-surface-night)]">
+          <NavLink
+            href="/settings"
+            label="설정"
+            icon={Settings}
+            active={pathname.startsWith("/settings")}
+          />
           <ThemeToggle />
           <div className="rounded-[12px] border border-[color:var(--color-hairline-violet)] bg-[color:var(--color-ink-deep)] p-3.5">
             <div className="flex items-center gap-2 text-xs font-semibold text-[color:var(--color-accent-lime)]">
@@ -213,10 +216,17 @@ export function AppShell({ children }: { children: ReactNode }) {
         <aside className="flex h-full w-72 flex-col border-r border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)] p-5" onClick={(event) => event.stopPropagation()}>
           <div className="flex items-center justify-between"><Brand /><button type="button" onClick={() => setOpen(false)} aria-label="메뉴 닫기" className="p-2 text-[color:var(--color-on-dark-muted)]"><X /></button></div>
           <ProjectSwitcher />
-          <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
             <Navigation close={() => setOpen(false)} semforgeActive={semforgeActive} />
           </div>
-          <div className="mt-4 shrink-0">
+          <div className="relative z-10 mt-4 shrink-0 space-y-2 bg-[color:var(--color-surface-night)]">
+            <NavLink
+              href="/settings"
+              label="설정"
+              icon={Settings}
+              active={pathname.startsWith("/settings")}
+              close={() => setOpen(false)}
+            />
             <ThemeToggle />
           </div>
         </aside>

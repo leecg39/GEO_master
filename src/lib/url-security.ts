@@ -72,6 +72,20 @@ export function normalizePublicUrl(input: string) {
   return url;
 }
 
+export function isSamePublicSite(url: URL, origin: string): boolean {
+  let allowed: URL;
+  try {
+    allowed = new URL(origin);
+  } catch {
+    return false;
+  }
+  if (url.protocol !== allowed.protocol) return false;
+  const portOf = (value: URL) => value.port || (value.protocol === "https:" ? "443" : "80");
+  if (portOf(url) !== portOf(allowed)) return false;
+  const hostKey = (host: string) => host.toLowerCase().replace(/^www\./, "");
+  return hostKey(url.hostname) === hostKey(allowed.hostname);
+}
+
 interface ResolvedPublicUrl {
   url: URL;
   address: string;
@@ -123,7 +137,25 @@ function headerText(headers: IncomingHttpHeaders, name: string) {
   return Array.isArray(value) ? value.join(", ") : value ?? "";
 }
 
-function requestPinned(resolved: ResolvedPublicUrl, timeoutMs: number): Promise<PinnedResponse> {
+export interface PublicRequestOptions {
+  signal?: AbortSignal;
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  headers?: Record<string, string>;
+  body?: string;
+  timeoutMs?: number;
+  userAgent?: string;
+  accept?: string;
+  maxBytes?: number;
+}
+
+function requestPinned(
+  resolved: ResolvedPublicUrl,
+  options: PublicRequestOptions | number = {},
+): Promise<PinnedResponse> {
+  const normalized = typeof options === "number" ? { timeoutMs: options } : options;
+  const timeoutMs = normalized.timeoutMs ?? 12_000;
+  const maxBytes = normalized.maxBytes ?? MAX_BYTES;
+  const method = normalized.method ?? "GET";
   return new Promise((resolve, reject) => {
     let settled = false;
     const fail = (error: unknown) => {
@@ -133,17 +165,19 @@ function requestPinned(resolved: ResolvedPublicUrl, timeoutMs: number): Promise<
     };
     const transport = resolved.url.protocol === "https:" ? https : http;
     const request = transport.request(resolved.url, {
-      method: "GET",
+      method,
+      signal: normalized.signal ? AbortSignal.any([normalized.signal, AbortSignal.timeout(timeoutMs)]) : AbortSignal.timeout(timeoutMs),
       lookup: createPinnedLookup(resolved.address),
       headers: {
-        "user-agent": "GEO-Master-Audit/1.0 (+local diagnostic tool)",
-        accept: "text/html,application/xhtml+xml,text/plain,application/xml;q=0.9,*/*;q=0.1",
+        "user-agent": normalized.userAgent ?? "GEO-Master-Audit/1.0 (+local diagnostic tool)",
+        accept: normalized.accept ?? "text/html,application/xhtml+xml,text/plain,application/xml;q=0.9,*/*;q=0.1",
         "accept-encoding": "identity",
         connection: "close",
+        ...normalized.headers,
       },
     }, (response) => {
       const declared = Number(headerText(response.headers, "content-length") || 0);
-      if (declared > MAX_BYTES) {
+      if (declared > maxBytes) {
         response.destroy();
         fail(new AppError("대상 문서가 2MB 제한을 초과합니다.", 413, "RESPONSE_TOO_LARGE"));
         return;
@@ -158,7 +192,7 @@ function requestPinned(resolved: ResolvedPublicUrl, timeoutMs: number): Promise<
       let total = 0;
       response.on("data", (chunk: Buffer) => {
         total += chunk.byteLength;
-        if (total > MAX_BYTES) {
+        if (total > maxBytes) {
           response.destroy();
           fail(new AppError("대상 문서가 2MB 제한을 초과합니다.", 413, "RESPONSE_TOO_LARGE"));
           return;
@@ -178,6 +212,7 @@ function requestPinned(resolved: ResolvedPublicUrl, timeoutMs: number): Promise<
     });
     request.setTimeout(timeoutMs, () => request.destroy(new Error("request timeout")));
     request.on("error", fail);
+    if (normalized.body) request.write(normalized.body);
     request.end();
   });
 }
@@ -187,17 +222,28 @@ export interface FetchedText {
   status: number;
   text: string;
   contentType: string;
+  robotsHeader?: string;
+  /** SEO-relevant response headers only. Never cookies or authorization. */
+  seoHeaders?: Record<string, string>;
 }
 
-export async function fetchPublicText(input: string, timeoutMs = 12_000): Promise<FetchedText> {
+export async function fetchPublicText(input: string, timeoutMs = 12_000, options: { origin?: string; signal?: AbortSignal } = {}): Promise<FetchedText> {
+  const checkScope = (url: URL) => {
+    if (options.origin && !isSamePublicSite(url, options.origin)) throw new AppError("연결된 사이트 범위를 벗어난 URL입니다.", 422, "SITE_SCOPE_MISMATCH");
+    options.signal?.throwIfAborted();
+  };
+  checkScope(normalizePublicUrl(input));
   let resolved = await resolvePublicUrl(input);
   for (let redirect = 0; redirect <= MAX_REDIRECTS; redirect += 1) {
-    const response = await requestPinned(resolved, timeoutMs);
+    checkScope(resolved.url);
+    const response = await requestPinned(resolved, { timeoutMs, signal: options.signal });
     if ([301, 302, 303, 307, 308].includes(response.status)) {
       const location = headerText(response.headers, "location");
       if (!location) throw new AppError("리다이렉트 위치가 비어 있습니다.", 502, "INVALID_REDIRECT");
       if (redirect === MAX_REDIRECTS) throw new AppError("리다이렉트가 너무 많습니다.", 422, "TOO_MANY_REDIRECTS");
-      resolved = await resolvePublicUrl(new URL(location, resolved.url));
+      const next = new URL(location, resolved.url);
+      checkScope(next);
+      resolved = await resolvePublicUrl(next);
       continue;
     }
     return {
@@ -205,7 +251,43 @@ export async function fetchPublicText(input: string, timeoutMs = 12_000): Promis
       status: response.status,
       text: response.text,
       contentType: headerText(response.headers, "content-type"),
+      robotsHeader: headerText(response.headers, "x-robots-tag"),
+      seoHeaders: Object.fromEntries(
+        ["content-type", "content-language", "x-robots-tag", "last-modified"]
+          .map((name) => [name, headerText(response.headers, name)]),
+      ),
     };
   }
   throw new AppError("대상 사이트를 가져오지 못했습니다.", 502, "FETCH_FAILED");
+}
+
+/** SSRF-safe JSON request (Application Password / REST). Mutating methods reject redirects. */
+export async function requestPublicJson<T = unknown>(
+  input: string,
+  options: PublicRequestOptions = {},
+): Promise<{ url: string; status: number; json: T; text: string }> {
+  const method = options.method ?? "GET";
+  const resolved = await resolvePublicUrl(input);
+  const response = await requestPinned(resolved, {
+    ...options,
+    method,
+    timeoutMs: options.timeoutMs ?? 20_000,
+    maxBytes: options.maxBytes ?? MAX_BYTES,
+    accept: options.accept ?? "application/json",
+    userAgent: options.userAgent ?? "GEO-Master-WordPress/1.0 (+draft publish adapter)",
+    headers: {
+      "content-type": "application/json",
+      ...options.headers,
+    },
+  });
+  if ([301, 302, 303, 307, 308].includes(response.status) && method !== "GET") {
+    throw new AppError("WordPress API 리다이렉트는 허용되지 않습니다.", 502, "WP_REDIRECT_BLOCKED");
+  }
+  let json: T;
+  try {
+    json = JSON.parse(response.text || "null") as T;
+  } catch {
+    throw new AppError("WordPress가 JSON이 아닌 응답을 반환했습니다.", 502, "WP_INVALID_JSON");
+  }
+  return { url: resolved.url.toString(), status: response.status, json, text: response.text };
 }

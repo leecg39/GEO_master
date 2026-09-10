@@ -5,6 +5,7 @@ import { requireActiveProject } from "./projects";
 import { getSemforgeSubscription } from "./semforge-subscription";
 import { normalizeDomain, projectDomainFromBrand } from "./semforge/utils/domain";
 import { providers, type Provider } from "./settings";
+import { comparableMeasurements, measurementConditions } from "./observation";
 
 const cycleLabels = ["1주차 · 모니터링", "2주차 · 분석", "3주차 · 우선순위", "4주차 · 콘텐츠 개선"];
 
@@ -136,7 +137,11 @@ export function getDashboardData() {
     .limit(100)
     .all();
   const latestRun = runs[0] ?? null;
-  const previousRun = runs[1] ?? null;
+  const observationState = !latestRun ? "unavailable"
+    : latestRun.clientRequestId?.startsWith("mock-") || /\[MOCK\]/i.test(latestRun.notes) ? "mock"
+      : measurementConditions(latestRun.summary)?.dataState ?? "legacy";
+  const comparable = Boolean(latestRun && runs[1] && comparableMeasurements(latestRun.summary, runs[1].summary));
+  const previousRun = comparable ? runs[1] : null;
   const detailRuns = runs.slice(0, 12);
   const runIds = detailRuns.map((run) => run.id);
   const resultRows = runIds.length
@@ -164,7 +169,8 @@ export function getDashboardData() {
     .all();
   const project = orm.select().from(projects).where(eq(projects.id, active.id)).get();
 
-  const trends = aggregateMonthlyTrends(runs);
+  const comparableRuns = latestRun ? runs.filter(run => run.id === latestRun.id || comparableMeasurements(latestRun.summary, run.summary)) : [];
+  const trends = aggregateMonthlyTrends(comparableRuns);
   const latestSummary = parseDashboardSummary(latestRun?.summary);
   const previousSummary = parseDashboardSummary(previousRun?.summary);
   const fallbackCurrentModels = Object.fromEntries(providers.map((provider) => {
@@ -202,7 +208,7 @@ export function getDashboardData() {
       const rows = latestRows.filter((row) => row.questionText === question.text && row.provider === provider);
       return { provider, ...summarizeQuestionRows(rows) };
     }),
-    trends: detailRuns.toReversed().flatMap((run) => {
+    trends: detailRuns.filter(run => latestRun && (run.id === latestRun.id || comparableMeasurements(latestRun.summary, run.summary))).toReversed().flatMap((run) => {
       const rows = rowsByRunQuestion.get(`${run.id}\u0000${question.text}`);
       if (!rows?.length) return [];
       const overall = summarizeQuestionRows(rows);
@@ -272,6 +278,9 @@ export function getDashboardData() {
       measuredAt: latestRun?.completedAt ?? null,
     },
     overview: {
+      observationMode: "model_only" as const,
+      observationState,
+      comparisonNote: comparable ? "질문·모델·모드·반복 수·언어가 같은 측정끼리 비교합니다." : "비교 불가: 이전 기록의 측정 조건이 다르거나 조건 정보가 없습니다.",
       answerShareDelta: previousRun ? Number(((latestRun?.answerShare ?? 0) - previousRun.answerShare).toFixed(1)) : null,
       genrankDelta: previousRun ? Number(((latestRun?.genrank ?? 0) - previousRun.genrank).toFixed(1)) : null,
       positiveRate: Number(positiveRate.toFixed(1)),

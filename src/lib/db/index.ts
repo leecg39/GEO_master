@@ -3,6 +3,9 @@ import path from "node:path";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema";
+import { migrateSiteOps } from "./site-ops-migration";
+import { migrateSeoAnalysis } from "./seo-analysis-migration";
+import { migrateSeoDrift } from "./seo-drift-migration";
 
 function resolveDatabasePath() {
   const configured = process.env.GEO_DB_PATH?.trim();
@@ -450,6 +453,26 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       addColumnIfMissing(sqlite, "projects", "external_research_notes", "TEXT NOT NULL DEFAULT ''");
     },
   },
+  {
+    version: 11,
+    name: "semforge-trial-columns",
+    up(sqlite) {
+      addColumnIfMissing(sqlite, "semforge_subscriptions", "trial_started_at", "TEXT");
+      addColumnIfMissing(sqlite, "semforge_subscriptions", "is_trial", "INTEGER NOT NULL DEFAULT 0");
+    },
+  },
+  {
+    version: 12,
+    name: "wordpress-application-password",
+    up(sqlite) {
+      addColumnIfMissing(sqlite, "settings", "wordpress_site_url", "TEXT NOT NULL DEFAULT ''");
+      addColumnIfMissing(sqlite, "settings", "wordpress_username", "TEXT NOT NULL DEFAULT ''");
+      addColumnIfMissing(sqlite, "settings", "wordpress_application_password", "TEXT");
+    },
+  },
+  { version: 13, name: "evidence-based-site-operations", up: migrateSiteOps },
+  { version: 14, name: "versioned-seo-analysis", up: migrateSeoAnalysis },
+  { version: 15, name: "approved-seo-drift-events", up: migrateSeoDrift },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;
@@ -684,7 +707,11 @@ export function getDatabase(): DatabaseBundle {
   const databasePath = resolveDatabasePath();
   globalStore.__geoDatabases ??= new Map();
   const cached = globalStore.__geoDatabases.get(databasePath);
-  if (cached?.sqlite.open) return cached;
+  if (cached?.sqlite.open) {
+    // Hot-reload / long-lived process: apply any newly shipped migrations.
+    applyDatabaseMigrations(cached.sqlite);
+    return cached;
+  }
   const created = createDatabase(databasePath);
   globalStore.__geoDatabases.set(databasePath, created);
   return created;

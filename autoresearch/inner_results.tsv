@@ -6,3 +6,6 @@ timestamp	experiment	score	pct	decision	notes
 2026-09-02T02:03	qa-panel-height-symmetry	104	100	KEEP	Area 400 + min-h 560 both columns
 2026-09-02T02:04	qa-table-focus-visible	104	100	KEEP	keyboard focus polish on model table
 2026-09-03T08:01:24Z	104	104	KEEP	radar-axis-model-colors+Sentri-palette	guards-pass
+2026-09-09T06:13:42Z	qa-www-same-site-capture	96	92.3	KEEP	apex/www SITE_SCOPE_MISMATCH fix; API 7/15 due to 0 runs
+2026-09-09T06:13:42Z	qa-sidebar-settings-pin	96	92.3	KEEP	settings footer pin + active scrollIntoView
+2026-09-09T06:13:42Z	qa-donut-break-keep	96	92.3	KEEP	empty-state 데이터 없음 no mid-word wrap

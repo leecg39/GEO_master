@@ -1,0 +1,146 @@
+{
+  "baseCommit": "948cd04",
+  "baseline": "existing dirty Qshop work preserved",
+  "files": [
+    {
+      "path": "src/components/SiteOpsWorkbench.tsx",
+      "beforeSha256": "48fb6c7d04537af6fcdaaaf802fb934bfe60a17c977287df31384cb750e20a43",
+      "afterSha256": "ab80c30800eb85b9866e7e5146af5dc47d76032747b8450080c3849db0462f2b"
+    },
+    {
+      "path": "src/lib/db/index.ts",
+      "beforeSha256": "198bb6662c6c5a5fa12064c37407373a9f6850b2188ad94fa4f1e5a981226b4a",
+      "afterSha256": "7826e5d1a85f63682919b2fd17c84bc3437f9fce6a0c6e16487dd86a4276522f"
+    },
+    {
+      "path": "src/lib/integrations/firecrawl.ts",
+      "beforeSha256": "7623ce7efd0b4b7a9a4eca5103a22256df131d11997b8799591516f538e566f9",
+      "afterSha256": "e5959311ade5038ad794cc455c3b78ee4a9e91515543b103b58dc63b51d2a39f"
+    },
+    {
+      "path": "src/lib/semforge/siteaudit/index.ts",
+      "beforeSha256": "64319cd1fdb2faf2809a8a668447bd015195d3005b2d939ef46bb93eefa3ea8e",
+      "afterSha256": "41e8cea629b679e8243abc510acce49b38dadc55564b34efa0988078aa138ccd"
+    },
+    {
+      "path": "src/lib/site-ops/index.ts",
+      "beforeSha256": "6d092da7fe2b2b8f77376cc9667c4eaebe348929489a361b63e03d62f77ddd11",
+      "afterSha256": "157ebb3efcfb1a3daac3091b14c13599a651670bb59503669411d30d45f0b3a5"
+    },
+    {
+      "path": "src/lib/site-ops/snapshots.ts",
+      "beforeSha256": "05f050e0d0b91c560ff53260006c22f65df7e73bfdd7050ae2631f055e3c3afd",
+      "afterSha256": "85a02f07d8dcfc1a313a72ef691eaa1450925e3764d5e469cb6b64a86fef410a"
+    },
+    {
+      "path": "src/lib/site-ops/types.ts",
+      "beforeSha256": "6999012f85c467d100e59f170a866facc3ff7a779ce8c073fa23de78f6376200",
+      "afterSha256": "c59b2a1d338f6bcd76f0f158b9b7214556ac9239ec632901117491b7bf90b540"
+    },
+    {
+      "path": "src/lib/url-security.ts",
+      "beforeSha256": "b73006e0b2aa991ddfdd00218f2cb0657a560f477f8cd203badf0694abdd73ce",
+      "afterSha256": "34f2f65926e14f542111963178b181140d9376f960522e0892e00a46786445f8"
+    },
+    {
+      "path": "tests/db-migration.test.ts",
+      "beforeSha256": "5beaba73447f76630c12803819c98d4c340ffacd6acc8df72b07d33376c71846",
+      "afterSha256": "8ccd9acc5c68d4642563461418c4fa65408cc07c923d9ec4cf75443fcb82b522"
+    },
+    {
+      "path": "tests/db-versioned-migration.test.ts",
+      "beforeSha256": "51f341115f2e03fc19ed1c68c245a04c2ad99ce3acd0e987687da1de2eafa03d",
+      "afterSha256": "d213b9416655069d9093b4cd973aad102450b62eb0a4bf8c79b9073122c8f85b"
+    },
+    {
+      "path": "tests/site-ops.integration.test.ts",
+      "beforeSha256": "981c1698d0790793eefbc8239615d5c222495b3c8ef25e1c35905de76d51124a",
+      "afterSha256": "559eea44e0232e175c6e8c26ee39b4e9f474b85f60a140d5e592e776dc577527"
+    },
+    {
+      "path": "src/lib/seo/contracts.ts",
+      "beforeSha256": null,
+      "afterSha256": "5db031b73acf486f9d786ab9306829443e64d3eb85f62fc8fef3ec56d1b0af46"
+    },
+    {
+      "path": "src/lib/seo/normalize.ts",
+      "beforeSha256": null,
+      "afterSha256": "588ca2150db29682a091d0ee531f3b2a31e973e418739f6e206a95a2c042263c"
+    },
+    {
+      "path": "src/lib/seo/registry.ts",
+      "beforeSha256": null,
+      "afterSha256": "2c4d7dc8acab49f0d448ca34154c8c66cefd5fd9caf8903b3c9836f8ca951024"
+    },
+    {
+      "path": "src/lib/seo/run-analysis.ts",
+      "beforeSha256": null,
+      "afterSha256": "810d70745e80bf42eb8e5213d8df888b1d76da065a6f5e4d571e38a2dda04faa"
+    },
+    {
+      "path": "src/lib/seo/scoring.ts",
+      "beforeSha256": null,
+      "afterSha256": "6a9574c01d021f7d53184614efcdaa1e7004fc954b200d2a724f6b2a8d61398f"
+    },
+    {
+      "path": "src/lib/seo/rules/technical.ts",
+      "beforeSha256": null,
+      "afterSha256": "e661cfb2421569e969a81fe4aca5856bd33dacaebce455641ad792237ead6d18"
+    },
+    {
+      "path": "src/lib/seo/rules/schema.ts",
+      "beforeSha256": null,
+      "afterSha256": "85227378583cb76bfea422c2ce57b32225820c653e6607656b3cd5662cff0174"
+    },
+    {
+      "path": "src/lib/seo/drift.ts",
+      "beforeSha256": null,
+      "afterSha256": "47975c81c3ffe01658360a53bc738cf0e23d896a0473b9c526c4d909ff0f3aad"
+    },
+    {
+      "path": "src/lib/site-ops/drift-history.ts",
+      "beforeSha256": null,
+      "afterSha256": "36bb337f534cf0789f9be644346b800c46e6d4a6c9836fe8215b38f6a5f01f6f"
+    },
+    {
+      "path": "src/lib/db/seo-analysis-migration.ts",
+      "beforeSha256": null,
+      "afterSha256": "cae7fde95632d6fb3e377671bce302e16f03e4cdc4f87fddf35a50b282526d85"
+    },
+    {
+      "path": "src/lib/db/seo-drift-migration.ts",
+      "beforeSha256": null,
+      "afterSha256": "b955f3912ab6534398f183750cc66a3095b03777a898c7d78f1f8d25c673711f"
+    },
+    {
+      "path": "src/components/SeoFindingsPanel.tsx",
+      "beforeSha256": null,
+      "afterSha256": "ebf7e22aa46749ef245b8abb35b27a7594ae3d2b43358b92847060c18a7c4b9d"
+    },
+    {
+      "path": "src/components/SeoDriftPanel.tsx",
+      "beforeSha256": null,
+      "afterSha256": "45b82daccf121fb17ae56f658f1882af57d52e42c95a42966d4b5ad8c159a165"
+    },
+    {
+      "path": "tests/seo-analysis.test.ts",
+      "beforeSha256": null,
+      "afterSha256": "14e1dff6f2e154ca9e3b6e9df5aaf57587d15897f431e7a19c56332f055ccb25"
+    },
+    {
+      "path": "tests/seo-drift.test.ts",
+      "beforeSha256": null,
+      "afterSha256": "efd4cd5950b50fb49d25ac2bceac3cce4779d89300c7cb653c763c014755865b"
+    },
+    {
+      "path": "tests/fixtures/seo/product.ko.html",
+      "beforeSha256": null,
+      "afterSha256": "54f89b078ba6d93896f365203edc1c4fc2f24bf88551004454e20b7bcf683fda"
+    },
+    {
+      "path": "tests/fixtures/seo/malformed.ko.html",
+      "beforeSha256": null,
+      "afterSha256": "b3f3be25d4bd280a13741107ec94470a84fe9a1235f659f250285fbdafc5ce05"
+    }
+  ]
+}
