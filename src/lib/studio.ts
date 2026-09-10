@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { buildContentBrief } from "./seo/content-brief";
 import { contentRequestHash, findContentByRequest, storeGeneratedContent } from "./contents";
 import { idempotencyKeySchema } from "./crud";
 import { AppError } from "./errors";
@@ -13,15 +14,21 @@ export const REWRITE_PATTERNS = [
   "결론 선행",
 ] as const;
 
-const tabsTitle: Record<"rewrite" | "intro" | "faq" | "entity", string> = {
+const tabsTitle: Record<"rewrite" | "intro" | "faq" | "entity" | "brief", string> = {
   rewrite: "리라이팅 결과",
   intro: "도입부 결과",
   faq: "FAQ 결과",
   entity: "엔티티 정의 결과",
+  brief: "콘텐츠 기획 결과",
 };
 
+const briefDocumentSchema = z.object({
+  url: z.string().url().max(2048),
+  excerpt: z.string().max(8000),
+}).strict();
+
 export const studioInputSchema = z.object({
-  action: z.enum(["rewrite", "intro", "faq", "entity"]),
+  action: z.enum(["rewrite", "intro", "faq", "entity", "brief"]),
   text: z.string().trim().max(30_000).optional().default(""),
   topic: z.string().trim().max(300).optional().default(""),
   target: z.string().trim().max(300).optional().default(""),
@@ -37,6 +44,10 @@ export const studioInputSchema = z.object({
   title: z.string().trim().max(120).optional().default(""),
   notes: z.string().trim().max(5_000).optional().default(""),
   clientRequestId: idempotencyKeySchema.optional(),
+  briefMode: z.enum(["improve", "new"]).optional().default("improve"),
+  competitorSources: z.array(briefDocumentSchema).max(10).optional().default([]),
+  citationSources: z.array(briefDocumentSchema).max(10).optional().default([]),
+  internalLinks: z.array(z.object({ href: z.string().url().max(2048), text: z.string().max(200) }).strict()).max(20).optional().default([]),
 }).strict();
 
 export interface FaqEntry { question: string; answer: string }
@@ -100,7 +111,10 @@ function selectProvider(requested: Provider | undefined) {
 
 export async function runStudioTool(input: unknown) {
   const parsed = studioInputSchema.parse(input);
-  const { clientRequestId, title, notes, ...toolInput } = parsed;
+  const { clientRequestId, title, notes, briefMode, competitorSources, citationSources, internalLinks, ...rest } = parsed;
+  const toolInput = parsed.action === "brief"
+    ? { ...rest, briefMode, competitorSources, citationSources, internalLinks }
+    : rest;
   const requestHash = contentRequestHash({ title, notes, ...toolInput });
   const defaultTitle = tabsTitle[parsed.action];
 
@@ -133,11 +147,28 @@ export async function runStudioTool(input: unknown) {
     throw new AppError("주제 또는 원문을 입력해 주세요.", 422, "INTRO_INPUT_REQUIRED");
   } else if (parsed.action === "faq" && !(parsed.topic || parsed.text)) {
     throw new AppError("FAQ 주제 또는 원문을 입력해 주세요.", 422, "FAQ_INPUT_REQUIRED");
+  } else if (parsed.action === "brief" && !(parsed.text || parsed.topic)) {
+    throw new AppError("기획할 페이지 원문 또는 주제를 입력해 주세요.", 422, "BRIEF_INPUT_REQUIRED");
   }
 
   let output: Record<string, unknown>;
   let usedProvider: Provider | null = null;
-  if (parsed.action === "entity") {
+  if (parsed.action === "brief") {
+    output = buildContentBrief({
+      mode: parsed.briefMode,
+      source: {
+        url: parsed.url || "https://local.source/brief",
+        title: parsed.title || parsed.topic || parsed.text.slice(0, 80),
+        heading: parsed.topic || parsed.title,
+        bodyText: parsed.text || parsed.topic,
+        internalLinks: parsed.internalLinks,
+      },
+      competitorSources: parsed.competitorSources,
+      citationSources: parsed.citationSources.length
+        ? parsed.citationSources
+        : [{ url: parsed.url || "https://local.source/brief", excerpt: parsed.text || parsed.topic }],
+    }) as unknown as Record<string, unknown>;
+  } else if (parsed.action === "entity") {
     const company = parsed.company || parsed.target;
     const definition = `${withParticle(company, "은", "는")} ${withParticle(parsed.target, "을", "를")} 위해 ${parsed.metric ? `${parsed.metric}의 ` : ""}${withParticle(parsed.value, "을", "를")} 제공하는 ${parsed.category} 서비스입니다.`;
     output = {

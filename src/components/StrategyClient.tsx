@@ -6,8 +6,8 @@ import { ConfirmDialog, DetailDrawer } from "@/components/CrudPrimitives";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
 import { listGeoPrompts } from "@/lib/geo-prompt-catalog";
 
-type ItemType = "question" | "pillar" | "cluster" | "supporting" | "calendar" | "cycle";
-type Tab = "question" | "cluster" | "calendar" | "cycle";
+type ItemType = "question" | "pillar" | "cluster" | "supporting" | "calendar" | "cycle" | "work";
+type Tab = "question" | "cluster" | "calendar" | "cycle" | "work";
 interface StrategyItem {
   id: number; projectId: number; parentId: number | null; type: ItemType; title: string;
   status: "계획" | "진행" | "완료"; data: Record<string, string | number | boolean | null>;
@@ -19,6 +19,7 @@ const tabInfo: { id: Tab; label: string; icon: typeof LayoutList }[] = [
   { id: "cluster", label: "토픽 클러스터", icon: GitBranch },
   { id: "calendar", label: "콘텐츠 캘린더", icon: CalendarDays },
   { id: "cycle", label: "4주 사이클", icon: RotateCcw },
+  { id: "work", label: "작업 카드", icon: CheckCircle2 },
 ];
 const emptyGuide: Guide = { sources: [], intents: [], journeyStages: [], calendar: [], cycle: [] };
 const projectChangedEvent = "geo-master:project-changed";
@@ -211,7 +212,10 @@ export function StrategyClient() {
       </div>
     </Card>
     <div className="mb-5 flex gap-2 overflow-x-auto pb-1">{tabInfo.map(({ id, label, icon: Icon }) => <button type="button" key={id} onClick={() => setTab(id)} className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold ${tab === id ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-300" : "border-white/7 bg-slate-900/50 text-slate-500"}`}><Icon className="h-4 w-4" />{label}</button>)}</div>
-    <Card>
+    {tab === "work" ? <Card>
+      <p className="text-sm leading-6 text-slate-400">근거 있는 SEO 결함만 작업 카드로 등록됩니다. 사이트 작업대 진단에서 만들고, 증거·의존 작업·재검증 기준이 함께 저장됩니다. 근거가 없는 확정 결함은 등록되지 않습니다.</p>
+      {error && <p role="alert" className="mt-3 text-sm text-rose-300">{error}</p>}
+    </Card> : <Card>
       <form onSubmit={create}>
         <div className="grid gap-3 lg:grid-cols-6">
           {tab !== "cycle" && <label className="lg:col-span-2 text-xs">{tab === "question" ? "고객 질문" : tab === "cluster" ? "콘텐츠 주제" : "콘텐츠 제목"}<input className="mt-1.5" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder={tab === "question" ? "고객이 실제로 묻는 질문" : "항목 제목"} /></label>}
@@ -242,12 +246,13 @@ export function StrategyClient() {
         </div>
       </form>
       {error && <p role="alert" className="mt-3 text-sm text-rose-300">{error}</p>}
-    </Card>
+    </Card>}
     <section className="mt-5">
       {tab === "question" && <Card className="overflow-hidden p-0"><div className="overflow-x-auto"><table className="w-full min-w-[850px] text-left text-sm"><thead className="bg-slate-950/60 text-xs text-slate-500"><tr><th className="p-4">질문</th><th className="p-4">소스</th><th className="p-4">의도</th><th className="p-4">세그먼트</th><th className="p-4">여정</th><th className="p-4">상태</th><th /></tr></thead><tbody className="divide-y divide-white/5">{visible.map((item) => <tr key={item.id}><td className="p-4 font-medium text-slate-200">{item.title}</td><td className="p-4 text-slate-500">{String(item.data.source)}</td><td className="p-4"><Badge>{String(item.data.intent)}</Badge></td><td className="p-4 text-slate-500">{String(item.data.segment)}</td><td className="p-4 text-slate-500">{String(item.data.journey)}</td><td className="p-4"><button onClick={() => void cycleStatus(item)}><Badge tone={statusTone(item.status)}>{item.status}</Badge></button></td><td className="p-4"><div className="flex"><button onClick={() => startEdit(item)} aria-label="수정"><Pencil className="h-4 w-4 text-slate-600 hover:text-cyan-300" /></button><button onClick={() => setDeleteTarget(item)} aria-label="삭제"><Trash2 className="h-4 w-4 text-slate-700 hover:text-rose-400" /></button></div></td></tr>)}</tbody></table></div>{!visible.length && <EmptyState>20~30개의 실제 고객 질문을 수집해 분류하세요.</EmptyState>}</Card>}
       {tab === "cluster" && <div className="grid gap-4 lg:grid-cols-3">{(["pillar", "cluster", "supporting"] as ItemType[]).map((type) => <Card key={type}><div className="mb-4 flex items-center justify-between"><h2 className="font-semibold capitalize text-white">{type}</h2><Badge>{visible.filter((item) => item.type === type).length}</Badge></div><div className="space-y-3">{visible.filter((item) => item.type === type).map((item) => <div key={item.id} className="rounded-xl border border-white/7 bg-slate-950/40 p-3"><div className="flex items-start justify-between gap-2"><div><p className="text-sm font-medium text-slate-200">{item.title}</p>{parentTitle(item) && <p className="mt-1 text-[11px] text-slate-600">↳ {parentTitle(item)}</p>}{item.data.gap && <Badge tone="warn" className="mt-2">연결 공백</Badge>}</div><div className="flex"><button onClick={() => startEdit(item)} aria-label="수정"><Pencil className="h-3.5 w-3.5 text-slate-600" /></button><button onClick={() => setDeleteTarget(item)} aria-label="삭제"><Trash2 className="h-3.5 w-3.5 text-slate-700" /></button></div></div></div>)}</div>{!visible.some((item) => item.type === type) && <EmptyState>아직 항목이 없습니다.</EmptyState>}</Card>)}</div>}
       {tab === "calendar" && <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{visible.map((item) => <Card key={item.id}><div className="flex items-start justify-between"><div><Badge tone="cyan">{String(item.data.month)}</Badge><h2 className="mt-3 font-semibold text-white">{item.title}</h2><p className="mt-2 text-sm text-slate-500">{String(item.data.focus)}</p></div><div className="flex"><button onClick={() => startEdit(item)} aria-label="수정"><Pencil className="h-4 w-4 text-slate-600" /></button><button onClick={() => setDeleteTarget(item)} aria-label="삭제"><Trash2 className="h-4 w-4 text-slate-700" /></button></div></div><button onClick={() => void cycleStatus(item)} className="mt-5"><Badge tone={statusTone(item.status)}>{item.status} · 변경</Badge></button></Card>)}{!visible.length && <EmptyState>기반 구축→세그먼트 확장→문제 해결→지원 자료→업데이트→공백 보완 순환으로 계획하세요.</EmptyState>}</div>}
       {tab === "cycle" && <div className="grid gap-4 lg:grid-cols-4">{guide.cycle.map((activity, index) => { const weekItems = visible.filter((item) => Number(item.data.week) === index + 1); return <Card key={activity} className={weekItems.some((item) => item.status === "완료") ? "border-emerald-400/15" : ""}><div className="flex items-center gap-3"><span className="grid h-8 w-8 place-items-center rounded-full bg-cyan-400/10 text-xs font-bold text-cyan-300">{index + 1}</span><div><p className="text-[10px] text-slate-600">{index + 1}주차</p><h2 className="font-semibold text-white">{activity}</h2></div></div><div className="mt-4 space-y-2">{weekItems.map((item) => <div key={item.id} className="rounded-xl bg-slate-950/40 p-3"><button className="flex w-full items-start gap-2 text-left" onClick={() => void cycleStatus(item)}>{item.status === "완료" ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" /> : <Circle className="mt-0.5 h-4 w-4 shrink-0 text-slate-600" />}<span className="text-xs leading-5 text-slate-400">{item.title}</span></button><div className="mt-2 flex gap-2"><button type="button" onClick={() => startEdit(item)} className="text-[10px] text-slate-600 hover:text-cyan-300">수정</button><button type="button" onClick={() => setDeleteTarget(item)} className="text-[10px] text-slate-700 hover:text-rose-400">삭제</button></div></div>)}</div>{!weekItems.length && <p className="mt-4 text-xs text-slate-600">실행 작업을 추가하세요.</p>}</Card>; })}</div>}
+      {tab === "work" && <div className="grid gap-4 md:grid-cols-2">{visible.map((item) => <Card key={item.id}><div className="flex items-start justify-between gap-3"><div><Badge tone="cyan">{String(item.data.ruleId)}</Badge><h2 className="mt-3 text-sm font-semibold text-white">{item.title}</h2><p className="mt-2 break-all text-[11px] leading-5 text-slate-500">근거 {String(item.data.evidenceRefs)}</p><p className="mt-1 break-all text-[11px] leading-5 text-slate-600">의존 {String(item.data.dependsOnFindingIds)} · 검증 {String(item.data.verificationSpec)}</p></div><div className="flex"><button onClick={() => startEdit(item)} aria-label="수정"><Pencil className="h-4 w-4 text-slate-600" /></button><button onClick={() => setDeleteTarget(item)} aria-label="삭제"><Trash2 className="h-4 w-4 text-slate-700" /></button></div></div><button onClick={() => void cycleStatus(item)} className="mt-4"><Badge tone={statusTone(item.status)}>{item.status} · 변경</Badge></button></Card>)}{!visible.length && <EmptyState>사이트 작업대에서 근거 있는 진단을 작업 카드로 등록하세요.</EmptyState>}</div>}
     </section>
     <DetailDrawer open={Boolean(editing)} title="전략 항목 수정" busy={saving} onClose={() => setEditing(null)} footer={editing && <div className="flex justify-end gap-2"><Button type="button" variant="secondary" onClick={() => setEditing(null)}>취소</Button><Button type="submit" form="strategy-edit-form">저장</Button></div>}>
       {editing && <form id="strategy-edit-form" className="space-y-4" onSubmit={saveEdit}>

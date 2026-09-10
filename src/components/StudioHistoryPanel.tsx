@@ -6,7 +6,7 @@ import { ConfirmDialog, CrudListToolbar, CursorPagination, DetailDrawer } from "
 import { Badge, Button, Card, EmptyState } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 
-export type StudioTool = "rewrite" | "intro" | "faq" | "entity";
+export type StudioTool = "rewrite" | "intro" | "faq" | "entity" | "brief";
 
 export interface StudioContentSummary {
   id: number;
@@ -50,7 +50,7 @@ interface ApiFailure extends Error { code?: string }
 const changedEvent = "geo-master:studio-content-changed";
 const projectChangedEvent = "geo-master:project-changed";
 const statuses = ["generated", "dry_run_preview", "draft", "review", "approved", "archived", "failed"] as const;
-const toolLabels: Record<StudioTool, string> = { rewrite: "리라이팅", intro: "도입부", faq: "FAQ", entity: "엔티티" };
+const toolLabels: Record<StudioTool, string> = { rewrite: "리라이팅", intro: "도입부", faq: "FAQ", entity: "엔티티", brief: "기획" };
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, { cache: "no-store", ...init });

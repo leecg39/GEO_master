@@ -13,7 +13,7 @@ import { getDatabase } from "./db";
 import { AppError } from "./errors";
 import { requireActiveProject } from "./projects";
 
-export const strategyTypes = ["question", "pillar", "cluster", "supporting", "calendar", "cycle"] as const;
+export const strategyTypes = ["question", "pillar", "cluster", "supporting", "calendar", "cycle", "work"] as const;
 const statuses = ["계획", "진행", "완료"] as const;
 
 const dataSchema = z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]));
@@ -89,6 +89,30 @@ function nextTimestamp(previous: string) {
   return new Date(Number.isFinite(previousTime) && previousTime >= Date.now() ? previousTime + 1 : Date.now()).toISOString();
 }
 
+function parseJsonList(value: string | number | boolean | null) {
+  if (typeof value !== "string") return null;
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function assertWorkCardData(type: string, data: Record<string, string | number | boolean | null>) {
+  if (type !== "work") return;
+  if (data.kind !== "seo-work-card") {
+    throw new AppError("작업 카드는 진단 근거와 함께 등록해야 합니다.", 422, "WORK_CARD_KIND_REQUIRED");
+  }
+  const evidence = parseJsonList(data.evidenceRefs);
+  if (!evidence?.length || evidence.some((item) => typeof item !== "string" || !item.trim())) {
+    throw new AppError("근거 없는 작업 카드는 등록할 수 없습니다.", 422, "WORK_CARD_EVIDENCE_REQUIRED");
+  }
+  if (!String(data.findingId ?? "").trim() || !String(data.verificationSpec ?? "").trim()) {
+    throw new AppError("작업 카드에는 진단 ID와 검증 기준이 필요합니다.", 422, "WORK_CARD_SPEC_REQUIRED");
+  }
+}
+
 function assertParent(projectId: number, itemId: number | null, type: string, parentId: number | null) {
   if (parentId === null) {
     if (type === "cluster" || type === "supporting") {
@@ -105,7 +129,7 @@ function assertParent(projectId: number, itemId: number | null, type: string, pa
   if (type === "supporting" && parent.type !== "pillar" && parent.type !== "cluster") {
     throw new AppError("Supporting은 Pillar 또는 Cluster 아래에만 연결할 수 있습니다.", 422, "STRATEGY_PARENT_TYPE");
   }
-  if (type === "pillar" || type === "question" || type === "calendar" || type === "cycle") {
+  if (type === "pillar" || type === "question" || type === "calendar" || type === "cycle" || type === "work") {
     throw new AppError("이 유형은 상위 주제를 갖지 않습니다.", 422, "STRATEGY_PARENT_NOT_ALLOWED");
   }
 }
@@ -148,6 +172,7 @@ export function createStrategyItem(input: unknown) {
   const active = requireActiveProject();
   const parentId = parsed.parentId ?? null;
   assertParent(active.id, null, parsed.type, parentId);
+  assertWorkCardData(parsed.type, parsed.data);
   const { sqlite } = getDatabase();
   return transactionalMutation(sqlite, () => {
     const now = new Date().toISOString();
@@ -179,16 +204,18 @@ export function updateStrategyItem(idInput: unknown, input?: unknown) {
     }
     const parentId = parsed.parentId === undefined ? row.parent_id : parsed.parentId;
     assertParent(row.project_id!, id, row.type, parentId);
-    const updatedAt = nextTimestamp(row.updated_at);
     let currentData: Record<string, string | number | boolean | null> = {};
     try { currentData = JSON.parse(row.data) as typeof currentData; } catch { /* 빈 데이터로 복구 */ }
+    const nextData = parsed.data ?? currentData;
+    assertWorkCardData(row.type, nextData);
+    const updatedAt = nextTimestamp(row.updated_at);
     sqlite.prepare(`
       UPDATE strategy_items SET title = ?, status = ?, parent_id = ?, data = ?, updated_at = ? WHERE id = ?
     `).run(
       parsed.title ?? row.title,
       parsed.status ?? row.status,
       parentId,
-      JSON.stringify(parsed.data ?? currentData),
+      JSON.stringify(nextData),
       updatedAt,
       id,
     );

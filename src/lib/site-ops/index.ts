@@ -1,5 +1,7 @@
+import { persistContentBrief } from "@/lib/seo/content-brief";
 import { compareSeoSnapshots, fieldValue } from "@/lib/seo/drift";
 import { equalSeoValue as equal } from "@/lib/seo/normalize";
+import { persistWorkCards } from "@/lib/seo/work-cards";
 import { loadDriftEvents, persistDriftEvents } from "./drift-history";
 import { z } from "zod";
 import { getDatabase } from "@/lib/db";
@@ -106,6 +108,40 @@ export const siteOpsActionSchema = z.discriminatedUnion("action", [
       campaignId: id,
       changeId: id,
       expectedUpdatedAt: timestamp,
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("work-cards"),
+      campaignId: id,
+      snapshotId: id,
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("content-brief"),
+      campaignId: id,
+      snapshotId: id,
+      mode: z.enum(["improve", "new"]),
+      competitorSources: z
+        .array(z.object({ url: z.string().url().max(2048), excerpt: z.string().max(8000) }).strict())
+        .max(10)
+        .optional()
+        .default([]),
+      citationSources: z
+        .array(z.object({ url: z.string().url().max(2048), excerpt: z.string().max(8000) }).strict())
+        .max(10)
+        .optional()
+        .default([]),
+      draft: z
+        .object({
+          add: z.array(z.string().max(2000)).max(20).optional(),
+          keep: z.array(z.string().max(2000)).max(20).optional(),
+          reinforce: z.array(z.string().max(2000)).max(20).optional(),
+          targetQuestions: z.array(z.string().max(500)).max(20).optional(),
+        })
+        .strict()
+        .optional(),
     })
     .strict(),
 ]);
@@ -275,6 +311,46 @@ export async function performSiteOps(input: unknown, signal?: AbortSignal) {
     );
     requireActiveProject(campaign.projectId);
     return { snapshot: persistSnapshot(capture) };
+  }
+  if (action.action === "work-cards" || action.action === "content-brief") {
+    const snapshot = getSnapshot(action.snapshotId, campaign.projectId);
+    if (snapshot.campaignId !== campaign.id)
+      throw new AppError(
+        "다른 캠페인의 근거입니다.",
+        409,
+        "SNAPSHOT_SCOPE_MISMATCH",
+      );
+    if (action.action === "work-cards") {
+      if (!snapshot.analysis)
+        throw new AppError(
+          "근거 기반 진단 결과가 있는 수집만 작업 카드로 등록할 수 있습니다.",
+          422,
+          "ANALYSIS_REQUIRED",
+        );
+      return persistWorkCards(snapshot.analysis.findings);
+    }
+    if (
+      snapshot.dataState !== "live" ||
+      !snapshot.metadata ||
+      snapshot.fetchState !== "fetched"
+    )
+      throw new AppError(
+        "실제 HTML 수집에 성공한 페이지가 필요합니다.",
+        422,
+        "LIVE_EVIDENCE_REQUIRED",
+      );
+    return persistContentBrief({
+      mode: action.mode,
+      source: {
+        url: snapshot.finalUrl ?? snapshot.url,
+        title: snapshot.metadata.title,
+        heading: snapshot.metadata.heading,
+        bodyText: snapshot.metadata.bodyText,
+      },
+      competitorSources: action.competitorSources,
+      citationSources: action.citationSources,
+      draft: action.draft,
+    });
   }
   if (action.action === "draft" || action.action === "schema") {
     const snapshot = getSnapshot(action.snapshotId, campaign.projectId);

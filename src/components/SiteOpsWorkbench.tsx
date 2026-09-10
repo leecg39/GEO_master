@@ -117,6 +117,10 @@ export function SiteOpsWorkbench({
         change?: ChangeSet;
         document?: string;
         delivery?: { document: string; filename: string };
+        items?: unknown[];
+        confirmed?: unknown[];
+        content?: { id: number };
+        brief?: { mode?: string };
       }>(
         await fetch("/api/site-ops", {
           method: "POST",
@@ -139,6 +143,13 @@ export function SiteOpsWorkbench({
           result.change.verification.message ??
             "변경안을 저장했습니다. 내용을 검토한 후 승인하세요.",
         );
+      if (result.items || result.confirmed) {
+        const stored = Array.isArray(result.items) ? result.items.length : 0;
+        setMessage(`근거 있는 작업 카드 ${stored}건을 전략 워크스페이스에 등록했습니다.`);
+      }
+      if (result.brief) {
+        setMessage(result.brief.mode === "new" ? "신규 페이지 기획을 스튜디오 이력에 저장했습니다." : "기존 페이지 개선 기획을 스튜디오 이력에 저장했습니다.");
+      }
       if (result.delivery) {
         const link = document.createElement("a");
         link.href = URL.createObjectURL(
@@ -252,7 +263,12 @@ export function SiteOpsWorkbench({
             </ul>
           </Card>
           <Card className="min-w-0">
-            {snapshot && <SeoFindingsPanel analysis={snapshot.analysis} />}
+            {snapshot && <SeoFindingsPanel
+              analysis={snapshot.analysis}
+              busy={busy}
+              onRegisterWorkCards={() => void action({ action: "work-cards", snapshotId: snapshot.id })}
+              onCreateBrief={(mode) => void action({ action: "content-brief", snapshotId: snapshot.id, mode })}
+            />}
             {snapshot?.metadata ? (
               <>
                 <div className="flex flex-wrap items-center justify-between gap-3">

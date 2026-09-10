@@ -15,6 +15,7 @@ import {
   getSiteOpsWorkspace,
   performSiteOps,
 } from "@/lib/site-ops";
+import { listStrategyItems } from "@/lib/strategy";
 import { analyzePage, getSnapshot } from "@/lib/site-ops/snapshots";
 import {
   generateStructuredData,
@@ -136,6 +137,42 @@ describe("evidence-based site operations", () => {
     expect(stored.analysis?.findings.every((finding) => finding.snapshotId === snapshot.id)).toBe(true);
     expect(JSON.stringify(stored)).not.toContain("private-cookie-marker");
     expect(JSON.stringify(stored)).not.toContain("private-auth-marker");
+  });
+  it("registers confirmed findings as strategy work cards and refuses evidence-less defects", async () => {
+    vi.mocked(fetchPublicText).mockResolvedValue({
+      url, status: 200, contentType: "text/html",
+      text: "<html><head></head><body><p>본문만 있습니다.</p></body></html>",
+    });
+    const snapshot = await capture();
+    const result = await performSiteOps({ action: "work-cards", campaignId, snapshotId: snapshot.id }) as {
+      confirmed: Array<{ evidenceRefs: string[]; ruleId: string }>;
+      rejected: Array<{ decision: string }>;
+      items: Array<{ type: string }>;
+    };
+    expect(result.confirmed.every((card) => card.evidenceRefs.length > 0)).toBe(true);
+    expect(result.confirmed.some((card) => card.ruleId === "title")).toBe(true);
+    expect(result.items.length).toBeGreaterThan(0);
+    expect(listStrategyItems().some((item) => item.type === "work" && item.data.kind === "seo-work-card")).toBe(true);
+    const unknown = await performSiteOps({
+      action: "work-cards", campaignId, snapshotId: snapshot.id,
+    }) as { items: unknown[] };
+    expect(unknown.items).toHaveLength(0);
+  });
+  it("builds an Improve brief from the captured page and omits competitor-only numbers", async () => {
+    const snapshot = await capture();
+    const result = await performSiteOps({
+      action: "content-brief",
+      campaignId,
+      snapshotId: snapshot.id,
+      mode: "improve",
+      competitorSources: [{ url: "https://competitor.example/club", excerpt: "구독 서비스 월 29,000원, 연 매출 12억" }],
+      citationSources: [{ url, excerpt: "테스트 상품은 공개된 정보와 조건을 안내합니다." }],
+      draft: { add: ["구독 서비스를 추가하세요", "공개된 정보 안내를 보강하세요"] },
+    }) as { brief: { mode: string; keep: string[]; add: string[]; changeScope: { replaceWholePage: boolean } } };
+    expect(result.brief.mode).toBe("improve");
+    expect(result.brief.changeScope.replaceWholePage).toBe(false);
+    expect(result.brief.keep.join(" ")).toMatch(/테스트 상품|공개된 정보/);
+    expect(result.brief.add.join("\n")).not.toMatch(/구독|29,?000|12억/);
   });
   it("returns an identical retry without a second map charge and stops at the monthly limit", async () => {
     vi.stubEnv("GEO_FIRECRAWL_MONTHLY_MAP_LIMIT", "1");

@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useRef, useState } from "react";
-import { Braces, Check, Clipboard, FilePenLine, HelpCircle, Layers3, LoaderCircle, WandSparkles } from "lucide-react";
+import { Braces, Check, Clipboard, FilePenLine, HelpCircle, Layers3, ListTree, LoaderCircle, WandSparkles } from "lucide-react";
 import { StudioHistoryPanel, notifyStudioContentChanged, type StudioContentResource, type StudioTool } from "@/components/StudioHistoryPanel";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
 
@@ -10,6 +10,7 @@ const tabs: { id: StudioTool; label: string; description: string; icon: typeof F
   { id: "intro", label: "도입부", description: "3단 공식", icon: Layers3 },
   { id: "faq", label: "FAQ", description: "+ JSON-LD", icon: HelpCircle },
   { id: "entity", label: "엔티티", description: "+ Organization", icon: Braces },
+  { id: "brief", label: "기획", description: "Improve/New", icon: ListTree },
 ];
 const patterns = ["형용사→수치", "일반→조건부", "나열→구조화", "대상 명시", "결론 선행"];
 
@@ -35,6 +36,9 @@ export function StudioClient() {
   const [topic, setTopic] = useState("");
   const [selectedPatterns, setSelectedPatterns] = useState<string[]>(["결론 선행"]);
   const [entity, setEntity] = useState({ company: "", target: "", value: "", category: "", metric: "", url: "", logo: "", sameAs: "" });
+  const [briefMode, setBriefMode] = useState<"improve" | "new">("improve");
+  const [competitorExcerpt, setCompetitorExcerpt] = useState("");
+  const [competitorUrl, setCompetitorUrl] = useState("");
   const [provider, setProvider] = useState<"openai" | "anthropic" | "gemini" | "grok">("openai");
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(false);
@@ -54,6 +58,10 @@ export function StudioClient() {
     setText(asString(input.text));
     setTopic(asString(input.topic));
     setSelectedPatterns(Array.isArray(input.patterns) ? input.patterns.filter((item): item is string => typeof item === "string") : ["결론 선행"]);
+    setBriefMode(input.briefMode === "new" ? "new" : "improve");
+    const competitor = Array.isArray(input.competitorSources) ? input.competitorSources[0] as Record<string, unknown> | undefined : undefined;
+    setCompetitorUrl(asString(competitor?.url));
+    setCompetitorExcerpt(asString(competitor?.excerpt));
     const sameAs = Array.isArray(input.sameAs) ? input.sameAs.filter((item): item is string => typeof item === "string").join(", ") : asString(input.sameAs);
     setEntity({
       company: asString(input.company),
@@ -92,6 +100,13 @@ export function StudioClient() {
           title,
           notes,
           clientRequestId: requestId.current,
+          briefMode,
+          competitorSources: action === "brief" && competitorExcerpt.trim() && competitorUrl
+            ? [{ url: competitorUrl, excerpt: competitorExcerpt }]
+            : [],
+          citationSources: action === "brief" && (text || topic)
+            ? [{ url: entity.url || "https://local.source/brief", excerpt: text || topic }]
+            : [],
           ...entity,
           sameAs: entity.sameAs.split(",").map((item) => item.trim()).filter(Boolean),
         }),
@@ -114,7 +129,7 @@ export function StudioClient() {
 
   return <div>
     <PageHeader eyebrow="Content lab" title="콘텐츠 스튜디오" description="AI가 인용하기 쉬운 구조로 고치고, 도입부·FAQ·엔티티와 구조화 데이터를 한 번에 만듭니다." />
-    <div className="mb-5 grid grid-cols-2 gap-2 lg:grid-cols-4">{tabs.map(({ id, label, description, icon: Icon }) => (
+    <div className="mb-5 grid grid-cols-2 gap-2 lg:grid-cols-5">{tabs.map(({ id, label, description, icon: Icon }) => (
       <button type="button" key={id} onClick={() => { setAction(id); setResult(null); setError(""); resetRequest(); }} className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${action === id ? "border-cyan-400/30 bg-cyan-400/10" : "border-white/7 bg-slate-900/50 hover:bg-white/5"}`}>
         <span className={`grid h-9 w-9 place-items-center rounded-lg ${action === id ? "bg-cyan-400/15 text-cyan-300" : "bg-slate-800 text-slate-500"}`}><Icon className="h-4 w-4" /></span>
         <span><strong className="block text-sm text-slate-200">{label}</strong><small className="text-[11px] text-slate-500">{description}</small></span>
@@ -125,7 +140,7 @@ export function StudioClient() {
         <form onSubmit={submit} className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-white">{tabs.find((tab) => tab.id === action)?.label} 입력</h2>
-            {action !== "entity" && <select aria-label="LLM 제공자" className="w-auto text-xs" value={provider} onChange={(e) => { setProvider(e.target.value as typeof provider); resetRequest(); }}>
+            {action !== "entity" && action !== "brief" && <select aria-label="LLM 제공자" className="w-auto text-xs" value={provider} onChange={(e) => { setProvider(e.target.value as typeof provider); resetRequest(); }}>
               <option value="openai">OpenAI</option><option value="anthropic">Anthropic</option><option value="gemini">Gemini</option><option value="grok">Grok</option>
             </select>}
           </div>
@@ -147,6 +162,21 @@ export function StudioClient() {
             <label className="block text-sm">{action === "intro" ? "글의 주제" : "FAQ 주제 또는 자료"}<textarea className="mt-2" rows={12} required value={topic} onChange={(e) => { setTopic(e.target.value); resetRequest(); }} placeholder={action === "intro" ? "독자와 핵심 주제를 설명하세요." : "고객 질문의 기반이 될 자료를 입력하세요."} /></label>
             {action === "intro" && <div className="grid grid-cols-3 gap-2">{["문제 제시", "핵심 답변", "글의 가치"].map((step, index) => <div key={step} className="rounded-lg bg-slate-950/50 p-2 text-center text-[11px] text-slate-500"><strong className="mr-1 text-cyan-400">{index + 1}</strong>{step}</div>)}</div>}
           </>}
+          {action === "brief" && <>
+            <fieldset className="flex gap-2">
+              <legend className="mb-2 text-sm text-slate-300">기획 방식</legend>
+              {(["improve", "new"] as const).map((mode) => (
+                <label key={mode} className={`cursor-pointer rounded-lg border px-3 py-2 text-xs ${briefMode === mode ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-300" : "border-white/8 text-slate-500"}`}>
+                  <input className="sr-only" type="radio" name="briefMode" checked={briefMode === mode} onChange={() => { setBriefMode(mode); resetRequest(); }} />
+                  {mode === "improve" ? "기존 페이지 개선" : "신규 페이지"}
+                </label>
+              ))}
+            </fieldset>
+            <label className="block text-sm">페이지 원문<textarea className="mt-2" rows={8} required value={text} onChange={(e) => { setText(e.target.value); resetRequest(); }} placeholder="현재 페이지 본문을 붙여넣으세요. 원문에 없는 상품·수치를 만들지 않습니다." /></label>
+            <label className="text-sm">페이지 URL <span className="text-xs text-slate-600">(선택)</span><input className="mt-2" type="url" value={entity.url} onChange={(e) => { setEntity((v) => ({ ...v, url: e.target.value })); resetRequest(); }} placeholder="https://example.com/page" /></label>
+            <label className="text-sm">경쟁사 URL <span className="text-xs text-slate-600">(비교용, 인용 아님)</span><input className="mt-2" type="url" value={competitorUrl} onChange={(e) => { setCompetitorUrl(e.target.value); resetRequest(); }} /></label>
+            <label className="block text-sm">경쟁사 발췌 <span className="text-xs text-slate-600">(원문에 없는 서비스·수치는 제외)</span><textarea className="mt-2" rows={4} value={competitorExcerpt} onChange={(e) => { setCompetitorExcerpt(e.target.value); resetRequest(); }} /></label>
+          </>}
           {action === "entity" && <div className="grid gap-4 sm:grid-cols-2">
             <label className="text-sm">회사명<input className="mt-2" required value={entity.company} onChange={(e) => { setEntity((v) => ({ ...v, company: e.target.value })); resetRequest(); }} /></label>
             <label className="text-sm">타깃 고객<input className="mt-2" required value={entity.target} onChange={(e) => { setEntity((v) => ({ ...v, target: e.target.value })); resetRequest(); }} /></label>
@@ -157,7 +187,7 @@ export function StudioClient() {
             <label className="text-sm">로고 URL <span className="text-slate-600">(선택)</span><input className="mt-2" type="url" value={entity.logo} onChange={(e) => { setEntity((v) => ({ ...v, logo: e.target.value })); resetRequest(); }} /></label>
             <label className="text-sm">공식 프로필 sameAs <span className="text-slate-600">(쉼표 구분)</span><input className="mt-2" value={entity.sameAs} onChange={(e) => { setEntity((v) => ({ ...v, sameAs: e.target.value })); resetRequest(); }} placeholder="https://linkedin.com/company/..." /></label>
           </div>}
-          <Button className="w-full" disabled={loading || (action === "rewrite" && !selectedPatterns.length)}>{loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <WandSparkles className="h-4 w-4" />}{loading ? "생성 중…" : action === "entity" ? "정의와 JSON-LD 생성" : "AI로 생성"}</Button>
+          <Button className="w-full" disabled={loading || (action === "rewrite" && !selectedPatterns.length)}>{loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <WandSparkles className="h-4 w-4" />}{loading ? "생성 중…" : action === "entity" ? "정의와 JSON-LD 생성" : action === "brief" ? "원문 근거로 기획" : "AI로 생성"}</Button>
           {error && <p role="alert" className="rounded-xl bg-rose-400/10 p-3 text-sm text-rose-300">{error}</p>}
         </form>
       </Card>
@@ -173,6 +203,15 @@ export function StudioClient() {
           {"definition" in result && <p className="rounded-xl border border-cyan-400/15 bg-cyan-400/5 p-4 text-base leading-7 text-cyan-100">{String(result.definition)}</p>}
           {"faqs" in result && <div className="space-y-3">{(result.faqs as { question: string; answer: string }[]).map((faq) => <details key={faq.question} className="rounded-xl border border-white/7 bg-slate-950/40 p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-200">{faq.question}</summary><p className="mt-3 text-sm leading-6 text-slate-400">{faq.answer}</p></details>)}</div>}
           {"jsonLd" in result && <pre className="max-h-96 rounded-xl bg-slate-950 p-4 text-xs leading-5 text-emerald-300">{JSON.stringify(result.jsonLd, null, 2)}</pre>}
+          {"mode" in result && "keep" in result && <div className="space-y-3 text-sm text-slate-300">
+            <p><Badge tone="cyan">{String(result.mode) === "new" ? "신규 페이지" : "기존 페이지 개선"}</Badge></p>
+            {(["targetQuestions", "currentAnswers", "gaps", "keep", "reinforce", "add"] as const).map((key) => (
+              <div key={key} className="rounded-xl border border-white/7 bg-slate-950/40 p-3">
+                <p className="text-[11px] uppercase tracking-wide text-slate-500">{key}</p>
+                <ul className="mt-2 list-disc space-y-1 pl-4 text-xs leading-5 text-slate-400">{(Array.isArray(result[key]) ? result[key] as string[] : []).map((item) => <li key={item}>{item}</li>)}</ul>
+              </div>
+            ))}
+          </div>}
         </div> : <div className="grid min-h-96 place-items-center text-center"><div><WandSparkles className="mx-auto h-8 w-8 text-slate-700" /><p className="mt-3 text-sm text-slate-600">도구를 실행하면 전·후 비교와<br />구조화 데이터가 여기에 표시됩니다.</p></div></div>}
       </Card>
     </div>
