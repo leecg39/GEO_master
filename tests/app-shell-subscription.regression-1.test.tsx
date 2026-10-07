@@ -17,6 +17,7 @@ afterEach(async () => {
 
 async function renderShell() {
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+  vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   const container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);

@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { BarChart3, BookOpen, Bot, CalendarClock, ChevronDown, CreditCard, FileCode2, FileDown, FilePenLine, Gauge, Images, LoaderCircle, Menu, PackageOpen, SearchCheck, Settings, Sparkles, Target, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { Modal } from "@/components/Modal";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { isSemforgePath, SEMFORGE_HUB_PATH, semforgeFeatures } from "@/lib/semforge/navigation";
@@ -44,6 +45,7 @@ function NavLink({
   return (
     <Link
       href={href}
+      aria-current={active ? "page" : undefined}
       onClick={close}
       className={cn(
         "group flex items-center gap-3 rounded-xl px-3 font-medium transition",
@@ -61,7 +63,7 @@ function NavLink({
 
 function SemforgeNavDropdown({ close }: { close?: () => void }) {
   const pathname = usePathname();
-  const semforgeCurrent = isSemforgePath(pathname);
+  const semforgeCurrent = isSemforgePath(pathname) || pathname.startsWith("/subscription");
   const pathKey = semforgeCurrent ? "semforge" : "other";
   const [pathBucket, setPathBucket] = useState(pathKey);
   const [openOverride, setOpenOverride] = useState<boolean | null>(null);
@@ -100,6 +102,7 @@ function SemforgeNavDropdown({ close }: { close?: () => void }) {
             close={close}
             nested
           />
+          <NavLink href={subscriptionNavigation.href} label="구독 관리" icon={CreditCard} active={pathname.startsWith("/subscription")} close={close} nested />
           {semforgeFeatures.map(({ href, label, icon }) => {
             const active = pathname === href || pathname.startsWith(`${href}/`);
             return <NavLink key={href} href={href} label={label} icon={icon} active={active} close={close} nested />;
@@ -152,9 +155,9 @@ function Navigation({ close, semforgeActive }: { close?: () => void; semforgeAct
   );
 }
 
-function Brand() {
+function Brand({ close }: { close?: () => void }) {
   return (
-    <Link href="/" className="flex items-center gap-3">
+    <Link href="/" onClick={close} className="flex items-center gap-3">
       <span className="grid h-10 w-10 place-items-center rounded-[12px] bg-[color:var(--color-accent-lime)] text-[color:var(--color-ink-deep)]">
         <Bot className="h-5 w-5" />
       </span>
@@ -168,6 +171,14 @@ function Brand() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const menuTitleId = useId();
+  const menuCloseRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const onResize = () => { if (desktop.matches) setOpen(false); };
+    desktop.addEventListener("change", onResize);
+    return () => desktop.removeEventListener("change", onResize);
+  }, []);
   const [semforgeActive, setSemforgeActive] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -194,6 +205,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:text-[color:var(--color-ink)]">본문으로 건너뛰기</a>
       <aside data-theme-surface="dark" className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)]/95 p-6 backdrop-blur-xl lg:flex">
         <Brand />
         <ProjectSwitcher />
@@ -215,12 +227,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Brand />
         <div className="flex items-center gap-1">
           <ThemeToggle compact />
-          <button type="button" onClick={() => setOpen(true)} className="rounded-[8px] p-2 text-white" aria-label="메뉴 열기"><Menu /></button>
+          <button type="button" onClick={() => setOpen(true)} className="rounded-[8px] p-2 text-white" aria-label="메뉴 열기" aria-expanded={open} aria-controls="mobile-navigation"><Menu /></button>
         </div>
       </header>
-      {open && <div className="fixed inset-0 z-50 bg-[color:var(--color-primary)]/70 lg:hidden" onClick={() => setOpen(false)}>
-        <aside data-theme-surface="dark" className="flex h-full w-72 flex-col border-r border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)] p-5" onClick={(event) => event.stopPropagation()}>
-          <div className="flex items-center justify-between"><Brand /><button type="button" onClick={() => setOpen(false)} aria-label="메뉴 닫기" className="p-2 text-[color:var(--color-on-dark-muted)]"><X /></button></div>
+      <Modal open={open} labelledBy={menuTitleId} initialFocus={menuCloseRef} onClose={() => setOpen(false)}><div className="fixed inset-0 z-50 bg-[color:var(--color-primary)]/70 lg:hidden" onClick={() => setOpen(false)}>
+        <aside id="mobile-navigation" data-theme-surface="dark" className="flex h-full w-72 max-w-full flex-col border-r border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)] p-5" onClick={(event) => event.stopPropagation()}>
+          <h2 id={menuTitleId} className="sr-only">주요 메뉴</h2>
+          <div className="flex items-center justify-between"><Brand close={() => setOpen(false)} /><button ref={menuCloseRef} type="button" onClick={() => setOpen(false)} aria-label="메뉴 닫기" className="p-2 text-[color:var(--color-on-dark-muted)]"><X /></button></div>
           <ProjectSwitcher />
           <div className="min-h-0 flex-1 overflow-y-auto">
             <Navigation close={() => setOpen(false)} semforgeActive={semforgeActive} />
@@ -229,8 +242,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             <ThemeToggle />
           </div>
         </aside>
-      </div>}
-      <main className="lg:pl-72"><div className="w-full max-w-[2400px] px-4 py-6 sm:px-8 lg:px-10 xl:px-12 2xl:px-16 lg:py-8 xl:py-10">{children}</div></main>
+      </div></Modal>
+      <main id="main-content" tabIndex={-1} className="outline-none lg:pl-72"><div className="w-full max-w-[2400px] px-4 py-6 sm:px-8 lg:px-10 xl:px-12 2xl:px-16 lg:py-8 xl:py-10">{children}</div></main>
     </div>
   );
 }
