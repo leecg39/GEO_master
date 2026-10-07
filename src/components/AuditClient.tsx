@@ -1,5 +1,6 @@
 "use client";
 
+import { AuditChangePanel } from "@/components/AuditChangePanel";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Check, LoaderCircle, SearchCheck, X } from "lucide-react";
 import { AuditHistoryPanel, notifyAuditChanged, type AuditResource } from "@/components/AuditHistoryPanel";
@@ -111,6 +112,8 @@ export function AuditClient() {
           )}
         </Card>
       </div>
+
+      <AuditChangePanel key={audit.id} auditId={audit.id} />
 
       <div className="space-y-5">
         <h2 className="text-lg font-bold text-white">32개 GEO 세부 평가 항목</h2>

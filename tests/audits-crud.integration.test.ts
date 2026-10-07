@@ -88,6 +88,9 @@ describe.sequential("audit evidence CRUD API", () => {
     // Qshop P03: 진단이 읽은 실제 페이지 근거
     const evidence = firstAudit.metadata.pageEvidence as { contentHash: string; fetchedAt: string };
     expect(evidence).toMatchObject({ httpStatus: 200, renderMode: "native", parserVersion: expect.any(String) });
+    // 수정안 작업대 연결: 진단이 읽은 현재 필드 값이 기록된다 (없는 필드는 null)
+    expect(firstAudit.metadata.pageFields).toHaveProperty("title");
+    expect(Object.keys(firstAudit.metadata.pageFields as object).sort()).toEqual(["canonical", "description", "og_image", "robots_meta", "title"]);
     expect(evidence.contentHash).toMatch(/^[0-9a-f]{64}$/);
     expect(Date.parse(evidence.fetchedAt)).not.toBeNaN();
     const fetchCalls = vi.mocked(fetchPublicText).mock.calls.length;
