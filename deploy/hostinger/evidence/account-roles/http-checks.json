@@ -1,0 +1,372 @@
+{
+  "sourceRevision": "9b8014c",
+  "checkedAt": "2026-10-07T05:49:37.137Z",
+  "admin": {
+    "active": true,
+    "accessSource": "admin"
+  },
+  "member": {
+    "active": false,
+    "role": "member"
+  },
+  "spoofingBlocked": true,
+  "checks": [
+    {
+      "path": "/api/semforge/subscription",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/api/semforge/subscription",
+      "method": "GET",
+      "role": "member",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/api/semforge/subscription",
+      "method": "GET",
+      "role": "member",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/api/semforge/sites",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/api/ai-seo/queries",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/api/position-tracking",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/api/site-audit",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/api/local-business",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/api/ai-seo/overview?domain=axbridge.soverin.cloud",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/api/analytics/overview?domain=axbridge.soverin.cloud",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/api/ai-seo/collect",
+      "method": "POST",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/ai-seo/overview",
+      "method": "GET",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/ai-seo/queries",
+      "method": "GET",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/ai-seo/queries",
+      "method": "POST",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/ai-seo/queries",
+      "method": "DELETE",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/analytics/overview",
+      "method": "GET",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/position-tracking",
+      "method": "GET",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/position-tracking",
+      "method": "POST",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/position-tracking",
+      "method": "PATCH",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/site-audit",
+      "method": "GET",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/site-audit",
+      "method": "POST",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/site-audit",
+      "method": "PATCH",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/site-audit",
+      "method": "DELETE",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/local-business",
+      "method": "GET",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/local-business",
+      "method": "POST",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/local-business",
+      "method": "PATCH",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/local-business",
+      "method": "DELETE",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/semforge/all-in",
+      "method": "POST",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/semforge/sites",
+      "method": "GET",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/semforge/sites",
+      "method": "POST",
+      "role": "member",
+      "status": 402,
+      "expected": 402
+    },
+    {
+      "path": "/api/semforge/subscription/checkout",
+      "method": "POST",
+      "role": "member",
+      "status": 503,
+      "expected": 503
+    },
+    {
+      "path": "/api/semforge/subscription/confirm",
+      "method": "POST",
+      "role": "member",
+      "status": 503,
+      "expected": 503
+    },
+    {
+      "path": "/",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/audit",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/multimodal",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/llms",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/share",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/automation",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/reports",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/studio",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/strategy",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/learn",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/workspace",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/settings",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/subscription",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/semforge",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/ai-seo",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/site-audit",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/position-tracking",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/local-business",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/analytics/overview",
+      "method": "GET",
+      "role": "admin",
+      "status": 200,
+      "expected": 200
+    }
+  ]
+}

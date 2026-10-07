@@ -1,5 +1,7 @@
 # geo.soverin.cloud 배포 결과
 
+최신 권한 배포는 [SEMForge 계정 권한 배포 기록](ACCOUNT_ACCESS.md)을 참조하세요. 아래 내용은 최초 배포 시점의 기록입니다.
+
 2026-10-07, Hostinger Docker 플러그인으로 VPS에 배포 완료.
 
 | 항목 | 결과 |
