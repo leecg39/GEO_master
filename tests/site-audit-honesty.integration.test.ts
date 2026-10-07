@@ -23,6 +23,7 @@ let sequence = 0;
 const mapResponse = () => Response.json({ success: true, links: ["https://example.com", "https://example.com/about", "https://example.com/blog/post-1"] });
 const fetched = (status: number, text: string, contentType = "text/plain") => ({ url: "https://example.com/llms.txt", status, text, contentType });
 const llms404 = (url: string) => ({ url, status: 404, text: "", contentType: "text/plain" });
+const isSiteFile = (url: string) => url.endsWith("/llms.txt") || url.endsWith("/robots.txt");
 
 beforeEach(() => {
   vi.stubEnv("GEO_DB_PATH", databasePath);
@@ -145,6 +146,7 @@ describe("Qshop P02: discovered URLs are actually fetched", () => {
     request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com/moved"] }));
     vi.mocked(fetchPublicText).mockImplementation((url: string) => url.endsWith("/llms.txt")
       ? Promise.resolve({ url, status: 404, text: "", contentType: "text/plain" })
+      : url.endsWith("/robots.txt") ? Promise.resolve(llms404(url))
       : Promise.resolve({ url: "https://other.example.net/landing", status: 200, text: "<title>남의 사이트</title>", contentType: "text/html" }));
     const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
     expect(await runSiteAuditCampaign(campaign.id)).toMatchObject({ fetchedPages: 0, outOfScope: 1 });
@@ -166,11 +168,11 @@ describe("Qshop P02: discovered URLs are actually fetched", () => {
 
 describe("Qshop P02: rate limits, cancellation and repeated runs", () => {
   const pageLinks = (count: number) => Array.from({ length: count }, (_, index) => `https://example.com/p${index}`);
-  const pageCalls = () => vi.mocked(fetchPublicText).mock.calls.filter(([url]) => !String(url).endsWith("/llms.txt")).length;
+  const pageCalls = () => vi.mocked(fetchPublicText).mock.calls.filter(([url]) => !isSiteFile(String(url))).length;
 
   it("retries a 429 once, then stops requesting the site and leaves the rest unrequested", async () => {
     request.mockImplementation(() => Response.json({ success: true, links: pageLinks(8) }));
-    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => url.endsWith("/llms.txt")
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => isSiteFile(url)
       ? llms404(url)
       : { url, status: 429, text: "slow down", contentType: "text/plain", retryAfter: "0" });
     const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
@@ -191,7 +193,7 @@ describe("Qshop P02: rate limits, cancellation and repeated runs", () => {
     request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com"] }));
     let attempts = 0;
     vi.mocked(fetchPublicText).mockImplementation(async (url: string) => {
-      if (url.endsWith("/llms.txt")) return llms404(url);
+      if (isSiteFile(url)) return llms404(url);
       attempts += 1;
       return attempts === 1
         ? { url, status: 429, text: "", contentType: "text/plain", retryAfter: "0" }
@@ -207,7 +209,7 @@ describe("Qshop P02: rate limits, cancellation and repeated runs", () => {
     let release!: () => void;
     const gate = new Promise<void>((resolve) => { release = resolve; });
     vi.mocked(fetchPublicText).mockImplementation(async (url: string) => {
-      if (url.endsWith("/llms.txt")) return llms404(url);
+      if (isSiteFile(url)) return llms404(url);
       await gate;
       return { url, status: 200, text: "<title>페이지</title>", contentType: "text/html" };
     });
@@ -230,7 +232,7 @@ describe("Qshop P02: rate limits, cancellation and repeated runs", () => {
 
   it("lets a stale running state from a crashed process be re-run", async () => {
     request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com"] }));
-    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => url.endsWith("/llms.txt") ? llms404(url) : { url, status: 200, text: "<title>홈</title>", contentType: "text/html" });
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => isSiteFile(url) ? llms404(url) : { url, status: 200, text: "<title>홈</title>", contentType: "text/html" });
     const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
     getDatabase().sqlite.prepare("UPDATE site_audit_campaigns SET status = 'running', updated_at = '2026-01-01T00:00:00.000Z' WHERE id = ?").run(campaign.id);
     expect(await runSiteAuditCampaign(campaign.id)).toMatchObject({ status: "completed" });
@@ -261,7 +263,7 @@ describe("Qshop P02: rate limits, cancellation and repeated runs", () => {
     });
     const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
     const running = runSiteAuditCampaign(campaign.id);
-    await vi.waitFor(() => expect(vi.mocked(fetchPublicText)).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => expect(vi.mocked(fetchPublicText)).toHaveBeenCalledTimes(2));
     cancelSiteAuditCampaign(campaign.id);
     release();
     expect(await running).toMatchObject({ status: "cancelled", dataState: "discovered", fetchedPages: 0, notRequested: 3 });
@@ -272,7 +274,7 @@ describe("Qshop P02: rate limits, cancellation and repeated runs", () => {
     const { cancelSiteAuditCampaign } = await import("@/lib/semforge/siteaudit");
     request.mockImplementation(() => Response.json({ success: true, links: pageLinks(1) }));
     vi.mocked(fetchPublicText).mockImplementation((url: string, _timeout?: number, options?: { signal?: AbortSignal }) => {
-      if (url.endsWith("/llms.txt")) return Promise.resolve(llms404(url));
+      if (isSiteFile(url)) return Promise.resolve(llms404(url));
       return new Promise((_resolve, reject) => options?.signal?.addEventListener("abort", () => reject(new AppError("요청을 취소했습니다.", 409, "FETCH_CANCELLED"))));
     });
     const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
@@ -313,12 +315,12 @@ describe("Qshop P02: rendered collection through Firecrawl Scrape", () => {
       success: true,
       data: { rawHtml: `<html><title>${url.split("/").pop()}</title></html>`, markdown: "# 본문", metadata: { statusCode: url.endsWith("/gone") ? 404 : 200, url, sourceURL: url } },
     })));
-    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => ({ url, status: 200, text: "# llms", contentType: "text/plain" }));
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => url.endsWith("/robots.txt") ? llms404(url) : ({ url, status: 200, text: "# llms", contentType: "text/plain" }));
     const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
     const result = await runSiteAuditCampaign(campaign.id, { renderMode: "rendered" });
     expect(result).toMatchObject({ status: "completed", renderMode: "rendered", fetchedPages: 10, notRequested: 2, halted: null });
     expect(request.mock.calls.filter(([url]) => String(url).endsWith("/v2/scrape"))).toHaveLength(10);
-    expect(vi.mocked(fetchPublicText).mock.calls.map(([url]) => url)).toEqual(["https://example.com/llms.txt"]);
+    expect(vi.mocked(fetchPublicText).mock.calls.map(([url]) => url).sort()).toEqual(["https://example.com/llms.txt", "https://example.com/robots.txt"]);
     const gone = getDatabase().sqlite.prepare("SELECT status_code, fetch_state, title, render_mode, content_hash IS NOT NULL AS hashed FROM site_audit_pages WHERE campaign_id = ? AND url = 'https://example.com/gone'").get(campaign.id);
     expect(gone).toEqual({ status_code: 404, fetch_state: "fetched", title: "gone", render_mode: "rendered", hashed: 1 });
     const skipped = getDatabase().sqlite.prepare("SELECT fetch_error FROM site_audit_pages WHERE campaign_id = ? AND fetch_state = 'discovered'").all(campaign.id);
@@ -347,5 +349,45 @@ describe("Qshop P02: rendered collection through Firecrawl Scrape", () => {
   it("rejects unknown run options", async () => {
     const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
     await expect(runSiteAuditCampaign(campaign.id, { renderMode: "headless-chrome" })).rejects.toThrow();
+  });
+});
+
+describe("Qshop P04: AI crawler policy from robots.txt", () => {
+  const robots = (text: string, status = 200) => (url: string) => {
+    if (url.endsWith("/robots.txt")) return Promise.resolve({ url, status, text, contentType: "text/plain" });
+    if (url.endsWith("/llms.txt")) return Promise.resolve(llms404(url));
+    return Promise.resolve({ url, status: 200, text: "<title>홈</title>", contentType: "text/html" });
+  };
+  const titles = (campaignId: number) => getDatabase().sqlite.prepare("SELECT severity, title, detail FROM site_audit_issues WHERE campaign_id = ?").all(campaignId) as Array<{ severity: string; title: string; detail: string }>;
+
+  it("reports a training-only block as information, not as an AI search problem", async () => {
+    request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com"] }));
+    vi.mocked(fetchPublicText).mockImplementation(robots("User-agent: GPTBot\nDisallow: /\n\nUser-agent: Google-Extended\nDisallow: /\n"));
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    await runSiteAuditCampaign(campaign.id);
+    expect(titles(campaign.id).find((issue) => issue.title === "학습용 AI 크롤러만 차단")).toMatchObject({ severity: "notice", detail: expect.stringContaining("GPTBot, Google-Extended") });
+    expect(titles(campaign.id).some((issue) => issue.title === "AI 검색 크롤러 차단")).toBe(false);
+    expect(getSiteAuditOverview(campaign.id).briefing.robots).toMatchObject({ state: "parsed", summary: { searchBlocked: [], trainingBlocked: ["GPTBot", "Google-Extended"] } });
+  });
+
+  it("warns when search crawlers are blocked and recommends reviewing only those", async () => {
+    request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com"] }));
+    vi.mocked(fetchPublicText).mockImplementation(robots("User-agent: *\nDisallow: /\n\nUser-agent: Googlebot\nAllow: /\n"));
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    await runSiteAuditCampaign(campaign.id);
+    const blocked = titles(campaign.id).find((issue) => issue.title === "AI 검색 크롤러 차단");
+    expect(blocked).toMatchObject({ severity: "warning" });
+    expect(blocked?.detail).toContain("OAI-SearchBot");
+    expect(blocked?.detail).not.toContain("Googlebot");
+    expect(getSiteAuditOverview(campaign.id).briefing.recommendations.join(" ")).toContain("검색용 AI 크롤러");
+  });
+
+  it("does not treat an unreadable robots.txt as allowing everything", async () => {
+    request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com"] }));
+    vi.mocked(fetchPublicText).mockImplementation(robots("", 503));
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    await runSiteAuditCampaign(campaign.id);
+    expect(titles(campaign.id).find((issue) => issue.title === "robots.txt 확인 불가")).toMatchObject({ severity: "notice" });
+    expect(getSiteAuditOverview(campaign.id).briefing.robots).toMatchObject({ state: "unknown" });
   });
 });

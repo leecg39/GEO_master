@@ -9,6 +9,7 @@ import * as cheerio from "cheerio";
 import { AppError } from "@/lib/errors";
 import { isFirecrawlAccountError, parseRetryAfter, scrapePage } from "@/lib/integrations/firecrawl";
 import type { BodyKind } from "@/lib/page-snapshots";
+import { robotsPolicyFromResponse, type RobotsPolicy } from "@/lib/robots-policy";
 import { fetchPublicText } from "@/lib/url-security";
 
 export type LlmsTxtState = "present" | "missing" | "unknown";
@@ -42,6 +43,15 @@ export async function probeLlmsTxt(domain: string): Promise<{ state: LlmsTxtStat
     return { state: "unknown", detail: `HTTP ${response.status}` };
   } catch {
     return { state: "unknown", detail: "요청 실패(네트워크·차단·시간 초과)" };
+  }
+}
+
+/** 실제 /robots.txt 요청 결과를 목적별 AI 크롤러 정책으로 해석한다. 읽지 못하면 "확인 불가" (Qshop P04) */
+export async function probeRobotsTxt(domain: string): Promise<RobotsPolicy> {
+  try {
+    return robotsPolicyFromResponse(await fetchPublicText(`https://${domain}/robots.txt`, PROBE_TIMEOUT_MS));
+  } catch {
+    return robotsPolicyFromResponse(null);
   }
 }
 

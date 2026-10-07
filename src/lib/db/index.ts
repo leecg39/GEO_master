@@ -678,6 +678,15 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       addColumnIfMissing(sqlite, "site_audit_pages", "snapshot_id", "INTEGER REFERENCES page_snapshots(id) ON DELETE SET NULL");
     },
   },
+  {
+    version: 21,
+    name: "llms-scope-and-robots-policy",
+    up(sqlite) {
+      // Qshop P04: 경로별 llms.txt, 사이트 진단의 AI 크롤러 정책(목적별)
+      addColumnIfMissing(sqlite, "llms_documents", "scope_path", "TEXT NOT NULL DEFAULT '/llms.txt'");
+      addColumnIfMissing(sqlite, "site_audit_campaigns", "robots_policy", "TEXT");
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { AUDIT_RULES, auditGrade, blockedAiBots, parseAuditHtml, scoreAudit } from "@/lib/audit";
+import { AI_BOTS } from "@/lib/robots-policy";
 
 const richHtml = `<!doctype html><html><head>
 <title>GEO 질문 가이드</title><meta name="description" content="GEO를 실행하는 방법과 검증 기준을 단계별로 설명합니다.">
@@ -37,7 +38,18 @@ describe("GEO audit engine", () => {
 
   it("detects explicit AI crawler blocks", () => {
     expect(blockedAiBots("User-agent: GPTBot\nDisallow: /\nUser-agent: ClaudeBot\nDisallow: /private")).toEqual(["GPTBot"]);
-    expect(blockedAiBots("User-agent: *\nDisallow: /")).toEqual(["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended"]);
+    expect(blockedAiBots("User-agent: *\nDisallow: /")).toEqual(AI_BOTS.map((bot) => bot.token));
+  });
+
+  it("does not fail AI search access when only training crawlers are blocked", () => {
+    const rule = AUDIT_RULES.find((item) => item.code === "tech-ai-robots")!;
+    const snapshot = parseAuditHtml(richHtml, "https://example.com/guide");
+    const files = (robots: string | null) => ({ robots, llms: null, sitemap: null });
+    expect(rule.check!(snapshot, files("User-agent: GPTBot\nDisallow: /\n\nUser-agent: Google-Extended\nDisallow: /"))).toEqual({
+      passed: true, detail: "AI 검색 크롤러 접근 가능 · 학습용 차단: GPTBot, Google-Extended (검색 노출과 별개)",
+    });
+    expect(rule.check!(snapshot, files("User-agent: OAI-SearchBot\nDisallow: /"))).toMatchObject({ passed: false, detail: expect.stringContaining("OAI-SearchBot") });
+    expect(rule.check!(snapshot, files(null))).toMatchObject({ passed: true });
   });
 
   it("uses exact score boundaries", () => {

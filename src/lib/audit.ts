@@ -16,6 +16,7 @@ import { getDatabase } from "./db";
 import { AppError } from "./errors";
 import { generateText } from "./llm";
 import { requireActiveProject } from "./projects";
+import { analyzeRobotsTxt } from "./robots-policy";
 import { getPublicSettings, getServerSettings, type Provider } from "./settings";
 import { fetchPublicText } from "./url-security";
 
@@ -159,9 +160,14 @@ export const AUDIT_RULES: Rule[] = [
   { code: "tech-jsonld", category: "기술적 GEO", label: "JSON-LD", recommendation: "페이지 성격에 맞는 JSON-LD를 추가하세요.", check: (s) => result(s.jsonLdTypes.length > 0, `스키마: ${s.jsonLdTypes.join(", ") || "없음"}`) },
   { code: "tech-faq-schema", category: "기술적 GEO", label: "FAQPage 스키마", recommendation: "FAQ 내용과 일치하는 FAQPage JSON-LD를 추가하세요.", check: (s) => result(schemaIncludes(s, ["FAQPage"]), schemaIncludes(s, ["FAQPage"]) ? "FAQPage 있음" : "FAQPage 없음") },
   { code: "tech-entity-schema", category: "기술적 GEO", label: "Organization/Article 스키마", recommendation: "Organization과 Article 엔티티를 명시하세요.", check: (s) => result(schemaIncludes(s, ["Organization", "Article", "NewsArticle"]), `엔티티 스키마 ${s.jsonLdTypes.join(", ") || "없음"}`) },
-  { code: "tech-ai-robots", category: "기술적 GEO", label: "AI 크롤러 접근", recommendation: "GPTBot·ClaudeBot·PerplexityBot·Google-Extended 차단 여부를 검토하세요.", check: (_s, f) => {
-    const blocked = blockedAiBots(f.robots ?? "");
-    return result(blocked.length === 0, blocked.length ? `차단: ${blocked.join(", ")}` : "주요 AI 크롤러 접근 가능");
+  { code: "tech-ai-robots", category: "기술적 GEO", label: "AI 검색 크롤러 접근", recommendation: "OAI-SearchBot·Claude-SearchBot·PerplexityBot·Googlebot·Bingbot 같은 검색용 크롤러는 허용하세요. 학습용(GPTBot·ClaudeBot·Google-Extended) 차단은 검색 노출과 별개입니다.", check: (_s, f) => {
+    // 학습용 크롤러 차단만으로 AI 검색 접근 실패로 판정하지 않는다 (Qshop P04)
+    if (f.robots === null) return result(true, "robots.txt가 없거나 읽지 못해 확인된 제한이 없습니다.");
+    const { summary } = analyzeRobotsTxt(f.robots);
+    const training = summary.trainingBlocked.length ? ` · 학습용 차단: ${summary.trainingBlocked.join(", ")} (검색 노출과 별개)` : "";
+    return summary.searchBlocked.length
+      ? result(false, `검색용 크롤러 차단: ${summary.searchBlocked.join(", ")}${training}`)
+      : result(true, `AI 검색 크롤러 접근 가능${training}`);
   } },
   { code: "tech-llms", category: "기술적 GEO", label: "llms.txt", recommendation: "핵심 엔티티와 대표 문서를 설명하는 /llms.txt를 제공하세요.", check: (_s, f) => result(Boolean(f.llms?.trim()), f.llms ? "llms.txt 확인" : "llms.txt 없음") },
   { code: "tech-sitemap", category: "기술적 GEO", label: "XML Sitemap", recommendation: "최신 URL과 수정일을 담은 sitemap.xml을 제공하세요.", check: (_s, f) => result(Boolean(f.sitemap?.includes("<url")), f.sitemap ? "sitemap 응답 확인" : "sitemap 없음") },
@@ -235,27 +241,9 @@ export function parseAuditHtml(html: string, pageUrl: string): Snapshot {
   };
 }
 
+/** 사이트 전체(/)가 막힌 AI 크롤러 — 목적(검색·학습·사용자 요청)은 robots-policy의 AI_BOTS 참고 */
 export function blockedAiBots(robotsText: string) {
-  if (!robotsText.trim()) return [];
-  const bots = ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended"];
-  const lines = robotsText.split(/\r?\n/).map((line) => line.replace(/#.*$/, "").trim());
-  const groups: { agents: string[]; disallow: string[] }[] = [];
-  let group = { agents: [] as string[], disallow: [] as string[] };
-  for (const line of lines) {
-    const [rawKey, ...rest] = line.split(":");
-    const key = rawKey?.trim().toLowerCase();
-    const value = rest.join(":").trim();
-    if (key === "user-agent") {
-      if (group.disallow.length) { groups.push(group); group = { agents: [], disallow: [] }; }
-      group.agents.push(value.toLowerCase());
-    } else if (key === "disallow" && group.agents.length) {
-      group.disallow.push(value);
-    }
-  }
-  if (group.agents.length) groups.push(group);
-  return bots.filter((bot) => groups.some((entry) =>
-    (entry.agents.includes("*") || entry.agents.includes(bot.toLowerCase())) && entry.disallow.includes("/"),
-  ));
+  return analyzeRobotsTxt(robotsText).bots.filter((bot) => bot.access === "blocked").map((bot) => bot.token);
 }
 
 export function auditGrade(score: number) {

@@ -11,8 +11,9 @@ import { requireActiveProject } from "@/lib/projects";
 import { providerUnavailable, providerLive } from "@/lib/semforge/providers/types";
 import { mapSite } from "@/lib/integrations/firecrawl";
 import { analyzeObservation, countTechnicalIssues, recordPageSnapshot, type PageAnalysis } from "@/lib/page-snapshots";
+import type { RobotsPolicy } from "@/lib/robots-policy";
 import {
-  collectDiscoveredPages, probeLlmsTxt, RENDER_PAGE_LIMIT, urlPathDepth,
+  collectDiscoveredPages, probeLlmsTxt, probeRobotsTxt, RENDER_PAGE_LIMIT, urlPathDepth,
   type CollectHalt, type CollectMode, type CollectResult, type LlmsTxtState, type PageFetchResult, type SiteAuditDataState,
 } from "./discovery";
 
@@ -109,6 +110,8 @@ interface CrawlOutcome {
   source: string;
   renderMode: CollectMode;
   llms: { state: LlmsTxtState; detail: string };
+  /** 데모처럼 요청하지 않았으면 null */
+  robots: RobotsPolicy | null;
   collected: CollectResult | null;
   /** 수집한 페이지 순서와 같은 인덱스의 스냅샷 분석 (응답이 없으면 null) */
   analyses: Array<PageAnalysis | null>;
@@ -181,6 +184,15 @@ function persistCrawlResults(sqlite: Database.Database, campaignId: number, proj
   } else if (llms.state === "unknown") {
     addIssue({ url: llmsUrl, severity: "notice", category: "aiSearch", title: "/llms.txt 확인 불가", detail: `${llms.detail} — 없다고 판정하지 않았습니다. 나중에 다시 확인하세요.` });
   }
+  const robots = outcome.robots;
+  const robotsUrl = `https://${domain}/robots.txt`;
+  if (robots?.state === "unknown") {
+    addIssue({ url: robotsUrl, severity: "notice", category: "aiSearch", title: "robots.txt 확인 불가", detail: `${robots.detail} — AI 크롤러 허용 여부를 판정하지 않았습니다.` });
+  } else if (robots?.summary.searchBlocked.length) {
+    addIssue({ url: robotsUrl, severity: "warning", category: "aiSearch", title: "AI 검색 크롤러 차단", detail: `${robots.summary.searchBlocked.join(", ")} — 이 크롤러를 쓰는 AI 검색 답변에서 사이트가 빠질 수 있습니다.` });
+  } else if (robots?.summary.trainingBlocked.length) {
+    addIssue({ url: robotsUrl, severity: "notice", category: "aiSearch", title: "학습용 AI 크롤러만 차단", detail: `${robots.summary.trainingBlocked.join(", ")} — 모델 학습 거부 설정이며 AI 검색 노출과는 별개입니다.` });
+  }
   if (links.length < 3) {
     addIssue({ url: links[0] ?? "", severity: "notice", category: "coverage", title: "발견 URL 적음", detail: `Map으로 발견한 URL이 ${links.length}개입니다. 내부 링크·사이트맵을 점검하세요.` });
   }
@@ -211,9 +223,9 @@ function persistCrawlResults(sqlite: Database.Database, campaignId: number, proj
   const dataState = requestedAny ? "measured" as const : "discovered" as const;
   const status = halted === "cancelled" ? "cancelled" as const : failed.length > 0 || halted ? "partial" as const : "completed" as const;
   sqlite.prepare(`
-    UPDATE site_audit_campaigns SET status = ?, site_health = NULL, data_state = ?, llms_txt_state = ?, cancel_requested = 0,
+    UPDATE site_audit_campaigns SET status = ?, site_health = NULL, data_state = ?, llms_txt_state = ?, robots_policy = ?, cancel_requested = 0,
       last_run_at = ?, updated_at = ? WHERE id = ?
-  `).run(status, dataState, llms.state, now, now, campaignId);
+  `).run(status, dataState, llms.state, robots ? JSON.stringify(robots) : null, now, now, campaignId);
 
   return {
     campaignId,
@@ -327,9 +339,9 @@ export async function runSiteAuditCampaign(idInput: unknown, optionsInput: unkno
   try {
     const map = await fetchCrawlLinks(campaign.domain, controller.signal);
     const demo = map.source === "mock-dev";
-    const llms = demo
-      ? { state: "unknown" as const, detail: "데모 모드에서는 실제 요청하지 않습니다" }
-      : await probeLlmsTxt(campaign.domain);
+    const [llms, robots] = demo
+      ? [{ state: "unknown" as const, detail: "데모 모드에서는 실제 요청하지 않습니다" }, null]
+      : await Promise.all([probeLlmsTxt(campaign.domain), probeRobotsTxt(campaign.domain)]);
     const collected = demo ? null : await collectDiscoveredPages(map.links, campaign.domain, {
       mode: options.renderMode,
       apiKey: map.apiKey,
@@ -338,7 +350,7 @@ export async function runSiteAuditCampaign(idInput: unknown, optionsInput: unkno
     });
     const analyses = analyzeCollectedPages(collected, campaign.domain);
     return transactionalMutation(sqlite, () => persistCrawlResults(sqlite, id, project.id, campaign.domain, {
-      links: map.links, source: map.source, renderMode: options.renderMode, llms, collected, analyses, invalid: map.invalid, duplicates: map.duplicates,
+      links: map.links, source: map.source, renderMode: options.renderMode, llms, robots, collected, analyses, invalid: map.invalid, duplicates: map.duplicates,
     }));
   } catch (error) {
     const cancelled = error instanceof AppError && error.code === "FIRECRAWL_CANCELLED";
@@ -402,10 +414,10 @@ export function getSiteAuditOverview(campaignIdInput: unknown) {
   const campaignId = z.coerce.number().int().positive().parse(campaignIdInput);
   const { sqlite } = getDatabase();
   const campaign = sqlite.prepare(`
-    SELECT id, name, domain, ${DISPLAY_STATUS} AS status, site_health, data_state, llms_txt_state, last_run_at FROM site_audit_campaigns WHERE id = ? AND project_id = ?
+    SELECT id, name, domain, ${DISPLAY_STATUS} AS status, site_health, data_state, llms_txt_state, robots_policy, last_run_at FROM site_audit_campaigns WHERE id = ? AND project_id = ?
   `).get(staleBefore(), campaignId, project.id) as {
     id: number; name: string; domain: string; status: string; site_health: number | null;
-    data_state: SiteAuditDataState; llms_txt_state: LlmsTxtState | null; last_run_at: string | null;
+    data_state: SiteAuditDataState; llms_txt_state: LlmsTxtState | null; robots_policy: string | null; last_run_at: string | null;
   } | undefined;
   if (!campaign) throw semforgeError("NOT_FOUND", "캠페인을 찾을 수 없습니다.");
   const locked = (() => { try { requireSemforgeSubscription(); return false; } catch { return true; } })();
@@ -464,7 +476,7 @@ function healthGrade(score: number | null) {
  */
 function buildSiteAuditBriefing(
   campaignId: number,
-  campaign: { site_health: number | null; data_state: SiteAuditDataState; llms_txt_state: LlmsTxtState | null },
+  campaign: { site_health: number | null; data_state: SiteAuditDataState; llms_txt_state: LlmsTxtState | null; robots_policy: string | null },
 ) {
   const { sqlite } = getDatabase();
   const pages = (sqlite.prepare(`
@@ -481,6 +493,7 @@ function buildSiteAuditBriefing(
   `).all(campaignId) as BriefingIssue[];
 
   const legacy = campaign.data_state === "legacy_estimate";
+  const robots = (() => { try { return campaign.robots_policy ? JSON.parse(campaign.robots_policy) as RobotsPolicy : null; } catch { return null; } })();
   const pageCount = pages.length;
   const issueCount = issues.length;
   const llmsTxtState: LlmsTxtState | null = campaign.llms_txt_state ?? (legacy && pageCount > 0 ? (pages.some((page) => page.url.includes("/llms.txt")) ? "present" : "unknown") : null);
@@ -542,6 +555,8 @@ function buildSiteAuditBriefing(
   const recommendations = [
     legacy && pageCount > 0 ? "다시 크롤해 이전 방식 추정치를 실제 관측값으로 바꾸세요." : null,
     llmsTxtState === "missing" ? "llms.txt를 사이트 루트에 배포하세요 (llms.txt 메뉴에서 초안 생성·배포 확인)." : null,
+    robots?.summary.searchBlocked.length
+      ? `robots.txt에서 검색용 AI 크롤러(${robots.summary.searchBlocked.join(", ")})를 허용할지 검토하세요. 학습용 크롤러 차단은 그대로 둬도 검색 노출과 별개입니다.` : null,
     pageCount > 0 ? "핵심 URL의 실제 응답·제목·스키마는 GEO 진단(/audit)에서 URL별로 측정하세요." : null,
     issues.some((issue) => issue.category === "coverage") ? "발견 URL이 적습니다. 내부 링크 허브와 사이트맵을 점검하세요." : null,
     issues.some((issue) => issue.category === "crawl" && issue.title !== "렌더링 수집 한도")
@@ -554,6 +569,7 @@ function buildSiteAuditBriefing(
     grade,
     dataState: campaign.data_state,
     llmsTxtState,
+    robots,
     measured,
     pageCount,
     issueCount,

@@ -32,6 +32,11 @@ export interface SiteAuditBriefingData {
   hasLlmsTxt: boolean;
   dataState?: "none" | "discovered" | "measured" | "legacy_estimate";
   llmsTxtState?: "present" | "missing" | "unknown" | null;
+  robots?: {
+    state: "parsed" | "missing" | "unknown";
+    detail: string;
+    summary: { searchBlocked: string[]; trainingBlocked: string[]; userBlocked: string[] };
+  } | null;
   measured?: { fetched: number; failed: number; ok: number; missingTitle: number; outOfScope: number; notRequested: number; rendered: number } | null;
   scoreFactors: Array<{ key: string; label: string; points: number; kind: "base" | "penalty" | "total" }>;
   severityCounts: Record<string, number>;
@@ -86,6 +91,36 @@ function pageStateLabel(page: SiteAuditBriefingData["pages"][number]) {
   if (page.fetchState === "out_of_scope") return page.renderMode ? "범위 밖 리다이렉트" : "범위 밖";
   if (page.fetchState === "discovered") return page.fetchError ? "미요청" : "미측정";
   return "추정치";
+}
+
+const robotsRows = [
+  { key: "searchBlocked", label: "검색용 차단", hint: "AI 검색 답변 노출에 영향" },
+  { key: "trainingBlocked", label: "학습용 차단", hint: "모델 학습 거부 — 검색 노출과 별개" },
+  { key: "userBlocked", label: "사용자 요청 차단", hint: "일부 서비스는 robots.txt를 적용하지 않음" },
+] as const;
+
+function RobotsPolicySummary({ robots }: { robots: NonNullable<SiteAuditBriefingData["robots"]> }) {
+  return (
+    <div className="rounded-lg border border-white/6 bg-slate-950/40 p-3">
+      <p className="mb-2 text-xs font-semibold text-slate-300">AI 크롤러 정책 (robots.txt 실제 요청)</p>
+      {robots.state === "unknown" ? (
+        <p className="text-xs text-slate-400">확인 불가 — {robots.detail}</p>
+      ) : (
+        <dl className="space-y-1.5 text-xs">
+          {robots.state === "missing" && <p className="text-slate-500">robots.txt가 없어 제한이 없는 것으로 봅니다.</p>}
+          {robotsRows.map((row) => {
+            const blocked = robots.summary[row.key];
+            return (
+              <div key={row.key} className="flex items-start justify-between gap-3">
+                <dt className="text-slate-500" title={row.hint}>{row.label}</dt>
+                <dd className={blocked.length ? (row.key === "searchBlocked" ? "text-rose-300" : "text-amber-200") : "text-emerald-300"}>{blocked.length ? blocked.join(", ") : "없음"}</dd>
+              </div>
+            );
+          })}
+        </dl>
+      )}
+    </div>
+  );
 }
 
 function HealthGauge({ score, label }: { score: number | null; label: string }) {
@@ -294,6 +329,7 @@ export function SiteAuditBriefing({
               <div className="mb-1 flex justify-between text-xs"><span className="text-slate-500">llms.txt (실제 요청)</span><span className={briefing.llmsTxtState === "present" ? "text-emerald-300" : briefing.llmsTxtState === "missing" ? "text-rose-300" : "text-slate-400"}>{briefing.llmsTxtState === "present" ? "있음" : briefing.llmsTxtState === "missing" ? "없음" : "확인 불가"}</span></div>
               <Progress value={briefing.llmsTxtState === "present" ? 100 : 0} ariaLabel="llms.txt 확인 결과" />
             </div>
+            {briefing.robots && <RobotsPolicySummary robots={briefing.robots} />}
             <div>
               {briefing.measured && (
                 <dl className="mb-3 grid grid-cols-2 gap-2 text-xs">

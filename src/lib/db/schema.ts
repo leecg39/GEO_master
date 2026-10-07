@@ -87,6 +87,7 @@ export const siteAuditCampaigns = sqliteTable("site_audit_campaigns", {
   dataState: text("data_state").notNull().default("legacy_estimate"),
   llmsTxtState: text("llms_txt_state"),
   cancelRequested: integer("cancel_requested", { mode: "boolean" }).notNull().default(false),
+  robotsPolicy: text("robots_policy"),
   lastRunAt: text("last_run_at"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
@@ -500,6 +501,7 @@ export const llmsDocuments = sqliteTable("llms_documents", {
   remoteUrl: text("remote_url"),
   remoteContentType: text("remote_content_type"),
   remoteCheckedAt: text("remote_checked_at"),
+  scopePath: text("scope_path").notNull().default("/llms.txt"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
