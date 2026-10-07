@@ -638,6 +638,14 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       addColumnIfMissing(sqlite, "site_audit_pages", "render_mode", "TEXT");
     },
   },
+  {
+    version: 19,
+    name: "site-audit-cancel-request",
+    up(sqlite) {
+      // Qshop P02: 실행 중인 크롤 취소 요청
+      addColumnIfMissing(sqlite, "site_audit_campaigns", "cancel_requested", "INTEGER NOT NULL DEFAULT 0");
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

@@ -28,16 +28,16 @@ export interface SiteAuditBriefingData {
   pageCount: number;
   issueCount: number;
   hasLlmsTxt: boolean;
-  dataState?: "none" | "discovered" | "legacy_estimate";
+  dataState?: "none" | "discovered" | "measured" | "legacy_estimate";
   llmsTxtState?: "present" | "missing" | "unknown" | null;
-  measured?: { fetched: number; failed: number; ok: number; missingTitle: number; outOfScope: number } | null;
+  measured?: { fetched: number; failed: number; ok: number; missingTitle: number; outOfScope: number; notRequested: number; rendered: number } | null;
   scoreFactors: Array<{ key: string; label: string; points: number; kind: "base" | "penalty" | "total" }>;
   severityCounts: Record<string, number>;
   radar: Array<{ axis: string; score: number; hint: string }>;
   narratives: string[];
   recommendations: string[];
   issues: Array<{ id: number; url: string; severity: string; category: string; title: string; detail: string }>;
-  pages: Array<{ url: string; statusCode: number; depth: number; fetchState?: string }>;
+  pages: Array<{ url: string; statusCode: number; depth: number; fetchState?: string; renderMode?: string | null; fetchError?: string | null }>;
   depthBuckets: Array<{ depth: string; count: number }>;
 }
 
@@ -75,6 +75,15 @@ function scoreColor(score: number | null) {
   if (score >= 75) return "#22d3ee";
   if (score >= 60) return "#fbbf24";
   return "#fb7185";
+}
+
+function pageStateLabel(page: SiteAuditBriefingData["pages"][number]) {
+  const via = page.renderMode === "rendered" ? " · 렌더링" : page.renderMode === "cache" ? " · 캐시" : "";
+  if (page.fetchState === "fetched") return `HTTP ${page.statusCode}${via}`;
+  if (page.fetchState === "failed") return page.statusCode ? `요청 실패(HTTP ${page.statusCode})` : "요청 실패";
+  if (page.fetchState === "out_of_scope") return page.renderMode ? "범위 밖 리다이렉트" : "범위 밖";
+  if (page.fetchState === "discovered") return page.fetchError ? "미요청" : "미측정";
+  return "추정치";
 }
 
 function HealthGauge({ score, label }: { score: number | null; label: string }) {
@@ -183,7 +192,9 @@ export function SiteAuditBriefing({
             <p className="rounded-lg border border-white/6 bg-slate-950/40 p-4 text-sm leading-6 text-slate-400">
               {briefing.dataState === "legacy_estimate"
                 ? "이전 버전 결과는 페이지를 실제로 요청하지 않고 계산한 추정치라 산출 근거를 표시하지 않습니다. 다시 크롤하세요."
-                : "Firecrawl Map으로 URL만 발견했고 페이지를 요청하지 않았기 때문에 건강 점수를 계산하지 않습니다. URL별 실측은 GEO 진단(/audit)에서 할 수 있습니다."}
+                : briefing.dataState === "measured"
+                  ? "페이지를 실제로 요청해 응답·제목을 기록했지만, 여러 신호를 하나로 합친 종합 건강 점수는 만들지 않습니다. 관측 수치는 오른쪽 레이더와 아래 'AI 검색 신호'에서 분모와 함께 확인하세요."
+                  : "Firecrawl Map으로 URL만 발견했고 페이지를 요청하지 않았기 때문에 건강 점수를 계산하지 않습니다. URL별 실측은 GEO 진단(/audit)에서 할 수 있습니다."}
             </p>
           ) : (
           <div className="grid gap-4 lg:grid-cols-2">
@@ -287,6 +298,8 @@ export function SiteAuditBriefing({
                   <div><dt className="text-slate-500">요청 실패(분모 제외)</dt><dd className="text-white">{briefing.measured.failed}</dd></div>
                   <div><dt className="text-slate-500">제목 없음</dt><dd className="text-white">{briefing.measured.missingTitle}</dd></div>
                   <div><dt className="text-slate-500">범위 밖 URL</dt><dd className="text-white">{briefing.measured.outOfScope}</dd></div>
+                  <div><dt className="text-slate-500">미요청(취소·한도)</dt><dd className="text-white">{briefing.measured.notRequested}</dd></div>
+                  <div><dt className="text-slate-500">렌더링 수집</dt><dd className="text-white">{briefing.measured.rendered}</dd></div>
                 </dl>
               )}
               <div className="mb-1 flex justify-between text-xs"><span className="text-slate-500">발견 URL (Map)</span><span className="text-cyan-300">{briefing.pageCount} URL</span></div>
@@ -351,7 +364,7 @@ export function SiteAuditBriefing({
               <li key={page.url} className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-white/5">
                 <Badge tone="default">d{page.depth}</Badge>
                 <span className="truncate text-slate-400">{page.url}</span>
-                <span className="ml-auto shrink-0 text-[10px] text-slate-500">{page.fetchState === "fetched" ? `HTTP ${page.statusCode}` : page.fetchState === "failed" ? "요청 실패" : page.fetchState === "out_of_scope" ? "범위 밖" : page.fetchState === "discovered" ? "미측정" : "추정치"}</span>
+                <span className="ml-auto shrink-0 text-[10px] text-slate-500" title={page.fetchError ?? undefined}>{pageStateLabel(page)}</span>
               </li>
             ))}
           </ul>

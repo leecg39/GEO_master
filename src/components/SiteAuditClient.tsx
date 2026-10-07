@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { CheckCircle2, ChevronDown, LoaderCircle, Play, Plus, Trash2 } from "lucide-react";
+import { CheckCircle2, ChevronDown, LoaderCircle, Play, Plus, Square, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/CrudPrimitives";
 import { SemforgeGateBanner } from "@/components/SemforgeGateBanner";
 import { SiteAuditBriefing, type SiteAuditBriefingData } from "@/components/SiteAuditBriefing";
@@ -24,14 +24,30 @@ interface FirecrawlState {
   reason?: string;
 }
 
+type RenderMode = "native" | "rendered";
+type Halt = "cancelled" | "rate_limited" | "credits_exhausted" | "auth_failed";
+
 interface RunResult {
   status: string;
   crawledPages?: number;
   fetchedPages?: number;
   failedPages?: number;
+  notRequested?: number;
+  halted?: Halt | null;
+  renderMode?: RenderMode;
   siteHealth?: number | null;
   source?: string;
 }
+
+const haltLabels: Record<Halt, string> = {
+  cancelled: "취소됨",
+  rate_limited: "요청 한도(429)로 중단",
+  credits_exhausted: "Firecrawl 크레딧 부족으로 중단",
+  auth_failed: "Firecrawl 인증 오류로 중단",
+};
+
+/** 렌더링 수집 시 한 번에 요청하는 최대 페이지 수 (서버 RENDER_PAGE_LIMIT와 같음) */
+const RENDER_PAGE_LIMIT = 10;
 
 async function parse<T>(response: Response): Promise<T> {
   const body = await response.json() as T & { error?: string };
@@ -44,6 +60,7 @@ const statusTone = (status: string): "default" | "good" | "warn" | "bad" | "cyan
   if (status === "partial") return "warn";
   if (status === "running") return "cyan";
   if (status === "failed") return "bad";
+  if (status === "cancelled" || status === "interrupted") return "warn";
   return "default";
 };
 
@@ -53,6 +70,8 @@ function statusLabel(status: string) {
   if (status === "partial") return "일부 실패";
   if (status === "failed") return "실패";
   if (status === "idle") return "대기";
+  if (status === "cancelled") return "취소됨";
+  if (status === "interrupted") return "중단됨(서버 재시작)";
   return status;
 }
 
@@ -72,6 +91,8 @@ export function SiteAuditClient() {
   const [briefingLoading, setBriefingLoading] = useState(false);
   const [selectedMeta, setSelectedMeta] = useState<{ name: string; domain: string; lastRunAt: string | null } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Campaign | null>(null);
+  const [renderMode, setRenderMode] = useState<RenderMode>("native");
+  const [cancellingId, setCancellingId] = useState<number | null>(null);
 
   async function load() {
     const data = await parse<{ campaigns: Campaign[]; firecrawl: FirecrawlState }>(await fetch("/api/site-audit"));
@@ -156,19 +177,25 @@ export function SiteAuditClient() {
     setError("");
     setMessage("");
     try {
+      const mode = firecrawl.status === "live" ? renderMode : "native";
       const data = await parse<{ result: RunResult }>(await fetch(`/api/site-audit?id=${id}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
-        body: "{}",
+        body: JSON.stringify({ renderMode: mode }),
       }));
       const updated = await load();
-      if (data.result.status === "completed" || data.result.status === "partial") {
-        const measuredText = data.result.fetchedPages
-          ? ` · 실측 ${data.result.fetchedPages}개${data.result.failedPages ? ` (요청 실패 ${data.result.failedPages}개)` : ""}`
+      const result = data.result;
+      if (result.status === "cancelled") {
+        setMessage(`크롤을 취소했습니다 · 실측 ${result.fetchedPages ?? 0}개 저장 · 미요청 ${result.notRequested ?? 0}개`);
+      } else if (result.status === "completed" || result.status === "partial") {
+        const measuredText = result.fetchedPages
+          ? ` · ${result.renderMode === "rendered" ? "렌더링 " : ""}실측 ${result.fetchedPages}개${result.failedPages ? ` (요청 실패 ${result.failedPages}개)` : ""}`
           : " · 페이지 미측정";
+        const skippedText = result.notRequested ? ` · 미요청 ${result.notRequested}개` : "";
+        const haltText = result.halted ? ` · ${haltLabels[result.halted]}` : "";
         setMessage(
-          `URL 발견 ${data.result.crawledPages ?? 0}개${measuredText} · 건강 점수 ${data.result.siteHealth ?? "미측정"}`
-          + (data.result.source === "mock-dev" ? " (데모)" : ""),
+          `URL 발견 ${result.crawledPages ?? 0}개${measuredText}${skippedText}${haltText} · 건강 점수 ${result.siteHealth ?? "미측정"}`
+          + (result.source === "mock-dev" ? " (데모)" : ""),
         );
       }
       if (selectedId === id) {
@@ -181,6 +208,25 @@ export function SiteAuditClient() {
     } finally {
       setBusy(false);
       setRunningId(null);
+    }
+  }
+
+  async function cancel(id: number) {
+    setCancellingId(id);
+    setError("");
+    try {
+      await parse(await fetch(`/api/site-audit?id=${id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "cancel" }),
+      }));
+      setMessage("취소를 요청했습니다. 진행 중인 요청이 끝나면 멈춥니다.");
+      if (runningId !== id) await load();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "취소 실패");
+      await load();
+    } finally {
+      setCancellingId(null);
     }
   }
 
@@ -244,6 +290,20 @@ export function SiteAuditClient() {
             </form>
           </Card>
           <Card>
+            {firecrawl?.status === "live" && (
+              <fieldset className="mb-4 flex flex-col gap-2 rounded-xl border border-white/7 bg-slate-950/35 p-3 text-sm sm:flex-row sm:items-center sm:gap-5">
+                <legend className="sr-only">페이지 수집 방식</legend>
+                <span className="text-xs font-semibold text-slate-400">수집 방식</span>
+                <label className="flex items-center gap-2 text-slate-300">
+                  <input type="radio" name="render-mode" className="h-4 w-4" checked={renderMode === "native"} onChange={() => setRenderMode("native")} disabled={busy} />
+                  일반 요청 <span className="text-xs text-slate-500">(크레딧 없음, 최대 25페이지)</span>
+                </label>
+                <label className="flex items-center gap-2 text-slate-300">
+                  <input type="radio" name="render-mode" className="h-4 w-4" checked={renderMode === "rendered"} onChange={() => setRenderMode("rendered")} disabled={busy} />
+                  렌더링 수집 <span className="text-xs text-slate-500">(Firecrawl 크레딧 페이지당 1, 최대 {RENDER_PAGE_LIMIT}페이지)</span>
+                </label>
+              </fieldset>
+            )}
             {campaigns.length === 0 ? <EmptyState>사이트 진단 캠페인을 추가하세요.</EmptyState> : (
               <ul className="space-y-3">
                 {campaigns.map((campaign) => {
@@ -276,13 +336,24 @@ export function SiteAuditClient() {
                       <div className="flex shrink-0 flex-wrap items-center gap-2">
                         <Button
                           variant="secondary"
-                          disabled={busy || !crawlReady}
+                          disabled={busy || !crawlReady || isRunning}
                           onClick={(e) => { e.stopPropagation(); void run(campaign.id); }}
                         >
                           {isRunning ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
                           {isRunning ? "크롤 중" : "크롤 실행"}
                         </Button>
-                        {(campaign.status === "completed" || campaign.status === "partial") && (
+                        {isRunning && (
+                          <Button
+                            variant="danger"
+                            disabled={cancellingId === campaign.id}
+                            aria-label={`${campaign.name} 크롤 취소`}
+                            onClick={(e) => { e.stopPropagation(); void cancel(campaign.id); }}
+                          >
+                            <Square className="h-4 w-4" />
+                            {cancellingId === campaign.id ? "취소 요청 중" : "취소"}
+                          </Button>
+                        )}
+                        {!isRunning && (
                           <Button
                             variant="danger"
                             disabled={busy}

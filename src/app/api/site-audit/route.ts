@@ -1,7 +1,7 @@
 import { withSemforgeAccount } from "@/lib/semforge-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { errorResponse } from "@/lib/errors";
+import { AppError, errorResponse } from "@/lib/errors";
 import { createSiteAuditCampaign, deleteSiteAuditCampaign, getSiteAuditOverview, getSiteAuditWorkspace } from "@/lib/semforge/siteaudit";
 
 export const runtime = "nodejs";
@@ -28,10 +28,15 @@ async function handlePOST(request: NextRequest) {
 async function handlePATCH(request: NextRequest) {
   try {
     const id = z.coerce.number().int().positive().parse(request.nextUrl.searchParams.get("id"));
-    const { runSiteAuditCampaign } = await import("@/lib/semforge/siteaudit");
-    return NextResponse.json({ result: await runSiteAuditCampaign(id) });
+    const text = await request.text();
+    const body: unknown = text.trim() ? JSON.parse(text) : {};
+    const { cancelSiteAuditCampaign, runSiteAuditCampaign } = await import("@/lib/semforge/siteaudit");
+    if (body && typeof body === "object" && (body as { action?: unknown }).action === "cancel") {
+      return NextResponse.json({ result: cancelSiteAuditCampaign(id) });
+    }
+    return NextResponse.json({ result: await runSiteAuditCampaign(id, body) });
   } catch (error) {
-    return errorResponse(error);
+    return errorResponse(error instanceof SyntaxError ? new AppError("요청 본문이 올바른 JSON이 아닙니다.", 400, "INVALID_JSON") : error);
   }
 }
 

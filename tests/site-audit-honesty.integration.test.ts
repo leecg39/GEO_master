@@ -13,6 +13,7 @@ import { applyDatabaseMigrations, closeDatabase, DATABASE_MIGRATIONS, getDatabas
 import { createProject, ensureActiveProject } from "@/lib/projects";
 import { confirmSemforgePayment, createSemforgeCheckout } from "@/lib/semforge-subscription";
 import { createSiteAuditCampaign, getSiteAuditOverview, probeLlmsTxt, runSiteAuditCampaign, urlPathDepth } from "@/lib/semforge/siteaudit";
+import { AppError } from "@/lib/errors";
 import { fetchPublicText } from "@/lib/url-security";
 
 const directory = fs.mkdtempSync(path.join(os.tmpdir(), "geo-site-audit-honesty-"));
@@ -21,6 +22,7 @@ const request = vi.fn();
 let sequence = 0;
 const mapResponse = () => Response.json({ success: true, links: ["https://example.com", "https://example.com/about", "https://example.com/blog/post-1"] });
 const fetched = (status: number, text: string, contentType = "text/plain") => ({ url: "https://example.com/llms.txt", status, text, contentType });
+const llms404 = (url: string) => ({ url, status: 404, text: "", contentType: "text/plain" });
 
 beforeEach(() => {
   vi.stubEnv("GEO_DB_PATH", databasePath);
@@ -139,6 +141,19 @@ describe("Qshop P02: discovered URLs are actually fetched", () => {
     expect(briefing.radar.find((axis) => axis.axis === "정상 응답 비율")).toMatchObject({ score: 67 });
   });
 
+  it("records an off-site redirect as out of scope instead of a measured page", async () => {
+    request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com/moved"] }));
+    vi.mocked(fetchPublicText).mockImplementation((url: string) => url.endsWith("/llms.txt")
+      ? Promise.resolve({ url, status: 404, text: "", contentType: "text/plain" })
+      : Promise.resolve({ url: "https://other.example.net/landing", status: 200, text: "<title>남의 사이트</title>", contentType: "text/html" }));
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    expect(await runSiteAuditCampaign(campaign.id)).toMatchObject({ fetchedPages: 0, outOfScope: 1 });
+    expect(getDatabase().sqlite.prepare("SELECT status_code, fetch_state, final_url, title, render_mode FROM site_audit_pages WHERE campaign_id = ?").get(campaign.id))
+      .toEqual({ status_code: 200, fetch_state: "out_of_scope", final_url: "https://other.example.net/landing", title: null, render_mode: "native" });
+    const titles = getDatabase().sqlite.prepare("SELECT title FROM site_audit_issues WHERE campaign_id = ?").all(campaign.id).map((row) => (row as { title: string }).title);
+    expect(titles).toContain("사이트 범위 밖으로 리다이렉트");
+  });
+
   it("parses titles and accepts subdomains as in scope", async () => {
     const { isInScope, extractTitle } = await import("@/lib/semforge/siteaudit/discovery");
     expect(isInScope("https://blog.example.com/a", "example.com")).toBe(true);
@@ -146,5 +161,191 @@ describe("Qshop P02: discovered URLs are actually fetched", () => {
     expect(isInScope("not a url", "example.com")).toBe(false);
     expect(extractTitle("<html><head><title>  제목  &amp; 부제 </title></head></html>")).toBe("제목 & 부제");
     expect(extractTitle("plain text")).toBeNull();
+  });
+});
+
+describe("Qshop P02: rate limits, cancellation and repeated runs", () => {
+  const pageLinks = (count: number) => Array.from({ length: count }, (_, index) => `https://example.com/p${index}`);
+  const pageCalls = () => vi.mocked(fetchPublicText).mock.calls.filter(([url]) => !String(url).endsWith("/llms.txt")).length;
+
+  it("retries a 429 once, then stops requesting the site and leaves the rest unrequested", async () => {
+    request.mockImplementation(() => Response.json({ success: true, links: pageLinks(8) }));
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => url.endsWith("/llms.txt")
+      ? llms404(url)
+      : { url, status: 429, text: "slow down", contentType: "text/plain", retryAfter: "0" });
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    const result = await runSiteAuditCampaign(campaign.id);
+    expect(result).toMatchObject({ status: "partial", halted: "rate_limited", fetchedPages: 0, failedPages: 4, notRequested: 4 });
+    expect(pageCalls()).toBe(8);
+    const rows = getDatabase().sqlite.prepare("SELECT fetch_state, status_code, COUNT(*) AS count FROM site_audit_pages WHERE campaign_id = ? GROUP BY fetch_state, status_code ORDER BY fetch_state").all(campaign.id);
+    expect(rows).toEqual([{ fetch_state: "discovered", status_code: 0, count: 4 }, { fetch_state: "failed", status_code: 429, count: 4 }]);
+    const titles = getDatabase().sqlite.prepare("SELECT title FROM site_audit_issues WHERE campaign_id = ?").all(campaign.id).map((row) => (row as { title: string }).title);
+    expect(titles).toContain("요청 한도로 수집 중단");
+    const briefing = getSiteAuditOverview(campaign.id).briefing;
+    expect(briefing.measured).toMatchObject({ fetched: 0, failed: 4, notRequested: 4 });
+    expect(briefing.recommendations.join(" ")).not.toContain("발견 URL이 적습니다");
+    expect(briefing.recommendations.join(" ")).toContain("수집이 중간에 멈췄습니다");
+  });
+
+  it("keeps a page that succeeds on the retry after a 429", async () => {
+    request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com"] }));
+    let attempts = 0;
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => {
+      if (url.endsWith("/llms.txt")) return llms404(url);
+      attempts += 1;
+      return attempts === 1
+        ? { url, status: 429, text: "", contentType: "text/plain", retryAfter: "0" }
+        : { url, status: 200, text: "<title>홈</title>", contentType: "text/html" };
+    });
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    expect(await runSiteAuditCampaign(campaign.id)).toMatchObject({ status: "completed", halted: null, fetchedPages: 1, failedPages: 0 });
+  });
+
+  it("blocks a second run while one is in progress, cancels on request and keeps the pages already measured", async () => {
+    const { cancelSiteAuditCampaign, deleteSiteAuditCampaign } = await import("@/lib/semforge/siteaudit");
+    request.mockImplementation(() => Response.json({ success: true, links: pageLinks(10) }));
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => {
+      if (url.endsWith("/llms.txt")) return llms404(url);
+      await gate;
+      return { url, status: 200, text: "<title>페이지</title>", contentType: "text/html" };
+    });
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    expect(() => cancelSiteAuditCampaign(campaign.id)).toThrow(expect.objectContaining({ code: "SITE_AUDIT_NOT_RUNNING" }));
+    const running = runSiteAuditCampaign(campaign.id);
+    await vi.waitFor(() => expect(pageCalls()).toBe(4));
+    await expect(runSiteAuditCampaign(campaign.id)).rejects.toMatchObject({ status: 409, code: "SITE_AUDIT_RUNNING" });
+    expect(() => deleteSiteAuditCampaign(campaign.id)).toThrow(expect.objectContaining({ code: "VALIDATION_ERROR" }));
+    expect(cancelSiteAuditCampaign(campaign.id)).toMatchObject({ id: campaign.id, cancelRequested: true });
+    release();
+    const result = await running;
+    expect(result).toMatchObject({ status: "cancelled", halted: "cancelled", fetchedPages: 4, notRequested: 6 });
+    expect(pageCalls()).toBe(4);
+    const notes = getDatabase().sqlite.prepare("SELECT DISTINCT fetch_error FROM site_audit_pages WHERE campaign_id = ? AND fetch_state = 'discovered'").all(campaign.id);
+    expect(notes).toEqual([{ fetch_error: expect.stringContaining("취소") }]);
+    expect(getDatabase().sqlite.prepare("SELECT status, cancel_requested FROM site_audit_campaigns WHERE id = ?").get(campaign.id)).toEqual({ status: "cancelled", cancel_requested: 0 });
+    expect(deleteSiteAuditCampaign(campaign.id)).toMatchObject({ deleted: true });
+  });
+
+  it("lets a stale running state from a crashed process be re-run", async () => {
+    request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com"] }));
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => url.endsWith("/llms.txt") ? llms404(url) : { url, status: 200, text: "<title>홈</title>", contentType: "text/html" });
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    getDatabase().sqlite.prepare("UPDATE site_audit_campaigns SET status = 'running', updated_at = '2026-01-01T00:00:00.000Z' WHERE id = ?").run(campaign.id);
+    expect(await runSiteAuditCampaign(campaign.id)).toMatchObject({ status: "completed" });
+  });
+
+  it("shows an abandoned running state as interrupted and lets cancel release it", async () => {
+    const { cancelSiteAuditCampaign, listSiteAuditCampaigns } = await import("@/lib/semforge/siteaudit");
+    const stale = createSiteAuditCampaign({ name: "Stale", domain: "example.com" });
+    const orphan = createSiteAuditCampaign({ name: "Orphan", domain: "example.org" });
+    const db = getDatabase().sqlite;
+    db.prepare("UPDATE site_audit_campaigns SET status = 'running', updated_at = '2026-01-01T00:00:00.000Z' WHERE id = ?").run(stale.id);
+    db.prepare("UPDATE site_audit_campaigns SET status = 'running', updated_at = ? WHERE id = ?").run(new Date().toISOString(), orphan.id);
+    expect(listSiteAuditCampaigns().find((item) => item.id === stale.id)?.status).toBe("interrupted");
+    expect(getSiteAuditOverview(stale.id).campaign.status).toBe("interrupted");
+    // 이 프로세스에서 돌고 있지 않은 실행(서버 재시작 직후)은 취소하면 바로 풀린다
+    expect(cancelSiteAuditCampaign(orphan.id)).toMatchObject({ cancelRequested: true, released: true });
+    expect(db.prepare("SELECT status FROM site_audit_campaigns WHERE id = ?").get(orphan.id)).toEqual({ status: "cancelled" });
+  });
+
+  it("does not label a run cancelled before any page request as measured", async () => {
+    const { cancelSiteAuditCampaign } = await import("@/lib/semforge/siteaudit");
+    request.mockImplementation(() => Response.json({ success: true, links: pageLinks(3) }));
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => {
+      await gate;
+      return llms404(url);
+    });
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    const running = runSiteAuditCampaign(campaign.id);
+    await vi.waitFor(() => expect(vi.mocked(fetchPublicText)).toHaveBeenCalledTimes(1));
+    cancelSiteAuditCampaign(campaign.id);
+    release();
+    expect(await running).toMatchObject({ status: "cancelled", dataState: "discovered", fetchedPages: 0, notRequested: 3 });
+    expect(pageCalls()).toBe(0);
+  });
+
+  it("records an in-flight request interrupted by cancel as interrupted, not as never requested", async () => {
+    const { cancelSiteAuditCampaign } = await import("@/lib/semforge/siteaudit");
+    request.mockImplementation(() => Response.json({ success: true, links: pageLinks(1) }));
+    vi.mocked(fetchPublicText).mockImplementation((url: string, _timeout?: number, options?: { signal?: AbortSignal }) => {
+      if (url.endsWith("/llms.txt")) return Promise.resolve(llms404(url));
+      return new Promise((_resolve, reject) => options?.signal?.addEventListener("abort", () => reject(new AppError("요청을 취소했습니다.", 409, "FETCH_CANCELLED"))));
+    });
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    const running = runSiteAuditCampaign(campaign.id);
+    await vi.waitFor(() => expect(pageCalls()).toBe(1));
+    cancelSiteAuditCampaign(campaign.id);
+    expect(await running).toMatchObject({ status: "cancelled", notRequested: 1 });
+    expect(getDatabase().sqlite.prepare("SELECT fetch_error FROM site_audit_pages WHERE campaign_id = ?").get(campaign.id))
+      .toEqual({ fetch_error: expect.stringContaining("요청을 중단") });
+  });
+
+  it("does not claim a rendered collection in demo mode", async () => {
+    vi.stubEnv("FIRECRAWL_API_KEY", "");
+    vi.stubEnv("SEMFORGE_MOCK_FIRECRAWL", "1");
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    expect(await runSiteAuditCampaign(campaign.id, { renderMode: "rendered" })).toMatchObject({ renderMode: null, dataState: "discovered" });
+  });
+
+  it("allows deleting a partially failed campaign", async () => {
+    const { deleteSiteAuditCampaign } = await import("@/lib/semforge/siteaudit");
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    getDatabase().sqlite.prepare("UPDATE site_audit_campaigns SET status = 'partial' WHERE id = ?").run(campaign.id);
+    expect(deleteSiteAuditCampaign(campaign.id)).toMatchObject({ deleted: true });
+  });
+});
+
+describe("Qshop P02: rendered collection through Firecrawl Scrape", () => {
+  const links = Array.from({ length: 12 }, (_, index) => ({ url: index === 0 ? "https://example.com/gone" : `https://example.com/r${index}` }));
+  function firecrawl(scrape: (url: string) => Response) {
+    return (url: string, init?: RequestInit) => {
+      if (String(url).endsWith("/v2/map")) return Promise.resolve(Response.json({ success: true, links }));
+      return Promise.resolve(scrape(JSON.parse(String(init?.body)).url as string));
+    };
+  }
+
+  it("renders at most 10 pages, stores the page's own status and marks the rest unrequested", async () => {
+    request.mockImplementation(firecrawl((url) => Response.json({
+      success: true,
+      data: { rawHtml: `<html><title>${url.split("/").pop()}</title></html>`, markdown: "# 본문", metadata: { statusCode: url.endsWith("/gone") ? 404 : 200, url, sourceURL: url } },
+    })));
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => ({ url, status: 200, text: "# llms", contentType: "text/plain" }));
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    const result = await runSiteAuditCampaign(campaign.id, { renderMode: "rendered" });
+    expect(result).toMatchObject({ status: "completed", renderMode: "rendered", fetchedPages: 10, notRequested: 2, halted: null });
+    expect(request.mock.calls.filter(([url]) => String(url).endsWith("/v2/scrape"))).toHaveLength(10);
+    expect(vi.mocked(fetchPublicText).mock.calls.map(([url]) => url)).toEqual(["https://example.com/llms.txt"]);
+    const gone = getDatabase().sqlite.prepare("SELECT status_code, fetch_state, title, render_mode, content_hash IS NOT NULL AS hashed FROM site_audit_pages WHERE campaign_id = ? AND url = 'https://example.com/gone'").get(campaign.id);
+    expect(gone).toEqual({ status_code: 404, fetch_state: "fetched", title: "gone", render_mode: "rendered", hashed: 1 });
+    const skipped = getDatabase().sqlite.prepare("SELECT fetch_error FROM site_audit_pages WHERE campaign_id = ? AND fetch_state = 'discovered'").all(campaign.id);
+    expect(skipped).toEqual([{ fetch_error: expect.stringContaining("렌더링 수집 한도") }, { fetch_error: expect.stringContaining("렌더링 수집 한도") }]);
+  });
+
+  it("stops rendering when Firecrawl credits run out and keeps a contract failure per page", async () => {
+    let scrapes = 0;
+    request.mockImplementation(firecrawl(() => {
+      scrapes += 1;
+      if (scrapes === 1) return Response.json({ success: true, data: { metadata: {} } });
+      return Response.json({ success: false, error: "Insufficient credits" }, { status: 402 });
+    }));
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => llms404(url));
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    const result = await runSiteAuditCampaign(campaign.id, { renderMode: "rendered" });
+    expect(result).toMatchObject({ status: "partial", halted: "credits_exhausted", fetchedPages: 0 });
+    expect(scrapes).toBeLessThanOrEqual(3);
+    const errors = getDatabase().sqlite.prepare("SELECT fetch_error FROM site_audit_pages WHERE campaign_id = ? AND fetch_state = 'failed'").all(campaign.id).map((row) => (row as { fetch_error: string }).fetch_error);
+    expect(errors.some((error) => error.includes("응답 형식"))).toBe(true);
+    expect(errors.some((error) => error.includes("크레딧"))).toBe(true);
+    const titles = getDatabase().sqlite.prepare("SELECT title FROM site_audit_issues WHERE campaign_id = ?").all(campaign.id).map((row) => (row as { title: string }).title);
+    expect(titles).toContain("Firecrawl 크레딧 부족으로 수집 중단");
+  });
+
+  it("rejects unknown run options", async () => {
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    await expect(runSiteAuditCampaign(campaign.id, { renderMode: "headless-chrome" })).rejects.toThrow();
   });
 });

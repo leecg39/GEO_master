@@ -123,13 +123,26 @@ function headerText(headers: IncomingHttpHeaders, name: string) {
   return Array.isArray(value) ? value.join(", ") : value ?? "";
 }
 
-function requestPinned(resolved: ResolvedPublicUrl, timeoutMs: number): Promise<PinnedResponse> {
+function cancelledError() {
+  return new AppError("요청을 취소했습니다.", 409, "FETCH_CANCELLED");
+}
+
+function requestPinned(resolved: ResolvedPublicUrl, timeoutMs: number, signal?: AbortSignal): Promise<PinnedResponse> {
   return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(cancelledError());
+      return;
+    }
     let settled = false;
     const fail = (error: unknown) => {
       if (settled) return;
       settled = true;
+      signal?.removeEventListener("abort", onAbort);
       reject(error instanceof AppError ? error : new AppError("대상 사이트에 연결하지 못했습니다.", 502, "FETCH_FAILED"));
+    };
+    const onAbort = () => {
+      request.destroy();
+      fail(cancelledError());
     };
     const transport = resolved.url.protocol === "https:" ? https : http;
     const request = transport.request(resolved.url, {
@@ -169,6 +182,7 @@ function requestPinned(resolved: ResolvedPublicUrl, timeoutMs: number): Promise<
       response.on("end", () => {
         if (settled) return;
         settled = true;
+        signal?.removeEventListener("abort", onAbort);
         resolve({
           status: response.statusCode ?? 0,
           headers: response.headers,
@@ -178,6 +192,7 @@ function requestPinned(resolved: ResolvedPublicUrl, timeoutMs: number): Promise<
     });
     request.setTimeout(timeoutMs, () => request.destroy(new Error("request timeout")));
     request.on("error", fail);
+    signal?.addEventListener("abort", onAbort, { once: true });
     request.end();
   });
 }
@@ -187,12 +202,14 @@ export interface FetchedText {
   status: number;
   text: string;
   contentType: string;
+  /** 429·503 응답의 Retry-After 원문 */
+  retryAfter?: string | null;
 }
 
-export async function fetchPublicText(input: string, timeoutMs = 12_000): Promise<FetchedText> {
+export async function fetchPublicText(input: string, timeoutMs = 12_000, options: { signal?: AbortSignal } = {}): Promise<FetchedText> {
   let resolved = await resolvePublicUrl(input);
   for (let redirect = 0; redirect <= MAX_REDIRECTS; redirect += 1) {
-    const response = await requestPinned(resolved, timeoutMs);
+    const response = await requestPinned(resolved, timeoutMs, options.signal);
     if ([301, 302, 303, 307, 308].includes(response.status)) {
       const location = headerText(response.headers, "location");
       if (!location) throw new AppError("리다이렉트 위치가 비어 있습니다.", 502, "INVALID_REDIRECT");
@@ -205,6 +222,7 @@ export async function fetchPublicText(input: string, timeoutMs = 12_000): Promis
       status: response.status,
       text: response.text,
       contentType: headerText(response.headers, "content-type"),
+      retryAfter: headerText(response.headers, "retry-after") || null,
     };
   }
   throw new AppError("대상 사이트를 가져오지 못했습니다.", 502, "FETCH_FAILED");
