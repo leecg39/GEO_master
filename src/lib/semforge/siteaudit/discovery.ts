@@ -8,6 +8,7 @@ import { createHash } from "node:crypto";
 import * as cheerio from "cheerio";
 import { AppError } from "@/lib/errors";
 import { isFirecrawlAccountError, parseRetryAfter, scrapePage } from "@/lib/integrations/firecrawl";
+import type { BodyKind } from "@/lib/page-snapshots";
 import { fetchPublicText } from "@/lib/url-security";
 
 export type LlmsTxtState = "present" | "missing" | "unknown";
@@ -70,6 +71,10 @@ export interface PageFetchResult {
   contentHash: string | null;
   error: string | null;
   renderMode: PageRenderMode | null;
+  /** 응답 본문 — 스냅샷 분석용으로만 쓰고 site_audit_pages에는 저장하지 않는다 */
+  body: string | null;
+  bodyKind: BodyKind | null;
+  contentType: string | null;
 }
 
 export interface CollectOptions {
@@ -101,7 +106,7 @@ const errorMessage = (error: unknown) => (error instanceof Error ? error.message
 const errorCode = (error: unknown) => (error instanceof AppError ? error.code : null);
 
 function notRequested(url: string, note: string | null, state: PageFetchState = "discovered"): PageFetchResult {
-  return { url, state, statusCode: 0, finalUrl: null, title: null, bytes: 0, responseMs: null, contentHash: null, error: note, renderMode: null };
+  return { url, state, statusCode: 0, finalUrl: null, title: null, bytes: 0, responseMs: null, contentHash: null, error: note, renderMode: null, body: null, bodyKind: null, contentType: null };
 }
 
 function failed(url: string, error: string, started: number, renderMode: PageRenderMode, statusCode = 0): PageFetchResult {
@@ -124,13 +129,18 @@ function sleep(ms: number, signal?: AbortSignal) {
 
 interface Outcome { page: PageFetchResult; halt?: CollectHalt }
 
-function observed(url: string, domain: string, started: number, renderMode: PageRenderMode, response: { statusCode: number; finalUrl: string | null; body: string; title: string | null }): PageFetchResult {
-  const base = { url, statusCode: response.statusCode, finalUrl: response.finalUrl, responseMs: Date.now() - started, renderMode };
+interface ObservedResponse { statusCode: number; finalUrl: string | null; body: string; bodyKind: BodyKind; contentType: string | null; title: string | null }
+
+function observed(url: string, domain: string, started: number, renderMode: PageRenderMode, response: ObservedResponse): PageFetchResult {
+  const base = { url, statusCode: response.statusCode, finalUrl: response.finalUrl, responseMs: Date.now() - started, renderMode, contentType: response.contentType };
   // 리다이렉트 목적지가 사이트 범위 밖이면 이 사이트의 측정값이 아니다 (§5.1-2)
   if (response.finalUrl && !isInScope(response.finalUrl, domain)) {
-    return { ...base, state: "out_of_scope", title: null, bytes: 0, contentHash: null, error: "사이트 범위 밖으로 리다이렉트" };
+    return { ...base, state: "out_of_scope", title: null, bytes: 0, contentHash: null, error: "사이트 범위 밖으로 리다이렉트", body: null, bodyKind: null };
   }
-  return { ...base, state: "fetched", title: response.title, bytes: Buffer.byteLength(response.body), contentHash: hashText(response.body), error: null };
+  return {
+    ...base, state: "fetched", title: response.title, bytes: Buffer.byteLength(response.body), contentHash: hashText(response.body), error: null,
+    body: response.body, bodyKind: response.bodyKind,
+  };
 }
 
 async function fetchNative(url: string, domain: string, signal?: AbortSignal): Promise<Outcome> {
@@ -147,7 +157,12 @@ async function fetchNative(url: string, domain: string, signal?: AbortSignal): P
         return { page: failed(url, "HTTP 429 — 대상 사이트가 요청 한도를 알렸습니다", started, "native", 429), halt: "rate_limited" };
       }
       const html = /html/i.test(response.contentType) || /<html|<title/i.test(response.text);
-      return { page: observed(url, domain, started, "native", { statusCode: response.status, finalUrl: response.url, body: response.text, title: html ? extractTitle(response.text) : null }) };
+      return {
+        page: observed(url, domain, started, "native", {
+          statusCode: response.status, finalUrl: response.url, body: response.text, bodyKind: html ? "html" : "text",
+          contentType: response.contentType || null, title: html ? extractTitle(response.text) : null,
+        }),
+      };
     } catch (error) {
       if (signal?.aborted || errorCode(error) === "FETCH_CANCELLED") return { page: notRequested(url, INTERRUPTED_NOTE), halt: "cancelled" };
       return { page: failed(url, errorMessage(error), started, "native") };
@@ -164,7 +179,8 @@ async function fetchRendered(url: string, domain: string, apiKey: string, signal
       if (page.statusCode === 429) return { page: failed(url, "HTTP 429 — 대상 사이트가 요청 한도를 알렸습니다", started, renderMode, 429), halt: "rate_limited" };
       const body = page.rawHtml ?? page.markdown ?? "";
       const title = page.rawHtml ? extractTitle(page.rawHtml) : page.metadataTitle;
-      return { page: observed(url, domain, started, renderMode, { statusCode: page.statusCode, finalUrl: page.finalUrl, body, title }) };
+      const bodyKind: BodyKind = page.rawHtml ? "html" : page.markdown ? "markdown" : "text";
+      return { page: observed(url, domain, started, renderMode, { statusCode: page.statusCode, finalUrl: page.finalUrl, body, bodyKind, contentType: page.contentType, title }) };
     } catch (error) {
       const code = errorCode(error);
       if (signal?.aborted || code === "FIRECRAWL_CANCELLED") return { page: notRequested(url, INTERRUPTED_NOTE), halt: "cancelled" };

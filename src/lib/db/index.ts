@@ -646,6 +646,38 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       addColumnIfMissing(sqlite, "site_audit_campaigns", "cancel_requested", "INTEGER NOT NULL DEFAULT 0");
     },
   },
+  {
+    version: 20,
+    name: "page-snapshots",
+    up(sqlite) {
+      // Qshop P03: URL별 실제 수집 버전과 규칙 버전이 있는 진단 근거
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS page_snapshots (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          campaign_id INTEGER REFERENCES site_audit_campaigns(id) ON DELETE SET NULL,
+          url TEXT NOT NULL,
+          final_url TEXT,
+          status_code INTEGER NOT NULL,
+          content_type TEXT,
+          render_mode TEXT NOT NULL CHECK(render_mode IN ('native','rendered','cache')),
+          content_hash TEXT NOT NULL,
+          bytes INTEGER NOT NULL,
+          html TEXT,
+          html_truncated INTEGER NOT NULL DEFAULT 0,
+          facts TEXT,
+          findings TEXT NOT NULL,
+          skipped_reason TEXT,
+          parser_version TEXT NOT NULL,
+          rules_version TEXT NOT NULL,
+          captured_at TEXT NOT NULL,
+          last_seen_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_page_snapshots_url ON page_snapshots(project_id, url, captured_at DESC);
+      `);
+      addColumnIfMissing(sqlite, "site_audit_pages", "snapshot_id", "INTEGER REFERENCES page_snapshots(id) ON DELETE SET NULL");
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

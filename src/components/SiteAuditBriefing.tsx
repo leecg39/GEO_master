@@ -17,7 +17,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useState } from "react";
 import { AlertTriangle, FileSearch, Lightbulb, Sparkles } from "lucide-react";
+import { PageSnapshotDrawer } from "@/components/PageSnapshotDrawer";
 import { Badge, Card, EmptyState, Progress } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +39,7 @@ export interface SiteAuditBriefingData {
   narratives: string[];
   recommendations: string[];
   issues: Array<{ id: number; url: string; severity: string; category: string; title: string; detail: string }>;
-  pages: Array<{ url: string; statusCode: number; depth: number; fetchState?: string; renderMode?: string | null; fetchError?: string | null }>;
+  pages: Array<{ url: string; statusCode: number; depth: number; fetchState?: string; renderMode?: string | null; fetchError?: string | null; snapshotId?: number | null; technicalIssues?: number }>;
   depthBuckets: Array<{ depth: string; count: number }>;
 }
 
@@ -123,6 +125,7 @@ export function SiteAuditBriefing({
   briefing: SiteAuditBriefingData | null;
   loading: boolean;
 }) {
+  const [snapshotId, setSnapshotId] = useState<number | null>(null);
   if (loading) {
     return (
       <Card className="mt-5 border-cyan-400/15">
@@ -358,18 +361,30 @@ export function SiteAuditBriefing({
         </Card>
 
         <Card>
-          <h4 className="mb-4 text-sm font-semibold text-white">발견 URL 샘플</h4>
+          <h4 className="mb-1 text-sm font-semibold text-white">발견 URL</h4>
+          <p className="mb-3 text-xs text-slate-500">응답을 받은 페이지는 &lsquo;근거&rsquo;에서 실제 값·규칙 판정·버전을 볼 수 있습니다.</p>
           <ul className="max-h-72 space-y-1 overflow-y-auto text-xs">
             {briefing.pages.map((page) => (
               <li key={page.url} className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-white/5">
                 <Badge tone="default">d{page.depth}</Badge>
                 <span className="truncate text-slate-400">{page.url}</span>
                 <span className="ml-auto shrink-0 text-[10px] text-slate-500" title={page.fetchError ?? undefined}>{pageStateLabel(page)}</span>
+                {page.snapshotId ? (
+                  <button
+                    type="button"
+                    onClick={() => setSnapshotId(page.snapshotId ?? null)}
+                    aria-label={`${page.url} 근거 보기${page.technicalIssues ? ` (기술 오류 ${page.technicalIssues}건)` : ""}`}
+                    className="shrink-0 rounded-md border border-cyan-400/20 px-2 py-0.5 text-[10px] font-semibold text-cyan-300 hover:bg-cyan-400/10"
+                  >
+                    근거{page.technicalIssues ? <span className="ml-1 text-rose-300">{page.technicalIssues}</span> : null}
+                  </button>
+                ) : null}
               </li>
             ))}
           </ul>
         </Card>
       </div>
+      {snapshotId !== null && <PageSnapshotDrawer key={snapshotId} snapshotId={snapshotId} onClose={() => setSnapshotId(null)} />}
     </div>
   );
 }

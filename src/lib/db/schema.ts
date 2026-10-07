@@ -106,7 +106,30 @@ export const siteAuditPages = sqliteTable("site_audit_pages", {
   contentHash: text("content_hash"),
   fetchError: text("fetch_error"),
   renderMode: text("render_mode"),
+  snapshotId: integer("snapshot_id").references(() => pageSnapshots.id, { onDelete: "set null" }),
   capturedAt: text("captured_at").notNull(),
+});
+
+export const pageSnapshots = sqliteTable("page_snapshots", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  campaignId: integer("campaign_id").references(() => siteAuditCampaigns.id, { onDelete: "set null" }),
+  url: text("url").notNull(),
+  finalUrl: text("final_url"),
+  statusCode: integer("status_code").notNull(),
+  contentType: text("content_type"),
+  renderMode: text("render_mode").notNull(),
+  contentHash: text("content_hash").notNull(),
+  bytes: integer("bytes").notNull(),
+  html: text("html"),
+  htmlTruncated: integer("html_truncated", { mode: "boolean" }).notNull().default(false),
+  facts: text("facts"),
+  findings: text("findings").notNull(),
+  skippedReason: text("skipped_reason"),
+  parserVersion: text("parser_version").notNull(),
+  rulesVersion: text("rules_version").notNull(),
+  capturedAt: text("captured_at").notNull(),
+  lastSeenAt: text("last_seen_at").notNull(),
 });
 
 export const siteAuditIssues = sqliteTable("site_audit_issues", {

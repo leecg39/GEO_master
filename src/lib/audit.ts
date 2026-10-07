@@ -174,7 +174,7 @@ export const AUDIT_RULES: Rule[] = [
   { code: "brand-source-diversity", category: "브랜드 노출", label: "소스 4중창", recommendation: "공식·언론·학술·커뮤니티 출처를 균형 있게 확보하세요.", manual: true },
 ];
 
-function extractJsonLdTypes($: cheerio.CheerioAPI) {
+export function extractJsonLdTypes($: cheerio.CheerioAPI) {
   const types = new Set<string>();
   const collect = (value: unknown) => {
     if (!value || typeof value !== "object") return;

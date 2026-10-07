@@ -10,6 +10,7 @@ import { requireSemforgeSubscription } from "@/lib/semforge-subscription";
 import { requireActiveProject } from "@/lib/projects";
 import { providerUnavailable, providerLive } from "@/lib/semforge/providers/types";
 import { mapSite } from "@/lib/integrations/firecrawl";
+import { analyzeObservation, countTechnicalIssues, recordPageSnapshot, type PageAnalysis } from "@/lib/page-snapshots";
 import {
   collectDiscoveredPages, probeLlmsTxt, RENDER_PAGE_LIMIT, urlPathDepth,
   type CollectHalt, type CollectMode, type CollectResult, type LlmsTxtState, type PageFetchResult, type SiteAuditDataState,
@@ -109,8 +110,23 @@ interface CrawlOutcome {
   renderMode: CollectMode;
   llms: { state: LlmsTxtState; detail: string };
   collected: CollectResult | null;
+  /** 수집한 페이지 순서와 같은 인덱스의 스냅샷 분석 (응답이 없으면 null) */
+  analyses: Array<PageAnalysis | null>;
   invalid: number;
   duplicates: number;
+}
+
+/** 페이지 기술 규칙 중 사이트 이슈로 묶어 보여 줄 항목 (HTTP·제목은 기존 이슈가 이미 다룬다) */
+const SNAPSHOT_ISSUES: Record<string, { severity: string; title: string }> = {
+  "jsonld-parse": { severity: "warning", title: "JSON-LD 구문 오류" },
+  "canonical-host": { severity: "warning", title: "canonical이 다른 사이트를 가리킴" },
+  "robots-noindex": { severity: "notice", title: "noindex 설정된 페이지" },
+};
+
+function analyzeCollectedPages(collected: CollectResult | null, domain: string): Array<PageAnalysis | null> {
+  return (collected?.pages ?? []).map((page) => page.state === "fetched" && page.body !== null && page.renderMode
+    ? analyzeObservation({ url: page.url, finalUrl: page.finalUrl, statusCode: page.statusCode, contentType: page.contentType, renderMode: page.renderMode, body: page.body, bodyKind: page.bodyKind ?? "text" }, domain)
+    : null);
 }
 
 /**
@@ -120,7 +136,7 @@ interface CrawlOutcome {
  * - 데모 모드, 취소, 요청 한도, 렌더링 한도로 요청하지 않은 URL은 discovered로 남긴다
  * 실측 기반 종합 점수는 만들지 않고, 관측 수치는 브리핑에서 분모와 함께 보여 준다.
  */
-function persistCrawlResults(sqlite: Database.Database, campaignId: number, domain: string, outcome: CrawlOutcome) {
+function persistCrawlResults(sqlite: Database.Database, campaignId: number, projectId: number, domain: string, outcome: CrawlOutcome) {
   const { links, source, llms, collected } = outcome;
   const pages = collected?.pages ?? null;
   const halted = collected?.halted ?? null;
@@ -129,16 +145,30 @@ function persistCrawlResults(sqlite: Database.Database, campaignId: number, doma
   sqlite.prepare("DELETE FROM site_audit_issues WHERE campaign_id = ?").run(campaignId);
 
   const insertPage = sqlite.prepare(`
-    INSERT INTO site_audit_pages (campaign_id, url, status_code, title, depth, response_ms, bytes, fetch_state, final_url, content_hash, fetch_error, render_mode, captured_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO site_audit_pages (campaign_id, url, status_code, title, depth, response_ms, bytes, fetch_state, final_url, content_hash, fetch_error, render_mode, snapshot_id, captured_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
-  const results: PageFetchResult[] = pages ?? links.map((url) => ({ url, state: "discovered", statusCode: 0, finalUrl: null, title: null, bytes: 0, responseMs: null, contentHash: null, error: null, renderMode: null }));
-  for (const page of results) {
+  const results: PageFetchResult[] = pages ?? links.map((url) => ({
+    url, state: "discovered", statusCode: 0, finalUrl: null, title: null, bytes: 0, responseMs: null, contentHash: null, error: null,
+    renderMode: null, body: null, bodyKind: null, contentType: null,
+  }));
+  const snapshotFailures = new Map<string, string[]>();
+  results.forEach((page, index) => {
+    const analysis = outcome.analyses[index] ?? null;
+    const snapshotId = analysis && page.body !== null && page.renderMode
+      ? recordPageSnapshot(sqlite, {
+        projectId, campaignId, analysis, now,
+        observation: { url: page.url, finalUrl: page.finalUrl, statusCode: page.statusCode, contentType: page.contentType, renderMode: page.renderMode, body: page.body, bodyKind: page.bodyKind ?? "text" },
+      })
+      : null;
+    for (const item of analysis?.findings ?? []) {
+      if (!item.passed && SNAPSHOT_ISSUES[item.code]) snapshotFailures.set(item.code, [...(snapshotFailures.get(item.code) ?? []), page.url]);
+    }
     insertPage.run(
       campaignId, page.url, page.statusCode, page.title, urlPathDepth(page.url), page.responseMs, page.bytes, page.state,
-      page.finalUrl, page.contentHash, page.error, page.renderMode, now,
+      page.finalUrl, page.contentHash, page.error, page.renderMode, snapshotId, now,
     );
-  }
+  });
 
   let issueCount = 0;
   const addIssue = (issue: { url: string; severity: string; category: string; title: string; detail: string }) => {
@@ -168,6 +198,9 @@ function persistCrawlResults(sqlite: Database.Database, campaignId: number, doma
   const redirectedOut = results.filter((page) => page.state === "out_of_scope" && page.finalUrl);
   for (const page of redirectedOut.slice(0, MAX_PAGE_ISSUES)) {
     addIssue({ url: page.url, severity: "notice", category: "http", title: "사이트 범위 밖으로 리다이렉트", detail: `${page.finalUrl}(으)로 이동해 이 사이트의 측정값에서 뺐습니다.` });
+  }
+  for (const [code, urls] of snapshotFailures) {
+    addIssue({ url: urls[0]!, category: "page", ...SNAPSHOT_ISSUES[code]!, detail: `${urls.length}개 페이지에서 확인했습니다. URL별 근거는 발견 URL 목록의 '근거'에서 볼 수 있습니다.` });
   }
   if (halted) addIssue({ url: `https://${domain}`, category: "crawl", ...HALT_ISSUES[halted] });
   if (collected && collected.overLimit > 0) {
@@ -303,8 +336,9 @@ export async function runSiteAuditCampaign(idInput: unknown, optionsInput: unkno
       signal: controller.signal,
       shouldStop: () => cancelRequested(sqlite, id),
     });
-    return transactionalMutation(sqlite, () => persistCrawlResults(sqlite, id, campaign.domain, {
-      links: map.links, source: map.source, renderMode: options.renderMode, llms, collected, invalid: map.invalid, duplicates: map.duplicates,
+    const analyses = analyzeCollectedPages(collected, campaign.domain);
+    return transactionalMutation(sqlite, () => persistCrawlResults(sqlite, id, project.id, campaign.domain, {
+      links: map.links, source: map.source, renderMode: options.renderMode, llms, collected, analyses, invalid: map.invalid, duplicates: map.duplicates,
     }));
   } catch (error) {
     const cancelled = error instanceof AppError && error.code === "FIRECRAWL_CANCELLED";
@@ -350,7 +384,16 @@ export function deleteSiteAuditCampaign(idInput: unknown) {
   if (isActivelyRunning(campaign)) {
     throw semforgeError("VALIDATION_ERROR", "크롤 중인 캠페인은 삭제할 수 없습니다. 취소하거나 끝난 뒤 삭제하세요.");
   }
-  sqlite.prepare("DELETE FROM site_audit_campaigns WHERE id = ?").run(id);
+  // 크롤 결과와 함께 이 캠페인이 만든 페이지 스냅샷도 지운다. 다른 캠페인이 아직 보여 주는 스냅샷은 남긴다.
+  transactionalMutation(sqlite, () => {
+    const candidates = (sqlite.prepare(`
+      SELECT snapshot_id AS id FROM site_audit_pages WHERE campaign_id = ? AND snapshot_id IS NOT NULL
+      UNION SELECT id FROM page_snapshots WHERE campaign_id = ?
+    `).all(id, id) as Array<{ id: number }>).map((row) => row.id);
+    sqlite.prepare("DELETE FROM site_audit_campaigns WHERE id = ?").run(id);
+    const removeOrphan = sqlite.prepare("DELETE FROM page_snapshots WHERE id = ? AND NOT EXISTS (SELECT 1 FROM site_audit_pages WHERE snapshot_id = ?)");
+    for (const snapshotId of candidates) removeOrphan.run(snapshotId, snapshotId);
+  });
   return { id, deleted: true, name: campaign.name };
 }
 
@@ -402,6 +445,8 @@ interface BriefingPage {
   fetchState: string;
   renderMode: string | null;
   fetchError: string | null;
+  snapshotId: number | null;
+  technicalIssues: number;
 }
 
 function healthGrade(score: number | null) {
@@ -422,10 +467,13 @@ function buildSiteAuditBriefing(
   campaign: { site_health: number | null; data_state: SiteAuditDataState; llms_txt_state: LlmsTxtState | null },
 ) {
   const { sqlite } = getDatabase();
-  const pages = sqlite.prepare(`
-    SELECT url, status_code AS statusCode, depth, fetch_state AS fetchState, render_mode AS renderMode, fetch_error AS fetchError FROM site_audit_pages
-    WHERE campaign_id = ? ORDER BY depth ASC, url ASC LIMIT 50
-  `).all(campaignId) as BriefingPage[];
+  const pages = (sqlite.prepare(`
+    SELECT p.url, p.status_code AS statusCode, p.depth, p.fetch_state AS fetchState, p.render_mode AS renderMode, p.fetch_error AS fetchError,
+      s.id AS snapshotId, s.findings
+    FROM site_audit_pages p LEFT JOIN page_snapshots s ON s.id = p.snapshot_id
+    WHERE p.campaign_id = ? ORDER BY p.depth ASC, p.url ASC LIMIT 50
+  `).all(campaignId) as Array<Omit<BriefingPage, "technicalIssues"> & { findings: string | null }>)
+    .map(({ findings, ...page }) => ({ ...page, technicalIssues: countTechnicalIssues(findings) }));
   const issues = sqlite.prepare(`
     SELECT id, url, severity, category, title, detail FROM site_audit_issues
     WHERE campaign_id = ? ORDER BY
@@ -517,7 +565,7 @@ function buildSiteAuditBriefing(
     narratives,
     recommendations,
     issues,
-    pages: pages.slice(0, 12),
+    pages: pages.slice(0, MAP_LIMIT),
     depthBuckets: [
       { depth: "루트(0)", count: pages.filter((page) => page.depth === 0).length },
       { depth: "1단계", count: pages.filter((page) => page.depth === 1).length },
