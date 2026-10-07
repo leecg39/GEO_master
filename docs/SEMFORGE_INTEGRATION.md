@@ -20,7 +20,7 @@ GEO Master의 **분석·측정 UI**(대시보드, Cheerio GEO 진단, LLM 응답
 | 포지션 추적 / 도메인 개요 | — | ✓ |
 | GBP / Map Rank | — | ✓ |
 
-결제는 `/subscription`에서 checkout intent를 생성한다. 개발 환경(`SEMFORGE_BILLING_MODE=dev`)에서는 확인 API로 구독을 활성화할 수 있다. 운영 환경에서는 Toss Payments webhook(`SEMFORGE_TOSS_WEBHOOK_SECRET`)으로 결제를 확정한다.
+로컬 테스트는 `SEMFORGE_BILLING_MODE=dev`를 명시한 환경에서 `/subscription`의 checkout intent와 확인 토큰으로 활성화한다. 실제 과금은 발생하지 않는다. 운영 결제는 아직 구현되지 않았으며, `live`·미설정·잘못된 모드에서는 checkout과 confirm이 `503 PAYMENT_PROVIDER_UNAVAILABLE`을 반환한다. 실결제 도입에는 제공자 승인 조회, 주문·금액 대조 및 검증된 webhook 처리가 필요하다.
 
 ## 이식 범위
 

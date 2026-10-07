@@ -121,7 +121,7 @@ export function SubscriptionClient() {
         <Card>
           <div className="mb-4 flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-violet-400/10"><CreditCard className="h-5 w-5 text-violet-300" /></span>
-            <div><h2 className="font-semibold text-white">결제</h2><p className="text-xs text-slate-500">운영: Toss Payments · 개발: 확인 토큰</p></div>
+            <div><h2 className="font-semibold text-white">결제</h2><p className="text-xs text-slate-500">운영 결제 준비 중 · 개발 환경에서만 테스트 활성화 가능</p></div>
           </div>
           {subscription?.active ? (
             <p className="text-sm text-emerald-300">구독이 활성화되어 있습니다. <Link href="/semforge" className="underline">SEMForge 워크스페이스</Link>에서 AI SEO·사이트 진단·포지션 추적을 시작하세요.</p>

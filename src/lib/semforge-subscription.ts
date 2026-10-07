@@ -56,7 +56,13 @@ export interface CheckoutResult {
 
 function billingMode(): "dev" | "live" {
   const mode = process.env.SEMFORGE_BILLING_MODE?.trim().toLowerCase();
-  return mode === "live" ? "live" : "dev";
+  return mode === "dev" ? "dev" : "live";
+}
+
+function requireDevelopmentBilling() {
+  if (billingMode() !== "dev") {
+    throw new AppError("운영 결제 연동이 아직 준비되지 않았습니다. 결제 제공자의 승인 검증을 연결한 뒤 이용해 주세요.", 503, "PAYMENT_PROVIDER_UNAVAILABLE");
+  }
 }
 
 function hashToken(token: string) {
@@ -82,7 +88,7 @@ function toPublic(row: SubscriptionRow): SemforgeSubscriptionPublic {
     ? Math.max(0, Math.ceil((end - now) / (24 * 60 * 60 * 1000)))
     : null;
   return {
-    status: active ? "active" : row.status,
+    status: row.status === "active" && !active ? "past_due" : row.status,
     active,
     amountKrw: row.amount_krw,
     currentPeriodStart: row.current_period_start,
@@ -110,6 +116,7 @@ export function requireSemforgeSubscription(): SemforgeSubscriptionPublic {
 }
 
 export function createSemforgeCheckout(): CheckoutResult {
+  requireDevelopmentBilling();
   const { sqlite } = getDatabase();
   return transactionalMutation(sqlite, () => {
     const subscription = ensureSubscriptionRow(sqlite);
@@ -121,7 +128,7 @@ export function createSemforgeCheckout(): CheckoutResult {
     }
     const now = new Date().toISOString();
     const orderId = `sf-${Date.now()}-${randomBytes(4).toString("hex")}`;
-    const devToken = billingMode() === "dev" ? randomBytes(24).toString("hex") : null;
+    const devToken = randomBytes(24).toString("hex");
     const result = sqlite.prepare(`
       INSERT INTO semforge_payment_intents
         (amount_krw, status, provider, provider_order_id, confirm_token_hash, checkout_url, created_at, updated_at)
@@ -129,8 +136,8 @@ export function createSemforgeCheckout(): CheckoutResult {
     `).run(
       SEMFORGE_MONTHLY_PRICE_KRW,
       orderId,
-      devToken ? hashToken(devToken) : null,
-      billingMode() === "live" ? `https://pay.tosspayments.com/v1/checkout?orderId=${encodeURIComponent(orderId)}` : null,
+      hashToken(devToken),
+      null,
       now,
       now,
     );
@@ -139,8 +146,8 @@ export function createSemforgeCheckout(): CheckoutResult {
       intentId: Number(result.lastInsertRowid),
       orderId,
       amountKrw: SEMFORGE_MONTHLY_PRICE_KRW,
-      checkoutUrl: billingMode() === "live" ? `https://pay.tosspayments.com/v1/checkout?orderId=${encodeURIComponent(orderId)}` : null,
-      ...(devToken ? { devConfirmToken: devToken } : {}),
+      checkoutUrl: null,
+      devConfirmToken: devToken,
     };
   });
 }
@@ -157,6 +164,7 @@ function activatePeriod(now: Date) {
 }
 
 export function confirmSemforgePayment(input: unknown): SemforgeSubscriptionPublic {
+  requireDevelopmentBilling();
   const parsed = confirmSchema.parse(input);
   const { sqlite } = getDatabase();
   return transactionalMutation(sqlite, () => {
@@ -171,15 +179,8 @@ export function confirmSemforgePayment(input: unknown): SemforgeSubscriptionPubl
       throw new AppError("만료되었거나 처리할 수 없는 결제입니다.", 409, "PAYMENT_INTENT_INVALID");
     }
 
-    if (billingMode() === "dev") {
-      if (!parsed.confirmToken || !intent.confirm_token_hash || hashToken(parsed.confirmToken) !== intent.confirm_token_hash) {
-        throw new AppError("개발 모드 결제 확인 토큰이 올바르지 않습니다.", 403, "PAYMENT_CONFIRM_DENIED");
-      }
-    } else {
-      const webhookSecret = process.env.SEMFORGE_TOSS_WEBHOOK_SECRET?.trim();
-      if (!webhookSecret || parsed.confirmToken !== webhookSecret) {
-        throw new AppError("운영 결제는 Toss webhook 또는 관리자 확인이 필요합니다.", 403, "PAYMENT_CONFIRM_DENIED");
-      }
+    if (!parsed.confirmToken || !intent.confirm_token_hash || hashToken(parsed.confirmToken) !== intent.confirm_token_hash) {
+      throw new AppError("개발 모드 결제 확인 토큰이 올바르지 않습니다.", 403, "PAYMENT_CONFIRM_DENIED");
     }
 
     const now = new Date();
