@@ -12,6 +12,8 @@ const guestRestricted = [
   "/position-tracking", "/analytics", "/local-business",
   "/api/settings", "/api/workspace", "/api/semforge", "/api/ai-seo", "/api/site-audit",
   "/api/position-tracking", "/api/analytics", "/api/local-business",
+  // 공개 링크는 데이터를 외부로 내보내므로 게스트가 만들 수 없다
+  "/api/report-shares",
 ];
 
 export function canAccessPath(role: AccountRole, pathname: string): boolean {

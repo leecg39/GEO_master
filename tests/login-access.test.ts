@@ -106,3 +106,17 @@ describe("guest restrictions", () => {
     expect(response.status).toBe(403);
   });
 });
+
+describe("public report links", () => {
+  const token = "A".repeat(43);
+  it("allows anonymous GET of a well-formed share link only", async () => {
+    expect((await proxy(request(`/r/${token}`))).status).toBe(200);
+    expect((await proxy(request(`/r/${token}`, undefined, { method: "HEAD" }))).status).toBe(200);
+    expect((await proxy(request("/r/short"))).status).toBe(303);
+    expect((await proxy(request(`/r/${token}/extra`))).status).toBe(303);
+    expect((await proxy(request(`/r/${token}`, undefined, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" }))).status).toBe(401);
+  });
+  it("blocks guests from creating public links", async () => {
+    expect((await proxy(request("/api/report-shares", "guest", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" }))).status).toBe(403);
+  });
+});

@@ -2,6 +2,8 @@ import { z } from "zod";
 import { contentRequestHash, findContentByRequest, storeGeneratedContent } from "./contents";
 import { idempotencyKeySchema } from "./crud";
 import { AppError } from "./errors";
+import { auditStudioOutput, factPromptBlock } from "./draft-evidence";
+import { draftFactsForActiveProject } from "./facts";
 import { generateText } from "./llm";
 import { getPublicSettings, getServerSettings, providers, type Provider } from "./settings";
 
@@ -147,12 +149,14 @@ export async function runStudioTool(input: unknown) {
   } else {
     const llm = selectProvider(parsed.provider);
     usedProvider = llm.provider;
+    const facts = draftFactsForActiveProject();
+    const evidenceRules = factPromptBlock(facts);
     try {
       if (parsed.action === "rewrite") {
         const rewritten = await generateText({
           ...llm,
           system: "당신은 GEO 전문 편집자다. 사실과 고유명사를 보존하고, 제공되지 않은 수치나 출처는 만들지 않는다.",
-          prompt: `다음 원문을 패턴 [${parsed.patterns.join(", ")}]에 따라 한국어로 리라이팅하세요. 결론을 먼저 쓰고 변경된 구조가 잘 보이게 하세요.\n\n<원문>\n${parsed.text}\n</원문>`,
+          prompt: `다음 원문을 패턴 [${parsed.patterns.join(", ")}]에 따라 한국어로 리라이팅하세요. 결론을 먼저 쓰고 변경된 구조가 잘 보이게 하세요.\n\n${evidenceRules}\n\n<원문>\n${parsed.text}\n</원문>`,
         });
         output = { before: parsed.text, after: rewritten, patterns: parsed.patterns };
       } else if (parsed.action === "intro") {
@@ -160,7 +164,7 @@ export async function runStudioTool(input: unknown) {
         const intro = await generateText({
           ...llm,
           system: "당신은 GEO 콘텐츠 에디터다. 확인되지 않은 사실을 만들지 않는다.",
-          prompt: `주제 ${JSON.stringify(source)}에 대해 ① 독자의 문제 제시 ② 핵심 답변 ③ 이 글에서 얻는 가치의 3개 문단으로 짧은 도입부를 작성하세요. 각 문단 앞에 단계 이름을 붙이세요.`,
+          prompt: `주제 ${JSON.stringify(source)}에 대해 ① 독자의 문제 제시 ② 핵심 답변 ③ 이 글에서 얻는 가치의 3개 문단으로 짧은 도입부를 작성하세요. 각 문단 앞에 단계 이름을 붙이세요.\n\n${evidenceRules}`,
         });
         output = { intro };
       } else {
@@ -169,7 +173,7 @@ export async function runStudioTool(input: unknown) {
           ...llm,
           maxTokens: 1400,
           system: "당신은 FAQ 편집자다. 실제 고객 언어를 사용하고 제공되지 않은 사실을 만들지 않는다. JSON 배열만 출력한다.",
-          prompt: `다음 자료를 바탕으로 질문과 답변 3~5개를 만드세요. 형식: [{"question":"...","answer":"..."}]\n\n<자료>\n${source}\n</자료>`,
+          prompt: `다음 자료를 바탕으로 질문과 답변 3~5개를 만드세요. 형식: [{"question":"...","answer":"..."}]\n\n${evidenceRules}\n\n<자료>\n${source}\n</자료>`,
         });
         let faqs: FaqEntry[];
         try {
@@ -179,6 +183,8 @@ export async function runStudioTool(input: unknown) {
         }
         output = { faqs, jsonLd: generateFaqJsonLd(faqs) };
       }
+      const evidence = auditStudioOutput(parsed.action, output, facts, llm.settings.competitors);
+      if (evidence) output = { ...output, evidence };
     } catch (error) {
       if (clientRequestId) {
         storeGeneratedContent({

@@ -4,6 +4,8 @@ import { basicUser, isTrustedProxy, sameOriginMutation, SESSION_COOKIE, sessionU
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const PUBLIC_PATHS = new Set(["/login", "/link-preview.html", "/og/geo-master-20261007.jpg", "/og/geo-master-thumbnail-20261007.jpg", "/api/health"]);
+/** 만료형 공개 리포트 링크 — 32바이트 base64url 토큰 형식만 비로그인 GET 허용 */
+const PUBLIC_REPORT_PATH = /^\/r\/[A-Za-z0-9_-]{43}$/;
 
 function privateResponse(response: NextResponse) {
   response.headers.set("cache-control", "private, no-store");
@@ -23,7 +25,7 @@ export async function proxy(request: NextRequest) {
   }
   const mode = process.env.GEO_AUTH_MODE?.trim() || "local";
   if (mode === "local") return NextResponse.next();
-  if (PUBLIC_PATHS.has(path) && ["GET", "HEAD"].includes(request.method)) return privateResponse(NextResponse.next());
+  if ((PUBLIC_PATHS.has(path) || PUBLIC_REPORT_PATH.test(path)) && ["GET", "HEAD"].includes(request.method)) return privateResponse(NextResponse.next());
   try {
     if (mode !== "proxy") throw new Error("Invalid authentication mode");
     if (!isTrustedProxy(request.headers)) return privateResponse(NextResponse.json({ error: "로그인이 필요합니다.", code: "AUTH_REQUIRED" }, { status: 401 }));

@@ -7,6 +7,8 @@ export const projects = sqliteTable("projects", {
   domain: text("domain").notNull().default(""),
   category: text("category").notNull().default(""),
   competitors: text("competitors").notNull().default("[]"),
+  brandAliases: text("brand_aliases").notNull().default("[]"),
+  competitorDomains: text("competitor_domains").notNull().default("[]"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
@@ -250,7 +252,82 @@ export const measureResults = sqliteTable("measure_results", {
   sentiment: text("sentiment").notNull(),
   mentionRank: integer("mention_rank"),
   competitorMentions: text("competitor_mentions").notNull().default("[]"),
+  slotStatus: text("slot_status", { enum: ["succeeded", "refused", "failed"] }).notNull().default("succeeded"),
+  matchedSpans: text("matched_spans").notNull().default("[]"),
+  ownDomainHit: integer("own_domain_hit", { mode: "boolean" }).notNull().default(false),
+  metricVersion: text("metric_version").notNull().default("legacy"),
+  searchMode: text("search_mode", { enum: ["off", "web"] }).notNull().default("off"),
+  searchPerformed: integer("search_performed", { mode: "boolean" }),
+  citationSupported: integer("citation_supported", { mode: "boolean" }),
+  returnedModel: text("returned_model"),
+  slotError: text("slot_error"),
   createdAt: text("created_at").notNull(),
+});
+
+export const measureCitations = sqliteTable("measure_citations", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  runId: integer("run_id").notNull().references(() => measureRuns.id, { onDelete: "cascade" }),
+  resultId: integer("result_id").notNull().references(() => measureResults.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  domain: text("domain").notNull(),
+  title: text("title"),
+  kind: text("kind", { enum: ["cited", "searched"] }).notNull(),
+  category: text("category", { enum: ["own", "competitor", "media", "community", "marketplace", "public", "other", "unknown"] }).notNull(),
+  createdAt: text("created_at").notNull(),
+});
+
+export const facts = sqliteTable("facts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  attribute: text("attribute").notNull(),
+  attributeNormalized: text("attribute_normalized").notNull(),
+  value: text("value").notNull(),
+  unit: text("unit"),
+  conditions: text("conditions").notNull().default(""),
+  sourceUrl: text("source_url"),
+  excerpt: text("excerpt").notNull().default(""),
+  checkedAt: text("checked_at"),
+  validUntil: text("valid_until"),
+  verified: integer("verified", { mode: "boolean" }).notNull().default(false),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const measureClaims = sqliteTable("measure_claims", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  runId: integer("run_id").notNull().references(() => measureRuns.id, { onDelete: "cascade" }),
+  resultId: integer("result_id").notNull().references(() => measureResults.id, { onDelete: "cascade" }),
+  claimText: text("claim_text").notNull(),
+  attribute: text("attribute").notNull(),
+  value: text("value").notNull(),
+  unit: text("unit"),
+  verdict: text("verdict", { enum: ["match", "conflict", "insufficient", "time_unknown", "needs_review"] }).notNull(),
+  factId: integer("fact_id").references(() => facts.id, { onDelete: "set null" }),
+  createdAt: text("created_at").notNull(),
+});
+
+export const mentionReviews = sqliteTable("mention_reviews", {
+  resultId: integer("result_id").primaryKey().references(() => measureResults.id, { onDelete: "cascade" }),
+  runId: integer("run_id").notNull().references(() => measureRuns.id, { onDelete: "cascade" }),
+  autoMentioned: integer("auto_mentioned", { mode: "boolean" }).notNull(),
+  humanMentioned: integer("human_mentioned", { mode: "boolean" }).notNull(),
+  reviewedAt: text("reviewed_at").notNull(),
+});
+
+export const optimizationRuns = sqliteTable("optimization_runs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  title: text("title").notNull().default(""),
+  query: text("query").notNull(),
+  input: text("input").notNull(),
+  status: text("status", { enum: ["running", "completed", "failed", "canceled"] }).notNull(),
+  progress: text("progress").notNull().default("{}"),
+  result: text("result"),
+  errorCode: text("error_code"),
+  cancelRequested: integer("cancel_requested", { mode: "boolean" }).notNull().default(false),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+  completedAt: text("completed_at"),
 });
 
 export const measurementSchedules = sqliteTable("measurement_schedules", {

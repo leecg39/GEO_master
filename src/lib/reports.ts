@@ -3,6 +3,7 @@ import { getDatabase } from "./db";
 import { audits, measureResults, measureRuns } from "./db/schema";
 import { AppError } from "./errors";
 import type { AuditItemResult } from "./audit";
+import { getRunDiagnostics } from "./claims";
 
 export type ReportKind = "audit" | "share";
 export type AuditReport = ReturnType<typeof buildAuditReport>;
@@ -45,6 +46,16 @@ export function buildAuditReport(id?: number) {
   };
 }
 
+/** 진단 카드·주장 판정 요약 — 활성 프로젝트 밖의 실행이면 생략한다 */
+function shareDiagnostics(runId: number) {
+  try {
+    const diagnostics = getRunDiagnostics(runId);
+    return { cards: diagnostics.cards, claimCounts: diagnostics.claimCounts };
+  } catch {
+    return null;
+  }
+}
+
 export function buildShareReport(id?: number, resultLimit?: number) {
   const { orm } = getDatabase();
   const run = id
@@ -65,6 +76,7 @@ export function buildShareReport(id?: number, resultLimit?: number) {
     sentiment: row.sentiment,
     mentionRank: row.mentionRank,
     competitorMentions: parseJson<string[]>(row.competitorMentions, []),
+    slotStatus: row.slotStatus,
     createdAt: row.createdAt,
   }));
   return {
@@ -83,6 +95,7 @@ export function buildShareReport(id?: number, resultLimit?: number) {
       summary: parseJson<Record<string, unknown>>(run.summary, {}),
       createdAt: run.createdAt,
       completedAt: run.completedAt,
+      diagnostics: shareDiagnostics(run.id),
       results,
     },
   };
@@ -101,8 +114,8 @@ export function reportToCsv(report: ReturnType<typeof buildAuditReport> | Return
         ...report.audit.items.map((item) => [report.audit.id, report.audit.url, report.audit.score, report.audit.total, report.audit.grade, report.audit.createdAt, item.category, item.code, item.label, item.passed, item.manual, item.detail, item.recommendation]),
       ]
     : [
-        ["run_id", "answer_share", "genrank", "funnel_stage", "created_at", "question", "provider", "model", "repetition", "brand_mentioned", "sentiment", "mention_rank", "competitors", "response"],
-        ...report.run.results.map((item) => [report.run.id, report.run.answerShare, report.run.genrank, report.run.funnelStage, report.run.createdAt, item.question, item.provider, item.model, item.repetition, item.brandMentioned, item.sentiment, item.mentionRank, item.competitorMentions.join(" | "), item.response]),
+        ["run_id", "answer_share", "genrank", "funnel_stage", "created_at", "question", "provider", "model", "repetition", "brand_mentioned", "sentiment", "mention_rank", "competitors", "response", "slot_status"],
+        ...report.run.results.map((item) => [report.run.id, report.run.answerShare, report.run.genrank, report.run.funnelStage, report.run.createdAt, item.question, item.provider, item.model, item.repetition, item.brandMentioned, item.sentiment, item.mentionRank, item.competitorMentions.join(" | "), item.response, item.slotStatus]),
       ];
   return `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
 }

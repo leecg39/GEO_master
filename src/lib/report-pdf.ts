@@ -1,4 +1,6 @@
 import { AppError } from "./errors";
+import type { CitationSummary } from "./geo-core";
+import { formatRatio, parseMeasurementEvidence, type MeasurementEvidence } from "./measurement-evidence";
 import type { PortableReport } from "./reports";
 
 const PAGE_WIDTH = 595.28;
@@ -270,6 +272,58 @@ function auditTemplate(report: Extract<PortableReport, { kind: "audit" }>) {
   return document.build();
 }
 
+const SLOT_LABELS: Record<string, string> = { succeeded: "정상 답변", refused: "명시 거절(분모 제외)", failed: "수집 실패(결측)" };
+
+function printEvidence(document: PdfLayout, evidence: MeasurementEvidence) {
+  document.section(`분모 근거 (산식 ${evidence.metricVersion})`);
+  if (evidence.legacy || !evidence.quality) {
+    document.text("슬롯 상태 기록 이전에 저장된 실행이라 거절·실패 구분과 질문별 k/n이 없습니다.", { size: 8.5, color: COLORS.muted });
+    return;
+  }
+  const { quality } = evidence;
+  document.text(`예정 ${quality.planned} · 정상 ${quality.succeeded} · 거절 ${quality.refused} · 실패 ${quality.failed}`, { size: 9.5 });
+  document.text(`수집 완료율 ${formatRatio(quality.completionRate)} · 거절률 ${formatRatio(quality.refusalRate)}`, { size: 9.5 });
+  document.text("점유율 분모는 정상 답변만 사용하며 거절·실패를 0으로 세지 않습니다.", { size: 8, color: COLORS.muted });
+  for (const cell of evidence.questionMatrix) {
+    if (document.truncated) break;
+    const missing = cell.refused + cell.failed;
+    document.text(`${cell.question} · ${cell.provider} ${cell.label}${missing ? ` (결측 ${missing})` : ""}`, { size: 8.5, maxChars: 600 });
+  }
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  own: "자사", competitor: "경쟁사", media: "언론·블로그", community: "커뮤니티",
+  marketplace: "마켓플레이스", public: "공공·백과", other: "기타", unknown: "미분류",
+};
+
+function printCitations(document: PdfLayout, citations: CitationSummary) {
+  document.section("인용 출처 분석 (웹검색 측정)");
+  document.text(`자사 인용 커버리지 ${formatRatio(citations.ownCitationCoverage)}`, { size: 10.5, color: COLORS.cyan });
+  for (const [provider, value] of Object.entries(citations.perProvider)) {
+    document.text(`${provider} ${formatRatio(value)}`, { size: 8.5, indent: 10 });
+  }
+  const categories = Object.entries(citations.citedByCategory).map(([category, count]) => `${CATEGORY_LABELS[category] ?? category} ${count}회`);
+  document.text(`출처 유형별 인용 횟수: ${categories.join(" · ") || "명시 인용 없음"} (검색만 된 결과 ${citations.searchedCount}건 제외)`, { size: 8.5, maxChars: 800 });
+  if (citations.pagesCitedWithoutBrand.length) {
+    document.text("브랜드 미언급 답변에서 인용된 페이지", { size: 9, color: COLORS.amber });
+    for (const page of citations.pagesCitedWithoutBrand) {
+      if (document.truncated) break;
+      document.text(`${page.url} · ${CATEGORY_LABELS[page.category] ?? page.category} · ${page.count}회`, { size: 8, indent: 10, maxChars: 600 });
+    }
+  }
+}
+
+const VERDICT_LABELS: Record<string, string> = { pass: "통과", issue: "문제", insufficient: "자료 부족" };
+
+function printDiagnostics(document: PdfLayout, diagnostics: NonNullable<Extract<PortableReport, { kind: "share" }>["run"]["diagnostics"]>) {
+  document.section("진단 카드");
+  for (const card of diagnostics.cards) {
+    document.text(`${card.card} · ${VERDICT_LABELS[card.verdict] ?? card.verdict} · ${card.rationale}`, { size: 9, maxChars: 600, color: card.verdict === "issue" ? COLORS.red : COLORS.ink });
+  }
+  const counts = diagnostics.claimCounts;
+  document.text(`사실 대조: 일치 ${counts.match} · 충돌 ${counts.conflict} · 근거 부족 ${counts.insufficient} · 시점 불명 ${counts.timeUnknown} · 검토 필요 ${counts.needsReview}`, { size: 8.5, color: COLORS.muted });
+}
+
 function shareTemplate(report: Extract<PortableReport, { kind: "share" }>) {
   const document = new PdfLayout("응답 점유율 리포트");
   const summary = asRecord(report.run.summary);
@@ -296,6 +350,11 @@ function shareTemplate(report: Extract<PortableReport, { kind: "share" }>) {
     document.text(`${safeText(competitor.name, 200)} · ${numeric(competitor.share).toFixed(1)}% · ${numeric(competitor.mentions)}회`, { size: 9 });
   }
 
+  const evidence = parseMeasurementEvidence(summary);
+  printEvidence(document, evidence);
+  if (evidence.citations) printCitations(document, evidence.citations);
+  if (report.run.diagnostics) printDiagnostics(document, report.run.diagnostics);
+
   const omittedResults = Math.max(0, report.run.totalQueries - report.run.results.length);
   document.section(`질문별 측정 근거 (${report.run.results.length}${omittedResults ? ` / 전체 ${report.run.totalQueries}` : ""})`);
   if (omittedResults) {
@@ -304,7 +363,8 @@ function shareTemplate(report: Extract<PortableReport, { kind: "share" }>) {
   for (const [index, item] of report.run.results.entries()) {
     if (document.truncated) break;
     document.text(`${index + 1}. [${item.provider} / ${item.model}] ${item.question}`, { size: 10.5, color: COLORS.ink, maxChars: 900, lineHeight: 15 });
-    document.text(`브랜드 ${item.brandMentioned ? `언급 · ${item.mentionRank ?? "-"}위` : "미언급"} · 문맥 ${item.sentiment} · 반복 ${item.repetition}`, { size: 8.5, color: item.brandMentioned ? COLORS.cyan : COLORS.muted, indent: 10 });
+    const slotLabel = SLOT_LABELS[item.slotStatus ?? "succeeded"] ?? "정상 답변";
+    document.text(`${slotLabel} · 브랜드 ${item.brandMentioned ? `언급 · ${item.mentionRank ?? "-"}위` : "미언급"} · 문맥 ${item.sentiment} · 반복 ${item.repetition}`, { size: 8.5, color: item.brandMentioned ? COLORS.cyan : COLORS.muted, indent: 10 });
     if (item.competitorMentions.length) document.text(`경쟁사 언급: ${item.competitorMentions.join(", ")}`, { size: 8, color: COLORS.amber, indent: 10, maxChars: 500 });
     document.text(`응답 근거: ${item.response}`, { size: 8, color: COLORS.muted, indent: 10, maxChars: 1_200, lineHeight: 11 });
     document.space(8);

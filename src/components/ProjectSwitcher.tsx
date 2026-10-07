@@ -12,6 +12,9 @@ interface Project {
   brandName: string;
   category: string;
   competitors: string[];
+  brandAliases: string[];
+  domain: string;
+  competitorDomains: string[];
   active: boolean;
   createdAt: string;
   updatedAt: string;
@@ -28,6 +31,9 @@ interface Dependencies {
   strategyItems: number;
   llmsDocuments: number;
   reportPresets: number;
+  facts: number;
+  optimizationRuns: number;
+  reportShares: number;
 }
 
 interface ProjectsPage {
@@ -42,6 +48,9 @@ interface ProjectDraft {
   brandName: string;
   category: string;
   competitors: string;
+  brandAliases: string;
+  domain: string;
+  competitorDomains: string;
   activate: boolean;
   expectedUpdatedAt?: string;
 }
@@ -63,6 +72,9 @@ const dependencyLabels: Record<keyof Dependencies, string> = {
   strategyItems: "전략 항목",
   llmsDocuments: "llms.txt 문서",
   reportPresets: "리포트 프리셋",
+  facts: "사실 메모",
+  optimizationRuns: "최적화 실행",
+  reportShares: "공개 리포트 링크",
 };
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {
@@ -78,7 +90,7 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 function emptyDraft(): ProjectDraft {
-  return { name: "", brandName: "", category: "", competitors: "", activate: true };
+  return { name: "", brandName: "", category: "", competitors: "", brandAliases: "", domain: "", competitorDomains: "", activate: true };
 }
 
 function draftFor(project: Project): ProjectDraft {
@@ -88,6 +100,9 @@ function draftFor(project: Project): ProjectDraft {
     brandName: project.brandName,
     category: project.category,
     competitors: project.competitors.join(", "),
+    brandAliases: (project.brandAliases ?? []).join(", "),
+    domain: project.domain ?? "",
+    competitorDomains: (project.competitorDomains ?? []).join(", "),
     activate: false,
     expectedUpdatedAt: project.updatedAt,
   };
@@ -176,6 +191,9 @@ export function ProjectSwitcher() {
         brandName: draft.brandName,
         category: draft.category,
         competitors: competitorList(draft.competitors),
+        brandAliases: competitorList(draft.brandAliases),
+        domain: draft.domain,
+        competitorDomains: competitorList(draft.competitorDomains),
       };
       if (draft.id) {
         await api<{ project: Project }>(`/api/projects/${draft.id}`, {
@@ -291,8 +309,11 @@ export function ProjectSwitcher() {
         <div className="flex items-center justify-between"><h3 className="font-semibold text-white">{draft.id ? "프로젝트 수정" : "프로젝트 만들기"}</h3><button type="button" className="text-xs text-slate-500 hover:text-white" onClick={() => setDraft(null)}>닫기</button></div>
         <label className="block text-xs">프로젝트 이름<input className="mt-1.5" required maxLength={120} value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} /></label>
         <label className="block text-xs">브랜드 이름<input className="mt-1.5" maxLength={120} value={draft.brandName} onChange={(event) => setDraft({ ...draft, brandName: event.target.value })} /></label>
+        <label className="block text-xs">브랜드 별칭 <span className="text-slate-600">(영문명·약칭, 쉼표 구분 · 2자 이상)</span><input className="mt-1.5" maxLength={2500} value={draft.brandAliases} onChange={(event) => setDraft({ ...draft, brandAliases: event.target.value })} /></label>
+        <label className="block text-xs">공식 도메인 <span className="text-slate-600">(예: example.com · 도메인만 나오면 언급이 아닌 자사 도메인 노출로 집계)</span><input className="mt-1.5" maxLength={253} value={draft.domain} onChange={(event) => setDraft({ ...draft, domain: event.target.value })} /></label>
         <label className="block text-xs">카테고리<input className="mt-1.5" maxLength={120} value={draft.category} onChange={(event) => setDraft({ ...draft, category: event.target.value })} /></label>
         <label className="block text-xs">경쟁사 <span className="text-slate-600">(쉼표 또는 줄바꿈)</span><textarea className="mt-1.5 min-h-24" maxLength={2500} value={draft.competitors} onChange={(event) => setDraft({ ...draft, competitors: event.target.value })} /></label>
+        <label className="block text-xs">경쟁사 도메인 <span className="text-slate-600">(웹검색 측정에서 경쟁사 인용 분류용, 쉼표 구분)</span><input className="mt-1.5" maxLength={4000} value={draft.competitorDomains} onChange={(event) => setDraft({ ...draft, competitorDomains: event.target.value })} /></label>
         {!draft.id && <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={draft.activate} onChange={(event) => setDraft({ ...draft, activate: event.target.checked })} />생성 후 활성 프로젝트로 전환</label>}
         <div className="flex justify-end gap-2"><Button type="button" variant="secondary" onClick={() => setDraft(null)}>취소</Button><Button type="submit" disabled={busy || !draft.name.trim()}>{busy ? "저장 중…" : "저장"}</Button></div>
       </form>}
