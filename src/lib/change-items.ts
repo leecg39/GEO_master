@@ -9,7 +9,9 @@ import { z } from "zod";
 import { assertExpectedUpdatedAt, expectFound, resourceIdSchema, transactionalMutation } from "./crud";
 import { getDatabase } from "./db";
 import { AppError } from "./errors";
+import { extractPageField, fieldMatches } from "./page-fields";
 import { requireActiveProject } from "./projects";
+import { fetchPublicText } from "./url-security";
 
 export const CHANGE_FIELDS = ["title", "description", "canonical", "og_image", "robots_meta", "json_ld", "body"] as const;
 export const CHANGE_STATUSES = ["draft", "approved", "delivered", "verification_pending", "verified", "conflict", "failed"] as const;
@@ -146,4 +148,35 @@ export function deleteChangeItem(idInput: unknown, input: unknown) {
     assertExpectedUpdatedAt(row.updated_at, expectedUpdatedAt);
     getDatabase().sqlite.prepare("DELETE FROM change_items WHERE id = ?").run(id);
   });
+}
+
+const VERIFY_TIMEOUT_MS = 10_000;
+
+/**
+ * 반영 확인 (Qshop P09) — 전달 처리된 수정안의 공개 URL을 다시 읽어 대상 필드가 수정안과 같을 때만 verified로 바꾼다.
+ * - HTTP 200만으로는 확인하지 않는다. 값이 아직 다르면 verification_pending으로 남는다
+ * - 4xx/5xx 응답은 failed. 네트워크 오류는 상태를 바꾸지 않고 오류를 돌려준다(일시적일 수 있음)
+ */
+export async function verifyChangeItem(idInput: unknown) {
+  const id = resourceIdSchema.parse(idInput);
+  const row = owned(id);
+  if (!["delivered", "verification_pending", "failed"].includes(row.status)) {
+    throw new AppError("전달 처리된 수정안만 반영 확인할 수 있습니다.", 409, "CHANGE_NOT_DELIVERED");
+  }
+  let page;
+  try {
+    page = await fetchPublicText(row.url, VERIFY_TIMEOUT_MS);
+  } catch {
+    throw new AppError("공개 페이지를 가져오지 못했습니다. 잠시 후 다시 확인하세요.", 502, "VERIFY_FETCH_FAILED");
+  }
+  const checkedAt = new Date().toISOString();
+  if (page.status < 200 || page.status >= 400) {
+    const item = save(id, { status: "failed" }, owned(id).updated_at);
+    return { item, check: { matched: false, httpStatus: page.status, actual: null, checkedAt } };
+  }
+  const actual = extractPageField(page.text, row.field);
+  const matched = fieldMatches(row.field, actual, row.proposed_value);
+  const shown = actual === null ? null : actual.slice(0, 500);
+  const item = save(id, { status: matched ? "verified" : "verification_pending" }, owned(id).updated_at);
+  return { item, check: { matched, httpStatus: page.status, actual: shown, checkedAt } };
 }
