@@ -24,7 +24,7 @@ function Stack() {
   const drawerFocus = useRef<HTMLButtonElement>(null); const cancelFocus = useRef<HTMLButtonElement>(null);
   return <><button id="launch" onClick={() => setDrawer(true)}>열기</button>
     <Modal open={drawer} labelledBy="drawer-title" initialFocus={drawerFocus} onClose={() => setDrawer(false)}>
-      <h2 id="drawer-title">관리</h2><button ref={drawerFocus} id="nested" onClick={() => setConfirm(true)}>삭제</button>
+      <h2 id="drawer-title">관리</h2><button ref={drawerFocus} id="nested" onClick={(event) => { event.currentTarget.blur(); setConfirm(true); }}>삭제</button>
       <Modal open={confirm} labelledBy="confirm-title" initialFocus={cancelFocus} onClose={() => setConfirm(false)}>
         <h2 id="confirm-title">확인</h2><button ref={cancelFocus}>취소</button>
       </Modal>

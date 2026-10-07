@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 
 const openDialogs = new Set<HTMLDialogElement>();
+const lastDialogFocus = new WeakMap<HTMLDialogElement, HTMLElement>();
 let previousOverflow = "";
 
 /** Native modal dialogs provide inert backgrounds and a focus boundary, including nested dialogs. */
@@ -23,7 +24,12 @@ export function Modal({ open, labelledBy, describedBy, role = "dialog", busy = f
     if (!open) return;
     const dialog = dialogRef.current;
     if (!dialog) return;
-    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const parentDialog = [...openDialogs].at(-1);
+    const activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // Async launchers may temporarily disable themselves and move focus to body.
+    const previousFocus = parentDialog && (!activeElement || !parentDialog.contains(activeElement))
+      ? lastDialogFocus.get(parentDialog) ?? parentDialog
+      : activeElement;
     if (!openDialogs.size) previousOverflow = document.body.style.overflow;
     openDialogs.add(dialog);
     document.body.style.overflow = "hidden";
@@ -46,6 +52,11 @@ export function Modal({ open, labelledBy, describedBy, role = "dialog", busy = f
       aria-labelledby={labelledBy}
       aria-describedby={describedBy}
       className="m-0 h-dvh max-h-none w-screen max-w-none overflow-y-auto border-0 bg-transparent p-0 text-inherit outline-none backdrop:bg-black/60"
+      onFocusCapture={(event) => {
+        if (event.target instanceof HTMLElement && event.currentTarget.contains(event.target)) {
+          lastDialogFocus.set(event.currentTarget, event.target);
+        }
+      }}
       onCancel={(event) => { event.preventDefault(); event.stopPropagation(); if (!busy) onClose(); }}
       onKeyDown={(event) => {
         if (event.key !== "Tab" || [...openDialogs].at(-1) !== event.currentTarget) return;
