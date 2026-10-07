@@ -47,10 +47,10 @@ import type { DashboardData } from "@/lib/dashboard";
 import { formatDate } from "@/lib/utils";
 
 const modelMeta: Record<string, { label: string; short: string; color: string }> = {
-  openai: { label: "ChatGPT", short: "GPT", color: "#c2ef4e" },
-  anthropic: { label: "Claude", short: "CLD", color: "#fa7faa" },
-  gemini: { label: "Gemini", short: "GEM", color: "#6a5fc1" },
-  grok: { label: "Grok", short: "GRK", color: "#79628c" },
+  openai: { label: "ChatGPT", short: "GPT", color: "var(--model-openai)" },
+  anthropic: { label: "Claude", short: "CLD", color: "var(--model-anthropic)" },
+  gemini: { label: "Gemini", short: "GEM", color: "var(--model-gemini)" },
+  grok: { label: "Grok", short: "GRK", color: "var(--model-grok)" },
 };
 
 const stageDescriptions: Record<string, string> = {
@@ -158,7 +158,7 @@ function SplitPanelHeader({
 function HalfGauge({
   value,
   available,
-  color = "#c2ef4e",
+  color = "var(--app-chart-current)",
   label,
   detail,
 }: {
@@ -313,7 +313,7 @@ function ProviderDot({ provider, size = "md" }: { provider: string; size?: "md" 
   );
 }
 
-function ShareBar({ value, label, color = "#c2ef4e" }: { value: number; label: string; color?: string }) {
+function ShareBar({ value, label, color = "var(--app-chart-current)" }: { value: number; label: string; color?: string }) {
   return (
     <div className="h-2 overflow-hidden rounded-full bg-dash-track" role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(value)}>
       <div className="h-full rounded-full transition-all duration-500" style={{ width: `${clamp(value)}%`, backgroundColor: color }} />
@@ -412,7 +412,7 @@ function ModelComparisonSection({
           >
             <ResponsiveContainer width="100%" height={chartHeight}>
               <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="78%">
-                <PolarGrid stroke="#362d59" />
+                <PolarGrid stroke="var(--color-dash-line)" />
                 <PolarAngleAxis
                   dataKey="model"
                   tick={(props) => <RadarModelAxisTick {...props} />}
@@ -422,20 +422,20 @@ function ModelComparisonSection({
                 <Radar
                   name="기존"
                   dataKey="previous"
-                  stroke="#fa7faa"
-                  fill="#fa7faa"
+                  stroke="var(--app-chart-previous)"
+                  fill="var(--app-chart-previous)"
                   fillOpacity={0.18}
                   strokeWidth={2}
-                  dot={(props) => <SeriesDot {...props} color="#fa7faa" faded />}
+                  dot={(props) => <SeriesDot {...props} color="var(--app-chart-previous)" faded />}
                 />
                 <Radar
                   name="현재"
                   dataKey="current"
-                  stroke="#c2ef4e"
-                  fill="#c2ef4e"
+                  stroke="var(--app-chart-current)"
+                  fill="var(--app-chart-current)"
                   fillOpacity={0.22}
                   strokeWidth={2.5}
-                  dot={(props) => <SeriesDot {...props} color="#c2ef4e" />}
+                  dot={(props) => <SeriesDot {...props} color="var(--app-chart-current)" />}
                 />
                 <Tooltip
                   contentStyle={chartTooltip}
@@ -446,11 +446,11 @@ function ModelComparisonSection({
           </div>
           <div className="mt-auto flex items-center justify-center gap-8 border-t border-dash-line/40 px-4 py-3 text-xs text-slate-400">
             <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#fa7faa]" aria-hidden="true" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[color:var(--app-chart-previous)]" aria-hidden="true" />
               기존
             </span>
             <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#c2ef4e]" aria-hidden="true" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[color:var(--app-chart-current)]" aria-hidden="true" />
               현재
             </span>
           </div>
@@ -526,11 +526,11 @@ export function DashboardView({ data }: { data: DashboardData }) {
     : 100;
   const competitorData = hasRuns
     ? [
-        { name: data.project.brandName, value: data.funnel.answerShare, color: "#c2ef4e" },
+        { name: data.project.brandName, value: data.funnel.answerShare, color: "var(--app-chart-current)" },
         ...data.overview.competitors.map((item, index) => ({
           name: item.name,
           value: item.share,
-          color: ["#6a5fc1", "#fa7faa", "#79628c", "#422082"][index] ?? "#64748b",
+          color: ["var(--model-gemini)", "var(--model-anthropic)", "var(--model-grok)", "var(--app-status-violet)"][index] ?? "#64748b",
         })),
       ].filter((item) => item.value > 0)
     : [];
@@ -669,16 +669,16 @@ export function DashboardView({ data }: { data: DashboardData }) {
                   <AreaChart data={runTrend} margin={{ left: -12, right: 8, top: 8, bottom: 0 }}>
                     <defs>
                       <linearGradient id="overallMentionArea" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#c2ef4e" stopOpacity={0.45} />
-                        <stop offset="55%" stopColor="#c2ef4e" stopOpacity={0.12} />
-                        <stop offset="100%" stopColor="#c2ef4e" stopOpacity={0} />
+                        <stop offset="0%" stopColor="var(--app-chart-current)" stopOpacity={0.45} />
+                        <stop offset="55%" stopColor="var(--app-chart-current)" stopOpacity={0.12} />
+                        <stop offset="100%" stopColor="var(--app-chart-current)" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid stroke="#362d59" strokeDasharray="3 6" vertical={false} />
-                    <XAxis dataKey="label" tick={{ fill: "#bdb8c0", fontSize: 11 }} tickLine={false} axisLine={false} />
+                    <CartesianGrid stroke="var(--color-dash-line)" strokeDasharray="3 6" vertical={false} />
+                    <XAxis dataKey="label" tick={{ fill: "var(--app-text-subtle)", fontSize: 11 }} tickLine={false} axisLine={false} />
                     <YAxis
                       domain={[trendMin, trendMax]}
-                      tick={{ fill: "#bdb8c0", fontSize: 11 }}
+                      tick={{ fill: "var(--app-text-subtle)", fontSize: 11 }}
                       tickLine={false}
                       axisLine={false}
                       tickFormatter={(value) => `${value}%`}
@@ -687,11 +687,11 @@ export function DashboardView({ data }: { data: DashboardData }) {
                     <Area
                       type="monotone"
                       dataKey="overall"
-                      stroke="#c2ef4e"
+                      stroke="var(--app-chart-current)"
                       strokeWidth={2.5}
                       fill="url(#overallMentionArea)"
-                      dot={{ r: 3, fill: "#150f23", stroke: "#c2ef4e", strokeWidth: 2 }}
-                      activeDot={{ r: 5, fill: "#c2ef4e", stroke: "#150f23", strokeWidth: 2 }}
+                      dot={{ r: 3, fill: "#150f23", stroke: "var(--app-chart-current)", strokeWidth: 2 }}
+                      activeDot={{ r: 5, fill: "var(--app-chart-current)", stroke: "#150f23", strokeWidth: 2 }}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -920,9 +920,9 @@ function QuestionDetail({ question }: { question: DashboardData["questions"][num
             <div className="mt-3 h-72" role="img" aria-label="선택 질문의 최근 모델별 Answer Share 추이">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={question.trends} margin={{ left: -20, right: 10, top: 8, bottom: 0 }}>
-                  <CartesianGrid stroke="#26395f" strokeDasharray="2 4" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fill: "#7183a6", fontSize: 10 }} tickLine={false} axisLine={false} />
-                  <YAxis domain={[0, 100]} tick={{ fill: "#7183a6", fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} />
+                  <CartesianGrid stroke="var(--color-dash-line)" strokeDasharray="2 4" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fill: "var(--app-text-subtle)", fontSize: 10 }} tickLine={false} axisLine={false} />
+                  <YAxis domain={[0, 100]} tick={{ fill: "var(--app-text-subtle)", fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} />
                   <Tooltip contentStyle={chartTooltip} formatter={(value, name) => [`${Number(value).toFixed(1)}%`, name === "overall" ? "전체" : modelMeta[String(name)]?.label ?? name]} />
                   <Legend iconType="line" wrapperStyle={{ fontSize: 10 }} formatter={(value) => value === "overall" ? "전체" : modelMeta[String(value)]?.label ?? value} />
                   <Line type="monotone" dataKey="overall" stroke="#f8fafc" strokeWidth={2.4} dot={{ r: 2.5 }} connectNulls />
