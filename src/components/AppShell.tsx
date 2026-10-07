@@ -4,7 +4,7 @@ import type { RequestAccount } from "@/lib/request-account";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarChart3, BookOpen, Bot, CalendarClock, ChevronDown, ClipboardCheck, GitCompare, FlaskConical, ListChecks, CreditCard, FileCode2, FileDown, FilePenLine, Gauge, Images, LoaderCircle, Menu, PackageOpen, SearchCheck, Settings, Sparkles, Target, X } from "lucide-react";
+import { BarChart3, BookOpen, Bot, CalendarClock, ChevronDown, ClipboardCheck, GitCompare, Braces, FlaskConical, ListChecks, CreditCard, FileCode2, FileDown, FilePenLine, Gauge, Images, LoaderCircle, Menu, PackageOpen, SearchCheck, Settings, Sparkles, Target, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { Modal } from "@/components/Modal";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
@@ -23,6 +23,7 @@ const coreNavigation = [
   { href: "/review", label: "검수함", icon: ListChecks },
   { href: "/facts", label: "사실 메모", icon: ClipboardCheck },
   { href: "/changes", label: "수정안 작업대", icon: GitCompare },
+  { href: "/structured-data", label: "구조화 데이터", icon: Braces },
   { href: "/studio", label: "콘텐츠 스튜디오", icon: FilePenLine },
   { href: "/optimizer", label: "최적화 랩", icon: FlaskConical },
   { href: "/strategy", label: "전략 워크스페이스", icon: Target },
