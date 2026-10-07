@@ -46,7 +46,19 @@ export function Modal({ open, labelledBy, describedBy, role = "dialog", busy = f
       aria-labelledby={labelledBy}
       aria-describedby={describedBy}
       className="m-0 h-dvh max-h-none w-screen max-w-none overflow-y-auto border-0 bg-transparent p-0 text-inherit outline-none backdrop:bg-black/60"
-      onCancel={(event) => { event.preventDefault(); if (!busy) onClose(); }}
+      onCancel={(event) => { event.preventDefault(); event.stopPropagation(); if (!busy) onClose(); }}
+      onKeyDown={(event) => {
+        if (event.key !== "Tab" || [...openDialogs].at(-1) !== event.currentTarget) return;
+        const items = [...event.currentTarget.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]',
+        )].filter((element) => element.tabIndex >= 0 && element.getClientRects().length > 0 && !element.closest("[inert]") && getComputedStyle(element).visibility !== "hidden");
+        const first = items[0]; const last = items.at(-1);
+        if (!first) { event.preventDefault(); return; }
+        if ((event.shiftKey && document.activeElement === first) || (!event.shiftKey && document.activeElement === last) || !items.includes(document.activeElement as HTMLElement)) {
+          event.preventDefault(); event.stopPropagation();
+          (event.shiftKey ? last : first)?.focus();
+        }
+      }}
     >
       {children}
     </dialog>,
