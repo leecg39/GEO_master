@@ -44,10 +44,10 @@ docker compose up -d --wait app
 cd /docker/geo-master/app/deploy/hostinger
 backup_dir="/docker/geo-master/backups/$(date -u +%Y%m%dT%H%M%SZ)"
 install -d -m 700 "$backup_dir"
-docker compose exec -T app node -e 'const D=require("better-sqlite3"); const d=new D(process.env.GEO_DB_PATH); d.backup("/app/data/geo-backup.db").then(()=>d.close())'
+docker compose exec -T app node -e 'const D=require("better-sqlite3"); const d=new D(process.env.GEO_DB_PATH); d.backup("/app/data/geo-backup.db").then(()=>d.close())' </dev/null
 docker cp geo-master-app-1:/app/data/geo-backup.db "$backup_dir/geo.db"
 # 설정에서 API 키를 저장한 뒤 자동 생성되는 파일입니다.
-if docker compose exec -T app test -f /app/data/.master-key; then
+if docker compose exec -T app test -f /app/data/.master-key </dev/null; then
   docker cp geo-master-app-1:/app/data/.master-key "$backup_dir/.master-key"
 fi
 cp runtime.env .env "$backup_dir/"

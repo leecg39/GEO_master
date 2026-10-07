@@ -1,0 +1,230 @@
+{
+  "origin": "https://geo.soverin.cloud",
+  "checkedAt": "2026-10-07T05:21:05.896Z",
+  "checks": [
+    {
+      "path": "/",
+      "method": "GET",
+      "status": 401,
+      "expected": 401,
+      "authenticated": false
+    },
+    {
+      "path": "/api/settings",
+      "method": "GET",
+      "status": 401,
+      "expected": 401,
+      "authenticated": false
+    },
+    {
+      "path": "/api/workspace",
+      "method": "GET",
+      "status": 401,
+      "expected": 401,
+      "authenticated": false
+    },
+    {
+      "path": "/",
+      "method": "GET",
+      "status": 401,
+      "expected": 401,
+      "authenticated": false
+    },
+    {
+      "path": "/",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/audit",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/multimodal",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/llms",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/share",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/automation",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/reports",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/studio",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/strategy",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/learn",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/workspace",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/settings",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/subscription",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/semforge",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/ai-seo",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/site-audit",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/position-tracking",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/local-business",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/analytics/overview",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/api/dashboard",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/api/projects",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/api/settings",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/api/automation",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/api/workspace",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/api/checklist",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/api/projects",
+      "method": "POST",
+      "status": 403,
+      "expected": 403,
+      "authenticated": true
+    },
+    {
+      "path": "/api/projects",
+      "method": "POST",
+      "status": 422,
+      "expected": 422,
+      "authenticated": true
+    },
+    {
+      "path": "/api/projects",
+      "method": "POST",
+      "status": 201,
+      "expected": 201,
+      "authenticated": true
+    }
+  ]
+}
