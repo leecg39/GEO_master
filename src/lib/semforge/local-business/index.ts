@@ -118,11 +118,17 @@ export function addMapRankKeyword(input: unknown) {
   const { sqlite } = getDatabase();
   const campaign = sqlite.prepare("SELECT id FROM map_rank_campaigns WHERE id = ? AND project_id = ?").get(parsed.campaignId, project.id);
   if (!campaign) throw semforgeError("NOT_FOUND", "Map Rank 캠페인을 찾을 수 없습니다.");
+  const keyword = parsed.keyword.replace(/\s+/g, " ");
+  const existing = sqlite.prepare("SELECT keyword FROM map_rank_keywords WHERE campaign_id = ? AND deleted_at IS NULL")
+    .all(parsed.campaignId) as Array<{ keyword: string }>;
+  if (existing.some((item) => item.keyword.trim().replace(/\s+/g, " ").toLowerCase() === keyword.toLowerCase())) {
+    throw semforgeError("DUPLICATE", "이미 추적 중인 키워드입니다.");
+  }
   const now = new Date().toISOString();
   const result = sqlite.prepare(`
     INSERT INTO map_rank_keywords (campaign_id, keyword, created_at, updated_at) VALUES (?, ?, ?, ?)
-  `).run(parsed.campaignId, parsed.keyword, now, now);
-  return { id: Number(result.lastInsertRowid), keyword: parsed.keyword };
+  `).run(parsed.campaignId, keyword, now, now);
+  return { id: Number(result.lastInsertRowid), keyword };
 }
 
 export function listMapRankKeywords(campaignIdInput: unknown) {
