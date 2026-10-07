@@ -25,6 +25,7 @@ export interface GroundedAnswer {
 type Json = Record<string, unknown>;
 
 const GOOGLE_REDIRECT_HOST = "vertexaisearch.cloud.google.com";
+const INLINE_URL_RE = /https?:\/\/[^\s<>"'()\[\]]+/g;
 const DOMAIN_LIKE = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
 
 function record(value: unknown): Json {
@@ -49,6 +50,14 @@ function toCitation(rawUrl: unknown, rawTitle: unknown, kind: CitationKind): Cit
     return DOMAIN_LIKE.test(titleDomain) ? { url: url.normalized, domain: titleDomain, title, kind } : null;
   }
   return { url: url.normalized, domain: url.domain, title, kind };
+}
+
+/**
+ * 답변 본문에 직접 적힌 URL도 명시 인용으로 본다.
+ * 2026-10-08 실측: 구독핀 경유 Claude는 구조화된 citation 대신 본문에 URL을 나열해 답했다.
+ */
+function inlineCitations(text: string) {
+  return (text.match(INLINE_URL_RE) ?? []).map((url) => toCitation(url.replace(/[.,;:!?]+$/, ""), null, "cited"));
 }
 
 /** 같은 URL은 한 번만 — 명시 인용이 검색 결과보다 우선 */
@@ -76,11 +85,12 @@ export function parseOpenAiGrounding(response: unknown): GroundedAnswer {
     .flatMap((item) => list(item.content))
     .flatMap((content) => list(content.annotations))
     .filter((annotation) => annotation.type === "url_citation");
+  const answer = text(root.output_text).trim();
   return {
-    text: text(root.output_text).trim(),
+    text: answer,
     returnedModel: modelName(root.model),
     searchPerformed: output.some((item) => item.type === "web_search_call"),
-    citations: dedupe(annotations.map((annotation) => toCitation(annotation.url, annotation.title, "cited"))),
+    citations: dedupe([...annotations.map((annotation) => toCitation(annotation.url, annotation.title, "cited")), ...inlineCitations(answer)]),
   };
 }
 
@@ -97,11 +107,13 @@ export function parseAnthropicGrounding(message: unknown): GroundedAnswer {
     .flatMap((block) => list(block.content))
     .filter((result) => result.type === "web_search_result")
     .map((result) => toCitation(result.url, result.title, "searched"));
+  // 도구 호출 앞뒤로 나뉜 텍스트 블록은 줄바꿈으로 잇는다
+  const answer = textBlocks.map((block) => text(block.text).trim()).filter(Boolean).join("\n");
   return {
-    text: textBlocks.map((block) => text(block.text)).join("").trim(),
+    text: answer,
     returnedModel: modelName(root.model),
     searchPerformed: blocks.some((block) => block.type === "server_tool_use" && block.name === "web_search"),
-    citations: dedupe([...cited, ...searched]),
+    citations: dedupe([...cited, ...inlineCitations(answer), ...searched]),
   };
 }
 
@@ -110,10 +122,11 @@ export function parseGeminiGrounding(response: unknown): GroundedAnswer {
   const metadata = record(list(root.candidates)[0]?.groundingMetadata);
   const queries = Array.isArray(metadata.webSearchQueries) ? metadata.webSearchQueries : [];
   const chunks = list(metadata.groundingChunks).map((chunk) => record(chunk.web)).filter((web) => web.uri);
+  const answer = text(root.text).trim();
   return {
-    text: text(root.text).trim(),
+    text: answer,
     returnedModel: modelName(root.modelVersion),
     searchPerformed: queries.length > 0 || chunks.length > 0,
-    citations: dedupe(chunks.map((web) => toCitation(web.uri, web.title, "cited"))),
+    citations: dedupe([...chunks.map((web) => toCitation(web.uri, web.title, "cited")), ...inlineCitations(answer)]),
   };
 }

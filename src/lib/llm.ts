@@ -30,6 +30,16 @@ interface GenerateOptions {
 
 /** 웹검색 도구를 공식 지원하는 공급자 — Grok은 미확인이라 인용 지표를 N/A로 둔다 */
 export const SEARCH_CAPABLE_PROVIDERS: readonly Provider[] = ["openai", "anthropic", "gemini"];
+
+/**
+ * 이 키·공급자 조합으로 실제 웹검색이 되는지.
+ * 2026-10-08 실측: 구독핀 프록시(csk_)는 OpenAI Responses의 web_search 도구를 tool_choice=required여도 제거하고 일반 답변만 돌려준다.
+ * 같은 프록시의 Anthropic web_search는 정상 동작했다.
+ */
+export function supportsWebSearch(provider: Provider, apiKey: string) {
+  if (!SEARCH_CAPABLE_PROVIDERS.includes(provider)) return false;
+  return !(provider === "openai" && apiKey.startsWith("csk_"));
+}
 const MAX_SEARCH_USES = 3;
 
 function providerFailure(error: unknown, providerLabel: string): never {
@@ -48,7 +58,7 @@ function providerFailure(error: unknown, providerLabel: string): never {
 export async function generateGroundedText({ provider, apiKey, model, system, prompt, maxTokens = 1800 }: GenerateOptions): Promise<GroundedAnswer> {
   const providerLabel = provider === "grok" ? "Grok" : provider;
   if (!apiKey) throw new AppError(`${providerLabel} API 키가 설정되지 않았습니다.`, 409, "API_KEY_REQUIRED");
-  if (!SEARCH_CAPABLE_PROVIDERS.includes(provider)) {
+  if (!supportsWebSearch(provider, apiKey)) {
     throw new AppError(`${providerLabel}는 웹검색 측정을 지원하지 않습니다.`, 502, "SEARCH_UNSUPPORTED");
   }
   try {

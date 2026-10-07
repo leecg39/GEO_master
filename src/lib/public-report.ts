@@ -74,7 +74,7 @@ function citationSection(report: PublicReport) {
   const categories = Object.entries(citations.citedByCategory).map(([category, count]) => `${escapeHtml(CATEGORY_LABELS[category] ?? category)} ${count}회`).join(" · ") || "명시 인용 없음";
   const pages = citations.pagesCitedWithoutBrand.map((page) => `<li>${escapeHtml(page.url)} <span class="muted">${escapeHtml(CATEGORY_LABELS[page.category] ?? page.category)} · ${page.count}회</span></li>`).join("");
   return `<section><h2>인용 출처 (웹검색 측정)</h2>
-    <p>자사 인용 커버리지 <strong>${escapeHtml(formatRatio(citations.ownCitationCoverage))}</strong></p>
+    <p>자사 인용 커버리지 <strong>${escapeHtml(formatRatio(citations.ownCitationCoverage))}</strong> <span class="muted">(분모: 실제로 웹검색이 일어난 정상 답변)</span></p>
     <p class="muted">출처 유형별 인용 횟수: ${categories}</p>
     ${pages ? `<p class="muted">브랜드가 언급되지 않은 답변에서 인용된 페이지</p><ul>${pages}</ul>` : ""}</section>`;
 }

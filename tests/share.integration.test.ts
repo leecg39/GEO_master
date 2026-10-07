@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/llm", () => ({ generateText: vi.fn(), generateGroundedText: vi.fn(), SEARCH_CAPABLE_PROVIDERS: ["openai", "anthropic", "gemini"] }));
+vi.mock("@/lib/llm", () => ({ generateText: vi.fn(), generateGroundedText: vi.fn(), supportsWebSearch: (provider: string) => provider !== "grok" }));
 
 import { closeDatabase, getDatabase } from "@/lib/db";
 import { AppError } from "@/lib/errors";

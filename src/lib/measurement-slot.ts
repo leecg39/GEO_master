@@ -7,7 +7,7 @@
 import { classifyRefusal, type SlotStatus } from "./geo-core";
 import { AppError } from "./errors";
 import type { Citation } from "./grounding";
-import { generateGroundedText, generateText, SEARCH_CAPABLE_PROVIDERS } from "./llm";
+import { generateGroundedText, generateText, supportsWebSearch } from "./llm";
 import type { Provider } from "./settings";
 
 export type SearchMode = "off" | "web";
@@ -43,12 +43,13 @@ function outcome(response: string, partial: Omit<SlotOutcome, "status" | "respon
 
 async function request({ provider, apiKey, model, question, searchMode }: SlotRequest): Promise<SlotOutcome> {
   const options = { provider, apiKey, model, system: MEASUREMENT_SYSTEM_PROMPT, prompt: question, maxTokens: MAX_TOKENS };
-  if (searchMode === "web" && SEARCH_CAPABLE_PROVIDERS.includes(provider)) {
+  if (searchMode === "web" && supportsWebSearch(provider, apiKey)) {
     const grounded = await generateGroundedText(options);
     return outcome(grounded.text, {
       searchMode: "web",
       searchPerformed: grounded.searchPerformed,
-      citationSupported: true,
+      // 실제로 검색이 일어난 답변만 인용 지표 분모에 넣는다 — 검색 없이 답한 경우를 0%로 세지 않는다
+      citationSupported: grounded.searchPerformed,
       returnedModel: grounded.returnedModel,
       citations: grounded.citations,
     });

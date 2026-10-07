@@ -299,6 +299,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 function printCitations(document: PdfLayout, citations: CitationSummary) {
   document.section("인용 출처 분석 (웹검색 측정)");
   document.text(`자사 인용 커버리지 ${formatRatio(citations.ownCitationCoverage)}`, { size: 10.5, color: COLORS.cyan });
+  document.text("분모: 실제로 웹검색이 일어난 정상 답변 (검색 미지원·미발생 답변은 제외)", { size: 8, color: COLORS.muted });
   for (const [provider, value] of Object.entries(citations.perProvider)) {
     document.text(`${provider} ${formatRatio(value)}`, { size: 8.5, indent: 10 });
   }

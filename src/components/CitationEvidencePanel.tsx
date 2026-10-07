@@ -24,7 +24,7 @@ export function CitationEvidencePanel({ summary, className }: { summary: Citatio
         <div>
           <dt className="text-xs text-slate-500">자사 인용 커버리지</dt>
           <dd className="text-xl font-semibold text-white">{formatRatio(summary.ownCitationCoverage)}</dd>
-          <p className="text-xs text-slate-600">자사 URL이 명시 인용된 정상 답변 ÷ 인용 지원 모델의 정상 답변</p>
+          <p className="text-xs text-slate-600">자사 URL이 명시 인용된 정상 답변 ÷ 실제로 웹검색이 일어난 정상 답변 (검색 미지원·미발생은 N/A)</p>
         </div>
         <div>
           <dt className="text-xs text-slate-500">모델별</dt>

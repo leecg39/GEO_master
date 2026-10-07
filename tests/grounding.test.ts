@@ -45,7 +45,7 @@ describe("parseAnthropicGrounding", () => {
         { type: "text", text: "둘째 문장.", citations: null },
       ],
     });
-    expect(parsed.text).toBe("첫 문장.둘째 문장.");
+    expect(parsed.text).toBe("첫 문장.\n둘째 문장.");
     expect(parsed.searchPerformed).toBe(true);
     expect(parsed.citations).toEqual([
       { url: "https://b.example.com", domain: "b.example.com", title: "B", kind: "cited" },
@@ -92,3 +92,26 @@ describe("parseGeminiGrounding", () => {
     expect(parsed.searchPerformed).toBe(true);
   });
 });
+
+describe("inline URL citations", () => {
+  it("treats URLs written in the answer text as explicit citations when the API returns no structured citations", () => {
+    const parsed = parseAnthropicGrounding({
+      content: [
+        { type: "text", text: "검색해 보겠습니다." },
+        { type: "server_tool_use", name: "web_search" },
+        { type: "web_search_tool_result", content: [{ type: "web_search_result", url: "https://help.example.com/a", title: "A" }] },
+        { type: "text", text: "추천 도구는 채널톡입니다 (https://channel.io/ko, 참고: https://help.example.com/a)." },
+      ],
+    });
+    expect(parsed.text).toBe("검색해 보겠습니다.\n추천 도구는 채널톡입니다 (https://channel.io/ko, 참고: https://help.example.com/a).");
+    expect(parsed.citations.filter((citation) => citation.kind === "cited").map((citation) => citation.url)).toEqual(["https://channel.io/ko", "https://help.example.com/a"]);
+  });
+
+  it("applies the same fallback to OpenAI and Gemini answers", () => {
+    expect(parseOpenAiGrounding({ output_text: "출처: https://news.example.org/x.", output: [] }).citations).toEqual([
+      { url: "https://news.example.org/x", domain: "news.example.org", title: null, kind: "cited" },
+    ]);
+    expect(parseGeminiGrounding({ text: "참고 https://gov.example.kr/p", candidates: [] }).citations[0]).toMatchObject({ domain: "gov.example.kr", kind: "cited" });
+  });
+});
+
