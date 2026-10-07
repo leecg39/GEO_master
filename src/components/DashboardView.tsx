@@ -313,9 +313,9 @@ function ProviderDot({ provider, size = "md" }: { provider: string; size?: "md" 
   );
 }
 
-function ShareBar({ value, color = "#c2ef4e" }: { value: number; color?: string }) {
+function ShareBar({ value, label, color = "#c2ef4e" }: { value: number; label: string; color?: string }) {
   return (
-    <div className="h-2 overflow-hidden rounded-full bg-dash-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(value)}>
+    <div className="h-2 overflow-hidden rounded-full bg-dash-track" role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(value)}>
       <div className="h-full rounded-full transition-all duration-500" style={{ width: `${clamp(value)}%`, backgroundColor: color }} />
     </div>
   );
@@ -733,7 +733,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
                     </span>
                     <strong className="text-white">{item.value.toFixed(1)}%</strong>
                   </div>
-                  <ShareBar value={item.value} color={item.color} />
+                  <ShareBar label={`${item.name} 응답 점유율`} value={item.value} color={item.color} />
                 </div>
               ))}
             </div>
@@ -767,7 +767,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
               <div><span className="text-[10px] uppercase tracking-wider text-slate-500">체크리스트 완료율</span><strong className="mt-1 block text-4xl font-black tracking-tight text-amber-300">{data.checklist.percent}%</strong></div>
               <span className="text-xs text-slate-500">{data.checklist.total - data.checklist.completed}개 남음</span>
             </div>
-            <div className="mt-5"><ShareBar value={data.checklist.percent} color="#fbbf24" /></div>
+            <div className="mt-5"><ShareBar label="체크리스트 완료율" value={data.checklist.percent} color="#fbbf24" /></div>
             <div className="mt-5 grid grid-cols-10 gap-1" aria-hidden="true">
               {Array.from({ length: 10 }, (_, index) => (
                 <span key={index} className={`h-3 rounded-sm ${index < Math.round(data.checklist.percent / 10) ? "bg-amber-300" : "bg-dash-track"}`} />
@@ -907,7 +907,7 @@ function QuestionDetail({ question }: { question: DashboardData["questions"][num
                   <ProviderDot provider={model.provider} />
                   <span className="text-[10px] text-slate-500">{model.averageRank ? `평균 ${model.averageRank}위` : "순위 없음"} · <strong className="text-white">{model.share}%</strong></span>
                 </div>
-                <ShareBar value={model.share} color={modelMeta[model.provider]?.color} />
+                <ShareBar label={`${modelMeta[model.provider]?.label ?? model.provider} 질문 점유율`} value={model.share} color={modelMeta[model.provider]?.color} />
               </div>
             ))}
             {!activeModels.length && <p className="py-10 text-center text-xs text-slate-500">이 질문의 모델별 결과가 없습니다.</p>}
