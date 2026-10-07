@@ -13,6 +13,9 @@ export const projects = sqliteTable("projects", {
 
 export const semforgeSubscriptions = sqliteTable("semforge_subscriptions", {
   id: integer("id").primaryKey(),
+  accountId: text("account_id").notNull().default("local").unique(),
+  billingMode: text("billing_mode").notNull().default("legacy"),
+  paymentIntentId: integer("payment_intent_id").references(() => semforgePaymentIntents.id, { onDelete: "set null" }),
   status: text("status").notNull().default("inactive"),
   amountKrw: integer("amount_krw").notNull().default(300_000),
   currentPeriodStart: text("current_period_start"),
@@ -24,6 +27,8 @@ export const semforgeSubscriptions = sqliteTable("semforge_subscriptions", {
 
 export const semforgePaymentIntents = sqliteTable("semforge_payment_intents", {
   id: integer("id").primaryKey({ autoIncrement: true }),
+  accountId: text("account_id").notNull().default("local"),
+  billingMode: text("billing_mode").notNull().default("legacy"),
   amountKrw: integer("amount_krw").notNull(),
   status: text("status").notNull(),
   provider: text("provider").notNull().default("toss"),

@@ -442,6 +442,22 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 10,
+    name: "account-scoped-semforge-entitlements",
+    up(sqlite) {
+      // Existing single-workspace records belong only to the legacy local account.
+      addColumnIfMissing(sqlite, "semforge_subscriptions", "account_id", "TEXT NOT NULL DEFAULT 'local'");
+      addColumnIfMissing(sqlite, "semforge_subscriptions", "billing_mode", "TEXT NOT NULL DEFAULT 'legacy'");
+      addColumnIfMissing(sqlite, "semforge_payment_intents", "account_id", "TEXT NOT NULL DEFAULT 'local'");
+      addColumnIfMissing(sqlite, "semforge_payment_intents", "billing_mode", "TEXT NOT NULL DEFAULT 'legacy'");
+      addColumnIfMissing(sqlite, "semforge_subscriptions", "payment_intent_id", "INTEGER REFERENCES semforge_payment_intents(id) ON DELETE SET NULL");
+      sqlite.exec(`
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_semforge_subscription_account ON semforge_subscriptions(account_id);
+        CREATE INDEX IF NOT EXISTS idx_semforge_payment_account ON semforge_payment_intents(account_id, provider_order_id);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

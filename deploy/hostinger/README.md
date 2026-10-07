@@ -15,7 +15,7 @@ DNS는 Cloudflare의 `geo` A 레코드가 VPS를 가리키는 DNS only 구성입
 
 다음 파일은 Git·이미지에 포함하지 않습니다. 서버에서 권한 `0600`으로 보관합니다.
 
-- `.env`: `GEO_DOMAIN`, `GEO_IMAGE_TAG`, `GEO_HTTP_AUTH`
+- `.env`: `GEO_DOMAIN`, `GEO_IMAGE_TAG`, `GEO_HTTP_AUTH`, `GEO_ADMIN_USERS`, `GEO_AUTH_PROXY_SECRET`
 - `runtime.env`: 제공자 API 키, 운영 플래그
 - `/app/data/geo.db` 및 `/app/data/.master-key`: 영구 볼륨에 생성
 
@@ -58,8 +58,12 @@ chmod 600 "$backup_dir"/* "$backup_dir"/.[!.]*
 
 ## 운영 범위
 
-공유 관리자 인증을 사용하는 단일 워크스페이스 배포입니다. 사용자별 계정·권한 분리는 제공하지 않습니다. 현재 로컬 DB를 자동으로 복제하지 않고 새 데이터 볼륨으로 시작합니다.
+Basic Auth 계정별로 SEMForge 이용 권한을 확인하는 단일 워크스페이스 배포입니다. `GEO_ADMIN_USERS`에 등록된 계정(기본 `geo-admin`)은 결제 없이 사용합니다. 일반 계정은 자기 계정에 연결된 승인 결제와 유효한 구독 기간이 필요합니다. 프로젝트·업무 데이터까지 고객별로 분리하는 멀티테넌트 제품은 아닙니다.
 
-`SEMFORGE_BILLING_MODE=live`, mock 플래그 `0`으로 배포합니다. 실제 결제 검증 및 Google OAuth/GSC/GBP 연동의 미구현 상태는 그대로이며, API 키를 제공해도 해당 기능이 자동으로 완성되지는 않습니다. 예약 측정은 기본 비용 한도 0으로 시작합니다.
+Traefik이 Basic Auth로 확인한 사용자 이름을 `X-Geo-Auth-User`에 덮어쓰고 서버 전용 `X-Geo-Auth-Secret`을 추가합니다. 앱은 32자 이상의 `GEO_AUTH_PROXY_SECRET`을 상수 시간 비교한 뒤 역할을 판단합니다. 요청 본문·쿼리의 사용자나 관리자 값은 권한에 영향을 주지 않습니다. 서버 `.env`에 안전한 임의 비밀을 설정해야 Compose를 시작할 수 있습니다. 이 비밀을 클라이언트·브라우저·Git에 전달하지 마세요.
+
+추가 로그인 계정은 `htpasswd`의 bcrypt 해시를 기존 `GEO_HTTP_AUTH` 목록에 쉼표로 추가하고 앱을 재생성합니다. 계정 이름은 영문·숫자로 시작하고 영문·숫자·`@._+-`만 허용하며 최대 128자입니다. `GEO_ADMIN_USERS`에 넣지 않은 새 계정은 일반 계정이며, 다른 계정의 구독이나 기존 공용 구독을 상속하지 않습니다. 기존 워크스페이스 구독 기록은 DB 마이그레이션에서 `local` 계정으로만 보존합니다.
+
+`SEMFORGE_BILLING_MODE=live`, mock 플래그 `0`으로 배포합니다. 실제 결제 검증 및 Google OAuth/GSC/GBP 연동의 미구현 상태는 그대로이며, API 키를 제공해도 해당 기능이 자동으로 완성되지는 않습니다. 일반 계정의 실결제 활성화는 결제사 연동 후 가능합니다. 운영 프로세스는 `dev` 플래그를 넣어도 테스트 결제를 승인하지 않으며 개발 결제 기록으로 운영 권한을 얻을 수 없습니다. 예약 측정은 기본 비용 한도 0으로 시작합니다.
 
 참고: [Next.js standalone](https://nextjs.org/docs/app/api-reference/config/next-config-js/output), [Traefik BasicAuth](https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/).

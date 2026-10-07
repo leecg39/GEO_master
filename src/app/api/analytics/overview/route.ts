@@ -1,3 +1,4 @@
+import { withSemforgeAccount } from "@/lib/semforge-route";
 import { NextRequest, NextResponse } from "next/server";
 import { errorResponse } from "@/lib/errors";
 import { getDomainOverview } from "@/lib/semforge/position-tracking";
@@ -8,7 +9,7 @@ import { normalizeDomain, projectDomainFromBrand } from "@/lib/semforge/utils/do
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export function GET(request: NextRequest) {
+function handleGET(request: NextRequest) {
   try {
     const project = requireActiveProject();
     const domain = normalizeDomain(
@@ -24,3 +25,5 @@ export function GET(request: NextRequest) {
     return errorResponse(error);
   }
 }
+
+export const GET = withSemforgeAccount(handleGET, { requireSubscription: true });

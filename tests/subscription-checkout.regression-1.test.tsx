@@ -15,6 +15,39 @@ afterEach(async () => {
 });
 
 describe("subscription checkout regression", () => {
+  it("shows the administrator exemption without checkout controls or a monthly price", async () => {
+    vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({ subscription: {
+      accountId: "geo-admin", role: "admin", accessSource: "admin", billingAvailable: false,
+      active: true, status: "active", amountKrw: 0, features: [],
+    } })));
+    const container = document.createElement("div");
+    document.body.append(container);
+    root = createRoot(container);
+    await act(async () => root?.render(<SubscriptionClient />));
+    expect(container.textContent).toContain("결제 면제");
+    expect(container.textContent).toContain("geo-admin");
+    expect(container.textContent).not.toContain("300,000");
+    expect(container.querySelector("button")).toBeNull();
+    expect(container.querySelector('a[href="/semforge"]')).not.toBeNull();
+  });
+
+  it("keeps unpaid members locked and explains that live checkout is not available", async () => {
+    vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({ subscription: {
+      accountId: "member", role: "member", accessSource: "none", billingAvailable: false,
+      active: false, status: "inactive", amountKrw: 300000, features: [],
+    } })));
+    const container = document.createElement("div");
+    document.body.append(container);
+    root = createRoot(container);
+    await act(async () => root?.render(<SubscriptionClient />));
+    expect(container.textContent).toContain("결제 필요");
+    expect(container.textContent).toContain("결제 연동 준비 중");
+    expect(container.querySelector("button")?.disabled).toBe(true);
+    expect(container.querySelector('a[href="/semforge"]')).toBeNull();
+  });
+
   // Regression: ISSUE-001 — checkout was rejected by the JSON-only proxy.
   // Found by /qa on 2026-10-07. Report: docs/qa/qa-report-2026-10-07.md
   it("starts checkout through the real proxy and announces successful activation", async () => {

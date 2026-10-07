@@ -1,3 +1,4 @@
+import { withSemforgeAccount } from "@/lib/semforge-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { errorResponse } from "@/lib/errors";
@@ -6,7 +7,7 @@ import { addAiVisibilityQuery, getAiVisibilityQueryReport, listAiVisibilityQueri
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export function GET(request: NextRequest) {
+function handleGET(request: NextRequest) {
   try {
     const id = request.nextUrl.searchParams.get("id");
     if (id) return NextResponse.json({ report: getAiVisibilityQueryReport(id) });
@@ -17,7 +18,7 @@ export function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     return NextResponse.json({ query: addAiVisibilityQuery(await request.json()) }, { status: 201 });
   } catch (error) {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+async function handleDELETE(request: NextRequest) {
   try {
     const id = z.coerce.number().int().positive().parse(request.nextUrl.searchParams.get("id"));
     return NextResponse.json(removeAiVisibilityQuery(id));
@@ -33,3 +34,7 @@ export async function DELETE(request: NextRequest) {
     return errorResponse(error);
   }
 }
+
+export const GET = withSemforgeAccount(handleGET, { requireSubscription: true });
+export const POST = withSemforgeAccount(handlePOST, { requireSubscription: true });
+export const DELETE = withSemforgeAccount(handleDELETE, { requireSubscription: true });

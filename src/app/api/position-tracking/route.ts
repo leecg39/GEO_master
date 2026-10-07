@@ -1,3 +1,4 @@
+import { withSemforgeAccount } from "@/lib/semforge-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { errorResponse } from "@/lib/errors";
@@ -13,7 +14,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-export function GET(request: NextRequest) {
+function handleGET(request: NextRequest) {
   try {
     const campaignId = request.nextUrl.searchParams.get("campaignId");
     if (campaignId) return NextResponse.json({ keywords: listTrackedKeywords(campaignId) });
@@ -23,7 +24,7 @@ export function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const body = await request.json() as Record<string, unknown>;
     if (body.keyword !== undefined) {
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+async function handlePATCH(request: NextRequest) {
   try {
     const id = z.coerce.number().int().positive().parse(request.nextUrl.searchParams.get("campaignId"));
     return NextResponse.json({ report: await collectCampaignRankings(id) });
@@ -43,3 +44,7 @@ export async function PATCH(request: NextRequest) {
     return errorResponse(error);
   }
 }
+
+export const GET = withSemforgeAccount(handleGET, { requireSubscription: true });
+export const POST = withSemforgeAccount(handlePOST, { requireSubscription: true });
+export const PATCH = withSemforgeAccount(handlePATCH, { requireSubscription: true });

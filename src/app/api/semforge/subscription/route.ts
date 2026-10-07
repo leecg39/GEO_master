@@ -1,3 +1,4 @@
+import { withSemforgeAccount } from "@/lib/semforge-route";
 import { NextResponse } from "next/server";
 import { errorResponse } from "@/lib/errors";
 import { cancelSemforgeSubscription, getSemforgeSubscription } from "@/lib/semforge-subscription";
@@ -5,7 +6,7 @@ import { cancelSemforgeSubscription, getSemforgeSubscription } from "@/lib/semfo
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export function GET() {
+function handleGET() {
   try {
     return NextResponse.json({ subscription: getSemforgeSubscription() }, { headers: { "cache-control": "no-store" } });
   } catch (error) {
@@ -13,10 +14,13 @@ export function GET() {
   }
 }
 
-export async function DELETE() {
+async function handleDELETE() {
   try {
     return NextResponse.json({ subscription: cancelSemforgeSubscription() });
   } catch (error) {
     return errorResponse(error);
   }
 }
+
+export const GET = withSemforgeAccount(handleGET);
+export const DELETE = withSemforgeAccount(handleDELETE);

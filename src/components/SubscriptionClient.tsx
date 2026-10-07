@@ -6,6 +6,10 @@ import Link from "next/link";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
 
 interface SubscriptionState {
+  accountId?: string;
+  role?: "admin" | "member";
+  accessSource?: "admin" | "paid" | "none";
+  billingAvailable?: boolean;
   status: string;
   active: boolean;
   amountKrw: number;
@@ -86,28 +90,29 @@ export function SubscriptionClient() {
   }
 
   if (loading) return <div className="grid min-h-96 place-items-center"><LoaderCircle className="h-7 w-7 animate-spin text-cyan-400" /></div>;
+  const isAdmin = subscription?.accessSource === "admin";
 
   return (
     <div>
       <PageHeader
         eyebrow="SEMForge Pro"
         title="GEO 실행 구독"
-        description="GEO Master에서 분석한 인사이트를 TalorData·Firecrawl·GSC·GBP 기반 SEMForge 실행 기능으로 이어갑니다. 월 300,000원(VAT 별도) 구독 시 AI SEO, 사이트 진단, 포지션 추적, 도메인·지역 SEO API를 사용할 수 있습니다."
+        description={isAdmin ? "관리자 계정으로 SEMForge 실행 기능이 활성화되어 있습니다. 별도 구독 결제 없이 AI SEO, 사이트 진단, 포지션 추적을 사용할 수 있습니다." : "SEMForge 실행 기능은 계정별 유료 구독이 필요합니다. 월 300,000원(VAT 별도) 결제 승인 후 AI SEO, 사이트 진단, 포지션 추적, 도메인·지역 SEO API를 사용할 수 있습니다."}
       />
       <div className="grid gap-5 xl:grid-cols-2">
         <Card>
           <div className="mb-4 flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-400/10"><ShieldCheck className="h-5 w-5 text-cyan-300" /></span>
             <div>
-              <h2 className="font-semibold text-white">현재 구독</h2>
-              <p className="text-xs text-slate-500">로컬 SQLite에 저장 · 단일 워크스페이스</p>
+              <h2 className="font-semibold text-white">{isAdmin ? "관리자 이용 권한" : "현재 구독"}</h2>
+              <p className="text-xs text-slate-500">{subscription?.accountId ? `${subscription.accountId} · 계정별 이용 권한` : "계정별 이용 권한"}</p>
             </div>
           </div>
           {subscription && (
             <>
               <div className="flex flex-wrap items-center gap-2">
-                <Badge tone={subscription.active ? "good" : "warn"}>{subscription.active ? "활성" : subscription.status}</Badge>
-                <span className="text-2xl font-semibold text-white">₩{subscription.amountKrw.toLocaleString("ko-KR")}<span className="text-sm font-normal text-slate-500">/월</span></span>
+                <Badge tone={subscription.active ? "good" : "warn"}>{isAdmin ? "관리자" : subscription.active ? "활성" : "결제 필요"}</Badge>
+                {isAdmin ? <span className="text-2xl font-semibold text-white">결제 면제</span> : <span className="text-2xl font-semibold text-white">₩{subscription.amountKrw.toLocaleString("ko-KR")}<span className="text-sm font-normal text-slate-500">/월</span></span>}
               </div>
               {subscription.active && subscription.currentPeriodEnd && (
                 <p className="mt-3 text-sm text-slate-400">만료: {new Date(subscription.currentPeriodEnd).toLocaleString("ko-KR")} ({subscription.daysRemaining ?? 0}일 남음)</p>
@@ -121,13 +126,13 @@ export function SubscriptionClient() {
         <Card>
           <div className="mb-4 flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-violet-400/10"><CreditCard className="h-5 w-5 text-violet-300" /></span>
-            <div><h2 className="font-semibold text-white">결제</h2><p className="text-xs text-slate-500">운영 결제 준비 중 · 개발 환경에서만 테스트 활성화 가능</p></div>
+            <div><h2 className="font-semibold text-white">{isAdmin ? "SEMForge 바로 시작" : "결제"}</h2><p className="text-xs text-slate-500">{isAdmin ? "관리자 권한으로 이용 · 구독 만료 없음" : subscription?.active ? "이 계정의 결제 승인과 구독 기간을 확인했습니다." : subscription?.billingAvailable === false ? "결제 연동 준비 중 · 일반 계정은 결제 승인 후 이용 가능" : "개발 환경 테스트 결제"}</p></div>
           </div>
           {subscription?.active ? (
-            <p className="text-sm text-emerald-300">구독이 활성화되어 있습니다. <Link href="/semforge" className="underline">SEMForge 워크스페이스</Link>에서 AI SEO·사이트 진단·포지션 추적을 시작하세요.</p>
+            <p className="text-sm text-emerald-300">{isAdmin ? "관리자 권한으로 SEMForge가 활성화되어 있습니다." : "구독이 활성화되어 있습니다."} <Link href="/semforge" className="underline">SEMForge 워크스페이스</Link>에서 AI SEO·사이트 진단·포지션 추적을 시작하세요.</p>
           ) : (
             <>
-              <Button disabled={busy} onClick={() => void startCheckout()} className="w-full sm:w-auto">{busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}월 구독 결제 시작</Button>
+              <Button disabled={busy || subscription?.billingAvailable === false} onClick={() => void startCheckout()} className="w-full sm:w-auto">{busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}{subscription?.billingAvailable === false ? "결제 연동 준비 중" : "월 구독 결제 시작"}</Button>
               {checkout && (
                 <form onSubmit={confirmPayment} className="mt-5 space-y-3 border-t border-white/7 pt-5">
                   <p className="text-xs text-slate-500">주문 ID: {checkout.orderId}</p>

@@ -10,6 +10,10 @@ services:
     init: true
     env_file:
       - runtime.env
+    environment:
+      GEO_AUTH_MODE: proxy
+      GEO_ADMIN_USERS: ${GEO_ADMIN_USERS:-geo-admin}
+      GEO_AUTH_PROXY_SECRET: ${GEO_AUTH_PROXY_SECRET:?Set a random proxy authentication secret}
     volumes:
       - geo-data:/app/data
     expose:
@@ -21,7 +25,7 @@ services:
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/dashboard').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
       timeout: 10s
       start_period: 30s
@@ -43,6 +47,8 @@ services:
       traefik.http.middlewares.geo-master-auth.basicauth.users: ${GEO_HTTP_AUTH:?Set a hashed Basic Auth account in .env}
       traefik.http.middlewares.geo-master-auth.basicauth.realm: GEO Master
       traefik.http.middlewares.geo-master-auth.basicauth.removeheader: "true"
+      traefik.http.middlewares.geo-master-auth.basicauth.headerfield: X-Geo-Auth-User
+      traefik.http.middlewares.geo-master-headers.headers.customrequestheaders.X-Geo-Auth-Secret: ${GEO_AUTH_PROXY_SECRET:?Set a random proxy authentication secret}
       traefik.http.middlewares.geo-master-headers.headers.contenttypenosniff: "true"
       traefik.http.middlewares.geo-master-headers.headers.customresponseheaders.X-Robots-Tag: noindex, nofollow
 

@@ -1,3 +1,4 @@
+import { withSemforgeAccount } from "@/lib/semforge-route";
 import { NextRequest, NextResponse } from "next/server";
 import { errorResponse } from "@/lib/errors";
 import { listSites, upsertSite } from "@/lib/semforge/position-tracking";
@@ -5,7 +6,7 @@ import { listSites, upsertSite } from "@/lib/semforge/position-tracking";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export function GET() {
+function handleGET() {
   try {
     return NextResponse.json({ sites: listSites() });
   } catch (error) {
@@ -13,7 +14,7 @@ export function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const body = await request.json() as { domain?: unknown; name?: unknown };
     return NextResponse.json({ site: upsertSite({ domain: String(body.domain ?? ""), name: body.name ? String(body.name) : undefined }) }, { status: 201 });
@@ -21,3 +22,6 @@ export async function POST(request: NextRequest) {
     return errorResponse(error);
   }
 }
+
+export const GET = withSemforgeAccount(handleGET, { requireSubscription: true });
+export const POST = withSemforgeAccount(handlePOST, { requireSubscription: true });

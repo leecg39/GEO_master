@@ -16,6 +16,24 @@ afterEach(() => {
 });
 
 describe("versioned database migrations", () => {
+  it("preserves legacy subscriptions without granting them to every hosted account", () => {
+    const sqlite = database();
+    sqlite.exec(`
+      CREATE TABLE semforge_subscriptions (id INTEGER PRIMARY KEY, status TEXT NOT NULL);
+      CREATE TABLE semforge_payment_intents (id INTEGER PRIMARY KEY, provider_order_id TEXT);
+      INSERT INTO semforge_subscriptions VALUES (1, 'active');
+      INSERT INTO semforge_payment_intents VALUES (1, 'legacy-order');
+    `);
+    const migration = DATABASE_MIGRATIONS.filter(({ version }) => version === 10);
+    applyDatabaseMigrations(sqlite, migration);
+    applyDatabaseMigrations(sqlite, migration);
+    expect(sqlite.prepare("SELECT * FROM semforge_subscriptions").get()).toMatchObject({
+      id: 1, status: "active", account_id: "local", billing_mode: "legacy", payment_intent_id: null,
+    });
+    expect(sqlite.prepare("SELECT * FROM semforge_payment_intents").get()).toMatchObject({ account_id: "local", billing_mode: "legacy" });
+    expect(() => sqlite.prepare("INSERT INTO semforge_subscriptions (id, status, account_id) VALUES (2, 'active', 'local')").run()).toThrow(/UNIQUE/);
+  });
+
   it("records ordered migrations once and safely re-runs", () => {
     const sqlite = database();
     sqlite.exec(`
@@ -36,7 +54,7 @@ describe("versioned database migrations", () => {
       migrations.map(({ version, name }) => ({ version, name })),
     );
     expect(rows.every((row) => Number.isFinite(Date.parse(row.applied_at)))).toBe(true);
-    expect(LATEST_SCHEMA_VERSION).toBe(9);
+    expect(LATEST_SCHEMA_VERSION).toBe(10);
     expect((sqlite.pragma("table_info(settings)") as { name: string }[]).map((column) => column.name))
       .toEqual(expect.arrayContaining(["grok_api_key", "subscription_pin"]));
     expect((sqlite.prepare("SELECT COUNT(*) AS count FROM settings").get() as { count: number }).count).toBe(1);

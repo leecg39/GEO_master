@@ -1,3 +1,4 @@
+import { withSemforgeAccount } from "@/lib/semforge-route";
 import { NextResponse } from "next/server";
 import { getDashboardData } from "@/lib/dashboard";
 import { errorResponse } from "@/lib/errors";
@@ -5,7 +6,7 @@ import { errorResponse } from "@/lib/errors";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export function GET() {
+function handleGET() {
   try {
     return NextResponse.json({ dashboard: getDashboardData() }, {
       headers: { "cache-control": "no-store" },
@@ -14,3 +15,5 @@ export function GET() {
     return errorResponse(error);
   }
 }
+
+export const GET = withSemforgeAccount(handleGET);

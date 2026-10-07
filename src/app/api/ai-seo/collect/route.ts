@@ -1,3 +1,4 @@
+import { withSemforgeAccount } from "@/lib/semforge-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { errorResponse } from "@/lib/errors";
@@ -7,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const body = await request.json() as { domain?: unknown; forceRefresh?: unknown };
     const domain = z.string().trim().min(3).parse(body.domain);
@@ -17,3 +18,5 @@ export async function POST(request: NextRequest) {
     return errorResponse(error);
   }
 }
+
+export const POST = withSemforgeAccount(handlePOST, { requireSubscription: true });
