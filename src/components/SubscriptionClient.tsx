@@ -55,7 +55,11 @@ export function SubscriptionClient() {
   async function startCheckout() {
     setBusy(true); setError(""); setMessage("");
     try {
-      const data = await parse<{ checkout: CheckoutState }>(await fetch("/api/semforge/subscription/checkout", { method: "POST" }));
+      const data = await parse<{ checkout: CheckoutState }>(await fetch("/api/semforge/subscription/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: "{}",
+      }));
       setCheckout(data.checkout);
       if (data.checkout.devConfirmToken) setConfirmToken(data.checkout.devConfirmToken);
       setMessage("결제 요청이 생성되었습니다. 개발 모드에서는 아래 토큰으로 구독을 활성화할 수 있습니다.");
@@ -74,6 +78,7 @@ export function SubscriptionClient() {
         body: JSON.stringify({ orderId: checkout.orderId, confirmToken }),
       }));
       setSubscription(data.subscription);
+      window.dispatchEvent(new Event("geo-master:subscription-changed"));
       setCheckout(null);
       setMessage("SEMForge Pro 구독이 활성화되었습니다. SEMForge 워크스페이스로 이동하세요.");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "결제 확인 실패"); }

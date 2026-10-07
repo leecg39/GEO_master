@@ -171,16 +171,23 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [semforgeActive, setSemforgeActive] = useState<boolean | null>(null);
 
   useEffect(() => {
-    void (async () => {
+    let active = true;
+    async function refreshSubscription() {
       try {
         const response = await fetch("/api/semforge/subscription");
-        if (!response.ok) return;
+        if (!response.ok) throw new Error("구독 조회 실패");
         const data = await response.json() as { subscription?: { active?: boolean } };
-        setSemforgeActive(Boolean(data.subscription?.active));
+        if (active) setSemforgeActive(Boolean(data.subscription?.active));
       } catch {
-        setSemforgeActive(false);
+        if (active) setSemforgeActive(false);
       }
-    })();
+    }
+    void refreshSubscription();
+    window.addEventListener("geo-master:subscription-changed", refreshSubscription);
+    return () => {
+      active = false;
+      window.removeEventListener("geo-master:subscription-changed", refreshSubscription);
+    };
   }, []);
 
   return (
