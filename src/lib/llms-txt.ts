@@ -19,11 +19,29 @@ export const llmsDocumentSchema = z.object({
   })).min(1).max(20),
 });
 
+/**
+ * Qshop 계획 P04 — llms.txt v2 기준 (https://llmstxt.org/).
+ * - spec: 규격 위반. 필수는 H1 하나뿐이고, 요약 blockquote·세부 설명·H2 파일 목록은 선택이다
+ * - quality: 이 앱의 품질 권고 (요약 권장, 링크 설명, 용량 등). 규격 적합 여부(valid)에 영향을 주지 않는다
+ * - 파일은 사이트 루트뿐 아니라 하위 경로(/docs/llms.txt)에도 둘 수 있고 그 경로 아래를 다룬다
+ */
 export interface LlmsValidationIssue {
   severity: "error" | "warning" | "info";
+  category: "spec" | "quality";
   code: string;
   message: string;
   line?: number;
+}
+
+export const DEFAULT_LLMS_PATH = "/llms.txt";
+
+/** 같은 사이트 안의 llms.txt 경로만 허용한다 (예: /llms.txt, /docs/llms.txt) */
+export function normalizeLlmsPath(input: string | undefined | null) {
+  const value = (input ?? "").trim() || DEFAULT_LLMS_PATH;
+  if (!value.startsWith("/") || value.startsWith("//") || /[?#\\]/.test(value) || !/(^|\/)llms\.txt$/.test(value) || value.split("/").includes("..")) {
+    throw new AppError("llms.txt 경로는 /llms.txt 또는 /docs/llms.txt처럼 사이트 안의 경로여야 합니다.", 422, "INVALID_LLMS_PATH");
+  }
+  return value.replace(/\/{2,}/g, "/");
 }
 
 function singleLine(value: string) {
@@ -63,51 +81,65 @@ export function generateLlmsTxt(input: unknown) {
   return { document, validation: validateLlmsTxt(document, parsed.website) };
 }
 
-export function validateLlmsTxt(document: string, website?: string) {
+export function validateLlmsTxt(input: string, website?: string, options: { path?: string } = {}) {
   const issues: LlmsValidationIssue[] = [];
+  const spec = (code: string, message: string, line?: number) => issues.push({ severity: "error", category: "spec", code, message, line });
+  const quality = (severity: LlmsValidationIssue["severity"], code: string, message: string, line?: number) => issues.push({ severity, category: "quality", code, message, line });
+  const document = input.replace(/^\uFEFF/, "");
   const bytes = Buffer.byteLength(document, "utf8");
-  if (!document.trim()) issues.push({ severity: "error", code: "EMPTY", message: "llms.txt 내용이 비어 있습니다." });
-  if (bytes > 100 * 1024) issues.push({ severity: "error", code: "TOO_LARGE", message: "llms.txt는 100KB 이하로 유지하세요." });
-  if (/<\/?(?:script|iframe|object|embed|img|form|style|link|meta)\b[^>]*>/i.test(document)) issues.push({ severity: "warning", code: "HTML_FOUND", message: "HTML 대신 읽기 쉬운 Markdown만 사용하세요." });
+  if (!document.trim()) spec("EMPTY", "llms.txt 내용이 비어 있습니다.");
+  if (bytes > 100 * 1024) quality("warning", "TOO_LARGE", "에이전트 컨텍스트에 들어가도록 llms.txt는 100KB 이하로 유지하세요.");
+  if (/<\/?(?:script|iframe|object|embed|img|form|style|link|meta)\b[^>]*>/i.test(document)) quality("warning", "HTML_FOUND", "HTML 대신 읽기 쉬운 Markdown만 사용하세요.");
 
   const lines = document.replaceAll("\r\n", "\n").split("\n");
-  const h1Lines = lines.map((line, index) => ({ line, index })).filter(({ line }) => /^#\s+\S/.test(line));
-  if (h1Lines.length !== 1) issues.push({ severity: "error", code: "H1_COUNT", message: "사이트 이름을 담은 H1은 정확히 하나여야 합니다." });
+  const h1Lines = lines.filter((line) => /^#\s+\S/.test(line));
+  if (h1Lines.length !== 1) spec("H1_COUNT", "사이트 이름을 담은 H1은 정확히 하나여야 합니다(유일한 필수 항목).");
   const firstContent = lines.findIndex((line) => line.trim());
-  if (firstContent >= 0 && !/^#\s+\S/.test(lines[firstContent])) issues.push({ severity: "error", code: "H1_FIRST", message: "첫 번째 콘텐츠 줄은 사이트 이름 H1이어야 합니다.", line: firstContent + 1 });
+  if (firstContent >= 0 && !/^#\s+\S/.test(lines[firstContent])) spec("H1_FIRST", "첫 번째 콘텐츠 줄은 사이트 이름 H1이어야 합니다.", firstContent + 1);
 
-  const summaryIndex = lines.findIndex((line) => /^>\s+\S/.test(line));
-  if (summaryIndex < 0) issues.push({ severity: "error", code: "SUMMARY_MISSING", message: "H1 다음에 사이트 요약을 blockquote(>)로 추가하세요." });
-  else if (singleLine(lines[summaryIndex].replace(/^>+\s*/, "")).length < 20) issues.push({ severity: "warning", code: "SUMMARY_SHORT", message: "사이트 요약을 20자 이상 구체적으로 작성하세요.", line: summaryIndex + 1 });
+  const firstH2 = lines.findIndex((line) => /^##\s+\S/.test(line));
+  const intro = firstH2 < 0 ? lines : lines.slice(0, firstH2);
+  const summaryIndex = intro.findIndex((line) => /^>\s*\S/.test(line));
+  if (summaryIndex < 0) quality("warning", "SUMMARY_MISSING", "규격상 선택이지만, H1 다음에 사이트 요약 blockquote(>)를 두면 에이전트가 범위를 빨리 이해합니다.");
+  else if (singleLine(lines[summaryIndex].replace(/^>+\s*/, "")).length < 20) quality("warning", "SUMMARY_SHORT", "사이트 요약을 20자 이상 구체적으로 작성하세요.", summaryIndex + 1);
+  intro.forEach((line, index) => {
+    if (/^#{3,6}\s+\S/.test(line)) quality("warning", "HEADING_IN_DETAILS", "첫 H2 전 세부 설명에는 제목을 쓰지 않습니다. 문서 목록은 H2 섹션으로 나누세요.", index + 1);
+  });
 
   const h2Count = lines.filter((line) => /^##\s+\S/.test(line)).length;
-  if (!h2Count) issues.push({ severity: "warning", code: "SECTION_MISSING", message: "핵심 문서를 H2 섹션으로 분류하세요." });
+  if (!h2Count) quality("info", "SECTION_MISSING", "대표 문서가 있다면 H2 섹션의 링크 목록으로 안내하세요.");
 
-  const linkPattern = /^-\s+\[((?:\\.|[^\]])+)]\(([^)\s]+)\)(?::\s*(.*))?$/;
-  const links: { title: string; url: string; description: string; line: number }[] = [];
+  // 링크 형식은 H2 파일 목록 안에서만 검사한다. 세부 설명의 일반 목록은 규격상 허용된다
+  const linkPattern = /^\s*[-*+]\s+\[((?:\\.|[^\]])+)]\(([^)\s]+)\)(?::\s*(.*))?$/;
+  const links: { title: string; url: string; description: string; line: number; optional: boolean }[] = [];
+  let section: string | null = null;
   lines.forEach((line, index) => {
-    if (!line.trim().startsWith("-")) return;
+    const heading = line.match(/^##\s+(.+?)\s*$/);
+    if (heading) { section = heading[1]!; return; }
+    if (section === null || !/^\s*[-*+]\s/.test(line)) return;
     const match = line.match(linkPattern);
     if (!match) {
-      issues.push({ severity: "error", code: "LINK_FORMAT", message: "문서 링크는 '- [제목](https://...): 설명' 형식을 사용하세요.", line: index + 1 });
+      spec("LINK_FORMAT", "파일 목록 항목은 '- [제목](URL): 설명' 형식의 링크로 시작해야 합니다.", index + 1);
       return;
     }
     const [, title, rawUrl, description = ""] = match;
-    try {
-      const url = new URL(rawUrl);
-      if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) throw new Error("unsafe URL");
-      links.push({ title, url: url.toString(), description, line: index + 1 });
-    } catch {
-      issues.push({ severity: "error", code: "LINK_URL", message: "링크는 자격증명이 없는 절대 http/https URL이어야 합니다.", line: index + 1 });
+    let url: URL | null = null;
+    try { url = new URL(rawUrl!); } catch { url = null; }
+    if (!url) {
+      quality("warning", "LINK_URL", "상대 경로 대신 절대 http/https URL을 쓰면 어느 위치에서 읽어도 같은 문서를 가리킵니다.", index + 1);
+    } else if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) {
+      spec("LINK_URL", "링크는 자격증명이 없는 http/https URL이어야 합니다.", index + 1);
+    } else {
+      links.push({ title: title!, url: url.toString(), description, line: index + 1, optional: section.toLowerCase() === "optional" });
     }
   });
-  if (!links.length) issues.push({ severity: "warning", code: "LINKS_MISSING", message: "AI가 읽을 대표 문서 링크를 하나 이상 추가하세요." });
+  if (!links.length) quality("warning", "LINKS_MISSING", "AI가 읽을 대표 문서 링크를 하나 이상 추가하세요.");
 
   const seen = new Map<string, number>();
   for (const link of links) {
-    if (seen.has(link.url)) issues.push({ severity: "warning", code: "DUPLICATE_LINK", message: `중복 URL을 제거하세요: ${link.url}`, line: link.line });
+    if (seen.has(link.url)) quality("warning", "DUPLICATE_LINK", `중복 URL을 제거하세요: ${link.url}`, link.line);
     else seen.set(link.url, link.line);
-    if (!link.description.trim()) issues.push({ severity: "info", code: "LINK_DESCRIPTION", message: `링크 설명을 추가하면 선택 기준이 선명해집니다: ${link.title}`, line: link.line });
+    if (!link.description.trim()) quality("info", "LINK_DESCRIPTION", `링크 설명을 추가하면 선택 기준이 선명해집니다: ${link.title}`, link.line);
   }
 
   if (website) {
@@ -116,37 +148,59 @@ export function validateLlmsTxt(document: string, website?: string) {
       if (!["http:", "https:"].includes(parsedWebsite.protocol)) throw new Error("unsupported protocol");
       const expectedOrigin = parsedWebsite.origin;
       const external = links.filter((link) => new URL(link.url).origin !== expectedOrigin).length;
-      if (external) issues.push({ severity: "info", code: "EXTERNAL_LINKS", message: `외부 도메인 링크 ${external}개가 포함되어 있습니다. 의도한 권위 출처인지 확인하세요.` });
-    } catch {
-      issues.push({ severity: "error", code: "WEBSITE_URL", message: "기준 웹사이트 URL이 올바르지 않습니다." });
+      if (external) quality("info", "EXTERNAL_LINKS", `외부 도메인 링크 ${external}개가 포함되어 있습니다. 의도한 권위 출처인지 확인하세요.`);
+      const path = normalizeLlmsPath(options.path);
+      const scope = path.slice(0, path.length - "llms.txt".length);
+      if (scope !== "/") {
+        const outside = links.filter((link) => { const url = new URL(link.url); return url.origin === expectedOrigin && !url.pathname.startsWith(scope); }).length;
+        if (outside) quality("info", "OUTSIDE_SCOPE", `${path}은 ${scope} 아래를 다룹니다. 같은 사이트의 범위 밖 링크 ${outside}개가 있습니다.`);
+      }
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      spec("WEBSITE_URL", "기준 웹사이트 URL이 올바르지 않습니다.");
     }
   }
 
   const errors = issues.filter((issue) => issue.severity === "error").length;
   const warnings = issues.filter((issue) => issue.severity === "warning").length;
+  const specErrors = issues.filter((issue) => issue.category === "spec").length;
   return {
-    valid: errors === 0,
+    valid: specErrors === 0,
     score: Math.max(0, 100 - errors * 20 - warnings * 5),
     issues,
-    stats: { bytes, lines: lines.length, sections: h2Count, links: links.length, errors, warnings },
+    stats: { bytes, lines: lines.length, sections: h2Count, links: links.length, optionalLinks: links.filter((link) => link.optional).length, errors, warnings, specErrors },
   };
 }
 
-export async function verifyRemoteLlmsTxt(website: string) {
+function looksLikeHtml(text: string, contentType: string) {
+  return /html/i.test(contentType) || /^\s*<(?:!doctype|html|head|body)\b/i.test(text.replace(/^\uFEFF/, ""));
+}
+
+export async function verifyRemoteLlmsTxt(website: string, pathInput?: string) {
   const site = normalizePublicUrl(website);
-  const target = new URL("/llms.txt", site).toString();
+  const path = normalizeLlmsPath(pathInput);
+  const target = new URL(path, site.origin).toString();
   const fetched = await fetchPublicText(target, 10_000);
   if (fetched.status < 200 || fetched.status >= 300) {
     throw new AppError(`배포된 llms.txt를 찾지 못했습니다. HTTP ${fetched.status}`, 422, "LLMS_NOT_FOUND");
   }
-  const validation = validateLlmsTxt(fetched.text, site.toString());
-  if (fetched.contentType && !/(?:text\/plain|text\/markdown|text\/x-markdown)/i.test(fetched.contentType)) {
-    validation.issues.push({ severity: "warning", code: "CONTENT_TYPE", message: `text/plain 또는 Markdown MIME 유형을 권장합니다. 현재: ${fetched.contentType}` });
+  // 없는 경로에 200으로 HTML을 돌려주는 사이트가 많다. 게시 성공으로 보지 않는다 (§8)
+  if (looksLikeHtml(fetched.text, fetched.contentType)) {
+    throw new AppError(`${path} 요청에 HTML 페이지가 응답했습니다. 파일이 없을 때 보여 주는 페이지일 수 있어 게시로 인정하지 않았습니다.`, 422, "LLMS_HTML_RESPONSE");
+  }
+  const validation = validateLlmsTxt(fetched.text, site.toString(), { path });
+  const quality = (code: string, message: string) => {
+    validation.issues.push({ severity: "warning", category: "quality", code, message });
     validation.stats.warnings += 1;
     validation.score = Math.max(0, validation.score - 5);
+  };
+  if (fetched.contentType && !/(?:text\/plain|text\/markdown|text\/x-markdown)/i.test(fetched.contentType)) {
+    quality("CONTENT_TYPE", `text/plain 또는 Markdown MIME 유형을 권장합니다. 현재: ${fetched.contentType}`);
   }
+  if (new URL(fetched.url).pathname !== path) quality("REDIRECTED", `${path} 요청이 ${fetched.url}(으)로 리다이렉트되었습니다. 에이전트는 원래 경로를 기대합니다.`);
   return {
     url: fetched.url,
+    path,
     status: fetched.status,
     contentType: fetched.contentType,
     document: fetched.text,

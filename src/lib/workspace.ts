@@ -135,7 +135,8 @@ const snapshotDataSchema = z.object({
     summary: z.string().max(500), details: z.string().max(2000), resources: encodedJson(200_000, jsonArray),
     document: z.string().max(102_400), validation: encodedJson(200_000, jsonObject), status: short,
     remoteUrl: z.string().max(2048).nullable(), remoteContentType: z.string().max(200).nullable(),
-    remoteCheckedAt: timestamp.nullable(), createdAt: timestamp, updatedAt: timestamp,
+    remoteCheckedAt: timestamp.nullable(), scopePath: z.string().max(512).optional().default("/llms.txt"),
+    createdAt: timestamp, updatedAt: timestamp,
   }).strict()).max(20_000).optional().default([]),
   reportPresets: z.array(z.object({
     id, projectId: optionalId, name: short, kind: z.enum(["audit", "share"]),
@@ -289,7 +290,7 @@ export function buildWorkspaceSnapshot(): WorkspaceSnapshot {
       id: row.id, projectId: row.projectId, title: row.title, website: row.website, brandName: row.brandName,
       summary: row.summary, details: row.details, resources: row.resources, document: row.document,
       validation: row.validation, status: row.status, remoteUrl: row.remoteUrl,
-      remoteContentType: row.remoteContentType, remoteCheckedAt: row.remoteCheckedAt,
+      remoteContentType: row.remoteContentType, remoteCheckedAt: row.remoteCheckedAt, scopePath: row.scopePath,
       createdAt: row.createdAt, updatedAt: row.updatedAt,
     })),
     reportPresets: orm.select().from(reportPresets).orderBy(asc(reportPresets.id)).all().map((row) => ({
@@ -510,7 +511,7 @@ export function importWorkspace(input: unknown) {
         title: row.title, website: row.website, brandName: row.brandName, summary: row.summary,
         details: row.details, resources: row.resources, document: row.document, validation: row.validation,
         status: row.status, remoteUrl: row.remoteUrl, remoteContentType: row.remoteContentType,
-        remoteCheckedAt: row.remoteCheckedAt, createdAt: row.createdAt, updatedAt: row.updatedAt,
+        remoteCheckedAt: row.remoteCheckedAt, scopePath: row.scopePath, createdAt: row.createdAt, updatedAt: row.updatedAt,
       }).run();
     }
     for (const row of data.reportPresets) {

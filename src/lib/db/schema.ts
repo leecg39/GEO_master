@@ -87,6 +87,7 @@ export const siteAuditCampaigns = sqliteTable("site_audit_campaigns", {
   dataState: text("data_state").notNull().default("legacy_estimate"),
   llmsTxtState: text("llms_txt_state"),
   cancelRequested: integer("cancel_requested", { mode: "boolean" }).notNull().default(false),
+  robotsPolicy: text("robots_policy"),
   lastRunAt: text("last_run_at"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
@@ -106,7 +107,30 @@ export const siteAuditPages = sqliteTable("site_audit_pages", {
   contentHash: text("content_hash"),
   fetchError: text("fetch_error"),
   renderMode: text("render_mode"),
+  snapshotId: integer("snapshot_id").references(() => pageSnapshots.id, { onDelete: "set null" }),
   capturedAt: text("captured_at").notNull(),
+});
+
+export const pageSnapshots = sqliteTable("page_snapshots", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  campaignId: integer("campaign_id").references(() => siteAuditCampaigns.id, { onDelete: "set null" }),
+  url: text("url").notNull(),
+  finalUrl: text("final_url"),
+  statusCode: integer("status_code").notNull(),
+  contentType: text("content_type"),
+  renderMode: text("render_mode").notNull(),
+  contentHash: text("content_hash").notNull(),
+  bytes: integer("bytes").notNull(),
+  html: text("html"),
+  htmlTruncated: integer("html_truncated", { mode: "boolean" }).notNull().default(false),
+  facts: text("facts"),
+  findings: text("findings").notNull(),
+  skippedReason: text("skipped_reason"),
+  parserVersion: text("parser_version").notNull(),
+  rulesVersion: text("rules_version").notNull(),
+  capturedAt: text("captured_at").notNull(),
+  lastSeenAt: text("last_seen_at").notNull(),
 });
 
 export const siteAuditIssues = sqliteTable("site_audit_issues", {
@@ -477,6 +501,7 @@ export const llmsDocuments = sqliteTable("llms_documents", {
   remoteUrl: text("remote_url"),
   remoteContentType: text("remote_content_type"),
   remoteCheckedAt: text("remote_checked_at"),
+  scopePath: text("scope_path").notNull().default("/llms.txt"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
