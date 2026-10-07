@@ -1,0 +1,50 @@
+name: geo-master
+
+services:
+  app:
+    image: geo-master:${GEO_IMAGE_TAG:-local}
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file:
+      - runtime.env
+    volumes:
+      - geo-data:/app/data
+    expose:
+      - "3000"
+    mem_limit: 1g
+    cpus: 2
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/dashboard').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: geo-master_default
+      traefik.http.routers.geo-master.rule: Host(`${GEO_DOMAIN:-geo.soverin.cloud}`)
+      traefik.http.routers.geo-master.entrypoints: websecure
+      traefik.http.routers.geo-master.tls: "true"
+      traefik.http.routers.geo-master.tls.certresolver: letsencrypt
+      traefik.http.routers.geo-master.middlewares: geo-master-auth,geo-master-headers
+      traefik.http.services.geo-master.loadbalancer.server.port: "3000"
+      traefik.http.middlewares.geo-master-auth.basicauth.users: ${GEO_HTTP_AUTH:?Set a hashed Basic Auth account in .env}
+      traefik.http.middlewares.geo-master-auth.basicauth.realm: GEO Master
+      traefik.http.middlewares.geo-master-auth.basicauth.removeheader: "true"
+      traefik.http.middlewares.geo-master-headers.headers.contenttypenosniff: "true"
+      traefik.http.middlewares.geo-master-headers.headers.customresponseheaders.X-Robots-Tag: noindex, nofollow
+
+volumes:
+  geo-data:

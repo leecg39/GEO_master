@@ -217,9 +217,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="rounded-[12px] border border-[color:var(--color-hairline-violet)] bg-[color:var(--color-ink-deep)] p-3.5">
             <div className="flex items-center gap-2 text-xs font-semibold text-[color:var(--color-accent-lime)]">
               <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent-lime)]" />
-              로컬 퍼스트
+              전용 저장소
             </div>
-            <p className="mt-1.5 text-xs leading-5 text-[color:var(--color-on-dark-muted)]">데이터와 API 키는 이 기기의 SQLite에만 저장됩니다.</p>
+            <p className="mt-1.5 text-xs leading-5 text-[color:var(--color-on-dark-muted)]">데이터와 API 키는 앱이 실행되는 서버의 SQLite에 저장됩니다.</p>
           </div>
         </div>
       </aside>
