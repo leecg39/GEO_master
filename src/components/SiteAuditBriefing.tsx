@@ -28,13 +28,15 @@ export interface SiteAuditBriefingData {
   pageCount: number;
   issueCount: number;
   hasLlmsTxt: boolean;
+  dataState?: "none" | "discovered" | "legacy_estimate";
+  llmsTxtState?: "present" | "missing" | "unknown" | null;
   scoreFactors: Array<{ key: string; label: string; points: number; kind: "base" | "penalty" | "total" }>;
   severityCounts: Record<string, number>;
   radar: Array<{ axis: string; score: number; hint: string }>;
   narratives: string[];
   recommendations: string[];
   issues: Array<{ id: number; url: string; severity: string; category: string; title: string; detail: string }>;
-  pages: Array<{ url: string; statusCode: number; depth: number }>;
+  pages: Array<{ url: string; statusCode: number; depth: number; fetchState?: string }>;
   depthBuckets: Array<{ depth: string; count: number }>;
 }
 
@@ -165,9 +167,9 @@ export function SiteAuditBriefing({
             <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{briefing.narratives[0]}</p>
           </div>
           <div className="w-full max-w-xs shrink-0 rounded-xl border border-white/8 bg-slate-950/50 p-3">
-            <HealthGauge score={briefing.score} label="사이트 건강 점수" />
+            <HealthGauge score={briefing.score} label={briefing.dataState === "legacy_estimate" ? "이전 방식 추정 점수" : "사이트 건강 점수"} />
             <p className={cn("text-center text-sm font-semibold", gradeToneClass[briefing.grade.tone] ?? "text-slate-300")}>
-              {briefing.grade.label} · {briefing.pageCount}페이지 · 이슈 {briefing.issueCount}건
+              {briefing.grade.label} · 발견 URL {briefing.pageCount}개 · 이슈 {briefing.issueCount}건
             </p>
           </div>
         </div>
@@ -176,6 +178,13 @@ export function SiteAuditBriefing({
       <div className="grid gap-5 xl:grid-cols-3">
         <Card className="xl:col-span-2">
           <h4 className="mb-4 text-sm font-semibold text-white">점수 산출 근거</h4>
+          {briefing.scoreFactors.length === 0 ? (
+            <p className="rounded-lg border border-white/6 bg-slate-950/40 p-4 text-sm leading-6 text-slate-400">
+              {briefing.dataState === "legacy_estimate"
+                ? "이전 버전 결과는 페이지를 실제로 요청하지 않고 계산한 추정치라 산출 근거를 표시하지 않습니다. 다시 크롤하세요."
+                : "Firecrawl Map으로 URL만 발견했고 페이지를 요청하지 않았기 때문에 건강 점수를 계산하지 않습니다. URL별 실측은 GEO 진단(/audit)에서 할 수 있습니다."}
+            </p>
+          ) : (
           <div className="grid gap-4 lg:grid-cols-2">
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
@@ -207,10 +216,11 @@ export function SiteAuditBriefing({
               ))}
             </ul>
           </div>
+          )}
         </Card>
 
         <Card>
-          <h4 className="mb-4 text-sm font-semibold text-white">5축 진단 레이더</h4>
+          <h4 className="mb-4 text-sm font-semibold text-white">관측 신호 레이더</h4>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={briefing.radar} outerRadius="72%">
@@ -266,11 +276,11 @@ export function SiteAuditBriefing({
           <h4 className="mb-4 text-sm font-semibold text-white">AI 검색 신호</h4>
           <div className="space-y-4">
             <div>
-              <div className="mb-1 flex justify-between text-xs"><span className="text-slate-500">llms.txt</span><span className={briefing.hasLlmsTxt ? "text-emerald-300" : "text-rose-300"}>{briefing.hasLlmsTxt ? "발견" : "미발견"}</span></div>
-              <Progress value={briefing.hasLlmsTxt ? 100 : 35} ariaLabel="llms.txt 준비도" />
+              <div className="mb-1 flex justify-between text-xs"><span className="text-slate-500">llms.txt (실제 요청)</span><span className={briefing.llmsTxtState === "present" ? "text-emerald-300" : briefing.llmsTxtState === "missing" ? "text-rose-300" : "text-slate-400"}>{briefing.llmsTxtState === "present" ? "있음" : briefing.llmsTxtState === "missing" ? "없음" : "확인 불가"}</span></div>
+              <Progress value={briefing.llmsTxtState === "present" ? 100 : 0} ariaLabel="llms.txt 확인 결과" />
             </div>
             <div>
-              <div className="mb-1 flex justify-between text-xs"><span className="text-slate-500">크롤 범위</span><span className="text-cyan-300">{briefing.pageCount} URL</span></div>
+              <div className="mb-1 flex justify-between text-xs"><span className="text-slate-500">발견 URL (Map)</span><span className="text-cyan-300">{briefing.pageCount} URL</span></div>
               <Progress value={Math.min(100, briefing.pageCount * 10)} ariaLabel="크롤 범위" />
             </div>
           </div>
@@ -326,12 +336,13 @@ export function SiteAuditBriefing({
         </Card>
 
         <Card>
-          <h4 className="mb-4 text-sm font-semibold text-white">수집 URL 샘플</h4>
+          <h4 className="mb-4 text-sm font-semibold text-white">발견 URL 샘플</h4>
           <ul className="max-h-72 space-y-1 overflow-y-auto text-xs">
             {briefing.pages.map((page) => (
               <li key={page.url} className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-white/5">
                 <Badge tone="default">d{page.depth}</Badge>
                 <span className="truncate text-slate-400">{page.url}</span>
+                <span className="ml-auto shrink-0 text-[10px] text-slate-500">{page.fetchState === "fetched" ? `HTTP ${page.statusCode}` : page.fetchState === "discovered" ? "미측정" : "추정치"}</span>
               </li>
             ))}
           </ul>

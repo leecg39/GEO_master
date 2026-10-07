@@ -164,7 +164,7 @@ export async function runAllInSemforge(input: unknown): Promise<{
         key: "site-audit",
         label: "사이트 진단",
         status: "ok",
-        message: `크롤 완료 · ${result.crawledPages ?? 0}페이지 · 건강 ${result.siteHealth ?? "—"}점`,
+        message: `URL 발견 ${result.crawledPages ?? 0}개 · 건강 점수 ${result.siteHealth ?? "미측정"}`,
         href: "/site-audit",
         detail: result,
       });
