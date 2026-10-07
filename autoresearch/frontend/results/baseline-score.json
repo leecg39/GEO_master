@@ -1,0 +1,42 @@
+{
+  "pageConfigurations": 76,
+  "interactionChecks": 27,
+  "scores": {
+    "error": 97.89473684210526,
+    "dom": 76.97368421052632,
+    "form": 48.148148148148145,
+    "visual": 53.28947368421053
+  },
+  "score": 73.53703703703702,
+  "failures": {
+    "logs": 8,
+    "unnamed": 160,
+    "contrastNodes": 824,
+    "overflow": [
+      [
+        "/share",
+        "small-mobile"
+      ],
+      [
+        "/workspace",
+        "small-mobile"
+      ]
+    ],
+    "interactions": [
+      "menu-dialog",
+      "menu-initial-focus",
+      "menu-scroll-lock",
+      "menu-forward-trap",
+      "menu-reverse-trap",
+      "menu-escape",
+      "confirm-scroll-lock",
+      "confirm-forward-trap",
+      "confirm-reverse-trap",
+      "drawer-scroll-lock",
+      "drawer-forward-trap",
+      "drawer-reverse-trap",
+      "settings-save-announced",
+      "backup-rename-enter"
+    ]
+  }
+}
