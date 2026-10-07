@@ -83,11 +83,13 @@ export function PositionTrackingClient() {
     if (!selectedCampaign) return;
     setBusy(true); setError("");
     try {
-      await parse(await fetch(`/api/position-tracking?campaignId=${selectedCampaign.id}`, {
+      const data = await parse<{ report: { collected: number; outcomes: Array<{ error?: string }> } }>(await fetch(`/api/position-tracking?campaignId=${selectedCampaign.id}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: "{}",
       }));
+      const failed = data.report.outcomes.filter((outcome) => outcome.error).length;
+      if (failed > 0) setError(`순위 수집 ${data.report.collected}건 성공 · ${failed}건 실패. 연결 상태를 확인하고 다시 시도해 주세요.`);
       const refreshed = await parse<{ campaigns: Campaign[] }>(await fetch("/api/position-tracking"));
       setCampaigns(refreshed.campaigns);
       const updated = refreshed.campaigns.find((campaign) => campaign.id === selectedCampaign.id) ?? selectedCampaign;

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AppError } from "@/lib/errors";
 import { getDatabase } from "@/lib/db";
 import { collectAiVisibility, seedAiVisibilityFromProject } from "@/lib/semforge/ai-visibility";
 import { connectGbpLocation, createMapRankCampaign, addMapRankKeyword, collectMapRank, listGbpConnections } from "@/lib/semforge/local-business";
@@ -71,8 +72,8 @@ function ensureKeywords(
   for (const keyword of keywords) {
     try {
       add(campaignId, keyword);
-    } catch {
-      // duplicate ok
+    } catch (error) {
+      if (!(error instanceof AppError) || error.code !== "DUPLICATE") throw error;
     }
   }
 }
@@ -85,6 +86,11 @@ export async function runAllInSemforge(input: unknown): Promise<{
 }> {
   requireSemforgeSubscription();
   const project = requireActiveProject();
+  const assertProjectUnchanged = () => {
+    if (requireActiveProject().id !== project.id) {
+      throw new AppError("실행 중 활성 프로젝트가 변경되어 작업을 중단했습니다. 원래 프로젝트에서 결과를 확인해 주세요.", 409, "PROJECT_CHANGED");
+    }
+  };
   const parsed = allInSemforgeSchema.parse(input);
   const domain = normalizeDomain(parsed.domain);
   const brandName = parsed.brandName.trim();
@@ -117,8 +123,8 @@ export async function runAllInSemforge(input: unknown): Promise<{
       steps.push({
         key: "ai-seo",
         label: "AI SEO (SERP)",
-        status: "ok",
-        message: `${report.collected}개 쿼리 SERP 실측 완료 · AIO·인용·오가닉 순위 수집`,
+        status: report.failed > 0 ? "error" : "ok",
+        message: `쿼리 수집 ${report.collected}건 성공 · ${report.failed}건 실패`,
         href: "/ai-seo",
         detail: report,
       });
@@ -133,6 +139,7 @@ export async function runAllInSemforge(input: unknown): Promise<{
     });
   }
 
+  assertProjectUnchanged();
   try {
     if (!firecrawlConfigured()) {
       steps.push({
@@ -168,6 +175,7 @@ export async function runAllInSemforge(input: unknown): Promise<{
     });
   }
 
+  assertProjectUnchanged();
   try {
     let campaignId = findPositionCampaignId(project.id, domain);
     if (!campaignId) {
@@ -189,11 +197,12 @@ export async function runAllInSemforge(input: unknown): Promise<{
       });
     } else {
       const report = await collectCampaignRankings(campaignId);
+      const failed = report.outcomes.filter((outcome) => outcome.error).length;
       steps.push({
         key: "position-tracking",
         label: "포지션 추적",
-        status: "ok",
-        message: `순위 수집 ${report.collected}건 · 가시성 ${report.visibility}%`,
+        status: failed > 0 ? "error" : "ok",
+        message: `순위 수집 ${report.collected}건 성공 · ${failed}건 실패 · 가시성 ${report.visibility}%`,
         href: "/position-tracking",
         detail: report,
       });
@@ -208,6 +217,7 @@ export async function runAllInSemforge(input: unknown): Promise<{
     });
   }
 
+  assertProjectUnchanged();
   try {
     const overview = getDomainOverview(domain);
     steps.push({
@@ -257,11 +267,12 @@ export async function runAllInSemforge(input: unknown): Promise<{
       });
     } else {
       const report = await collectMapRank(campaignId);
+      const failed = report.outcomes.filter((outcome) => outcome.error).length;
       steps.push({
         key: "local-business",
         label: "지역 SEO",
-        status: "ok",
-        message: `Map Rank 수집 ${report.collected}건 · 가시성 ${report.visibility}%`,
+        status: failed > 0 ? "error" : "ok",
+        message: `Map Rank 수집 ${report.collected}건 성공 · ${failed}건 실패 · 가시성 ${report.visibility}%`,
         href: "/local-business",
         detail: report,
       });
@@ -276,5 +287,6 @@ export async function runAllInSemforge(input: unknown): Promise<{
     });
   }
 
+  assertProjectUnchanged();
   return { brandName, domain, locationLabel, steps };
 }

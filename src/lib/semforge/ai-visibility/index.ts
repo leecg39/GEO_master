@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AppError } from "@/lib/errors";
 import { buildAiSeoQueryBriefing } from "@/lib/semforge/ai-visibility/briefing";
 import { getDatabase } from "@/lib/db";
 import { semforgeError } from "@/lib/semforge/errors";
@@ -324,6 +325,8 @@ export async function collectAiVisibility(input: { domain: string; forceRefresh?
 export function seedAiVisibilityFromProject(domain: string, seeds: string[]) {
   requireSemforgeSubscription();
   for (const query of seeds) {
-    try { addAiVisibilityQuery({ domain, query }); } catch { /* duplicate ok */ }
+    try { addAiVisibilityQuery({ domain, query }); } catch (error) {
+      if (!(error instanceof AppError) || error.code !== "DUPLICATE") throw error;
+    }
   }
 }

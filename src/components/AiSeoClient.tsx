@@ -98,7 +98,8 @@ export function AiSeoClient() {
   async function collect() {
     setBusy(true); setError("");
     try {
-      await parse(await fetch("/api/ai-seo/collect", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ domain }) }));
+      const data = await parse<{ report: { collected: number; failed: number } }>(await fetch("/api/ai-seo/collect", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ domain }) }));
+      if (data.report.failed > 0) setError(`수집 ${data.report.collected}건 성공 · ${data.report.failed}건 실패. 연결 상태를 확인하고 다시 시도해 주세요.`);
       const refreshed = await load(domain);
       if (selectedId) {
         const stillExists = refreshed.queries.some((row) => row.id === selectedId && row.aioPresent !== null);

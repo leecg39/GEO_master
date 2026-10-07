@@ -21,7 +21,7 @@ describe("subscription checkout regression", () => {
     vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
     const subscription = { active: false, status: "inactive", amountKrw: 300000, features: [] };
     vi.stubGlobal("fetch", vi.fn(async (url: string, init?: RequestInit) => {
-      const gate = proxy(new NextRequest(`http://localhost${url}`, init));
+      const gate = proxy(new NextRequest(`http://localhost${url}`, { ...init, signal: init?.signal ?? undefined }));
       if (gate.status !== 200) return gate;
       if (url.endsWith("/checkout")) return Response.json({ checkout: { orderId: "qa-order", devConfirmToken: "qa-development-token" } });
       if (url.endsWith("/confirm")) return Response.json({ subscription: { ...subscription, active: true, status: "active" } });
