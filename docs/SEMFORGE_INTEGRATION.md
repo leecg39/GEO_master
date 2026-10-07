@@ -30,6 +30,8 @@ Google OAuth 및 GSC·GBP 동기화는 아직 구현되지 않았다. GBP 위치
 
 **제외:** SEMForge 공개 마케팅 사이트, Semrush UI 인벤토리 전체, 39테이블 RBAC 전체(Phase 6 경량화)
 
+현재 사이트 진단은 Firecrawl `/v1/map`의 URL 발견 목록에 기반한 휴리스틱이다. 개별 페이지의 실제 HTTP 상태·응답 시간·본문을 수집한 기술 진단은 아니며, 건강 점수도 발견 범위에 따른 추정값이다.
+
 ## 환경 변수
 
 `.env.example`의 SEMForge·결제 섹션 참고.
