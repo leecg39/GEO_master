@@ -30,11 +30,11 @@ export function Card({ className, children, ...props }: HTMLAttributes<HTMLDivEl
 
 export function Badge({ children, tone = "default", className }: { children: ReactNode; tone?: "default" | "good" | "warn" | "bad" | "cyan"; className?: string }) {
   const tones = {
-    default: "border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)] text-white",
-    good: "border-[color:var(--color-accent-lime)]/30 bg-[color:var(--color-accent-lime)]/15 text-[color:var(--color-accent-lime)]",
+    default: "border-[color:var(--app-card-border)] bg-[color:var(--app-badge-bg)] text-[color:var(--app-badge-text)]",
+    good: "border-[color:var(--color-accent-lime)]/30 bg-[color:var(--color-accent-lime)]/15 text-[color:var(--app-status-good)]",
     warn: "border-amber-400/25 bg-amber-400/10 text-amber-300",
-    bad: "border-[color:var(--color-accent-pink)]/30 bg-[color:var(--color-accent-pink)]/10 text-[color:var(--color-accent-pink)]",
-    cyan: "border-[color:var(--color-accent-violet)]/30 bg-[color:var(--color-accent-violet)]/15 text-[color:var(--color-accent-violet)]",
+    bad: "border-[color:var(--color-accent-pink)]/30 bg-[color:var(--color-accent-pink)]/10 text-[color:var(--app-status-danger)]",
+    cyan: "border-[color:var(--color-accent-violet)]/30 bg-[color:var(--color-accent-violet)]/15 text-[color:var(--app-status-violet)]",
   };
   return (
     <span className={cn("inline-flex rounded-[4px] border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.25px]", tones[tone], className)}>
@@ -48,9 +48,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLBut
     primary:
       "bg-[color:var(--app-cta-bg)] text-[color:var(--app-cta-text)] shadow-[rgba(0,0,0,0.08)_0_2px_8px_0] hover:opacity-95 active:bg-[color:var(--app-cta-pressed-bg)] active:text-[color:var(--app-cta-pressed-text)] disabled:bg-[color:var(--color-hairline-cloud)] disabled:text-[color:var(--color-on-dark-muted)] disabled:shadow-none",
     secondary:
-      "border border-[color:var(--color-hairline-violet)] bg-[color:var(--color-on-dark-faint)] text-white hover:bg-[color:var(--color-accent-violet-mid)]/40 disabled:text-[color:var(--color-on-dark-muted)]",
+      "border border-[color:var(--color-hairline-violet)] bg-[color:var(--app-secondary-bg)] text-[color:var(--app-secondary-text)] hover:bg-[color:var(--app-secondary-hover)] disabled:text-[color:var(--color-on-dark-muted)]",
     danger:
-      "border border-[color:var(--color-accent-pink)]/25 bg-[color:var(--color-accent-pink)]/10 text-[color:var(--color-accent-pink)] hover:bg-[color:var(--color-accent-pink)]/20",
+      "border border-[color:var(--color-accent-pink)]/25 bg-[color:var(--color-accent-pink)]/10 text-[color:var(--app-status-danger)] hover:bg-[color:var(--color-accent-pink)]/20",
   };
   return (
     <button
