@@ -6,7 +6,8 @@
  */
 import { normalizeUrl } from "./geo-core";
 
-export type CitationKind = "cited" | "searched";
+/** cited: 공급자 citation 객체 / inline: 답변 본문에 적힌 URL / searched: 검색됐지만 인용되지 않음 */
+export type CitationKind = "cited" | "searched" | "inline";
 
 export interface Citation {
   url: string;
@@ -53,24 +54,29 @@ function toCitation(rawUrl: unknown, rawTitle: unknown, kind: CitationKind): Cit
 }
 
 /**
- * 답변 본문에 직접 적힌 URL도 명시 인용으로 본다.
+ * 답변 본문에 적힌 URL은 별도 종류(inline)로 남긴다. 검색 인용으로 세지 않는다 (Qshop 계획 §5.6:
+ * "텍스트에 URL이 있다고 실제 검색 인용으로 판정하지 않는다").
  * 2026-10-08 실측: 구독핀 경유 Claude는 구조화된 citation 대신 본문에 URL을 나열해 답했다.
  */
 function inlineCitations(text: string) {
-  return (text.match(INLINE_URL_RE) ?? []).map((url) => toCitation(url.replace(/[.,;:!?]+$/, ""), null, "cited"));
+  return (text.match(INLINE_URL_RE) ?? []).map((url) => toCitation(url.replace(/[.,;:!?]+$/, ""), null, "inline"));
 }
 
-/** 같은 URL은 한 번만 — 명시 인용이 검색 결과보다 우선 */
+const KIND_PRIORITY: Record<CitationKind, number> = { cited: 0, inline: 1, searched: 2 };
+
+/** 같은 URL은 한 번만 — cited > inline > searched 순으로 강한 근거를 남긴다 */
 function dedupe(citations: readonly (Citation | null)[]): Citation[] {
   const byUrl = new Map<string, Citation>();
   for (const citation of citations) {
     if (!citation) continue;
     const existing = byUrl.get(citation.url);
-    if (!existing || (existing.kind === "searched" && citation.kind === "cited")) {
-      byUrl.set(citation.url, existing && citation.kind === "cited" ? { ...citation, title: citation.title ?? existing.title } : citation);
+    if (!existing) {
+      byUrl.set(citation.url, citation);
+    } else if (KIND_PRIORITY[citation.kind] < KIND_PRIORITY[existing.kind]) {
+      byUrl.set(citation.url, { ...citation, title: citation.title ?? existing.title });
     }
   }
-  return [...byUrl.values()].sort((a, b) => (a.kind === b.kind ? 0 : a.kind === "cited" ? -1 : 1));
+  return [...byUrl.values()].sort((a, b) => KIND_PRIORITY[a.kind] - KIND_PRIORITY[b.kind]);
 }
 
 function modelName(value: unknown) {

@@ -32,6 +32,8 @@ const citationSummarySchema = z.object({
   perProvider: z.record(z.string(), ratioSchema),
   citedByCategory: z.record(z.string(), z.number()),
   searchedCount: z.number(),
+  // 이전 버전 요약에는 없으므로 0으로 본다
+  inlineCount: z.number().optional().default(0),
   topDomains: z.array(z.object({ domain: z.string(), category: z.string(), count: z.number() })),
   pagesCitedWithoutBrand: z.array(z.object({ url: z.string(), domain: z.string(), category: z.string(), count: z.number() })),
 });

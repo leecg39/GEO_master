@@ -304,7 +304,7 @@ function printCitations(document: PdfLayout, citations: CitationSummary) {
     document.text(`${provider} ${formatRatio(value)}`, { size: 8.5, indent: 10 });
   }
   const categories = Object.entries(citations.citedByCategory).map(([category, count]) => `${CATEGORY_LABELS[category] ?? category} ${count}회`);
-  document.text(`출처 유형별 인용 횟수: ${categories.join(" · ") || "명시 인용 없음"} (검색만 된 결과 ${citations.searchedCount}건 제외)`, { size: 8.5, maxChars: 800 });
+  document.text(`출처 유형별 인용 횟수: ${categories.join(" · ") || "명시 인용 없음"} (검색만 된 결과 ${citations.searchedCount}건, 본문 URL ${citations.inlineCount}건 제외)`, { size: 8.5, maxChars: 800 });
   if (citations.pagesCitedWithoutBrand.length) {
     document.text("브랜드 미언급 답변에서 인용된 페이지", { size: 9, color: COLORS.amber });
     for (const page of citations.pagesCitedWithoutBrand) {

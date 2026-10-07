@@ -12,7 +12,7 @@ export interface CitationSlot {
   /** null = 검색 측정이 아니었음 */
   citationSupported: boolean | null;
   brandMentioned: boolean;
-  citations: Array<{ url: string; domain: string; category: string; kind: "cited" | "searched" }>;
+  citations: Array<{ url: string; domain: string; category: string; kind: "cited" | "searched" | "inline" }>;
 }
 
 export interface CitationSummary {
@@ -20,6 +20,8 @@ export interface CitationSummary {
   perProvider: Record<string, Ratio>;
   citedByCategory: Record<string, number>;
   searchedCount: number;
+  /** 답변 본문에 적힌 URL 수 — 검색 인용이 아니므로 커버리지·분포에 넣지 않는다 */
+  inlineCount: number;
   topDomains: Array<{ domain: string; category: string; count: number }>;
   /** 브랜드가 언급되지 않은 답변에서 인용된 페이지 — "우리 대신 인용된 곳" */
   pagesCitedWithoutBrand: Array<{ url: string; domain: string; category: string; count: number }>;
@@ -63,6 +65,7 @@ export function summarizeCitations(slots: readonly CitationSlot[]): CitationSumm
     perProvider: Object.fromEntries(providers.map((provider) => [provider, coverage(slots.filter((slot) => slot.provider === provider))])),
     citedByCategory,
     searchedCount: valid.flatMap((slot) => slot.citations).filter((citation) => citation.kind === "searched").length,
+    inlineCount: valid.flatMap((slot) => slot.citations).filter((citation) => citation.kind === "inline").length,
     topDomains: topCounts(cited.map((citation) => ({ key: citation.domain, domain: citation.domain, category: citation.category })))
       .map(({ item, count }) => ({ domain: item.domain, category: item.category, count })),
     pagesCitedWithoutBrand: topCounts(withoutBrand.map((citation) => ({ key: citation.url, ...citation })))

@@ -38,7 +38,7 @@ export function CitationEvidencePanel({ summary, className }: { summary: Citatio
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
         <div>
           <h3 className="text-sm font-medium text-slate-200">출처 유형별 인용 횟수</h3>
-          <p className="text-xs text-slate-600">명시 인용만 셉니다 · 검색만 되고 인용되지 않은 결과 {summary.searchedCount}건은 제외</p>
+          <p className="text-xs text-slate-600">공급자가 돌려준 인용만 셉니다 · 검색만 된 결과 {summary.searchedCount}건, 답변 본문에 적힌 URL {summary.inlineCount}건은 제외</p>
           {categories.length ? (
             <ul className="mt-2 space-y-1 text-xs">{categories.map(([category, count]) => <li key={category} className="flex justify-between"><span className="text-slate-400">{categoryLabels[category] ?? category}</span><span className="text-slate-200">{count}회</span></li>)}</ul>
           ) : <p className="mt-2 text-xs text-slate-500">명시 인용이 없습니다.</p>}

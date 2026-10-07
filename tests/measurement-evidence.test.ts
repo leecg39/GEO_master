@@ -34,7 +34,8 @@ describe("citation evidence", () => {
       ownCitationCoverage: { numerator: 1, denominator: 2, value: 50 }, perProvider: {}, citedByCategory: { own: 1 },
       searchedCount: 0, topDomains: [], pagesCitedWithoutBrand: [],
     };
-    expect(parseMeasurementEvidence({ metricVersion: "m1.0", searchMode: "web", citations }).citations).toEqual(citations);
+    // 이전 버전 요약(inlineCount 없음)도 읽고, 본문 URL 수는 0으로 채운다
+    expect(parseMeasurementEvidence({ metricVersion: "m1.0", searchMode: "web", citations }).citations).toEqual({ ...citations, inlineCount: 0 });
     expect(parseMeasurementEvidence({ metricVersion: "m1.0", searchMode: "web", citations: { bad: true } }).citations).toBeNull();
   });
 });

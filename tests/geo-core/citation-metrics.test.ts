@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { summarizeCitations, type CitationSlot } from "@/lib/geo-core";
 
-const cite = (url: string, domain: string, category: string, kind: "cited" | "searched" = "cited") => ({ url, domain, category, kind });
+const cite = (url: string, domain: string, category: string, kind: "cited" | "searched" | "inline" = "cited") => ({ url, domain, category, kind });
 
 describe("summarizeCitations", () => {
   const slots: CitationSlot[] = [
@@ -33,4 +33,14 @@ describe("summarizeCitations", () => {
   it("returns N/A coverage when no provider supported citations", () => {
     expect(summarizeCitations([slots[3]!]).ownCitationCoverage.value).toBeNull();
   });
+
+  it("counts inline text URLs separately and keeps them out of coverage", () => {
+    const summary = summarizeCitations([
+      { provider: "anthropic", status: "succeeded", citationSupported: true, brandMentioned: false, citations: [cite("https://own.kr/x", "own.kr", "own", "inline"), cite("https://rival.com/y", "rival.com", "competitor", "inline")] },
+    ]);
+    expect(summary.ownCitationCoverage).toEqual({ numerator: 0, denominator: 1, value: 0 });
+    expect(summary.inlineCount).toBe(2);
+    expect(summary.pagesCitedWithoutBrand).toEqual([]);
+  });
 });
+

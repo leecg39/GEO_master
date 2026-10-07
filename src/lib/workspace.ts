@@ -77,7 +77,7 @@ const snapshotDataSchema = z.object({
   }).strict()).max(250_000),
   measureCitations: z.array(z.object({
     id, runId: id, resultId: id, url: z.string().max(2048), domain: z.string().max(253), title: z.string().max(1_000).nullable(),
-    kind: z.enum(["cited", "searched"]),
+    kind: z.enum(["cited", "searched", "inline"]),
     category: z.enum(["own", "competitor", "media", "community", "marketplace", "public", "other", "unknown"]), createdAt: timestamp,
   }).strict()).max(1_000_000).optional().default([]),
   facts: z.array(z.object({

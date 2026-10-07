@@ -271,7 +271,7 @@ export const measureCitations = sqliteTable("measure_citations", {
   url: text("url").notNull(),
   domain: text("domain").notNull(),
   title: text("title"),
-  kind: text("kind", { enum: ["cited", "searched"] }).notNull(),
+  kind: text("kind", { enum: ["cited", "searched", "inline"] }).notNull(),
   category: text("category", { enum: ["own", "competitor", "media", "community", "marketplace", "public", "other", "unknown"] }).notNull(),
   createdAt: text("created_at").notNull(),
 });

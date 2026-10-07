@@ -93,8 +93,8 @@ describe("parseGeminiGrounding", () => {
   });
 });
 
-describe("inline URL citations", () => {
-  it("treats URLs written in the answer text as explicit citations when the API returns no structured citations", () => {
+describe("inline URLs (Qshop plan §5.6: text URLs are not search citations)", () => {
+  it("keeps URLs written in the answer text as a separate inline kind, never as cited", () => {
     const parsed = parseAnthropicGrounding({
       content: [
         { type: "text", text: "검색해 보겠습니다." },
@@ -104,14 +104,18 @@ describe("inline URL citations", () => {
       ],
     });
     expect(parsed.text).toBe("검색해 보겠습니다.\n추천 도구는 채널톡입니다 (https://channel.io/ko, 참고: https://help.example.com/a).");
-    expect(parsed.citations.filter((citation) => citation.kind === "cited").map((citation) => citation.url)).toEqual(["https://channel.io/ko", "https://help.example.com/a"]);
+    expect(parsed.citations.filter((citation) => citation.kind === "cited")).toEqual([]);
+    expect(parsed.citations.map((citation) => [citation.url, citation.kind])).toEqual([
+      ["https://channel.io/ko", "inline"],
+      ["https://help.example.com/a", "inline"],
+    ]);
   });
 
   it("applies the same fallback to OpenAI and Gemini answers", () => {
     expect(parseOpenAiGrounding({ output_text: "출처: https://news.example.org/x.", output: [] }).citations).toEqual([
-      { url: "https://news.example.org/x", domain: "news.example.org", title: null, kind: "cited" },
+      { url: "https://news.example.org/x", domain: "news.example.org", title: null, kind: "inline" },
     ]);
-    expect(parseGeminiGrounding({ text: "참고 https://gov.example.kr/p", candidates: [] }).citations[0]).toMatchObject({ domain: "gov.example.kr", kind: "cited" });
+    expect(parseGeminiGrounding({ text: "참고 https://gov.example.kr/p", candidates: [] }).citations[0]).toMatchObject({ domain: "gov.example.kr", kind: "inline" });
   });
 });
 

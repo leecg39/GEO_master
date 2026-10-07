@@ -590,6 +590,32 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 16,
+    name: "inline-citation-kind",
+    up(sqlite) {
+      // SQLite는 CHECK 제약을 바꿀 수 없어 테이블을 다시 만든다. 기존 행은 그대로 옮긴다.
+      sqlite.exec(`
+        CREATE TABLE measure_citations_v16 (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          run_id INTEGER NOT NULL REFERENCES measure_runs(id) ON DELETE CASCADE,
+          result_id INTEGER NOT NULL REFERENCES measure_results(id) ON DELETE CASCADE,
+          url TEXT NOT NULL,
+          domain TEXT NOT NULL,
+          title TEXT,
+          kind TEXT NOT NULL CHECK(kind IN ('cited','searched','inline')),
+          category TEXT NOT NULL CHECK(category IN ('own','competitor','media','community','marketplace','public','other','unknown')),
+          created_at TEXT NOT NULL
+        );
+        INSERT INTO measure_citations_v16 (id, run_id, result_id, url, domain, title, kind, category, created_at)
+          SELECT id, run_id, result_id, url, domain, title, kind, category, created_at FROM measure_citations;
+        DROP TABLE measure_citations;
+        ALTER TABLE measure_citations_v16 RENAME TO measure_citations;
+        CREATE INDEX IF NOT EXISTS idx_measure_citations_run ON measure_citations(run_id, category);
+        CREATE INDEX IF NOT EXISTS idx_measure_citations_result ON measure_citations(result_id);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;
