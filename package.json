@@ -9,7 +9,7 @@
     "build": "next build",
     "start": "next start -H 127.0.0.1",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "seed:annatar": "npx --yes tsx scripts/seed-annatar-mock.ts",
