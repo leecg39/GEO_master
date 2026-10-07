@@ -18,7 +18,9 @@ GEO Master의 **분석·측정 UI**(대시보드, Cheerio GEO 진단, LLM 응답
 | AI SEO (SERP AIO) | — | ✓ |
 | Firecrawl 사이트 진단 | — | ✓ |
 | 포지션 추적 / 도메인 개요 | — | ✓ |
-| GBP / Map Rank | — | ✓ |
+| 수동 위치 등록 / Map Rank | — | ✓ |
+
+Google OAuth 및 GSC·GBP 동기화는 아직 구현되지 않았다. GBP 위치는 수동 등록 데이터이며 항상 미연결로 표시한다. Google OAuth 환경 변수만으로 연결 완료를 판정하지 않는다.
 
 로컬 테스트는 `SEMFORGE_BILLING_MODE=dev`를 명시한 환경에서 `/subscription`의 checkout intent와 확인 토큰으로 활성화한다. 실제 과금은 발생하지 않는다. 운영 결제는 아직 구현되지 않았으며, `live`·미설정·잘못된 모드에서는 checkout과 confirm이 `503 PAYMENT_PROVIDER_UNAVAILABLE`을 반환한다. 실결제 도입에는 제공자 승인 조회, 주문·금액 대조 및 검증된 webhook 처리가 필요하다.
 

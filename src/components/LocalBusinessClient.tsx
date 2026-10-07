@@ -49,6 +49,7 @@ async function parse<T>(response: Response): Promise<T> {
 }
 
 function statusLabel(status: string) {
+  if (status === "disconnected") return "수동 등록 · 미연결";
   if (status === "connected") return "연결됨";
   if (status === "pending_oauth") return "OAuth 대기";
   return status;
@@ -115,9 +116,7 @@ export function LocalBusinessClient() {
       );
       setLocationName(""); setAddress("");
       await loadOverview();
-      setMessage(data.connection.status === "pending_oauth"
-        ? "GBP 연결이 등록되었습니다. Google OAuth 설정 후 인증을 완료하세요."
-        : "GBP 위치가 등록되었습니다.");
+      setMessage(`${data.connection.locationName} 위치를 수동 등록했습니다. Google 계정 연결·동기화는 아직 지원하지 않습니다.`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "GBP 연결 실패");
     } finally {
@@ -233,9 +232,7 @@ export function LocalBusinessClient() {
             <div className="mb-4 flex flex-wrap items-center gap-2">
               <MapPin className="h-4 w-4 text-violet-300" />
               <h2 className="font-semibold text-white">GBP 위치</h2>
-              <Badge tone={overview.googleOAuthConfigured ? "cyan" : "default"}>
-                {overview.googleOAuthConfigured ? "Google OAuth 설정됨" : "수동 등록 모드"}
-              </Badge>
+              <Badge>수동 등록 · Google 인증 준비 중</Badge>
             </div>
             <form onSubmit={connectGbp} className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">
               <label className="flex-1 text-sm text-slate-400">매장/지점명<input className="mt-2" value={locationName} onChange={(e) => setLocationName(e.target.value)} required /></label>

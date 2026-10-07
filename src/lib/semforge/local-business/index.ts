@@ -16,7 +16,7 @@ export function listGbpConnections() {
   const project = requireActiveProject();
   const { sqlite } = getDatabase();
   return sqlite.prepare(`
-    SELECT id, location_name AS locationName, address, status, updated_at AS updatedAt
+    SELECT id, location_name AS locationName, address, 'disconnected' AS status, updated_at AS updatedAt
     FROM gbp_connections WHERE project_id = ? ORDER BY updated_at DESC, id DESC
   `).all(project.id) as Array<{ id: number; locationName: string; address: string; status: string; updatedAt: string }>;
 }
@@ -30,7 +30,6 @@ export function connectGbpLocation(input: unknown) {
   requireSemforgeSubscription();
   const project = requireActiveProject();
   const parsed = gbpConnectSchema.parse(input);
-  const googleConfigured = Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim());
   const now = new Date().toISOString();
   const { sqlite } = getDatabase();
   const result = sqlite.prepare(`
@@ -40,7 +39,7 @@ export function connectGbpLocation(input: unknown) {
     project.id,
     parsed.locationName,
     parsed.address,
-    googleConfigured ? "pending_oauth" : "connected",
+    "disconnected",
     now,
     now,
   );
@@ -48,8 +47,8 @@ export function connectGbpLocation(input: unknown) {
     id: Number(result.lastInsertRowid),
     locationName: parsed.locationName,
     address: parsed.address,
-    status: googleConfigured ? "pending_oauth" as const : "connected" as const,
-    oauthUrl: googleConfigured ? `/api/semforge/gbp/oauth?location=${encodeURIComponent(parsed.locationName)}` : null,
+    status: "disconnected" as const,
+    oauthUrl: null,
   };
 }
 

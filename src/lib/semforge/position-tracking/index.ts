@@ -135,15 +135,8 @@ export function listGscConnections() {
 
 export function connectGscPlaceholder(siteUrl: string) {
   requireSemforgeSubscription();
-  const project = requireActiveProject();
-  const configured = Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim());
-  if (!configured) throw semforgeError("INTERNAL", "Google OAuth 환경 변수가 설정되지 않았습니다.");
-  const now = new Date().toISOString();
-  const { sqlite } = getDatabase();
-  sqlite.prepare(`
-    INSERT INTO gsc_connections (project_id, site_url, status, created_at, updated_at) VALUES (?, ?, 'pending_oauth', ?, ?)
-  `).run(project.id, siteUrl, now, now);
-  return { oauthUrl: `/api/semforge/gsc/oauth?site=${encodeURIComponent(siteUrl)}`, status: "pending_oauth" };
+  z.string().url().parse(siteUrl);
+  throw semforgeError("INTERNAL", "GSC OAuth 연결은 아직 구현되지 않았습니다.");
 }
 
 export function listSites() {
