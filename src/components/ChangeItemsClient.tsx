@@ -53,7 +53,7 @@ export function ChangeItemsClient() {
   return (
     <div>
       <PageHeader eyebrow="Change workbench" title="수정안 작업대" description="페이지별 현재 값과 수정안, 근거를 나란히 두고 승인합니다. 자동 게시는 하지 않으며, 승인한 수정안을 직접 반영한 뒤 '전달 처리'로 기록합니다. 페이지의 현재 값이 달라지면 충돌로 표시됩니다."
-        action={<Button type="button" onClick={() => setForm({ ...empty })}><Plus className="h-4 w-4" />수정안 추가</Button>} />
+        action={<div className="flex flex-wrap gap-2 print:hidden"><a className="inline-flex items-center rounded-xl border border-white/15 px-3 py-2 text-sm text-slate-200 hover:bg-white/5" href="/api/change-items/guide?editor=site-settings&format=md">큐샵 적용 안내(사이트 설정)</a><a className="inline-flex items-center rounded-xl border border-white/15 px-3 py-2 text-sm text-slate-200 hover:bg-white/5" href="/api/change-items/guide?editor=blog&format=md">큐샵 적용 안내(블로그)</a><Button type="button" onClick={() => setForm({ ...empty })}><Plus className="h-4 w-4" />수정안 추가</Button></div>} />
       {error && <p role="alert" className="mb-4 rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-sm text-rose-300">{error}</p>}
       {form && (
         <Card className="mb-5">
