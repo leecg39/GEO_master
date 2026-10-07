@@ -9,7 +9,7 @@ import { normalizeDomain } from "@/lib/semforge/utils/domain";
 import { requireSemforgeSubscription } from "@/lib/semforge-subscription";
 import { requireActiveProject } from "@/lib/projects";
 import { providerUnavailable, providerLive } from "@/lib/semforge/providers/types";
-import { probeLlmsTxt, urlPathDepth, type LlmsTxtState, type SiteAuditDataState } from "./discovery";
+import { fetchDiscoveredPages, probeLlmsTxt, urlPathDepth, type LlmsTxtState, type PageFetchResult, type SiteAuditDataState } from "./discovery";
 
 export { probeLlmsTxt, urlPathDepth } from "./discovery";
 
@@ -106,9 +106,14 @@ function insertIssue(sqlite: Database.Database, campaignId: number, issue: { url
   `).run(campaignId, issue.url, issue.severity, issue.category, issue.title, issue.detail, now);
 }
 
+const MAX_PAGE_ISSUES = 10;
+
 /**
- * Map 결과 저장 — 페이지를 요청하지 않았으므로 상태 코드·제목·용량·건강 점수를 만들지 않는다 (Qshop P01).
- * llms.txt는 실제 요청 결과(llms)로만 판정한다.
+ * 크롤 결과 저장 — 관측한 것만 기록한다 (Qshop P01·P02).
+ * - 요청한 페이지: 실제 상태·최종 URL·제목·용량·해시 (fetched), 요청 실패 (failed)
+ * - 범위 밖 URL은 요청하지 않는다 (out_of_scope)
+ * - 데모 모드처럼 요청하지 않은 경우는 discovered로 남긴다
+ * 실측 기반 종합 점수는 만들지 않고, 관측 수치는 브리핑에서 분모와 함께 보여 준다.
  */
 function persistCrawlResults(
   sqlite: Database.Database,
@@ -117,45 +122,69 @@ function persistCrawlResults(
   links: string[],
   source: string,
   llms: { state: LlmsTxtState; detail: string },
+  pages: PageFetchResult[] | null,
 ) {
   const now = new Date().toISOString();
   sqlite.prepare("DELETE FROM site_audit_pages WHERE campaign_id = ?").run(campaignId);
   sqlite.prepare("DELETE FROM site_audit_issues WHERE campaign_id = ?").run(campaignId);
 
-  for (const url of links) {
-    sqlite.prepare(`
-      INSERT INTO site_audit_pages (campaign_id, url, status_code, title, depth, response_ms, bytes, fetch_state, captured_at)
-      VALUES (?, ?, 0, NULL, ?, NULL, 0, 'discovered', ?)
-    `).run(campaignId, url, urlPathDepth(url), now);
-  }
-  let issueCount = 0;
-  const llmsUrl = `https://${domain}/llms.txt`;
-  if (llms.state === "missing") {
-    insertIssue(sqlite, campaignId, { url: llmsUrl, severity: "warning", category: "aiSearch", title: "/llms.txt 없음", detail: `실제 요청 결과: ${llms.detail}` }, now);
-    issueCount += 1;
-  } else if (llms.state === "unknown") {
-    insertIssue(sqlite, campaignId, { url: llmsUrl, severity: "notice", category: "aiSearch", title: "/llms.txt 확인 불가", detail: `${llms.detail} — 없다고 판정하지 않았습니다. 나중에 다시 확인하세요.` }, now);
-    issueCount += 1;
-  }
-  if (links.length < 3) {
-    insertIssue(sqlite, campaignId, { url: links[0] ?? "", severity: "notice", category: "coverage", title: "발견 URL 적음", detail: `Map으로 발견한 URL이 ${links.length}개입니다. 내부 링크·사이트맵을 점검하세요.` }, now);
-    issueCount += 1;
+  const insertPage = sqlite.prepare(`
+    INSERT INTO site_audit_pages (campaign_id, url, status_code, title, depth, response_ms, bytes, fetch_state, final_url, content_hash, fetch_error, render_mode, captured_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  const results = pages ?? links.map((url) => ({ url, state: "discovered" as const, statusCode: 0, finalUrl: null, title: null, bytes: 0, responseMs: null, contentHash: null, error: null }));
+  for (const page of results) {
+    insertPage.run(
+      campaignId, page.url, page.statusCode, page.title, urlPathDepth(page.url), page.responseMs, page.bytes, page.state,
+      page.finalUrl, page.contentHash, page.error, page.state === "fetched" || page.state === "failed" ? "native" : null, now,
+    );
   }
 
+  let issueCount = 0;
+  const addIssue = (issue: { url: string; severity: string; category: string; title: string; detail: string }) => {
+    insertIssue(sqlite, campaignId, issue, now);
+    issueCount += 1;
+  };
+  const llmsUrl = `https://${domain}/llms.txt`;
+  if (llms.state === "missing") {
+    addIssue({ url: llmsUrl, severity: "warning", category: "aiSearch", title: "/llms.txt 없음", detail: `실제 요청 결과: ${llms.detail}` });
+  } else if (llms.state === "unknown") {
+    addIssue({ url: llmsUrl, severity: "notice", category: "aiSearch", title: "/llms.txt 확인 불가", detail: `${llms.detail} — 없다고 판정하지 않았습니다. 나중에 다시 확인하세요.` });
+  }
+  if (links.length < 3) {
+    addIssue({ url: links[0] ?? "", severity: "notice", category: "coverage", title: "발견 URL 적음", detail: `Map으로 발견한 URL이 ${links.length}개입니다. 내부 링크·사이트맵을 점검하세요.` });
+  }
+  const fetched = results.filter((page) => page.state === "fetched");
+  const failed = results.filter((page) => page.state === "failed");
+  for (const page of fetched.filter((item) => item.statusCode >= 400).slice(0, MAX_PAGE_ISSUES)) {
+    addIssue({ url: page.url, severity: page.statusCode >= 500 ? "critical" : "warning", category: "http", title: `HTTP ${page.statusCode} 응답`, detail: `실제 요청에서 HTTP ${page.statusCode}가 응답했습니다.` });
+  }
+  for (const page of fetched.filter((item) => item.statusCode >= 200 && item.statusCode < 300 && !item.title).slice(0, MAX_PAGE_ISSUES)) {
+    addIssue({ url: page.url, severity: "notice", category: "seo", title: "제목(title) 없음", detail: "실제 HTML에 <title>이 없거나 비어 있습니다." });
+  }
+  for (const page of failed.slice(0, MAX_PAGE_ISSUES)) {
+    addIssue({ url: page.url, severity: "notice", category: "http", title: "페이지 요청 실패", detail: `${page.error ?? "요청 실패"} — 응답 비율의 분모에서 제외했습니다.` });
+  }
+
+  const dataState = pages ? "measured" as const : "discovered" as const;
+  const status = failed.length > 0 ? "partial" as const : "completed" as const;
   sqlite.prepare(`
-    UPDATE site_audit_campaigns SET status = 'completed', site_health = NULL, data_state = 'discovered', llms_txt_state = ?,
+    UPDATE site_audit_campaigns SET status = ?, site_health = NULL, data_state = ?, llms_txt_state = ?,
       last_run_at = ?, updated_at = ? WHERE id = ?
-  `).run(llms.state, now, now, campaignId);
+  `).run(status, dataState, llms.state, now, now, campaignId);
 
   return {
     campaignId,
-    status: "completed" as const,
+    status,
     discoveredUrls: links.length,
-    /** 이전 응답과의 호환용 — 실제로는 "발견한 URL 수"이며 수집한 페이지 수가 아니다 */
+    /** 이전 응답과의 호환용 — 발견한 URL 수 */
     crawledPages: links.length,
+    fetchedPages: fetched.length,
+    failedPages: failed.length,
+    outOfScope: results.filter((page) => page.state === "out_of_scope").length,
     issueCount,
     siteHealth: null,
-    dataState: "discovered" as const,
+    dataState,
     llmsTxtState: llms.state,
     source,
     provider: providerLive(source, { pages: links.length, issues: issueCount }),
@@ -235,10 +264,12 @@ export async function runSiteAuditCampaign(idInput: unknown) {
 
   try {
     const { links, source } = await fetchCrawlLinks(campaign.domain);
-    const llms = source === "mock-dev"
+    const demo = source === "mock-dev";
+    const llms = demo
       ? { state: "unknown" as const, detail: "데모 모드에서는 실제 요청하지 않습니다" }
       : await probeLlmsTxt(campaign.domain);
-    return transactionalMutation(sqlite, () => persistCrawlResults(sqlite, id, campaign.domain, links, source, llms));
+    const pages = demo ? null : await fetchDiscoveredPages(links, campaign.domain);
+    return transactionalMutation(sqlite, () => persistCrawlResults(sqlite, id, campaign.domain, links, source, llms, pages));
   } catch (error) {
     sqlite.prepare(`
       UPDATE site_audit_campaigns SET status = 'failed', updated_at = ? WHERE id = ?
@@ -346,6 +377,18 @@ function buildSiteAuditBriefing(
   const hasLlmsTxt = llmsTxtState === "present";
   const score = legacy ? campaign.site_health : null;
   const grade = legacy && score !== null ? { label: "이전 방식 추정치", tone: "warn" as const } : healthGrade(null);
+  const measuredRows = sqlite.prepare(`
+    SELECT
+      SUM(fetch_state = 'fetched') AS fetched,
+      SUM(fetch_state = 'failed') AS failed,
+      SUM(fetch_state = 'fetched' AND status_code BETWEEN 200 AND 299) AS ok,
+      SUM(fetch_state = 'fetched' AND status_code BETWEEN 200 AND 299 AND (title IS NULL OR title = '')) AS missingTitle,
+      SUM(fetch_state = 'out_of_scope') AS outOfScope
+    FROM site_audit_pages WHERE campaign_id = ?
+  `).get(campaignId) as Record<"fetched" | "failed" | "ok" | "missingTitle" | "outOfScope", number | null>;
+  const measured = campaign.data_state === "measured"
+    ? { fetched: measuredRows.fetched ?? 0, failed: measuredRows.failed ?? 0, ok: measuredRows.ok ?? 0, missingTitle: measuredRows.missingTitle ?? 0, outOfScope: measuredRows.outOfScope ?? 0 }
+    : null;
   const shallowPages = pages.filter((page) => page.depth <= 1).length;
   const shallowRatio = pageCount === 0 ? 0 : Math.round((shallowPages / pageCount) * 100);
 
@@ -361,6 +404,9 @@ function buildSiteAuditBriefing(
     { axis: "llms.txt", score: hasLlmsTxt ? 100 : 0, hint: llmsHint },
     { axis: "URL 발견 범위", score: Math.min(100, pageCount * 10), hint: `Map으로 ${pageCount}개 URL을 발견했습니다.` },
     { axis: "얕은 URL 비율", score: shallowRatio, hint: `경로 깊이 0~1 URL 비율 ${shallowRatio}% (주소 구조 기준)` },
+    ...(measured && measured.fetched > 0
+      ? [{ axis: "정상 응답 비율", score: Math.round((measured.ok / measured.fetched) * 100), hint: `응답한 ${measured.fetched}개 중 2xx ${measured.ok}개 (요청 실패 ${measured.failed}개는 분모 제외)` }]
+      : []),
   ];
 
   const narratives: string[] = [];
@@ -368,6 +414,8 @@ function buildSiteAuditBriefing(
     narratives.push("아직 크롤이 실행되지 않았습니다. 캠페인에서 '크롤 실행'을 눌러 분석을 시작하세요.");
   } else if (legacy) {
     narratives.push("이 결과는 이전 버전이 페이지를 실제로 요청하지 않고 계산한 추정치입니다. 정확한 결과를 보려면 다시 크롤하세요.");
+  } else if (measured) {
+    narratives.push(`URL ${pageCount}개를 발견해 범위 안 페이지를 실제로 요청했습니다. 응답 ${measured.fetched}개 중 정상(2xx) ${measured.ok}개, 요청 실패 ${measured.failed}개, 범위 밖 ${measured.outOfScope}개입니다. 종합 건강 점수는 만들지 않습니다.`);
   } else {
     narratives.push(`Firecrawl Map으로 URL ${pageCount}개를 발견했습니다. 페이지 본문은 아직 요청하지 않아 HTTP 상태·제목·건강 점수는 미측정입니다.`);
   }
@@ -387,6 +435,7 @@ function buildSiteAuditBriefing(
     grade,
     dataState: campaign.data_state,
     llmsTxtState,
+    measured,
     pageCount,
     issueCount,
     hasLlmsTxt,

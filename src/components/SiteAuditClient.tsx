@@ -27,6 +27,8 @@ interface FirecrawlState {
 interface RunResult {
   status: string;
   crawledPages?: number;
+  fetchedPages?: number;
+  failedPages?: number;
   siteHealth?: number | null;
   source?: string;
 }
@@ -39,6 +41,7 @@ async function parse<T>(response: Response): Promise<T> {
 
 const statusTone = (status: string): "default" | "good" | "warn" | "bad" | "cyan" => {
   if (status === "completed") return "good";
+  if (status === "partial") return "warn";
   if (status === "running") return "cyan";
   if (status === "failed") return "bad";
   return "default";
@@ -47,6 +50,7 @@ const statusTone = (status: string): "default" | "good" | "warn" | "bad" | "cyan
 function statusLabel(status: string) {
   if (status === "running") return "크롤 중";
   if (status === "completed") return "완료";
+  if (status === "partial") return "일부 실패";
   if (status === "failed") return "실패";
   if (status === "idle") return "대기";
   return status;
@@ -158,9 +162,12 @@ export function SiteAuditClient() {
         body: "{}",
       }));
       const updated = await load();
-      if (data.result.status === "completed") {
+      if (data.result.status === "completed" || data.result.status === "partial") {
+        const measuredText = data.result.fetchedPages
+          ? ` · 실측 ${data.result.fetchedPages}개${data.result.failedPages ? ` (요청 실패 ${data.result.failedPages}개)` : ""}`
+          : " · 페이지 미측정";
         setMessage(
-          `URL 발견 완료 · ${data.result.crawledPages ?? 0}개 · 건강 점수 ${data.result.siteHealth ?? "미측정"}`
+          `URL 발견 ${data.result.crawledPages ?? 0}개${measuredText} · 건강 점수 ${data.result.siteHealth ?? "미측정"}`
           + (data.result.source === "mock-dev" ? " (데모)" : ""),
         );
       }
@@ -275,7 +282,7 @@ export function SiteAuditClient() {
                           {isRunning ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
                           {isRunning ? "크롤 중" : "크롤 실행"}
                         </Button>
-                        {campaign.status === "completed" && (
+                        {(campaign.status === "completed" || campaign.status === "partial") && (
                           <Button
                             variant="danger"
                             disabled={busy}

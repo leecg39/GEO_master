@@ -627,6 +627,17 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       sqlite.exec("UPDATE site_audit_campaigns SET data_state = 'none' WHERE last_run_at IS NULL");
     },
   },
+  {
+    version: 18,
+    name: "site-audit-page-fetch-evidence",
+    up(sqlite) {
+      // Qshop P02: 실제 페이지 응답 근거 (최종 URL, 본문 해시, 오류, 수집 방식)
+      addColumnIfMissing(sqlite, "site_audit_pages", "final_url", "TEXT");
+      addColumnIfMissing(sqlite, "site_audit_pages", "content_hash", "TEXT");
+      addColumnIfMissing(sqlite, "site_audit_pages", "fetch_error", "TEXT");
+      addColumnIfMissing(sqlite, "site_audit_pages", "render_mode", "TEXT");
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

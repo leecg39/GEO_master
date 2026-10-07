@@ -40,20 +40,19 @@ afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
 afterAll(() => { closeDatabase(databasePath); fs.rmSync(directory, { recursive: true, force: true }); });
 
 describe("Qshop P01: Map-only discovery is not reported as a measured crawl", () => {
-  it("stores discovered URLs as unmeasured and does not invent a health score", async () => {
-    request.mockImplementation(mapResponse);
-    vi.mocked(fetchPublicText).mockResolvedValue(fetched(200, "# Example\n> 소개\n- [홈](https://example.com)"));
+  it("stores discovered URLs as unmeasured and does not invent a health score when pages are not requested (demo mode)", async () => {
+    vi.stubEnv("FIRECRAWL_API_KEY", "");
+    vi.stubEnv("SEMFORGE_MOCK_FIRECRAWL", "1");
     const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
     const result = await runSiteAuditCampaign(campaign.id);
-    expect(result).toMatchObject({ discoveredUrls: 3, siteHealth: null, dataState: "discovered", llmsTxtState: "present" });
-    const pages = getDatabase().sqlite.prepare("SELECT url, status_code, fetch_state, depth FROM site_audit_pages WHERE campaign_id = ? ORDER BY url").all(campaign.id);
-    expect(pages).toEqual([
-      { url: "https://example.com", status_code: 0, fetch_state: "discovered", depth: 0 },
-      { url: "https://example.com/about", status_code: 0, fetch_state: "discovered", depth: 1 },
-      { url: "https://example.com/blog/post-1", status_code: 0, fetch_state: "discovered", depth: 2 },
-    ]);
+    expect(result).toMatchObject({ discoveredUrls: 6, siteHealth: null, dataState: "discovered", llmsTxtState: "unknown", fetchedPages: 0 });
+    expect(vi.mocked(fetchPublicText)).not.toHaveBeenCalled();
+    const pages = getDatabase().sqlite.prepare("SELECT DISTINCT status_code, fetch_state FROM site_audit_pages WHERE campaign_id = ?").all(campaign.id);
+    expect(pages).toEqual([{ status_code: 0, fetch_state: "discovered" }]);
+    const depths = getDatabase().sqlite.prepare("SELECT url, depth FROM site_audit_pages WHERE campaign_id = ? AND url IN ('https://example.com', 'https://example.com/about')").all(campaign.id);
+    expect(depths).toEqual(expect.arrayContaining([{ url: "https://example.com", depth: 0 }, { url: "https://example.com/about", depth: 1 }]));
     const overview = getSiteAuditOverview(campaign.id);
-    expect(overview.briefing).toMatchObject({ score: null, dataState: "discovered", llmsTxtState: "present", hasLlmsTxt: true });
+    expect(overview.briefing).toMatchObject({ score: null, dataState: "discovered", measured: null });
     expect(overview.briefing.grade.label).toBe("미측정");
     expect(overview.briefing.scoreFactors).toEqual([]);
   });
@@ -107,5 +106,45 @@ describe("migration 17: legacy estimates are isolated", () => {
     ]);
     expect(sqlite.prepare("SELECT fetch_state FROM site_audit_pages").get()).toEqual({ fetch_state: "legacy_estimate" });
     sqlite.close();
+  });
+});
+
+describe("Qshop P02: discovered URLs are actually fetched", () => {
+  function routeFetch(url: string) {
+    if (url.endsWith("/llms.txt")) return Promise.resolve({ url, status: 200, text: "# Example", contentType: "text/plain" });
+    if (url.endsWith("/about")) return Promise.resolve({ url: "https://example.com/about-us", status: 200, text: "<html><head><title>회사 소개</title></head><body>본문</body></html>", contentType: "text/html" });
+    if (url.endsWith("/blog/post-1")) return Promise.resolve({ url, status: 404, text: "<html><title>없음</title></html>", contentType: "text/html" });
+    if (url === "https://example.com") return Promise.resolve({ url: "https://example.com/", status: 200, text: "<html><body>제목 없음</body></html>", contentType: "text/html" });
+    return Promise.reject(new Error("blocked"));
+  }
+
+  it("stores real status, title, final URL and hash, and keeps failures out of the success denominator", async () => {
+    request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com", "https://example.com/about", "https://example.com/blog/post-1", "https://other.example.net/x", "https://example.com/down"] }));
+    vi.mocked(fetchPublicText).mockImplementation((url: string) => routeFetch(url));
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    const result = await runSiteAuditCampaign(campaign.id);
+    expect(result).toMatchObject({ status: "partial", dataState: "measured", fetchedPages: 3, failedPages: 1, outOfScope: 1, siteHealth: null });
+    const rows = getDatabase().sqlite.prepare("SELECT url, status_code, fetch_state, title, final_url, render_mode, content_hash IS NOT NULL AS hashed FROM site_audit_pages WHERE campaign_id = ? ORDER BY url").all(campaign.id);
+    expect(rows).toEqual([
+      { url: "https://example.com", status_code: 200, fetch_state: "fetched", title: null, final_url: "https://example.com/", render_mode: "native", hashed: 1 },
+      { url: "https://example.com/about", status_code: 200, fetch_state: "fetched", title: "회사 소개", final_url: "https://example.com/about-us", render_mode: "native", hashed: 1 },
+      { url: "https://example.com/blog/post-1", status_code: 404, fetch_state: "fetched", title: "없음", final_url: "https://example.com/blog/post-1", render_mode: "native", hashed: 1 },
+      { url: "https://example.com/down", status_code: 0, fetch_state: "failed", title: null, final_url: null, render_mode: "native", hashed: 0 },
+      { url: "https://other.example.net/x", status_code: 0, fetch_state: "out_of_scope", title: null, final_url: null, render_mode: null, hashed: 0 },
+    ]);
+    const issues = getDatabase().sqlite.prepare("SELECT title FROM site_audit_issues WHERE campaign_id = ?").all(campaign.id).map((row) => (row as { title: string }).title);
+    expect(issues).toEqual(expect.arrayContaining(["HTTP 404 응답", "제목(title) 없음", "페이지 요청 실패"]));
+    const briefing = getSiteAuditOverview(campaign.id).briefing;
+    expect(briefing).toMatchObject({ dataState: "measured", score: null, measured: { fetched: 3, failed: 1, ok: 2, missingTitle: 1 } });
+    expect(briefing.radar.find((axis) => axis.axis === "정상 응답 비율")).toMatchObject({ score: 67 });
+  });
+
+  it("parses titles and accepts subdomains as in scope", async () => {
+    const { isInScope, extractTitle } = await import("@/lib/semforge/siteaudit/discovery");
+    expect(isInScope("https://blog.example.com/a", "example.com")).toBe(true);
+    expect(isInScope("https://example.com.evil.net/a", "example.com")).toBe(false);
+    expect(isInScope("not a url", "example.com")).toBe(false);
+    expect(extractTitle("<html><head><title>  제목  &amp; 부제 </title></head></html>")).toBe("제목 & 부제");
+    expect(extractTitle("plain text")).toBeNull();
   });
 });

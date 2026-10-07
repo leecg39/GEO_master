@@ -101,6 +101,10 @@ export const siteAuditPages = sqliteTable("site_audit_pages", {
   responseMs: integer("response_ms"),
   bytes: integer("bytes").notNull().default(0),
   fetchState: text("fetch_state").notNull().default("legacy_estimate"),
+  finalUrl: text("final_url"),
+  contentHash: text("content_hash"),
+  fetchError: text("fetch_error"),
+  renderMode: text("render_mode"),
   capturedAt: text("captured_at").notNull(),
 });
 

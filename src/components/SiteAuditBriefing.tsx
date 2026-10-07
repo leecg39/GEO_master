@@ -30,6 +30,7 @@ export interface SiteAuditBriefingData {
   hasLlmsTxt: boolean;
   dataState?: "none" | "discovered" | "legacy_estimate";
   llmsTxtState?: "present" | "missing" | "unknown" | null;
+  measured?: { fetched: number; failed: number; ok: number; missingTitle: number; outOfScope: number } | null;
   scoreFactors: Array<{ key: string; label: string; points: number; kind: "base" | "penalty" | "total" }>;
   severityCounts: Record<string, number>;
   radar: Array<{ axis: string; score: number; hint: string }>;
@@ -280,6 +281,14 @@ export function SiteAuditBriefing({
               <Progress value={briefing.llmsTxtState === "present" ? 100 : 0} ariaLabel="llms.txt 확인 결과" />
             </div>
             <div>
+              {briefing.measured && (
+                <dl className="mb-3 grid grid-cols-2 gap-2 text-xs">
+                  <div><dt className="text-slate-500">정상 응답(2xx)</dt><dd className="text-white">{briefing.measured.ok}/{briefing.measured.fetched}</dd></div>
+                  <div><dt className="text-slate-500">요청 실패(분모 제외)</dt><dd className="text-white">{briefing.measured.failed}</dd></div>
+                  <div><dt className="text-slate-500">제목 없음</dt><dd className="text-white">{briefing.measured.missingTitle}</dd></div>
+                  <div><dt className="text-slate-500">범위 밖 URL</dt><dd className="text-white">{briefing.measured.outOfScope}</dd></div>
+                </dl>
+              )}
               <div className="mb-1 flex justify-between text-xs"><span className="text-slate-500">발견 URL (Map)</span><span className="text-cyan-300">{briefing.pageCount} URL</span></div>
               <Progress value={Math.min(100, briefing.pageCount * 10)} ariaLabel="크롤 범위" />
             </div>
@@ -342,7 +351,7 @@ export function SiteAuditBriefing({
               <li key={page.url} className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-white/5">
                 <Badge tone="default">d{page.depth}</Badge>
                 <span className="truncate text-slate-400">{page.url}</span>
-                <span className="ml-auto shrink-0 text-[10px] text-slate-500">{page.fetchState === "fetched" ? `HTTP ${page.statusCode}` : page.fetchState === "discovered" ? "미측정" : "추정치"}</span>
+                <span className="ml-auto shrink-0 text-[10px] text-slate-500">{page.fetchState === "fetched" ? `HTTP ${page.statusCode}` : page.fetchState === "failed" ? "요청 실패" : page.fetchState === "out_of_scope" ? "범위 밖" : page.fetchState === "discovered" ? "미측정" : "추정치"}</span>
               </li>
             ))}
           </ul>
