@@ -1,10 +1,11 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { timingSafeEqual } from "node:crypto";
 import { AppError } from "./errors";
+import { accountRole, type AccountRole } from "./account-policy";
 
 export interface RequestAccount {
   id: string;
-  role: "admin" | "member";
+  role: AccountRole;
 }
 
 const accounts = new AsyncLocalStorage<RequestAccount>();
@@ -32,8 +33,7 @@ function authenticatedAccount(headers: Headers): RequestAccount {
     || !/^[a-zA-Z0-9][a-zA-Z0-9@._+-]{0,127}$/.test(user)) {
     throw new AppError("로그인이 필요합니다.", 401, "AUTH_REQUIRED");
   }
-  const admins = (process.env.GEO_ADMIN_USERS ?? "").split(",").map((value) => value.trim()).filter(Boolean);
-  return { id: user, role: admins.includes(user) ? "admin" : "member" };
+  return { id: user, role: accountRole(user) };
 }
 
 /** Only the trusted proxy may assert a username; never infer roles from request bodies. */

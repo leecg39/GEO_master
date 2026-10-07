@@ -41,7 +41,7 @@ interface PaymentIntentRow {
 
 export interface SemforgeSubscriptionPublic {
   accountId: string;
-  role: "admin" | "member";
+  role: "admin" | "member" | "guest";
   accessSource: "admin" | "paid" | "none";
   billingAvailable: boolean;
   status: SemforgeSubscriptionStatus;
@@ -126,6 +126,10 @@ function toPublic(row: SubscriptionRow): SemforgeSubscriptionPublic {
 
 export function getSemforgeSubscription(): SemforgeSubscriptionPublic {
   const account = getRequestAccount();
+  if (account.role === "guest") {
+    return { accountId: account.id, role: "guest", accessSource: "none", billingAvailable: false,
+      status: "inactive", active: false, amountKrw: 0, currentPeriodStart: null, currentPeriodEnd: null, daysRemaining: null, features: [] };
+  }
   if (account.role === "admin") {
     return {
       accountId: account.id, role: "admin", accessSource: "admin", billingAvailable: false,
@@ -146,6 +150,7 @@ export function requireSemforgeSubscription(): SemforgeSubscriptionPublic {
 
 export function createSemforgeCheckout(): CheckoutResult {
   const account = getRequestAccount();
+  if (account.role === "guest") throw new AppError("게스트 계정은 결제에 접근할 수 없습니다.", 403, "FORBIDDEN");
   if (account.role === "admin") throw new AppError("관리자는 결제 없이 SEMForge를 이용할 수 있습니다.", 409, "ADMIN_BILLING_NOT_REQUIRED");
   requireDevelopmentBilling();
   const { sqlite } = getDatabase();
@@ -197,6 +202,7 @@ function activatePeriod(now: Date) {
 
 export function confirmSemforgePayment(input: unknown): SemforgeSubscriptionPublic {
   const account = getRequestAccount();
+  if (account.role === "guest") throw new AppError("게스트 계정은 결제에 접근할 수 없습니다.", 403, "FORBIDDEN");
   if (account.role === "admin") throw new AppError("관리자는 결제 없이 SEMForge를 이용할 수 있습니다.", 409, "ADMIN_BILLING_NOT_REQUIRED");
   requireDevelopmentBilling();
   const parsed = confirmSchema.parse(input);
@@ -235,6 +241,7 @@ export function confirmSemforgePayment(input: unknown): SemforgeSubscriptionPubl
 
 export function cancelSemforgeSubscription(): SemforgeSubscriptionPublic {
   const account = getRequestAccount();
+  if (account.role === "guest") throw new AppError("게스트 계정은 결제에 접근할 수 없습니다.", 403, "FORBIDDEN");
   if (account.role === "admin") throw new AppError("관리자 이용 권한은 구독 취소로 변경할 수 없습니다.", 409, "ADMIN_ACCESS_PERMANENT");
   const { sqlite } = getDatabase();
   return transactionalMutation(sqlite, () => {

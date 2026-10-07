@@ -15,19 +15,31 @@ afterEach(async () => {
   vi.unstubAllGlobals();
 });
 
-async function renderShell() {
+async function renderShell(guest = false) {
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   const container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
-  await act(async () => root?.render(<AppShell>QA</AppShell>));
+  await act(async () => root?.render(<AppShell account={guest ? { id: "guest", role: "guest" } : undefined}>QA</AppShell>));
   return container;
 }
 
 // Regression: ISSUE-001 — stale subscription responses could hide the newly unlocked navigation.
 // Found by /qa on 2026-10-07. Report: docs/qa/qa-report-2026-10-07.md
 describe("subscription navigation refresh", () => {
+  it("hides guest settings, paid navigation and settings backup paths without querying billing", async () => {
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+    const container = await renderShell(true);
+    for (const href of ["/settings", "/subscription", "/workspace", "/semforge"]) {
+      expect(container.querySelector(`a[href="${href}"]`)).toBeNull();
+    }
+    expect(container.querySelector('a[href="/audit"]')).not.toBeNull();
+    expect(container.textContent).toContain("guest · 게스트");
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
   it("ignores an older inactive response after activation was confirmed", async () => {
     let resolveInitial!: (response: Response) => void;
     vi.stubGlobal("fetch", vi.fn()

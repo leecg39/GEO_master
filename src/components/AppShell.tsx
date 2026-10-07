@@ -1,5 +1,6 @@
 "use client";
 
+import type { RequestAccount } from "@/lib/request-account";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -113,17 +114,17 @@ function SemforgeNavDropdown({ close }: { close?: () => void }) {
   );
 }
 
-function Navigation({ close, semforgeActive }: { close?: () => void; semforgeActive: boolean | null }) {
+function Navigation({ close, semforgeActive, guest }: { close?: () => void; semforgeActive: boolean | null; guest: boolean }) {
   const pathname = usePathname();
 
   return (
     <nav className="mt-8 space-y-1.5" aria-label="주요 메뉴">
-      {coreNavigation.map(({ href, label, icon }) => {
+      {coreNavigation.filter((item) => !guest || item.href !== "/workspace").map(({ href, label, icon }) => {
         const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
         return <NavLink key={href} href={href} label={label} icon={icon} active={active} close={close} />;
       })}
 
-      {semforgeActive === null ? (
+      {!guest && (semforgeActive === null ? (
         <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-500">
           <LoaderCircle className="h-4.5 w-4.5 animate-spin" />
           SEMForge 확인 중
@@ -140,9 +141,9 @@ function Navigation({ close, semforgeActive }: { close?: () => void; semforgeAct
             close={close}
           />
         </div>
-      )}
+      ))}
 
-      <div className="pt-2">
+      {!guest && <div className="pt-2">
         <NavLink
           href="/settings"
           label="설정"
@@ -150,7 +151,7 @@ function Navigation({ close, semforgeActive }: { close?: () => void; semforgeAct
           active={pathname.startsWith("/settings")}
           close={close}
         />
-      </div>
+      </div>}
     </nav>
   );
 }
@@ -169,7 +170,8 @@ function Brand({ close }: { close?: () => void }) {
   );
 }
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, account }: { children: ReactNode; account?: RequestAccount }) {
+  const guest = account?.role === "guest";
   const [open, setOpen] = useState(false);
   const menuTitleId = useId();
   const menuCloseRef = useRef<HTMLButtonElement>(null);
@@ -182,6 +184,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [semforgeActive, setSemforgeActive] = useState<boolean | null>(null);
 
   useEffect(() => {
+    if (guest) return;
     let active = true;
     let latestRequest = 0;
     async function refreshSubscription() {
@@ -201,7 +204,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       active = false;
       window.removeEventListener("geo-master:subscription-changed", refreshSubscription);
     };
-  }, []);
+  }, [guest]);
 
   return (
     <div className="min-h-screen">
@@ -210,10 +213,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Brand />
         <ProjectSwitcher />
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <Navigation semforgeActive={semforgeActive} />
+          <Navigation semforgeActive={semforgeActive} guest={guest} />
         </div>
         <div className="mt-4 shrink-0 space-y-3">
           <ThemeToggle />
+          {account && account.id !== "local" && <form action="/api/auth/logout" method="post" className="text-xs text-[color:var(--color-on-dark-muted)]"><span>{account.id}{guest ? " · 게스트" : ""}</span><button type="submit" className="ml-3 underline">로그아웃</button></form>}
           <div className="rounded-[12px] border border-[color:var(--color-hairline-violet)] bg-[color:var(--color-ink-deep)] p-3.5">
             <div className="flex items-center gap-2 text-xs font-semibold text-[color:var(--color-accent-lime)]">
               <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent-lime)]" />
@@ -236,10 +240,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex items-center justify-between"><Brand close={() => setOpen(false)} /><button ref={menuCloseRef} type="button" onClick={() => setOpen(false)} aria-label="메뉴 닫기" className="p-2 text-[color:var(--color-on-dark-muted)]"><X /></button></div>
           <ProjectSwitcher />
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <Navigation close={() => setOpen(false)} semforgeActive={semforgeActive} />
+            <Navigation close={() => setOpen(false)} semforgeActive={semforgeActive} guest={guest} />
           </div>
           <div className="mt-4 shrink-0">
             <ThemeToggle />
+          {account && account.id !== "local" && <form action="/api/auth/logout" method="post" className="text-xs text-[color:var(--color-on-dark-muted)]"><span>{account.id}{guest ? " · 게스트" : ""}</span><button type="submit" className="ml-3 underline">로그아웃</button></form>}
           </div>
         </aside>
       </div></Modal>

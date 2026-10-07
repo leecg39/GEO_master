@@ -1,0 +1,21 @@
+{
+  "browser": "Ego Lite",
+  "taskSpace": 19,
+  "checkedAt": "2026-10-07T07:04:30Z",
+  "checks": {
+    "nativeGuestFormLogin": true,
+    "guestDesktopRestrictedLinksAbsent": true,
+    "reloadKeepsGuestSession": true,
+    "mobileMenuRestrictedLinksAbsent": true,
+    "guestLogoutReturnsLogin": true,
+    "nativeAdminFormLogin": true,
+    "adminSemforgePaymentExemptionVisible": true,
+    "testSessionLoggedOut": true
+  },
+  "screenshots": [
+    "login.png",
+    "guest-desktop.png",
+    "guest-mobile.png",
+    "admin-subscription.png"
+  ]
+}

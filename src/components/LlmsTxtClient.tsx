@@ -24,7 +24,7 @@ export function LlmsTxtClient() {
     const data = await json<{ items: Array<{ id: number; title: string; status: string; updatedAt: string }> }>(await fetch("/api/llms-documents?limit=20"));
     setDocuments(data.items);
   }
-  useEffect(() => { void (async () => { try { const data = await json<{ settings: Settings }>(await fetch("/api/settings")); setBrandName(data.settings.brandName); if (data.settings.category) setSummary(`${data.settings.brandName || "브랜드"}은(는) ${data.settings.category} 정보를 제공하는 공식 웹사이트입니다.`); } catch { /* 직접 입력으로 계속 사용할 수 있다. */ } try { await loadDocuments(); } catch { /* 이력은 없어도 편집 가능 */ } })();
+  useEffect(() => { void (async () => { try { const data = await json<{ settings: Settings }>(await fetch("/api/measurement-context")); setBrandName(data.settings.brandName); if (data.settings.category) setSummary(`${data.settings.brandName || "브랜드"}은(는) ${data.settings.category} 정보를 제공하는 공식 웹사이트입니다.`); } catch { /* 직접 입력으로 계속 사용할 수 있다. */ } try { await loadDocuments(); } catch { /* 이력은 없어도 편집 가능 */ } })();
     const onProject = () => { setSavedId(null); void loadDocuments().catch(() => undefined); };
     window.addEventListener("geo-master:project-changed", onProject);
     return () => window.removeEventListener("geo-master:project-changed", onProject);

@@ -12,6 +12,8 @@ services:
       - runtime.env
     environment:
       GEO_AUTH_MODE: proxy
+      GEO_HTTP_AUTH: ${GEO_HTTP_AUTH:?Set bcrypt login accounts}
+      GEO_GUEST_USERS: ${GEO_GUEST_USERS:-guest}
       GEO_ADMIN_USERS: ${GEO_ADMIN_USERS:-geo-admin}
       GEO_AUTH_PROXY_SECRET: ${GEO_AUTH_PROXY_SECRET:?Set a random proxy authentication secret}
     volumes:
@@ -42,12 +44,39 @@ services:
       traefik.http.routers.geo-master.entrypoints: websecure
       traefik.http.routers.geo-master.tls: "true"
       traefik.http.routers.geo-master.tls.certresolver: letsencrypt
-      traefik.http.routers.geo-master.middlewares: geo-master-auth,geo-master-headers
+      traefik.http.routers.geo-master.middlewares: geo-master-headers
+      traefik.http.routers.geo-master.service: geo-master
+      traefik.http.routers.geo-master.priority: "10"
+
+      # Anonymous root requests get only a static, data-free link preview.
+      # Authenticated sessions and ?login=1 reach the app login gate.
+      traefik.http.routers.geo-master-preview.rule: Host(`${GEO_DOMAIN:-geo.soverin.cloud}`) && (Method(`GET`) || Method(`HEAD`)) && (Path(`/link-preview.html`) || (Path(`/`) && !HeaderRegexp(`Authorization`, `.+`) && !HeaderRegexp(`Cookie`, `(^|;[ ]*)__Host-geo_session=`) && !Query(`login`, `1`)))
+      traefik.http.routers.geo-master-preview.entrypoints: websecure
+      traefik.http.routers.geo-master-preview.tls: "true"
+      traefik.http.routers.geo-master-preview.tls.certresolver: letsencrypt
+      traefik.http.routers.geo-master-preview.priority: "100"
+      traefik.http.routers.geo-master-preview.service: geo-master
+      traefik.http.routers.geo-master-preview.middlewares: geo-master-public-headers,geo-master-preview-path
+      traefik.http.middlewares.geo-master-preview-path.replacepath.path: /link-preview.html
+
+      # Only these two JPEGs are public; no blanket /public or /api exception.
+      traefik.http.routers.geo-master-social-images.rule: Host(`${GEO_DOMAIN:-geo.soverin.cloud}`) && (Method(`GET`) || Method(`HEAD`)) && (Path(`/og/geo-master-20261007.jpg`) || Path(`/og/geo-master-thumbnail-20261007.jpg`))
+      traefik.http.routers.geo-master-social-images.entrypoints: websecure
+      traefik.http.routers.geo-master-social-images.tls: "true"
+      traefik.http.routers.geo-master-social-images.tls.certresolver: letsencrypt
+      traefik.http.routers.geo-master-social-images.priority: "100"
+      traefik.http.routers.geo-master-social-images.service: geo-master
+      traefik.http.routers.geo-master-social-images.middlewares: geo-master-public-headers
+      traefik.http.middlewares.geo-master-public-headers.headers.customrequestheaders.X-Geo-Auth-User: ""
+      traefik.http.middlewares.geo-master-public-headers.headers.customrequestheaders.X-Geo-Auth-Secret: ""
+      traefik.http.middlewares.geo-master-public-headers.headers.customrequestheaders.Authorization: ""
+      traefik.http.middlewares.geo-master-public-headers.headers.contenttypenosniff: "true"
+      traefik.http.middlewares.geo-master-public-headers.headers.customresponseheaders.Cache-Control: private, no-store
+      traefik.http.middlewares.geo-master-public-headers.headers.customresponseheaders.Vary: Authorization
+      traefik.http.middlewares.geo-master-public-headers.headers.customresponseheaders.X-Robots-Tag: noindex, nofollow
+      traefik.http.middlewares.geo-master-public-headers.headers.contentsecuritypolicy: "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
       traefik.http.services.geo-master.loadbalancer.server.port: "3000"
-      traefik.http.middlewares.geo-master-auth.basicauth.users: ${GEO_HTTP_AUTH:?Set a hashed Basic Auth account in .env}
-      traefik.http.middlewares.geo-master-auth.basicauth.realm: GEO Master
-      traefik.http.middlewares.geo-master-auth.basicauth.removeheader: "true"
-      traefik.http.middlewares.geo-master-auth.basicauth.headerfield: X-Geo-Auth-User
+      traefik.http.middlewares.geo-master-headers.headers.customrequestheaders.X-Geo-Auth-User: ""
       traefik.http.middlewares.geo-master-headers.headers.customrequestheaders.X-Geo-Auth-Secret: ${GEO_AUTH_PROXY_SECRET:?Set a random proxy authentication secret}
       traefik.http.middlewares.geo-master-headers.headers.contenttypenosniff: "true"
       traefik.http.middlewares.geo-master-headers.headers.customresponseheaders.X-Robots-Tag: noindex, nofollow

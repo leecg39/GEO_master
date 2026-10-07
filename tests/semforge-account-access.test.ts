@@ -30,6 +30,15 @@ afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
 afterAll(() => { closeDatabase(dbPath); fs.rmSync(directory, { recursive: true, force: true }); });
 
 describe("account-scoped SEMForge permissions", () => {
+  it("never grants a guest paid access or permits billing mutations", () => {
+    vi.stubEnv("SEMFORGE_BILLING_MODE", "dev");
+    expect(as("guest", getSemforgeSubscription)).toMatchObject({ role: "guest", active: false, billingAvailable: false, features: [] });
+    expect(() => as("guest", createSemforgeCheckout)).toThrow(/게스트/);
+    expect(() => as("guest", () => confirmSemforgePayment({}))).toThrow(/게스트/);
+    expect(() => as("guest", cancelSemforgeSubscription)).toThrow(/게스트/);
+    expect(getDatabase().sqlite.prepare("SELECT COUNT(*) AS n FROM semforge_subscriptions WHERE account_id = 'guest'").get()).toEqual({ n: 0 });
+  });
+
   it("grants the authenticated administrator permanent access without changing member subscriptions", () => {
     expect(as("geo-admin", requireSemforgeSubscription)).toMatchObject({ accountId: "geo-admin", active: true, accessSource: "admin", amountKrw: 0, currentPeriodEnd: null });
     expect(as("alice", getSemforgeSubscription)).toMatchObject({ accountId: "alice", active: false, role: "member" });

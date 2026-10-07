@@ -40,3 +40,5 @@
 현재 로컬 프로젝트 데이터는 이전하지 않았습니다. 새 운영 워크스페이스에서 시작합니다. 실제 결제 승인·Google OAuth/GSC/GBP 등 기존 미구현 기능의 제한은 유지됩니다.
 
 [운영·업데이트·백업 안내](README.md), [데스크톱 화면](evidence/desktop.png), [모바일 메뉴](evidence/mobile-menu.png), [최종 경로 검증](evidence/final-routes.json), [브라우저 검증](evidence/browser.json).
+
+2026-10-07 후속 배포: 공개 링크 미리보기와 [세션 로그인·게스트 권한](LOGIN_GUEST_ACCESS.md)이 추가되었습니다. 위 표의 최초 배포 Basic Auth 구성은 후속 문서를 참고하세요.

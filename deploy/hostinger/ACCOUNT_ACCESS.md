@@ -27,6 +27,6 @@
 
 현재 실제 결제사의 승인 연동은 준비되지 않았습니다. 따라서 일반 계정의 실결제 버튼은 준비 중으로 표시되며 임의 활성화는 차단합니다. 결제사 연결·승인 검증 구현 후 일반 계정의 실제 구독 구매가 가능합니다. 관리자에게 부여한 이용 권한은 미구현 Google OAuth/GSC/GBP 연동을 대신 구현하지 않습니다.
 
-로그인은 기존 Basic Auth 방식입니다. 추가 계정은 서버에서 관리하며 회원가입 화면은 없습니다. SEMForge 구독·이용 권한은 계정별로 구분하지만 프로젝트와 업무 데이터는 단일 워크스페이스를 공유합니다.
+로그인은 [일반 로그인 폼과 세션 쿠키](LOGIN_GUEST_ACCESS.md)를 사용하며 Basic Authorization도 지원합니다. `guest`는 결제·설정과 관련 내보내기·복원에 접근할 수 없습니다. 추가 계정은 서버에서 관리하며 회원가입 화면은 없습니다. SEMForge 구독·이용 권한은 계정별로 구분하지만 프로젝트와 업무 데이터는 단일 워크스페이스를 공유합니다.
 
 [관리자 화면](evidence/account-roles/admin-subscription.png) · [일반 계정 화면](evidence/account-roles/member-subscription.png) · [HTTP 검증](evidence/account-roles/http-checks.json) · [최종 인증 검사](evidence/account-roles/final-check.json) · [계정 추가·운영 안내](README.md).

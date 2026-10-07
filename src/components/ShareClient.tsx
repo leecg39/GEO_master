@@ -73,7 +73,7 @@ export function ShareClient() {
 
   useEffect(() => { void (async () => { try {
     const [settingsData, shareData, categories] = await Promise.all([
-      json<{ settings: SettingsInfo }>(await fetch("/api/settings")),
+      json<{ settings: SettingsInfo }>(await fetch("/api/measurement-context")),
       json<{ templates: string[] }>(await fetch("/api/share")),
       (async () => {
         const collected = new Set<string>();
