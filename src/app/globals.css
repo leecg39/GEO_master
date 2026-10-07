@@ -80,6 +80,7 @@
   --app-card-border: #362d59;
   --app-accent: #c2ef4e;
   --app-accent-ink: #1f1633;
+  --app-accent-action-text: #1f1633;
   --app-cta-bg: #ffffff;
   --app-cta-text: #1f1633;
   --app-cta-pressed-bg: #f0f0f0;
@@ -149,6 +150,7 @@ html[data-theme="light"] {
   --app-card-border: #e5e7eb;
   --app-accent: #c2ef4e;
   --app-accent-ink: #1f1633;
+  --app-accent-action-text: #ffffff;
   --app-cta-bg: #150f23;
   --app-cta-text: #ffffff;
   --app-cta-pressed-bg: #efefef;
