@@ -37,7 +37,8 @@ describe("fact memos", () => {
 
   it("exposes only verified, unexpired facts as usable draft evidence", () => {
     expect(draftFactsForActiveProject().filter((fact) => fact.usable).map((fact) => fact.attribute)).toEqual(["가격"]);
-    expect(factsForCompare().map((fact) => fact.status).sort()).toEqual(["expired", "unverified", "verified"]);
+    // 미확인 사실은 대조 근거에서 제외한다 — 확인된 사실과 만료된(확인했던) 사실만
+    expect(factsForCompare().map((fact) => fact.status).sort()).toEqual(["expired", "verified"]);
   });
 
   it("updates with optimistic locking and deletes", () => {

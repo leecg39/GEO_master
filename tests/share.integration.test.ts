@@ -150,4 +150,9 @@ describe("share measurement atomicity", () => {
     const rows = getDatabase().sqlite.prepare("SELECT slot_status, slot_error FROM measure_results WHERE run_id = ? ORDER BY id").all(result.id);
     expect(rows).toEqual([{ slot_status: "failed", slot_error: "SEARCH_UNSUPPORTED" }, { slot_status: "succeeded", slot_error: null }]);
   });
+
+  it("rejects questions that contain a brand alias", async () => {
+    await expect(runShareMeasurement({ questions: ["BrandZ 같은 분석 도구를 추천해 주세요"], providers: ["openai"], repetitions: 1 }))
+      .rejects.toMatchObject({ code: "BRANDED_QUESTION" });
+  });
 });

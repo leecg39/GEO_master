@@ -92,10 +92,14 @@ export function getReviewQueue(input: unknown = {}) {
 
 function ownedResult(resultId: number) {
   const row = getDatabase().sqlite.prepare(`
-    SELECT r.id, r.run_id, r.brand_mentioned, m.project_id FROM measure_results r JOIN measure_runs m ON m.id = r.run_id WHERE r.id = ?
-  `).get(resultId) as { id: number; run_id: number; brand_mentioned: number; project_id: number | null } | undefined;
+    SELECT r.id, r.run_id, r.brand_mentioned, r.slot_status, m.project_id FROM measure_results r JOIN measure_runs m ON m.id = r.run_id WHERE r.id = ?
+  `).get(resultId) as { id: number; run_id: number; brand_mentioned: number; slot_status: string | null; project_id: number | null } | undefined;
   if (!row) throw new AppError("측정 결과를 찾을 수 없습니다.", 404, "MEASURE_RESULT_NOT_FOUND");
   requireActiveProject(row.project_id);
+  // 거절·실패 슬롯은 답변이 없어 판정 대상이 아니다 (정밀도·재현율 표본을 오염시킨다)
+  if ((row.slot_status ?? "succeeded") !== "succeeded") {
+    throw new AppError("정상 답변만 검수할 수 있습니다.", 409, "RESULT_NOT_REVIEWABLE");
+  }
   return row;
 }
 

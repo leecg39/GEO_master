@@ -165,7 +165,7 @@ export function getRunDiagnostics(runIdInput: unknown) {
     ambiguousMentions: valid.filter((row) => row.brand_mentioned && ambiguousOnly(row.matched_spans)).length,
     positiveMentions: valid.filter((row) => row.brand_mentioned && row.sentiment === "positive").length,
     topCompetitorMentions: topCompetitorMentions(run.summary),
-    hasFacts: factRows.length > 0,
+    hasFacts: factRows.some((fact) => fact.verified),
     claims,
   });
   return {

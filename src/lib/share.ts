@@ -297,7 +297,8 @@ export async function runShareMeasurement(input: unknown, options: ShareMeasurem
   const settings = getServerSettings(parsed.providers);
   const brand = settings.brandName.trim();
   if (!brand) throw new AppError("활성 프로젝트의 브랜드 프로필을 먼저 저장해 주세요.", 409, "BRAND_REQUIRED");
-  validateBrandFreeQuestions(parsed.questions, [brand, ...settings.competitors]);
+  // 별칭도 브랜드명으로 본다 — 별칭이 들어간 질문은 측정을 브랜드 쪽으로 기울인다
+  validateBrandFreeQuestions(parsed.questions, [brand, ...settings.brandAliases, ...settings.competitors]);
   for (const provider of parsed.providers) {
     if (!settings.decryptedApiKeys[provider]) {
       const providerLabel = provider === "grok" ? "Grok" : provider;

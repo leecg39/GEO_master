@@ -89,4 +89,12 @@ describe("claim checks", () => {
     await runClaimCheck(runId, { provider: "openai" });
     expect(getRunDiagnostics(runId).claims).toEqual([]);
   });
+
+  it("does not judge claims against unverified fact memos", async () => {
+    createFact({ attribute: "인증", value: "3", unit: "개", verified: false });
+    vi.mocked(generateText).mockReset();
+    vi.mocked(generateText).mockResolvedValue('{"claims":[{"attribute":"인증","value":"5","unit":"개","claim_text":"인증 5개"}]}');
+    const summary = await runClaimCheck(runId, { provider: "openai" });
+    expect(summary.claims).toMatchObject({ conflict: 0, insufficient: 3 });
+  });
 });

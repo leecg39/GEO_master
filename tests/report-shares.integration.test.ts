@@ -91,4 +91,14 @@ describe("public report shares", () => {
     const missing = await publicReport(new NextRequest("https://geo.example/r/x"), { params: Promise.resolve({ token: "B".repeat(43) }) });
     expect(missing.status).toBe(404);
   });
+
+  it("strips internal fields from the snapshot and does not count HEAD requests as views", async () => {
+    getDatabase().sqlite.prepare("UPDATE measure_runs SET summary = json_set(summary, '$._requestHash', 'secret-hash') WHERE id = ?").run(runId);
+    const { share, url } = createReportShare({ runId, expiresInDays: 2 });
+    const token = url.split("/").at(-1)!;
+    const stored = getDatabase().sqlite.prepare("SELECT snapshot FROM report_shares WHERE id = ?").get(share.id) as { snapshot: string };
+    expect(stored.snapshot).not.toContain("secret-hash");
+    await publicReport(new NextRequest(`https://geo.example${url}`, { method: "HEAD" }), { params: Promise.resolve({ token }) });
+    expect(listReportShares(runId).find((item) => item.id === share.id)?.viewCount).toBe(0);
+  });
 });

@@ -39,6 +39,10 @@ export function recomputeRunSummary(runId: number, extra: Record<string, unknown
     FROM measure_results WHERE run_id = ? ORDER BY id
   `).all(runId) as ResultRow[];
   const settings = getPublicSettings();
+  // 측정 당시 경쟁사 집합을 유지한다 — 이후 프로젝트 설정 변경이 과거 실행에 섞이지 않게
+  const storedCompetitors = Array.isArray(previous.competitorComparison)
+    ? (previous.competitorComparison as Array<{ name?: unknown }>).map((item) => item.name).filter((name): name is string => typeof name === "string")
+    : null;
   const aggregate = aggregateShare(results.map((row) => ({
     provider: row.provider as Provider,
     question: row.question_text,
@@ -47,7 +51,7 @@ export function recomputeRunSummary(runId: number, extra: Record<string, unknown
     brandMentioned: Boolean(row.brand_mentioned),
     mentionRank: row.mention_rank,
     competitorMentions: parse<string[]>(row.competitor_mentions, []),
-  })), settings.competitors, settings.modelWeights);
+  })), storedCompetitors ?? settings.competitors, settings.modelWeights);
 
   let citations: unknown = previous.citations;
   if (previous.searchMode === "web") {

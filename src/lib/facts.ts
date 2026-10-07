@@ -184,9 +184,12 @@ export function draftFactsForActiveProject(): DraftFact[] {
   }));
 }
 
-/** 주장 대조용 — 미확인 사실은 대조 후보로만 쓰고 만료 사실은 시점 불명 판정에 쓴다 */
+/**
+ * 주장 대조용 — 확인된 사실만 판정 근거로 쓰고, 만료된 사실은 시점 불명 판정에 쓴다.
+ * 미확인 사실은 근거가 아니므로 제외한다 (미확인 값과 다르다고 "충돌"로 판정하지 않는다).
+ */
 export function factsForCompare(projectId = requireActiveProject().id): FactForCompare[] {
-  return projectRows(projectId).map((row) => ({
+  return projectRows(projectId).filter((row) => row.verified).map((row) => ({
     id: String(row.id),
     entityId: null,
     attributeNormalized: row.attribute_normalized,

@@ -59,7 +59,9 @@ export function createReportShare(input: unknown) {
   const { runId, expiresInDays } = reportShareCreateSchema.parse(input);
   const run = ownedCompletedRun(runId);
   const report = buildShareReport(runId, SNAPSHOT_RESULT_LIMIT);
-  const snapshot: PublicReport = { ...report, run: { ...report.run, title: run.title } };
+  // 내부 필드(멱등성 해시 등 _ 접두사)는 외부 공개 스냅샷에 넣지 않는다
+  const publicSummary = Object.fromEntries(Object.entries(report.run.summary).filter(([key]) => !key.startsWith("_")));
+  const snapshot: PublicReport = { ...report, run: { ...report.run, summary: publicSummary, title: run.title } };
   const token = randomBytes(32).toString("base64url");
   const now = new Date();
   const expiresAt = new Date(now.getTime() + expiresInDays * DAY_MS).toISOString();
@@ -89,14 +91,16 @@ export function revokeReportShare(idInput: unknown) {
 }
 
 /** 공개 조회 — 유효하지 않으면 null (존재 여부를 구분해 알려 주지 않는다) */
-export function resolvePublicReport(token: string): { report: PublicReport; expiresAt: string } | null {
+export function resolvePublicReport(token: string, options: { countView?: boolean } = {}): { report: PublicReport; expiresAt: string } | null {
   if (!TOKEN_RE.test(token)) return null;
   const { sqlite } = getDatabase();
   const row = sqlite.prepare("SELECT * FROM report_shares WHERE token_hash = ?").get(hashToken(token)) as ShareRow | undefined;
   if (!row || row.revoked_at || Date.parse(row.expires_at) <= Date.now()) return null;
   try {
     const report = JSON.parse(row.snapshot) as PublicReport;
-    sqlite.prepare("UPDATE report_shares SET view_count = view_count + 1, last_viewed_at = ? WHERE id = ?").run(new Date().toISOString(), row.id);
+    if (options.countView ?? true) {
+      sqlite.prepare("UPDATE report_shares SET view_count = view_count + 1, last_viewed_at = ? WHERE id = ?").run(new Date().toISOString(), row.id);
+    }
     return { report, expiresAt: row.expires_at };
   } catch {
     return null;

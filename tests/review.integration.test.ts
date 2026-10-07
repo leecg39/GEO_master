@@ -92,4 +92,30 @@ describe("review inbox", () => {
     const summary = JSON.parse((sqlite.prepare("SELECT summary FROM measure_runs WHERE id = ?").get(webRun) as { summary: string }).summary);
     expect(summary).toMatchObject({ answerShare: 100, searchMode: "web", reviewAdjusted: 1, citations: { pagesCitedWithoutBrand: [], citedByCategory: { competitor: 1 } } });
   });
+
+  it("refuses to label refused or failed slots", () => {
+    const { orm } = getDatabase();
+    const failed = orm.insert(measureResults).values({
+      runId, questionText: "Q4", provider: "openai", model: "m", repetition: 1, response: "", brandMentioned: false, sentiment: "neutral",
+      mentionRank: null, competitorMentions: "[]", slotStatus: "failed", metricVersion: "m1.0", createdAt: "2026-10-01T00:00:00.000Z",
+    }).returning().get().id;
+    expect(() => reviewMention({ resultId: failed, brandMentioned: true })).toThrow(expect.objectContaining({ code: "RESULT_NOT_REVIEWABLE" }));
+  });
+
+  it("keeps the run's original competitor set when recomputing after review", () => {
+    const { orm, sqlite } = getDatabase();
+    const project = ensureActiveProject();
+    const oldRun = orm.insert(measureRuns).values({
+      projectId: project.id, status: "completed", models: "[]", repetitions: 1, totalQueries: 1, answerShare: 0, genrank: 0, funnelStage: "존재",
+      summary: JSON.stringify({ metricVersion: "m1.0", searchMode: "off", competitorComparison: [{ name: "옛경쟁사", mentions: 1, share: 100 }] }),
+      createdAt: "2026-10-03T00:00:00.000Z", completedAt: "2026-10-03T00:01:00.000Z",
+    }).returning().get().id;
+    const result = orm.insert(measureResults).values({
+      runId: oldRun, questionText: "Q", provider: "openai", model: "m", repetition: 1, response: "옛경쟁사와 BZ", brandMentioned: false, sentiment: "neutral",
+      mentionRank: null, competitorMentions: JSON.stringify(["옛경쟁사"]), slotStatus: "succeeded", metricVersion: "m1.0", createdAt: "2026-10-03T00:00:00.000Z",
+    }).returning().get().id;
+    reviewMention({ resultId: result, brandMentioned: true });
+    const summary = JSON.parse((sqlite.prepare("SELECT summary FROM measure_runs WHERE id = ?").get(oldRun) as { summary: string }).summary);
+    expect(summary.competitorComparison).toEqual([{ name: "옛경쟁사", mentions: 1, share: 100 }]);
+  });
 });
