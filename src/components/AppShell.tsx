@@ -205,7 +205,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:text-[color:var(--color-ink)]">본문으로 건너뛰기</a>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-lg focus:bg-[color:var(--app-cta-bg)] focus:px-4 focus:py-3 focus:text-[color:var(--app-cta-text)]">본문으로 건너뛰기</a>
       <aside data-theme-surface="dark" className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)]/95 p-6 backdrop-blur-xl lg:flex">
         <Brand />
         <ProjectSwitcher />
