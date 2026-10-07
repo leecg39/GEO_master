@@ -172,14 +172,16 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
+    let latestRequest = 0;
     async function refreshSubscription() {
+      const requestId = ++latestRequest;
       try {
         const response = await fetch("/api/semforge/subscription");
         if (!response.ok) throw new Error("구독 조회 실패");
         const data = await response.json() as { subscription?: { active?: boolean } };
-        if (active) setSemforgeActive(Boolean(data.subscription?.active));
+        if (active && requestId === latestRequest) setSemforgeActive(Boolean(data.subscription?.active));
       } catch {
-        if (active) setSemforgeActive(false);
+        if (active && requestId === latestRequest) setSemforgeActive(false);
       }
     }
     void refreshSubscription();
