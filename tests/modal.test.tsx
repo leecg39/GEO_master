@@ -53,3 +53,23 @@ it("prevents native Escape from dismissing a busy action", async () => {
   await act(async () => document.querySelector("dialog")!.dispatchEvent(event));
   expect(event.defaultPrevented).toBe(true); expect(onClose).not.toHaveBeenCalled();
 });
+
+it("requires fresh confirmation text after a successful close and reopen", async () => {
+  const { ConfirmDialog } = await import("@/components/CrudPrimitives");
+  function ConfirmationFlow() {
+    const [open, setOpen] = useState(true);
+    return <><button id="reopen" onClick={() => setOpen(true)}>다시 열기</button><ConfirmDialog open={open} title="삭제 확인" description="다시 확인하세요" requiredText="확인" confirmLabel="삭제 실행" onClose={() => setOpen(false)} onConfirm={() => setOpen(false)} /></>;
+  }
+  await mount(<ConfirmationFlow />);
+  const input = document.querySelector("dialog input") as HTMLInputElement;
+  await act(async () => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(input, "확인");
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  const confirm = [...document.querySelectorAll<HTMLButtonElement>("dialog button")].find(b => b.textContent === "삭제 실행")!;
+  expect(confirm.disabled).toBe(false);
+  await act(async () => confirm.click());
+  await click("reopen");
+  expect((document.querySelector("dialog input") as HTMLInputElement).value).toBe("");
+  expect([...document.querySelectorAll<HTMLButtonElement>("dialog button")].find(b => b.textContent === "삭제 실행")?.disabled).toBe(true);
+});

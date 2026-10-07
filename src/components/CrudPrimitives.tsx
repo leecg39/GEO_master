@@ -17,7 +17,11 @@ interface ConfirmDialogProps {
   onConfirm: () => void | Promise<void>;
 }
 
-export function ConfirmDialog({
+export function ConfirmDialog(props: ConfirmDialogProps) {
+  return props.open ? <ConfirmDialogContent key={props.requiredText ?? props.title} {...props} /> : null;
+}
+
+function ConfirmDialogContent({
   open, title, description, confirmLabel = "확인", busy = false, destructive = false,
   requiredText, onClose, onConfirm,
 }: ConfirmDialogProps) {
