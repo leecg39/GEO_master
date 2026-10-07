@@ -10,6 +10,7 @@ import {
 } from "./crud";
 import { getDatabase } from "./db";
 import { generateLlmsTxt, validateLlmsTxt, verifyRemoteLlmsTxt } from "./llms-txt";
+import { recordLlmsRevision } from "./llms-history";
 import { requireActiveProject } from "./projects";
 
 const documentStatuses = ["draft", "validated", "deployed"] as const;
@@ -186,6 +187,7 @@ export function createLlmsDocument(input: unknown) {
       JSON.stringify(parsed.resources), generated.document, JSON.stringify(generated.validation),
       generated.validation.valid ? "validated" : "draft", now, now,
     );
+    recordLlmsRevision(sqlite, Number(result.lastInsertRowid), generated.document, "created");
     return publicDocument(ownedRow(Number(result.lastInsertRowid)));
   });
 }
@@ -217,6 +219,7 @@ export function updateLlmsDocument(idInput: unknown, input: unknown) {
       JSON.stringify(next.resources), next.document, JSON.stringify(validation),
       next.status, updatedAt, id,
     );
+    recordLlmsRevision(sqlite, id, next.document, "edited");
     return publicDocument(ownedRow(id));
   });
 }
@@ -279,6 +282,7 @@ export async function verifyStoredLlmsDocument(idInput: unknown, input: unknown)
       remote.validation.valid ? "deployed" : "draft",
       remote.url, remote.contentType, updatedAt, updatedAt, id,
     );
+    recordLlmsRevision(sqlite, id, remote.document, "remote");
     return publicDocument(ownedRow(id));
   });
 }

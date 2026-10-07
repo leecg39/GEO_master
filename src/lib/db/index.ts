@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
@@ -671,6 +672,29 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
         );
         CREATE INDEX IF NOT EXISTS idx_change_items_project ON change_items(project_id, status, updated_at DESC);
       `);
+    },
+  },
+  {
+    version: 21,
+    name: "llms-document-revisions",
+    up(sqlite) {
+      // Qshop P07: llms 문서 버전 이력. 이미 저장된 문서는 현재 내용을 1번 리비전으로 옮긴다
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS llms_document_revisions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          document_id INTEGER NOT NULL REFERENCES llms_documents(id) ON DELETE CASCADE,
+          revision INTEGER NOT NULL,
+          document TEXT NOT NULL,
+          content_hash TEXT NOT NULL,
+          origin TEXT NOT NULL CHECK(origin IN ('created','edited','remote','restored')),
+          created_at TEXT NOT NULL,
+          UNIQUE(document_id, revision)
+        );
+        CREATE INDEX IF NOT EXISTS idx_llms_revisions_doc ON llms_document_revisions(document_id, revision DESC);
+      `);
+      const rows = sqlite.prepare("SELECT id, document, created_at FROM llms_documents").all() as { id: number; document: string; created_at: string }[];
+      const insert = sqlite.prepare("INSERT INTO llms_document_revisions (document_id, revision, document, content_hash, origin, created_at) VALUES (?, 1, ?, ?, 'created', ?)");
+      for (const row of rows) insert.run(row.id, row.document, createHash("sha256").update(row.document).digest("hex"), row.created_at);
     },
   },
 ] as const;
