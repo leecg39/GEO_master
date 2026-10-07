@@ -1,0 +1,246 @@
+[
+  {
+    "route": "/learn",
+    "config": "desktop-dark",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(1) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->1</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(2) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(3) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->3</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(4) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->4</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "desktop-light",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(1) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->1</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.05 (foreground color: #f9f9fa, background color: #ffffff, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(2) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.05 (foreground color: #f9f9fa, background color: #ffffff, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(3) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->3</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.05 (foreground color: #f9f9fa, background color: #ffffff, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(4) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->4</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.05 (foreground color: #f9f9fa, background color: #ffffff, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "mobile",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(1) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->1</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(2) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(3) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->3</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(4) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->4</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "small-mobile",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(1) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->1</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(2) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(3) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->3</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(4) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span aria-hidden=\"true\" class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->4</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  }
+]

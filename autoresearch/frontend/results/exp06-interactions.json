@@ -1,0 +1,111 @@
+[
+  {
+    "id": "menu-dialog",
+    "pass": true
+  },
+  {
+    "id": "menu-initial-focus",
+    "pass": true
+  },
+  {
+    "id": "menu-scroll-lock",
+    "pass": true
+  },
+  {
+    "id": "menu-forward-trap",
+    "pass": true
+  },
+  {
+    "id": "menu-reverse-trap",
+    "pass": true
+  },
+  {
+    "id": "menu-escape",
+    "pass": true
+  },
+  {
+    "id": "menu-restore-focus",
+    "pass": true
+  },
+  {
+    "id": "confirm-initial-focus",
+    "pass": true
+  },
+  {
+    "id": "confirm-scroll-lock",
+    "pass": true
+  },
+  {
+    "id": "confirm-forward-trap",
+    "pass": true
+  },
+  {
+    "id": "confirm-reverse-trap",
+    "pass": true
+  },
+  {
+    "id": "confirm-escape",
+    "pass": true
+  },
+  {
+    "id": "confirm-restore-focus",
+    "pass": true
+  },
+  {
+    "id": "drawer-initial-focus",
+    "pass": true
+  },
+  {
+    "id": "drawer-scroll-lock",
+    "pass": true
+  },
+  {
+    "id": "drawer-forward-trap",
+    "pass": true
+  },
+  {
+    "id": "drawer-reverse-trap",
+    "pass": true
+  },
+  {
+    "id": "drawer-escape",
+    "pass": true
+  },
+  {
+    "id": "drawer-restore-focus",
+    "pass": true
+  },
+  {
+    "id": "settings-save",
+    "pass": true
+  },
+  {
+    "id": "settings-save-announced",
+    "pass": true
+  },
+  {
+    "id": "llms-generate",
+    "pass": true
+  },
+  {
+    "id": "llms-validate",
+    "pass": true
+  },
+  {
+    "id": "memo-save",
+    "pass": true
+  },
+  {
+    "id": "backup-create",
+    "pass": true,
+    "detail": "<input aria-label=\"새 백업 이름\" class=\"min-w-0 flex-1\" required=\"\" maxlength=\"120\" value=\"로컬 백업\">"
+  },
+  {
+    "id": "backup-rename-enter",
+    "pass": true
+  },
+  {
+    "id": "backup-rename-save",
+    "pass": true
+  }
+]

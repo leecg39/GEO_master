@@ -1,0 +1,29 @@
+{
+  "skip": {
+    "focused": true,
+    "bg": "rgb(21, 15, 35)",
+    "color": "rgb(255, 255, 255)",
+    "width": 146.3828125,
+    "destination": "main-content"
+  },
+  "nestedBefore": {
+    "dialogs": 2,
+    "focus": "취소",
+    "scroll": "hidden"
+  },
+  "nestedAfter": {
+    "inside": true,
+    "dialogs": 1,
+    "focus": "RSI 키보드 확인용 삭제",
+    "scroll": "hidden"
+  },
+  "allClosed": {
+    "dialogs": 0,
+    "focus": "프로젝트 관리",
+    "scroll": "visible"
+  },
+  "desktopResize": {
+    "dialogs": 0,
+    "scroll": "visible"
+  }
+}

@@ -1,0 +1,610 @@
+[
+  {
+    "route": "/",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/audit",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/multimodal",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/llms",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/share",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/automation",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-automation-recheck.json"
+  },
+  {
+    "route": "/reports",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/studio",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/strategy",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/learn",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/workspace",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/settings",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/subscription",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/semforge",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/ai-seo",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/site-audit",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/position-tracking",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/local-business",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/audit",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/multimodal",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/llms",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/share",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/automation",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-automation-recheck.json"
+  },
+  {
+    "route": "/reports",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/studio",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/strategy",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/learn",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/workspace",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/settings",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/subscription",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/semforge",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/ai-seo",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/site-audit",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/position-tracking",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/local-business",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/audit",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/multimodal",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/llms",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/share",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/automation",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-automation-recheck.json"
+  },
+  {
+    "route": "/reports",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/studio",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/strategy",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/learn",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/workspace",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/settings",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/subscription",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/semforge",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/ai-seo",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/site-audit",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 375,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/position-tracking",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/local-business",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 375,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/audit",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/multimodal",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/llms",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/share",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/automation",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-automation-recheck.json"
+  },
+  {
+    "route": "/reports",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/studio",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/strategy",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/learn",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/workspace",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/settings",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/subscription",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/semforge",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/ai-seo",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/site-audit",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/position-tracking",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/local-business",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 320,
+    "violations": [],
+    "evidence": "final-stable-audit.json"
+  }
+]

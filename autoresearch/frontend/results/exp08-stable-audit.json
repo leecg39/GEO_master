@@ -1,0 +1,89 @@
+[
+  {
+    "route": "/",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "nodes": [
+          {
+            "html": "<td class=\"py-3.5 text-right font-bold tabular-nums\" style=\"color:#c2ef4e\">77.8<!-- -->%</td>",
+            "target": [
+              ".hover\\:bg-white\\/\\[0\\.02\\].last\\:border-0:nth-child(1) > .tabular-nums:nth-child(3)"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.21 (foreground color: #c2ef4e, background color: #f5f4f4, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "html": "<td class=\"py-3.5 text-right font-bold tabular-nums\" style=\"color:#fa7faa\">72.2<!-- -->%</td>",
+            "target": [
+              ".hover\\:bg-white\\/\\[0\\.02\\].last\\:border-0:nth-child(2) > .tabular-nums:nth-child(3)"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.2 (foreground color: #fa7faa, background color: #f5f4f4, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/share",
+    "violations": []
+  },
+  {
+    "route": "/learn",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "nodes": [
+          {
+            "html": "<span class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->1</span>",
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(1) > .right-4.top-3.text-5xl"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.05 (foreground color: #f9f9fa, background color: #ffffff, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "html": "<span class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->2</span>",
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(2) > .right-4.top-3.text-5xl"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.05 (foreground color: #f9f9fa, background color: #ffffff, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "html": "<span class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->3</span>",
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(3) > .right-4.top-3.text-5xl"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.05 (foreground color: #f9f9fa, background color: #ffffff, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "html": "<span class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->4</span>",
+            "target": [
+              ".relative.overflow-hidden.rounded-\\[18px\\]:nth-child(4) > .right-4.top-3.text-5xl"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.05 (foreground color: #f9f9fa, background color: #ffffff, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/workspace",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "nodes": [
+          {
+            "html": "<a href=\"/api/workspace?download=1\" download=\"\" class=\"inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-black hover:bg-cyan-300\">",
+            "target": [
+              ".min-h-10"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.76 (foreground color: #000000, background color: #422082, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/ai-seo",
+    "violations": []
+  }
+]

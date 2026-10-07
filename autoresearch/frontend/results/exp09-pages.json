@@ -1,0 +1,393 @@
+[
+  {
+    "route": "/",
+    "config": "desktop-dark",
+    "title": "GEO Master",
+    "heading": "안나타르",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/",
+    "config": "desktop-light",
+    "title": "GEO Master",
+    "heading": "안나타르",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->01</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.51 (foreground color: #6b567b, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .items-start.gap-2\\.5.flex > .line-clamp-2.leading-5.flex-1"
+            ],
+            "html": "<p class=\"line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200\">민감성 피부를 위한 저자극 수분크림 브랜드를 추천해 주세요.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.07 (foreground color: #2a2045, background color: #241a3c, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">58.3<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1) > .text-emerald-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-emerald-300\">58.3<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.9위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500 > .ml-1.text-\\[color\\:var\\(--color-accent-lime\\)\\]"
+            ],
+            "html": "<strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.9위</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">71.4<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500 > .text-amber-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-amber-300\">71.4<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #a16207, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->02</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.51 (foreground color: #6b567b, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .items-start.gap-2\\.5.flex > .line-clamp-2.leading-5.flex-1"
+            ],
+            "html": "<p class=\"line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200\">국내 비건 스킨케어 브랜드의 성분과 보습력을 비교해 주세요.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.07 (foreground color: #2a2045, background color: #241a3c, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1) > .text-emerald-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.6위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500 > .ml-1.text-\\[color\\:var\\(--color-accent-lime\\)\\]"
+            ],
+            "html": "<strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.6위</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">55.6<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500 > .text-amber-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-amber-300\">55.6<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #a16207, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->03</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.51 (foreground color: #6b567b, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .items-start.gap-2\\.5.flex > .line-clamp-2.leading-5.flex-1"
+            ],
+            "html": "<p class=\"line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200\">피부 장벽 개선에 도움이 되는 세라마이드 화장품은 무엇인가요?</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.07 (foreground color: #2a2045, background color: #241a3c, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">66.7<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1) > .text-emerald-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-emerald-300\">66.7<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.5위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500 > .ml-1.text-\\[color\\:var\\(--color-accent-lime\\)\\]"
+            ],
+            "html": "<strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.5위</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">100<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500 > .text-amber-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-amber-300\">100<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #a16207, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->04</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.51 (foreground color: #6b567b, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .items-start.gap-2\\.5.flex > .line-clamp-2.leading-5.flex-1"
+            ],
+            "html": "<p class=\"line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200\">데일리 루틴에 적합한 순한 클렌저와 토너 조합을 알려 주세요.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.07 (foreground color: #2a2045, background color: #241a3c, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1) > .text-emerald-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.4위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500 > .ml-1.text-\\[color\\:var\\(--color-accent-lime\\)\\]"
+            ],
+            "html": "<strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.4위</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">55.6<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500 > .text-amber-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-amber-300\">55.6<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #a16207, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->05</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.51 (foreground color: #6b567b, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .items-start.gap-2\\.5.flex > .line-clamp-2.leading-5.flex-1"
+            ],
+            "html": "<p class=\"line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200\">지속가능한 패키지를 사용하는 한국 스킨케어 브랜드는 어디인가요?</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.07 (foreground color: #2a2045, background color: #241a3c, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1) > .text-emerald-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.3위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500 > .ml-1.text-\\[color\\:var\\(--color-accent-lime\\)\\]"
+            ],
+            "html": "<strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.3위</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">77.8<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500 > .text-amber-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-amber-300\">77.8<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #a16207, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/",
+    "config": "mobile",
+    "title": "GEO Master",
+    "heading": "안나타르",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/",
+    "config": "small-mobile",
+    "title": "GEO Master",
+    "heading": "안나타르",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  }
+]
