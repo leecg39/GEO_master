@@ -192,7 +192,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)]/95 p-6 backdrop-blur-xl lg:flex">
+      <aside data-theme-surface="dark" className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)]/95 p-6 backdrop-blur-xl lg:flex">
         <Brand />
         <ProjectSwitcher />
         <div className="min-h-0 flex-1 overflow-y-auto">
@@ -209,7 +209,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </aside>
-      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)]/90 px-4 backdrop-blur-xl lg:hidden">
+      <header data-theme-surface="dark" className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)]/90 px-4 backdrop-blur-xl lg:hidden">
         <Brand />
         <div className="flex items-center gap-1">
           <ThemeToggle compact />
@@ -217,7 +217,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       {open && <div className="fixed inset-0 z-50 bg-[color:var(--color-primary)]/70 lg:hidden" onClick={() => setOpen(false)}>
-        <aside className="flex h-full w-72 flex-col border-r border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)] p-5" onClick={(event) => event.stopPropagation()}>
+        <aside data-theme-surface="dark" className="flex h-full w-72 flex-col border-r border-[color:var(--color-hairline-violet)] bg-[color:var(--color-surface-night)] p-5" onClick={(event) => event.stopPropagation()}>
           <div className="flex items-center justify-between"><Brand /><button type="button" onClick={() => setOpen(false)} aria-label="메뉴 닫기" className="p-2 text-[color:var(--color-on-dark-muted)]"><X /></button></div>
           <ProjectSwitcher />
           <div className="min-h-0 flex-1 overflow-y-auto">

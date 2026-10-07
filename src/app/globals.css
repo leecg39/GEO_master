@@ -159,6 +159,16 @@ html[data-theme="light"] {
   --color-dash-line-hover: #79628c;
 }
 
+/* Navigation keeps a dark surface in both themes. */
+[data-theme-surface="dark"] {
+  --color-white: #ffffff;
+}
+
+html[data-theme="light"] main {
+  --color-accent-lime: #3f7a1f;
+  --color-on-dark-muted: #79628c;
+}
+
 * { box-sizing: border-box; }
 html { background: var(--app-navy-950); }
 body {
