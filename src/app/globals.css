@@ -179,7 +179,7 @@ body {
   line-height: 1.5;
 }
 button, input, textarea, select { font: inherit; }
-input, textarea, select {
+input:not(.sr-only), textarea, select {
   width: 100%;
   border: 1px solid var(--app-input-border);
   border-radius: 6px;
@@ -194,7 +194,7 @@ input:focus, textarea:focus, select:focus {
   box-shadow: rgba(0, 0, 0, 0.15) 0 2px 10px inset, 0 0 0 3px var(--app-focus-ring);
 }
 input::placeholder, textarea::placeholder { color: var(--app-input-placeholder); }
-input[type="checkbox"] { width: 1rem; height: 1rem; accent-color: var(--color-accent-lime); padding: 0; }
+input[type="checkbox"], input[type="radio"] { width: 1rem; height: 1rem; accent-color: var(--color-accent-lime); padding: 0; }
 label { color: var(--app-label); }
 code, pre { font-family: Monaco, Menlo, "Ubuntu Mono", monospace; }
 pre { overflow: auto; }
