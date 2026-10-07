@@ -165,7 +165,7 @@ export function SemforgeHubClient() {
         </form>
 
         <p className="mt-4 text-xs leading-5 text-slate-500">
-          TalorData·Firecrawl 연결이 없는 항목은 키워드/캠페인만 등록하고 건너뜁니다. 데모: <code className="text-slate-400">SEMFORGE_MOCK_TALORDATA=1</code>, <code className="text-slate-400">SEMFORGE_MOCK_FIRECRAWL=1</code>
+          TalorData·Firecrawl 계정의 이용권과 잔여 크레딧으로 측정합니다. 이용권 만료나 잔액 부족 시 원인을 안내하고 중복 요청을 중단합니다.
         </p>
       </Card>
 

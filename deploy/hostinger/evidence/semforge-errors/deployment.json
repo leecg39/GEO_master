@@ -1,0 +1,14 @@
+{
+  "verifiedAt": "2026-10-07T07:15:41.503Z",
+  "image": "geo-master:semforge-errors-20261007-v2",
+  "health": "healthy",
+  "browser": "Ego Lite",
+  "uiChecks": [
+    "expired plan shown",
+    "insufficient credits shown",
+    "four pending AI queries skipped",
+    "position and local skipped",
+    "no false 0% visibility",
+    "updated renewal instructions shown"
+  ]
+}

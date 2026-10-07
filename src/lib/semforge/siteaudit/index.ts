@@ -1,4 +1,5 @@
 import type Database from "better-sqlite3";
+import { AppError } from "@/lib/errors";
 import { z } from "zod";
 import { transactionalMutation } from "@/lib/crud";
 import { getDatabase } from "@/lib/db";
@@ -56,15 +57,22 @@ async function fetchCrawlLinks(domain: string): Promise<{ links: string[]; sourc
     throw semforgeError("INTERNAL", "Firecrawl API 키를 사용할 수 없습니다. 설정에서 다시 저장해 주세요.");
   }
 
-  const response = await fetch("https://api.firecrawl.dev/v1/map", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ url: `https://${domain}`, limit: 25 }),
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch("https://api.firecrawl.dev/v1/map", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url: `https://${domain}`, limit: 25 }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(30_000),
+    });
+  } catch (error) {
+    const timedOut = error instanceof Error && ["TimeoutError", "AbortError"].includes(error.name);
+    throw new AppError(timedOut ? "Firecrawl 응답 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요." : "Firecrawl에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.", 502, timedOut ? "FIRECRAWL_TIMEOUT" : "FIRECRAWL_CONNECTION_FAILED");
+  }
   if (!response.ok) {
     let detail = `HTTP ${response.status}`;
     try {
@@ -73,7 +81,12 @@ async function fetchCrawlLinks(domain: string): Promise<{ links: string[]; sourc
     } catch {
       // ignore parse errors
     }
-    throw semforgeError("INTERNAL", `Firecrawl 요청이 실패했습니다 (${detail}).`);
+    if (response.status === 402 || /insufficient credits/i.test(detail)) {
+      throw new AppError("Firecrawl 크레딧이 부족하여 사이트 진단을 실행할 수 없습니다. 연결된 Firecrawl 계정에서 크레딧을 충전한 뒤 다시 진단해 주세요.", 503, "FIRECRAWL_CREDITS_EXHAUSTED");
+    }
+    if ([401, 403].includes(response.status)) throw new AppError("Firecrawl API 키가 유효하지 않거나 접근 권한이 없습니다. 설정에서 API 키를 확인해 주세요.", 502, "FIRECRAWL_AUTH_FAILED");
+    if (response.status === 429) throw new AppError("Firecrawl 요청 한도에 도달했습니다. 잠시 후 다시 시도해 주세요.", 429, "FIRECRAWL_RATE_LIMITED");
+    throw new AppError(`Firecrawl 요청이 실패했습니다 (HTTP ${response.status}). 잠시 후 다시 시도해 주세요.`, 502, "FIRECRAWL_ERROR");
   }
   const payload = await response.json() as { success?: boolean; status?: string; links?: string[] };
   const links = Array.isArray(payload.links) ? payload.links.slice(0, 25) : [];

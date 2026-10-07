@@ -6,6 +6,7 @@ import { LocalBusinessBriefing } from "@/components/LocalBusinessBriefing";
 import { SemforgeGateBanner } from "@/components/SemforgeGateBanner";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
 import { buildLocalBusinessBriefing } from "@/lib/semforge/local-business/briefing";
+import { formatCollectionReport, type CollectionReport } from "@/lib/semforge/collection-report";
 
 interface GbpConnection {
   id: number;
@@ -178,7 +179,7 @@ export function LocalBusinessClient() {
     if (!selectedCampaign) return;
     setBusy(true); setError(""); setMessage("");
     try {
-      const data = await parse<{ report: { collected: number; outcomes: Array<{ error?: string }> } }>(await fetch(`/api/local-business?campaignId=${selectedCampaign.id}`, {
+      const data = await parse<{ report: CollectionReport }>(await fetch(`/api/local-business?campaignId=${selectedCampaign.id}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: "{}",
@@ -186,8 +187,7 @@ export function LocalBusinessClient() {
       const refreshed = await loadOverview();
       const updated = refreshed.campaigns.find((item) => item.id === selectedCampaign.id) ?? selectedCampaign;
       await loadKeywords(updated);
-      const failed = data.report.outcomes.filter((outcome) => outcome.error).length;
-      if (failed > 0) setError(`Map Rank 수집 ${data.report.collected}건 성공 · ${failed}건 실패. 연결 상태를 확인하고 다시 시도해 주세요.`);
+      if (data.report.failed > 0 || data.report.skipped > 0) setError(formatCollectionReport(data.report, "Map Rank 수집"));
       else setMessage(`Map Rank 수집 ${data.report.collected}건이 완료되었습니다.`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "수집 실패");

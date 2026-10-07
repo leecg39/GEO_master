@@ -1,5 +1,22 @@
 import { AppError } from "@/lib/errors";
 
+export interface ProviderFailure {
+  code: string;
+  message: string;
+}
+
+export function providerFailure(error: unknown): ProviderFailure {
+  return {
+    code: error instanceof AppError ? error.code : "PROVIDER_ERROR",
+    message: error instanceof Error ? error.message : "수집 서비스 요청에 실패했습니다.",
+  };
+}
+
+/** Account-wide failures must not trigger another billable request for each keyword. */
+export function blocksProviderBatch(failure: ProviderFailure): boolean {
+  return ["TALORDATA_PLAN_EXPIRED", "TALORDATA_CREDITS_EXHAUSTED", "TALORDATA_AUTH_FAILED", "TALORDATA_UNAVAILABLE", "RATE_LIMITED"].includes(failure.code);
+}
+
 /** SEMForge ApiError 코드 → GEO AppError 매핑 */
 const STATUS_BY_CODE: Record<string, number> = {
   VALIDATION_ERROR: 422,

@@ -2,7 +2,8 @@ import { z } from "zod";
 import { AppError } from "@/lib/errors";
 import { buildAiSeoQueryBriefing } from "@/lib/semforge/ai-visibility/briefing";
 import { getDatabase } from "@/lib/db";
-import { semforgeError } from "@/lib/semforge/errors";
+import { semforgeError, providerFailure, blocksProviderBatch, type ProviderFailure } from "@/lib/semforge/errors";
+import { collectionCounts } from "@/lib/semforge/collection-report";
 import { fetchSerp, talordataConfigured, talordataMode, talordataSource } from "@/lib/semforge/talordata/client";
 import { normalizeDomain } from "@/lib/semforge/utils/domain";
 import { requireSemforgeSubscription } from "@/lib/semforge-subscription";
@@ -276,9 +277,14 @@ export async function collectAiVisibility(input: { domain: string; forceRefresh?
   if (queries.length === 0) throw semforgeError("VALIDATION_ERROR", "수집할 추적 쿼리가 없습니다.");
   const { sqlite } = getDatabase();
   const outcomes = [];
+  let blockingError: ProviderFailure | undefined;
   let capturedAt = new Date().toISOString();
 
   for (const tracked of queries) {
+    if (blockingError) {
+      outcomes.push({ queryId: tracked.id, query: tracked.query, aioPresent: false, cited: null, error: blockingError.message, errorCode: blockingError.code, skipped: true });
+      continue;
+    }
     try {
       const serp = await fetchSerp({
         q: tracked.query,
@@ -310,16 +316,19 @@ export async function collectAiVisibility(input: { domain: string; forceRefresh?
       );
       outcomes.push({ queryId: tracked.id, query: tracked.query, aioPresent, cited, error: undefined });
     } catch (error) {
+      const failure = providerFailure(error);
+      if (blocksProviderBatch(failure)) blockingError = failure;
       outcomes.push({
         queryId: tracked.id,
         query: tracked.query,
         aioPresent: false,
         cited: null,
-        error: error instanceof Error ? error.message : "수집 실패",
+        error: failure.message,
+        errorCode: failure.code,
       });
     }
   }
-  return { domain, collected: outcomes.filter((o) => !o.error).length, failed: outcomes.filter((o) => o.error).length, outcomes, capturedAt };
+  return { domain, ...collectionCounts(outcomes), outcomes, capturedAt, blockingError };
 }
 
 export function seedAiVisibilityFromProject(domain: string, seeds: string[]) {

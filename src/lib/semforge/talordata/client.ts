@@ -172,26 +172,45 @@ export async function fetchSerp(input: {
     device: input.device ?? "desktop",
     json: "1",
   });
-  const response = await fetch(ENDPOINT, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body,
-    cache: "no-store",
-  });
-  if (!response.ok) {
-    if (response.status === 401 || response.status === 403) {
+  let response: Response;
+  try {
+    response = await fetch(ENDPOINT, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body,
+      cache: "no-store",
+      signal: AbortSignal.timeout(30_000),
+    });
+  } catch (error) {
+    const timedOut = error instanceof Error && ["TimeoutError", "AbortError"].includes(error.name);
+    throw new AppError(timedOut ? "SERP 응답 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요." : "SERP 수집 서비스에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.", 502, timedOut ? "TALORDATA_TIMEOUT" : "TALORDATA_CONNECTION_FAILED");
+  }
+  let raw: unknown;
+  try { raw = await response.json(); } catch { raw = null; }
+  const payload = isRecord(raw) ? raw : {};
+  const providerCode = payload.code === undefined ? undefined : Number(payload.code);
+  const message = [payload.data, payload.message, payload.error, payload.msg].filter((value): value is string => typeof value === "string").join(" ");
+  // This provider also returns billing/authentication errors inside HTTP 200.
+  if (!response.ok || payload.success === false || (providerCode !== undefined && ![0, 200].includes(providerCode))) {
+    if (/package.*expir|plan.*expir|subscription.*expir/i.test(message)) {
+      throw new AppError("TalorData SERP 이용권이 만료되었습니다. 연결된 TalorData 계정에서 이용권을 갱신한 뒤 다시 측정해 주세요.", 503, "TALORDATA_PLAN_EXPIRED");
+    }
+    if (response.status === 402 || /insufficient.*(credit|balance)|balance.*insufficient|not enough.*(credit|balance)/i.test(message)) {
+      throw new AppError("TalorData SERP 잔액 또는 크레딧이 부족합니다. 제공사에서 충전한 뒤 다시 측정해 주세요.", 503, "TALORDATA_CREDITS_EXHAUSTED");
+    }
+    if ([401, 403].includes(response.status) || [401, 403].includes(providerCode ?? 0)) {
       throw new AppError("SERP API 토큰이 유효하지 않습니다.", 502, "TALORDATA_AUTH_FAILED");
     }
-    if (response.status === 429) {
+    if (response.status === 429 || providerCode === 429) {
       throw new AppError("SERP API 사용량 한도에 도달했습니다.", 429, "RATE_LIMITED");
     }
-    throw new AppError(`SERP 제공사가 HTTP ${response.status} 를 반환했습니다.`, 502, "TALORDATA_ERROR");
+    throw new AppError(`SERP 제공사가 요청을 거절했습니다 (코드 ${providerCode ?? response.status}). 제공사 계정과 API 설정을 확인해 주세요.`, 502, "TALORDATA_ERROR");
   }
-  const payload = await response.json() as Record<string, unknown>;
+  if (!isRecord(raw)) throw new AppError("SERP 제공사의 응답 형식을 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.", 502, "TALORDATA_INVALID_RESPONSE");
   const data = isRecord(payload.data) ? payload.data : payload;
   const organicRaw = Array.isArray(data.organic) ? data.organic as Record<string, unknown>[] : [];
   const organic: SerpOrganicItem[] = organicRaw

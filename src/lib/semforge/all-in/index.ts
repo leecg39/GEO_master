@@ -9,6 +9,8 @@ import { normalizeDomain } from "@/lib/semforge/utils/domain";
 import { requireSemforgeSubscription } from "@/lib/semforge-subscription";
 import { requireActiveProject } from "@/lib/projects";
 import { talordataConfigured } from "@/lib/semforge/talordata/client";
+import { formatCollectionReport } from "@/lib/semforge/collection-report";
+import type { ProviderFailure } from "@/lib/semforge/errors";
 
 export const allInSemforgeSchema = z.object({
   brandName: z.string().trim().min(1).max(120),
@@ -97,6 +99,7 @@ export async function runAllInSemforge(input: unknown): Promise<{
   const locationLabel = parsed.locationLabel?.trim() || "서울";
   const seedQueries = buildSeedQueries(brandName, project.category);
   const steps: AllInStepResult[] = [];
+  let serpBlockingError: ProviderFailure | undefined;
 
   const site = upsertSite({ domain, name: brandName });
   steps.push({
@@ -120,11 +123,12 @@ export async function runAllInSemforge(input: unknown): Promise<{
       });
     } else {
       const report = await collectAiVisibility({ domain });
+      serpBlockingError = report.blockingError;
       steps.push({
         key: "ai-seo",
         label: "AI SEO (SERP)",
         status: report.failed > 0 ? "error" : "ok",
-        message: `쿼리 수집 ${report.collected}건 성공 · ${report.failed}건 실패`,
+        message: formatCollectionReport(report, "쿼리 수집"),
         href: "/ai-seo",
         detail: report,
       });
@@ -187,7 +191,9 @@ export async function runAllInSemforge(input: unknown): Promise<{
       campaignId,
       seedQueries.slice(0, 3),
     );
-    if (!talordataConfigured()) {
+    if (serpBlockingError) {
+      steps.push({ key: "position-tracking", label: "포지션 추적", status: "skipped", message: `측정 대기 · ${serpBlockingError.message}`, href: "/position-tracking", detail: { blockingError: serpBlockingError } });
+    } else if (!talordataConfigured()) {
       steps.push({
         key: "position-tracking",
         label: "포지션 추적",
@@ -197,12 +203,12 @@ export async function runAllInSemforge(input: unknown): Promise<{
       });
     } else {
       const report = await collectCampaignRankings(campaignId);
-      const failed = report.outcomes.filter((outcome) => outcome.error).length;
+      serpBlockingError = report.blockingError;
       steps.push({
         key: "position-tracking",
         label: "포지션 추적",
-        status: failed > 0 ? "error" : "ok",
-        message: `순위 수집 ${report.collected}건 성공 · ${failed}건 실패 · 가시성 ${report.visibility}%`,
+        status: report.failed > 0 || report.skipped > 0 ? "error" : "ok",
+        message: formatCollectionReport(report, "순위 수집") + (report.visibility === null ? " · 가시성 집계 보류" : ` · 가시성 ${report.visibility}%`),
         href: "/position-tracking",
         detail: report,
       });
@@ -257,7 +263,9 @@ export async function runAllInSemforge(input: unknown): Promise<{
       campaignId,
       [`${brandName} ${locationLabel}`, `${brandName} 추천`, seedQueries[0] ?? brandName].filter(Boolean),
     );
-    if (!talordataConfigured()) {
+    if (serpBlockingError) {
+      steps.push({ key: "local-business", label: "지역 SEO", status: "skipped", message: `측정 대기 · ${serpBlockingError.message}`, href: "/local-business", detail: { blockingError: serpBlockingError } });
+    } else if (!talordataConfigured()) {
       steps.push({
         key: "local-business",
         label: "지역 SEO",
@@ -267,12 +275,11 @@ export async function runAllInSemforge(input: unknown): Promise<{
       });
     } else {
       const report = await collectMapRank(campaignId);
-      const failed = report.outcomes.filter((outcome) => outcome.error).length;
       steps.push({
         key: "local-business",
         label: "지역 SEO",
-        status: failed > 0 ? "error" : "ok",
-        message: `Map Rank 수집 ${report.collected}건 성공 · ${failed}건 실패 · 가시성 ${report.visibility}%`,
+        status: report.failed > 0 || report.skipped > 0 ? "error" : "ok",
+        message: formatCollectionReport(report, "Map Rank 수집") + (report.visibility === null ? " · 가시성 집계 보류" : ` · 가시성 ${report.visibility}%`),
         href: "/local-business",
         detail: report,
       });

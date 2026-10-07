@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { getDatabase } from "@/lib/db";
-import { semforgeError } from "@/lib/semforge/errors";
+import { semforgeError, providerFailure, blocksProviderBatch, type ProviderFailure } from "@/lib/semforge/errors";
+import { collectionCounts } from "@/lib/semforge/collection-report";
 import { fetchSerp, talordataConfigured, talordataMode } from "@/lib/semforge/talordata/client";
 import { requireSemforgeSubscription } from "@/lib/semforge-subscription";
 import { requireActiveProject } from "@/lib/projects";
@@ -169,8 +170,14 @@ export async function collectMapRank(campaignIdInput: unknown) {
     WHERE campaign_id = ? AND deleted_at IS NULL LIMIT 20
   `).all(campaignId) as Array<{ id: number; keyword: string; mapPosition: number | null }>;
 
+  if (keywords.length === 0) throw semforgeError("VALIDATION_ERROR", "수집할 지역 검색 키워드가 없습니다.");
   const outcomes = [];
+  let blockingError: ProviderFailure | undefined;
   for (const item of keywords) {
+    if (blockingError) {
+      outcomes.push({ keyword: item.keyword, mapPosition: item.mapPosition, inLocalPack: false, error: blockingError.message, errorCode: blockingError.code, skipped: true });
+      continue;
+    }
     try {
       const serp = await fetchSerp({
         q: `${item.keyword} ${campaign.locationLabel}`,
@@ -185,21 +192,25 @@ export async function collectMapRank(campaignIdInput: unknown) {
         SET previous_map_position = map_position, map_position = ?, in_local_pack = ?, updated_at = ?
         WHERE id = ?
       `).run(hit?.position ?? null, hit ? 1 : 0, now, item.id);
-      outcomes.push({ keyword: item.keyword, mapPosition: hit?.position ?? null, inLocalPack: Boolean(hit) });
+      outcomes.push({ keyword: item.keyword, mapPosition: hit?.position ?? null, inLocalPack: Boolean(hit), error: undefined });
     } catch (error) {
+      const failure = providerFailure(error);
+      if (blocksProviderBatch(failure)) blockingError = failure;
       outcomes.push({
         keyword: item.keyword,
         mapPosition: item.mapPosition,
         inLocalPack: false,
-        error: error instanceof Error ? error.message : "실패",
+        error: failure.message,
+        errorCode: failure.code,
       });
     }
   }
 
-  const ranked = outcomes.filter((item) => item.mapPosition !== null && item.mapPosition !== undefined).length;
-  const visibility = keywords.length ? Math.round((ranked / keywords.length) * 100) : 0;
-  sqlite.prepare("UPDATE map_rank_campaigns SET visibility = ?, updated_at = ? WHERE id = ?").run(visibility, new Date().toISOString(), campaignId);
-  return { campaignId, visibility, collected: outcomes.filter((item) => !("error" in item && item.error)).length, outcomes };
+  const counts = collectionCounts(outcomes);
+  const ranked = outcomes.filter((item) => !item.error && item.mapPosition !== null && item.mapPosition !== undefined).length;
+  const visibility = counts.collected === keywords.length ? Math.round((ranked / keywords.length) * 100) : null;
+  if (visibility !== null) sqlite.prepare("UPDATE map_rank_campaigns SET visibility = ?, updated_at = ? WHERE id = ?").run(visibility, new Date().toISOString(), campaignId);
+  return { campaignId, visibility, ...counts, outcomes, blockingError };
 }
 
 export function getLocalBusinessOverview() {

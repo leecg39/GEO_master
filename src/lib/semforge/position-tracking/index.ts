@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { getDatabase } from "@/lib/db";
-import { semforgeError } from "@/lib/semforge/errors";
+import { semforgeError, providerFailure, blocksProviderBatch, type ProviderFailure } from "@/lib/semforge/errors";
+import { collectionCounts } from "@/lib/semforge/collection-report";
 import { fetchSerp, talordataConfigured } from "@/lib/semforge/talordata/client";
 import { normalizeDomain } from "@/lib/semforge/utils/domain";
 import { requireSemforgeSubscription } from "@/lib/semforge-subscription";
@@ -86,8 +87,14 @@ export async function collectCampaignRankings(campaignIdInput: unknown) {
   const keywords = sqlite.prepare(`
     SELECT id, keyword, position FROM tracked_keywords WHERE campaign_id = ? AND deleted_at IS NULL LIMIT 20
   `).all(campaignId) as Array<{ id: number; keyword: string; position: number | null }>;
+  if (keywords.length === 0) throw semforgeError("VALIDATION_ERROR", "수집할 추적 키워드가 없습니다.");
   const outcomes = [];
+  let blockingError: ProviderFailure | undefined;
   for (const kw of keywords) {
+    if (blockingError) {
+      outcomes.push({ keyword: kw.keyword, position: kw.position, error: blockingError.message, errorCode: blockingError.code, skipped: true });
+      continue;
+    }
     try {
       const serp = await fetchSerp({ q: kw.keyword, device: campaign.device as "desktop" | "mobile", engine: campaign.search_engine as "google" | "bing" });
       const hit = serp.organic.find((item) => item.domain === campaign.domain || item.domain.endsWith(`.${campaign.domain}`));
@@ -95,15 +102,19 @@ export async function collectCampaignRankings(campaignIdInput: unknown) {
       sqlite.prepare(`
         UPDATE tracked_keywords SET previous_position = position, position = ?, updated_at = ? WHERE id = ?
       `).run(hit?.position ?? null, now, kw.id);
-      outcomes.push({ keyword: kw.keyword, position: hit?.position ?? null });
+      outcomes.push({ keyword: kw.keyword, position: hit?.position ?? null, error: undefined });
     } catch (error) {
-      outcomes.push({ keyword: kw.keyword, position: kw.position, error: error instanceof Error ? error.message : "실패" });
+      const failure = providerFailure(error);
+      if (blocksProviderBatch(failure)) blockingError = failure;
+      outcomes.push({ keyword: kw.keyword, position: kw.position, error: failure.message, errorCode: failure.code });
     }
   }
-  const ranked = outcomes.filter((o) => o.position !== null && o.position !== undefined).length;
-  const visibility = keywords.length ? Math.round((ranked / keywords.length) * 100) : 0;
-  sqlite.prepare("UPDATE position_tracking_campaigns SET visibility = ?, updated_at = ? WHERE id = ?").run(visibility, new Date().toISOString(), campaignId);
-  return { campaignId, visibility, collected: outcomes.filter((o) => !("error" in o && o.error)).length, outcomes };
+  const counts = collectionCounts(outcomes);
+  const ranked = outcomes.filter((o) => !o.error && o.position !== null && o.position !== undefined).length;
+  const visibility = counts.collected === keywords.length ? Math.round((ranked / keywords.length) * 100) : null;
+  // Failed/partial runs cannot establish a new campaign-wide visibility value.
+  if (visibility !== null) sqlite.prepare("UPDATE position_tracking_campaigns SET visibility = ?, updated_at = ? WHERE id = ?").run(visibility, new Date().toISOString(), campaignId);
+  return { campaignId, visibility, ...counts, outcomes, blockingError };
 }
 
 export function getDomainOverview(domainInput: string) {
