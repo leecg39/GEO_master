@@ -54,6 +54,7 @@
   --app-glow-b: rgba(106, 95, 193, 0.16);
   --app-text: #ffffff;
   --app-text-muted: #bdb8c0;
+  --app-text-subtle: #aa9ab8;
   --app-input-border: #362d59;
   --app-input-bg: #1f1633;
   --app-input-text: #ffffff;
@@ -84,15 +85,15 @@
   --color-cyan-900: #422082;
   --color-emerald-300: #c2ef4e;
   --color-emerald-400: #c2ef4e;
-  --color-violet-300: #6a5fc1;
+  --color-violet-300: #b6a7ee;
   --color-violet-400: #6a5fc1;
   --color-violet-500: #422082;
   --color-slate-950: #150f23;
   --color-slate-900: #1f1633;
   --color-slate-800: #2a2045;
   --color-slate-700: #362d59;
-  --color-slate-600: #3f3849;
-  --color-slate-500: #79628c;
+  --color-slate-600: #9e91ad;
+  --color-slate-500: #aa9ab8;
   --color-slate-400: #bdb8c0;
   --color-slate-300: #d7d2de;
   --color-rose-300: #fa7faa;
@@ -108,6 +109,7 @@ html[data-theme="light"] {
   --app-glow-b: rgba(194, 239, 78, 0.08);
   --app-text: #1f1633;
   --app-text-muted: #79628c;
+  --app-text-subtle: #6b567b;
   --app-input-border: #cfcfdb;
   --app-input-bg: #ffffff;
   --app-input-text: #1f1633;
@@ -133,7 +135,7 @@ html[data-theme="light"] {
   --color-slate-300: #3f3849;
   --color-slate-400: #79628c;
   --color-slate-500: #79628c;
-  --color-slate-600: #bdb8c0;
+  --color-slate-600: #6b567b;
   --color-slate-700: #cfcfdb;
   --color-slate-800: #e5e7eb;
   --color-slate-900: #ffffff;
@@ -162,6 +164,9 @@ html[data-theme="light"] {
 /* Navigation keeps a dark surface in both themes. */
 [data-theme-surface="dark"] {
   --color-white: #ffffff;
+  --app-text-subtle: #aa9ab8;
+  --color-slate-500: #aa9ab8;
+  --color-slate-600: #9e91ad;
 }
 
 html[data-theme="light"] main {
