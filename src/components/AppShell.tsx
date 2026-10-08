@@ -125,7 +125,7 @@ function Navigation({ close, semforgeActive, guest }: { close?: () => void; semf
 
   return (
     <nav className="mt-8 space-y-1.5" aria-label="주요 메뉴">
-      {coreNavigation.filter((item) => !guest || item.href !== "/workspace").map(({ href, label, icon }) => {
+      {coreNavigation.filter((item) => !guest || !["/workspace", "/search-console"].includes(item.href)).map(({ href, label, icon }) => {
         const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
         return <NavLink key={href} href={href} label={label} icon={icon} active={active} close={close} />;
       })}

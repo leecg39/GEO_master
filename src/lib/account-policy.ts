@@ -9,9 +9,9 @@ export function accountRole(user: string): AccountRole {
 
 const guestRestricted = [
   "/settings", "/subscription", "/workspace", "/semforge", "/ai-seo", "/site-audit",
-  "/position-tracking", "/analytics", "/local-business",
+  "/position-tracking", "/analytics", "/local-business", "/search-console",
   "/api/settings", "/api/workspace", "/api/semforge", "/api/ai-seo", "/api/site-audit",
-  "/api/position-tracking", "/api/analytics", "/api/local-business",
+  "/api/position-tracking", "/api/analytics", "/api/local-business", "/api/search-console",
   // 공개 링크는 데이터를 외부로 내보내므로 게스트가 만들 수 없다
   "/api/report-shares",
 ];
