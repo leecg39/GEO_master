@@ -86,6 +86,7 @@ export const siteAuditCampaigns = sqliteTable("site_audit_campaigns", {
   siteHealth: integer("site_health"),
   dataState: text("data_state").notNull().default("legacy_estimate"),
   llmsTxtState: text("llms_txt_state"),
+  cancelRequested: integer("cancel_requested", { mode: "boolean" }).notNull().default(false),
   lastRunAt: text("last_run_at"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
@@ -101,6 +102,10 @@ export const siteAuditPages = sqliteTable("site_audit_pages", {
   responseMs: integer("response_ms"),
   bytes: integer("bytes").notNull().default(0),
   fetchState: text("fetch_state").notNull().default("legacy_estimate"),
+  finalUrl: text("final_url"),
+  contentHash: text("content_hash"),
+  fetchError: text("fetch_error"),
+  renderMode: text("render_mode"),
   capturedAt: text("captured_at").notNull(),
 });
 
