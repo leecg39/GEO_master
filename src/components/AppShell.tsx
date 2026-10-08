@@ -4,7 +4,7 @@ import type { RequestAccount } from "@/lib/request-account";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarChart3, BookOpen, Bot, CalendarClock, ChevronDown, ClipboardCheck, GitCompare, Braces, FileSpreadsheet, FlaskConical, ListChecks, CreditCard, FileCode2, FileDown, FilePenLine, Gauge, Images, LoaderCircle, Menu, PackageOpen, SearchCheck, Settings, Sparkles, Target, X } from "lucide-react";
+import { BarChart3, BookOpen, Bot, CalendarClock, ChevronDown, ClipboardCheck, GitCompare, Braces, FileSpreadsheet, FlaskConical, ListChecks, CreditCard, FileCode2, FileDown, FilePenLine, Gauge, Images, LoaderCircle, Menu, PackageOpen, Radar, SearchCheck, Settings, Sparkles, Target, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { Modal } from "@/components/Modal";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
@@ -25,6 +25,7 @@ const coreNavigation = [
   { href: "/changes", label: "수정안 작업대", icon: GitCompare },
   { href: "/structured-data", label: "구조화 데이터", icon: Braces },
   { href: "/search-console", label: "검색 성과 가져오기", icon: FileSpreadsheet },
+  { href: "/bot-logs", label: "AI 봇 방문 로그", icon: Radar },
   { href: "/studio", label: "콘텐츠 스튜디오", icon: FilePenLine },
   { href: "/optimizer", label: "최적화 랩", icon: FlaskConical },
   { href: "/strategy", label: "전략 워크스페이스", icon: Target },
@@ -125,7 +126,7 @@ function Navigation({ close, semforgeActive, guest }: { close?: () => void; semf
 
   return (
     <nav className="mt-8 space-y-1.5" aria-label="주요 메뉴">
-      {coreNavigation.filter((item) => !guest || !["/workspace", "/search-console"].includes(item.href)).map(({ href, label, icon }) => {
+      {coreNavigation.filter((item) => !guest || !["/workspace", "/search-console", "/bot-logs"].includes(item.href)).map(({ href, label, icon }) => {
         const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
         return <NavLink key={href} href={href} label={label} icon={icon} active={active} close={close} />;
       })}

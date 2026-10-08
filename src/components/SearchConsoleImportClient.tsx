@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LoaderCircle, Trash2, Upload } from "lucide-react";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
+import { requestJson as request, toBase64 } from "@/lib/client-upload";
 import { formatCtr as pct, formatPosition as num } from "@/lib/search-console/format";
 
 interface Item {
@@ -13,19 +14,6 @@ interface Item {
 const MAX_BYTES = 2 * 1024 * 1024;
 const PLATFORMS: Array<[string, string]> = [["instagram", "Instagram"], ["x", "X"], ["tiktok", "TikTok"]];
 
-async function request<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, { cache: "no-store", ...init });
-  const body = response.status === 204 ? {} : await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error((body as { error?: string }).error || "요청을 처리하지 못했습니다.");
-  return body as T;
-}
-
-function toBase64(buffer: ArrayBuffer) {
-  let binary = "";
-  const bytes = new Uint8Array(buffer);
-  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-  return btoa(binary);
-}
 
 
 /** 파일명에서 플랫폼을 추정해 이름 입력란의 기본값으로만 제안한다 (확정은 사용자가) */

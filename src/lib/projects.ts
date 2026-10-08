@@ -102,6 +102,7 @@ export interface ProjectDependencies extends Record<string, number> {
   facts: number;
   optimizationRuns: number;
   reportShares: number;
+  botLogImports: number;
 }
 
 function parseCompetitors(value: string): string[] {
@@ -174,6 +175,7 @@ function countProjectDependencies(projectId: number): ProjectDependencies {
     facts: count("facts"),
     optimizationRuns: count("optimization_runs"),
     reportShares: count("report_shares"),
+    botLogImports: count("bot_log_imports"),
   };
 }
 
