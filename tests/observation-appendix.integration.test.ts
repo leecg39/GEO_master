@@ -7,7 +7,7 @@ import { closeDatabase, getDatabase } from "@/lib/db";
 import { buildObservationAppendix } from "@/lib/observation-appendix";
 import { importOutcomeCsv, upsertOutcomeDefinition } from "@/lib/outcomes/store";
 import { activateProject, createProject, ensureActiveProject } from "@/lib/projects";
-import { reportToPdf } from "@/lib/report-pdf";
+import { PDF_MAX_PAGES, reportToPdf } from "@/lib/report-pdf";
 import { buildAuditReport, type PortableReport } from "@/lib/reports";
 import { importConsoleExport } from "@/lib/search-console/store";
 
@@ -100,5 +100,32 @@ describe("report integration", () => {
     expect(withAppendix).toContain("데이터 없음");
     expect(withAppendix).toContain("폼 제출");
     expect(withAppendix).toContain("상담 폼 제출 완료");
+  });
+
+  it.each(["audit items", "share results", "question matrix"])("preserves every observation section when %s exhaust the PDF page limit", (scenario) => {
+    const observations = buildObservationAppendix();
+    const response = "가".repeat(1_200);
+    const result = { question: "긴 질문", provider: "openai", model: "test", repetition: 1, response, brandMentioned: true, sentiment: "positive", mentionRank: 1, competitorMentions: [], slotStatus: "succeeded" as const, createdAt: auditReport.generatedAt };
+    const summary = scenario === "question matrix" ? {
+      metricVersion: "m1.0",
+      quality: { planned: 1_000, succeeded: 1_000, refused: 0, failed: 0, completionRate: { numerator: 1_000, denominator: 1_000, value: 100 }, refusalRate: { numerator: 0, denominator: 1_000, value: 0 } },
+      questionMatrix: Array.from({ length: 1_000 }, () => ({ question: response, provider: "openai", mentioned: 1, valid: 1, refused: 0, failed: 0, planned: 1, label: "1/1" })),
+    } : {};
+    const report: PortableReport = scenario === "audit items" && auditReport.kind === "audit" ? {
+      ...auditReport, observations,
+      audit: { ...auditReport.audit, items: Array.from({ length: 600 }, (_, index) => ({ code: String(index), category: "기반 SEO" as const, label: "긴 진단", passed: false, manual: false, detail: response, recommendation: response })) },
+    } : {
+      schemaVersion: 1, kind: "share", generatedAt: auditReport.generatedAt, observations,
+      run: { id: 1, status: "completed", models: [], repetitions: 1, totalQueries: 600, answerShare: 100, genrank: 100, funnelStage: "추천", summary, diagnostics: null, createdAt: auditReport.generatedAt, completedAt: auditReport.generatedAt, results: Array.from({ length: 600 }, () => result) },
+    };
+    const pdf = reportToPdf(report);
+    expect(Buffer.from(pdf).toString("latin1")).toContain(`/Count ${PDF_MAX_PAGES}`);
+    const text = decodedText(pdf);
+    expect(text).toContain("페이지 상한으로 일부 근거가 생략되었습니다.");
+    for (const required of ["관측 지표 부록", "검색 성과", "AI 봇 방문", "사업 성과", "TikTok @a", "access.log", "GA4", "상담 폼 제출 완료", "2026-09-08", "2026-10-01", "출처:", "정의:"]) {
+      expect(text.includes(required), required).toBe(true);
+    }
+    const detailSection = scenario === "audit items" ? "우선 개선 항목" : scenario === "question matrix" ? "분모 근거" : "질문별 측정 근거";
+    expect(text.indexOf("관측 지표 부록")).toBeLessThan(text.indexOf(detailSection));
   });
 });

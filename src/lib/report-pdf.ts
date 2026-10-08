@@ -252,6 +252,9 @@ function auditTemplate(report: Extract<PortableReport, { kind: "audit" }>) {
   document.space(16);
   document.text(`${report.audit.score} / ${report.audit.total} · ${report.audit.grade}`, { size: 20, color: report.audit.grade === "우수" ? COLORS.cyan : COLORS.amber, lineHeight: 28 });
 
+  // 필수 부록을 가변 길이의 진단·근거보다 먼저 출력해 페이지 상한에서도 보존한다.
+  if (report.observations) printObservations(document, report.observations);
+
   document.section("카테고리 점수");
   for (const category of report.audit.categories) document.bar(category.category, category.passed, category.total);
 
@@ -271,7 +274,6 @@ function auditTemplate(report: Extract<PortableReport, { kind: "audit" }>) {
     if (document.truncated) break;
     document.text(`${item.passed ? "통과" : "미통과"} · ${item.category} · ${item.label}`, { size: 8.5, color: item.passed ? COLORS.cyan : COLORS.red, maxChars: 600 });
   }
-  if (report.observations) printObservations(document, report.observations);
   return document.build();
 }
 
@@ -337,6 +339,9 @@ function shareTemplate(report: Extract<PortableReport, { kind: "share" }>) {
   document.text(`응답 점유율 ${report.run.answerShare}%  ·  GenRank ${report.run.genrank}  ·  긍정 문맥 ${numeric(summary.positiveRate)}%`, { size: 15, color: COLORS.cyan, lineHeight: 23 });
   document.text(`퍼널 단계 ${report.run.funnelStage} · 총 ${report.run.totalQueries}회`, { size: 10, color: COLORS.ink });
 
+  // 질문 행렬과 인용 목록도 페이지 상한에 도달할 수 있으므로 모든 반복 섹션보다 앞에 둔다.
+  if (report.observations) printObservations(document, report.observations);
+
   document.section("모델별 점유율");
   const perModel = asRecord(summary.perModel);
   if (!Object.keys(perModel).length) document.text("모델별 집계가 없습니다.", { color: COLORS.muted });
@@ -373,7 +378,6 @@ function shareTemplate(report: Extract<PortableReport, { kind: "share" }>) {
     document.text(`응답 근거: ${item.response}`, { size: 8, color: COLORS.muted, indent: 10, maxChars: 1_200, lineHeight: 11 });
     document.space(8);
   }
-  if (report.observations) printObservations(document, report.observations);
   return document.build();
 }
 

@@ -6,6 +6,8 @@ import type { AuditItemResult } from "./audit";
 import { getRunDiagnostics } from "./claims";
 import { buildObservationAppendix, type ObservationAppendix } from "./observation-appendix";
 import { ensureActiveProject } from "./projects";
+import { canAccessReportObservations } from "./account-policy";
+import { getRequestAccount } from "./request-account";
 
 export type ReportKind = "audit" | "share";
 export type AuditReport = ReturnType<typeof buildAuditReport>;
@@ -15,9 +17,10 @@ export type PortableReport = AuditReport | ShareReport;
 /** 관측 지표 부록은 앱 안에서 내려받는 리포트에만 붙인다(공개 공유 스냅샷 제외) */
 export interface ReportOptions { includeObservations?: boolean }
 
-/** 부록은 활성 프로젝트 데이터이므로, 다른 프로젝트의 진단·측정 리포트에는 붙이지 않는다 */
+/** 포함 요청은 권한이 아니다. 원천 접근 권한과 활성 프로젝트를 모두 확인한 뒤 조회한다. */
 function observations(options: ReportOptions, projectId: number | null): ObservationAppendix | undefined {
-  if (!options.includeObservations || projectId === null || projectId !== ensureActiveProject().id) return undefined;
+  if (!options.includeObservations || !canAccessReportObservations(getRequestAccount().role)
+    || projectId === null || projectId !== ensureActiveProject().id) return undefined;
   return buildObservationAppendix();
 }
 
