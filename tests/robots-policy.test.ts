@@ -6,7 +6,7 @@ const access = (text: string, token: string) => analyzeRobotsTxt(text).bots.find
 describe("robots.txt AI crawler policy (RFC 9309)", () => {
   it("treats a GPTBot block as a training opt-out, not as an AI search block", () => {
     const policy = analyzeRobotsTxt("User-agent: GPTBot\nDisallow: /\n");
-    expect(policy.summary).toEqual({ searchBlocked: [], trainingBlocked: ["GPTBot"], userBlocked: [] });
+    expect(policy.summary).toEqual({ searchBlocked: [], trainingBlocked: ["GPTBot"], userBlocked: [], searchPartial: [], trainingPartial: [], userPartial: [] });
     expect(access("User-agent: GPTBot\nDisallow: /", "OAI-SearchBot")).toMatchObject({ access: "allowed", group: "none", purpose: "search" });
   });
 
@@ -34,12 +34,14 @@ describe("robots.txt AI crawler policy (RFC 9309)", () => {
   });
 
   it("reports a path-only restriction as partial access", () => {
+    const policy = analyzeRobotsTxt("User-agent: OAI-SearchBot\nDisallow: /private\n");
     expect(access("User-agent: ClaudeBot\nDisallow: /private\n", "ClaudeBot")).toMatchObject({ access: "partial", restrictedRules: 1 });
+    expect(policy.summary).toMatchObject({ searchBlocked: [], searchPartial: ["OAI-SearchBot"] });
   });
 
   it("keeps Google-Extended out of Google Search", () => {
     const policy = analyzeRobotsTxt("User-agent: Google-Extended\nDisallow: /\n");
-    expect(policy.summary).toMatchObject({ searchBlocked: [], trainingBlocked: ["Google-Extended"] });
+    expect(policy.summary).toMatchObject({ searchBlocked: [], trainingBlocked: ["Google-Extended"], searchPartial: [], trainingPartial: [] });
     expect(policy.bots.find((bot) => bot.token === "Googlebot")).toMatchObject({ access: "allowed" });
   });
 

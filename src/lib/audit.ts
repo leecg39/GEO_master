@@ -165,10 +165,14 @@ export const AUDIT_RULES: Rule[] = [
     // 학습용 크롤러 차단만으로 AI 검색 접근 실패로 판정하지 않는다 (Qshop P04)
     if (f.robots === null) return result(true, "robots.txt가 없거나 읽지 못해 확인된 제한이 없습니다.");
     const { summary } = analyzeRobotsTxt(f.robots);
-    const training = summary.trainingBlocked.length ? ` · 학습용 차단: ${summary.trainingBlocked.join(", ")} (검색 노출과 별개)` : "";
-    return summary.searchBlocked.length
-      ? result(false, `검색용 크롤러 차단: ${summary.searchBlocked.join(", ")}${training}`)
-      : result(true, `AI 검색 크롤러 접근 가능${training}`);
+    const trainingBlocked = summary.trainingBlocked.length ? ` · 학습용 차단: ${summary.trainingBlocked.join(", ")} (검색 노출과 별개)` : "";
+    const trainingPartial = summary.trainingPartial.length ? ` · 학습용 부분 제한: ${summary.trainingPartial.join(", ")} (검색 노출과 별개)` : "";
+    const searchBlocked = summary.searchBlocked.length ? `완전 차단: ${summary.searchBlocked.join(", ")}` : "";
+    const searchPartial = summary.searchPartial.length ? `일부 경로 제한: ${summary.searchPartial.join(", ")}` : "";
+    const searchRestriction = [searchBlocked, searchPartial].filter(Boolean).join(" · ");
+    return searchRestriction
+      ? result(false, `검색용 크롤러 접근 제한: ${searchRestriction}${trainingBlocked}${trainingPartial}`)
+      : result(true, `AI 검색 크롤러 접근 가능${trainingBlocked}${trainingPartial}`);
   } },
   { code: "tech-llms", category: "기술적 GEO", label: "llms.txt", recommendation: "핵심 엔티티와 대표 문서를 설명하는 /llms.txt를 제공하세요.", check: (_s, f) => result(Boolean(f.llms?.trim()), f.llms ? "llms.txt 확인" : "llms.txt 없음") },
   { code: "tech-sitemap", category: "기술적 GEO", label: "XML Sitemap", recommendation: "최신 URL과 수정일을 담은 sitemap.xml을 제공하세요.", check: (_s, f) => result(Boolean(f.sitemap?.includes("<url")), f.sitemap ? "sitemap 응답 확인" : "sitemap 없음") },

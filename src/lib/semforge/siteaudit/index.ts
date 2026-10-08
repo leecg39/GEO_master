@@ -188,10 +188,26 @@ function persistCrawlResults(sqlite: Database.Database, campaignId: number, proj
   const robotsUrl = `https://${domain}/robots.txt`;
   if (robots?.state === "unknown") {
     addIssue({ url: robotsUrl, severity: "notice", category: "aiSearch", title: "robots.txt 확인 불가", detail: `${robots.detail} — AI 크롤러 허용 여부를 판정하지 않았습니다.` });
-  } else if (robots?.summary.searchBlocked.length) {
-    addIssue({ url: robotsUrl, severity: "warning", category: "aiSearch", title: "AI 검색 크롤러 차단", detail: `${robots.summary.searchBlocked.join(", ")} — 이 크롤러를 쓰는 AI 검색 답변에서 사이트가 빠질 수 있습니다.` });
-  } else if (robots?.summary.trainingBlocked.length) {
-    addIssue({ url: robotsUrl, severity: "notice", category: "aiSearch", title: "학습용 AI 크롤러만 차단", detail: `${robots.summary.trainingBlocked.join(", ")} — 모델 학습 거부 설정이며 AI 검색 노출과는 별개입니다.` });
+  } else if (robots?.summary.searchBlocked.length || robots?.summary.searchPartial.length) {
+    const blocked = robots.summary.searchBlocked;
+    const partial = robots.summary.searchPartial;
+    const title = blocked.length ? "AI 검색 크롤러 차단" : "AI 검색 크롤러 일부 경로 제한";
+    const detail = [
+      blocked.length ? `전체 차단: ${blocked.join(", ")}` : "",
+      partial.length ? `일부 경로 제한: ${partial.join(", ")}` : "",
+      "제한된 경로는 이 크롤러를 쓰는 AI 검색 답변에서 빠질 수 있습니다.",
+    ].filter(Boolean).join(" · ");
+    addIssue({ url: robotsUrl, severity: "warning", category: "aiSearch", title, detail });
+  } else if (robots?.summary.trainingBlocked.length || robots?.summary.trainingPartial.length) {
+    const blocked = robots.summary.trainingBlocked;
+    const partial = robots.summary.trainingPartial;
+    const title = blocked.length ? "학습용 AI 크롤러만 차단" : "학습용 AI 크롤러 일부 경로 제한";
+    const detail = [
+      blocked.length ? `전체 차단: ${blocked.join(", ")}` : "",
+      partial.length ? `일부 경로 제한: ${partial.join(", ")}` : "",
+      "모델 학습 설정이며 AI 검색 노출과는 별개입니다.",
+    ].filter(Boolean).join(" · ");
+    addIssue({ url: robotsUrl, severity: "notice", category: "aiSearch", title, detail });
   }
   if (links.length < 3) {
     addIssue({ url: links[0] ?? "", severity: "notice", category: "coverage", title: "발견 URL 적음", detail: `Map으로 발견한 URL이 ${links.length}개입니다. 내부 링크·사이트맵을 점검하세요.` });
@@ -555,8 +571,8 @@ function buildSiteAuditBriefing(
   const recommendations = [
     legacy && pageCount > 0 ? "다시 크롤해 이전 방식 추정치를 실제 관측값으로 바꾸세요." : null,
     llmsTxtState === "missing" ? "llms.txt를 사이트 루트에 배포하세요 (llms.txt 메뉴에서 초안 생성·배포 확인)." : null,
-    robots?.summary.searchBlocked.length
-      ? `robots.txt에서 검색용 AI 크롤러(${robots.summary.searchBlocked.join(", ")})를 허용할지 검토하세요. 학습용 크롤러 차단은 그대로 둬도 검색 노출과 별개입니다.` : null,
+    robots && (robots.summary.searchBlocked.length || robots.summary.searchPartial.length)
+      ? `robots.txt에서 검색용 AI 크롤러 접근 제한(${[...robots.summary.searchBlocked, ...robots.summary.searchPartial].join(", ")})을 검토하세요. 일부 경로 제한은 해당 경로만 검색 근거에서 빠질 수 있습니다.` : null,
     pageCount > 0 ? "핵심 URL의 실제 응답·제목·스키마는 GEO 진단(/audit)에서 URL별로 측정하세요." : null,
     issues.some((issue) => issue.category === "coverage") ? "발견 URL이 적습니다. 내부 링크 허브와 사이트맵을 점검하세요." : null,
     issues.some((issue) => issue.category === "crawl" && issue.title !== "렌더링 수집 한도")

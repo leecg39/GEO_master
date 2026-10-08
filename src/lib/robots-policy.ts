@@ -50,7 +50,10 @@ export interface RobotsPolicy {
   state: "parsed" | "missing" | "unknown";
   detail: string;
   bots: BotAccess[];
-  summary: { searchBlocked: string[]; trainingBlocked: string[]; userBlocked: string[] };
+  summary: {
+    searchBlocked: string[]; trainingBlocked: string[]; userBlocked: string[];
+    searchPartial: string[]; trainingPartial: string[]; userPartial: string[];
+  };
 }
 
 function parseGroups(text: string): Group[] {
@@ -123,8 +126,11 @@ function botAccess(bot: AiBot, groups: Group[]): BotAccess {
 }
 
 function summarize(bots: BotAccess[]) {
-  const blocked = (purpose: BotPurpose) => bots.filter((bot) => bot.purpose === purpose && bot.access === "blocked").map((bot) => bot.token);
-  return { searchBlocked: blocked("search"), trainingBlocked: blocked("training"), userBlocked: blocked("user") };
+  const byAccess = (purpose: BotPurpose, access: "blocked" | "partial") => bots.filter((bot) => bot.purpose === purpose && bot.access === access).map((bot) => bot.token);
+  return {
+    searchBlocked: byAccess("search", "blocked"), trainingBlocked: byAccess("training", "blocked"), userBlocked: byAccess("user", "blocked"),
+    searchPartial: byAccess("search", "partial"), trainingPartial: byAccess("training", "partial"), userPartial: byAccess("user", "partial"),
+  };
 }
 
 export function analyzeRobotsTxt(text: string): RobotsPolicy {

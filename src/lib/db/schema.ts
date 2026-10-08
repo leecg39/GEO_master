@@ -119,6 +119,7 @@ export const pageSnapshots = sqliteTable("page_snapshots", {
   finalUrl: text("final_url"),
   statusCode: integer("status_code").notNull(),
   contentType: text("content_type"),
+  bodyKind: text("body_kind").notNull().default("html"),
   renderMode: text("render_mode").notNull(),
   contentHash: text("content_hash").notNull(),
   bytes: integer("bytes").notNull(),
