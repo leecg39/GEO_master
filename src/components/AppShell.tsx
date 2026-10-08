@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 
 const coreNavigation = [
   { href: "/", label: "대시보드", icon: Gauge },
+  { href: "/monitoring", label: "AI 언급 모니터링", icon: Target },
   { href: "/audit", label: "GEO 진단", icon: SearchCheck },
   { href: "/multimodal", label: "멀티모달 감사", icon: Images },
   { href: "/llms", label: "llms.txt", icon: FileCode2 },

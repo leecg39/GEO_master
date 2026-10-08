@@ -1,0 +1,135 @@
+
+> geo-master@0.1.0 build
+> next build
+
+▲ Next.js 16.3.3 (Turbopack)
+- Environments: .env.local
+✓ Running next.config.ts took 16ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 6.2s
+  Running TypeScript ...
+  Finished TypeScript in 10.8s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/28) ...
+  Generating static pages using 7 workers (7/28)
+  Generating static pages using 7 workers (14/28)
+  Generating static pages using 7 workers (21/28)
+✓ Generating static pages using 7 workers (28/28) in 279ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /ai-seo
+├ ƒ /analytics/overview
+├ ƒ /api/ai-seo/collect
+├ ƒ /api/ai-seo/overview
+├ ƒ /api/ai-seo/queries
+├ ƒ /api/analytics/overview
+├ ƒ /api/audits
+├ ƒ /api/audits/[id]
+├ ƒ /api/audits/[id]/change-items
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/automation
+├ ƒ /api/change-items
+├ ƒ /api/change-items/[id]
+├ ƒ /api/change-items/guide
+├ ƒ /api/checklist
+├ ƒ /api/contents
+├ ƒ /api/contents/[id]
+├ ƒ /api/contents/[id]/duplicate
+├ ƒ /api/contents/[id]/revisions
+├ ƒ /api/dashboard
+├ ƒ /api/facts
+├ ƒ /api/facts/[id]
+├ ƒ /api/health
+├ ƒ /api/llms
+├ ƒ /api/llms-documents
+├ ƒ /api/llms-documents/[id]
+├ ƒ /api/llms-documents/[id]/duplicate
+├ ƒ /api/llms-documents/[id]/remote
+├ ƒ /api/llms-documents/[id]/revisions
+├ ƒ /api/llms-documents/[id]/validate
+├ ƒ /api/llms-documents/bundle
+├ ƒ /api/local-business
+├ ƒ /api/measure-runs
+├ ƒ /api/measure-runs/[id]
+├ ƒ /api/measure-runs/[id]/claims
+├ ƒ /api/measure-runs/[id]/diagnostics
+├ ƒ /api/measure-runs/[id]/results
+├ ƒ /api/measurement-context
+├ ƒ /api/monitoring
+├ ƒ /api/monitoring/responses
+├ ƒ /api/multimodal
+├ ƒ /api/optimizer
+├ ƒ /api/optimizer/[id]
+├ ƒ /api/optimizer/[id]/cancel
+├ ƒ /api/optimizer/source
+├ ƒ /api/position-tracking
+├ ƒ /api/projects
+├ ƒ /api/projects/[id]
+├ ƒ /api/projects/[id]/activate
+├ ƒ /api/question-sets
+├ ƒ /api/question-sets/[id]
+├ ƒ /api/question-sets/[id]/questions
+├ ƒ /api/question-sets/[id]/reorder
+├ ƒ /api/questions/[id]
+├ ƒ /api/report-presets
+├ ƒ /api/report-presets/[id]
+├ ƒ /api/report-presets/[id]/duplicate
+├ ƒ /api/report-shares
+├ ƒ /api/report-shares/[id]
+├ ƒ /api/reports
+├ ƒ /api/review
+├ ƒ /api/review/claims
+├ ƒ /api/review/mentions
+├ ƒ /api/search-console/imports
+├ ƒ /api/search-console/imports/[id]
+├ ƒ /api/semforge/all-in
+├ ƒ /api/semforge/sites
+├ ƒ /api/semforge/subscription
+├ ƒ /api/semforge/subscription/checkout
+├ ƒ /api/semforge/subscription/confirm
+├ ƒ /api/settings
+├ ƒ /api/share
+├ ƒ /api/share/run
+├ ƒ /api/site-audit
+├ ƒ /api/strategy
+├ ƒ /api/structured-data
+├ ƒ /api/studio
+├ ƒ /api/workspace
+├ ƒ /api/workspace/backups
+├ ƒ /api/workspace/backups/[id]
+├ ƒ /api/workspace/backups/[id]/restore
+├ ƒ /audit
+├ ƒ /automation
+├ ƒ /changes
+├ ƒ /facts
+├ ƒ /learn
+├ ƒ /llms
+├ ƒ /local-business
+├ ƒ /login
+├ ƒ /monitoring
+├ ƒ /multimodal
+├ ƒ /optimizer
+├ ƒ /position-tracking
+├ ƒ /r/[token]
+├ ƒ /reports
+├ ƒ /review
+├ ƒ /search-console
+├ ƒ /semforge
+├ ƒ /settings
+├ ƒ /share
+├ ƒ /site-audit
+├ ƒ /strategy
+├ ƒ /structured-data
+├ ƒ /studio
+├ ƒ /subscription
+└ ƒ /workspace
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand

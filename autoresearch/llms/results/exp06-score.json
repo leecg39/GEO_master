@@ -1,0 +1,33 @@
+{
+  "passed": 25,
+  "total": 25,
+  "metric": 100,
+  "outerScore": 100,
+  "groups": {
+    "preview": {
+      "passed": 4,
+      "total": 4
+    },
+    "freshness": {
+      "passed": 5,
+      "total": 5
+    },
+    "project": {
+      "passed": 2,
+      "total": 2
+    },
+    "storage": {
+      "passed": 7,
+      "total": 7
+    },
+    "history": {
+      "passed": 3,
+      "total": 3
+    },
+    "remote": {
+      "passed": 4,
+      "total": 4
+    }
+  },
+  "failed": []
+}

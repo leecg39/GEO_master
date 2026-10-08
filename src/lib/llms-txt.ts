@@ -182,13 +182,31 @@ export async function verifyRemoteLlmsTxt(website: string, pathInput?: string) {
   const target = new URL(path, site.origin).toString();
   const fetched = await fetchPublicText(target, 10_000);
   if (fetched.status < 200 || fetched.status >= 300) {
-    throw new AppError(`배포된 llms.txt를 찾지 못했습니다. HTTP ${fetched.status}`, 422, "LLMS_NOT_FOUND");
+    const details = { requestedUrl: target, url: fetched.url, upstreamStatus: fetched.status };
+    if (fetched.status === 401) {
+      throw new AppError(`${target}에 인증이 필요합니다(HTTP 401). 대상 사이트의 로그인·미리보기 비밀번호 설정에서 ${path}를 로그인 없이 읽을 수 있도록 공개한 뒤 다시 확인하세요.`, 422, "LLMS_AUTH_REQUIRED", details);
+    }
+    if (fetched.status === 403) {
+      throw new AppError(`${target}에 대한 접근이 차단되었습니다(HTTP 403). 대상 사이트의 접근 권한·방화벽·봇 차단 설정에서 ${path}의 공개 읽기를 허용한 뒤 다시 확인하세요.`, 422, "LLMS_ACCESS_DENIED", details);
+    }
+    if (fetched.status === 404 || fetched.status === 410) {
+      throw new AppError(`${target}에서 배포된 llms.txt를 찾지 못했습니다(HTTP ${fetched.status}). 파일을 해당 경로에 업로드한 뒤 다시 확인하세요.`, 422, "LLMS_NOT_FOUND", details);
+    }
+    if (fetched.status === 429) {
+      throw new AppError(`대상 사이트의 요청 한도를 초과했습니다(HTTP 429). 잠시 후 ${target} 확인을 다시 시도하세요.`, 422, "LLMS_RATE_LIMITED", details);
+    }
+    throw new AppError(`대상 사이트가 ${target} 요청에 HTTP ${fetched.status} 오류를 반환했습니다. 사이트 응답 상태를 확인한 뒤 다시 시도하세요.`, 422, "LLMS_HTTP_ERROR", details);
   }
   // 없는 경로에 200으로 HTML을 돌려주는 사이트가 많다. 게시 성공으로 보지 않는다 (§8)
   if (looksLikeHtml(fetched.text, fetched.contentType)) {
     throw new AppError(`${path} 요청에 HTML 페이지가 응답했습니다. 파일이 없을 때 보여 주는 페이지일 수 있어 게시로 인정하지 않았습니다.`, 422, "LLMS_HTML_RESPONSE");
   }
   const validation = validateLlmsTxt(fetched.text, site.toString(), { path });
+  if (!validation.valid) {
+    throw new AppError(`${target}에 응답한 내용이 llms.txt 규격에 맞지 않습니다. 사이트 이름 H1과 문서 구조를 확인한 뒤 다시 배포하세요. 편집 중인 문서는 유지됩니다.`, 422, "LLMS_INVALID_DOCUMENT", {
+      requestedUrl: target, url: fetched.url, upstreamStatus: fetched.status, validation,
+    });
+  }
   const quality = (code: string, message: string) => {
     validation.issues.push({ severity: "warning", category: "quality", code, message });
     validation.stats.warnings += 1;

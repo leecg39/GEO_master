@@ -92,11 +92,11 @@ export function restoreLlmsRevision(idInput: unknown, revision: number, input: u
     const row = ownedDocument(id);
     assertExpectedUpdatedAt(row.updated_at, expectedUpdatedAt);
     const document = revisionText(id, revision);
-    const site = sqlite.prepare("SELECT website FROM llms_documents WHERE id = ?").get(id) as { website: string };
-    const validation = validateLlmsTxt(document, site.website);
+    const site = sqlite.prepare("SELECT website, scope_path FROM llms_documents WHERE id = ?").get(id) as { website: string; scope_path: string };
+    const validation = validateLlmsTxt(document, site.website, { path: site.scope_path });
     const previousTime = Date.parse(row.updated_at);
     const updatedAt = new Date(Number.isFinite(previousTime) && previousTime >= Date.now() ? previousTime + 1 : Date.now()).toISOString();
-    sqlite.prepare("UPDATE llms_documents SET document = ?, validation = ?, status = ?, updated_at = ? WHERE id = ?")
+    sqlite.prepare("UPDATE llms_documents SET document = ?, validation = ?, status = ?, remote_url = NULL, remote_content_type = NULL, remote_checked_at = NULL, updated_at = ? WHERE id = ?")
       .run(document, JSON.stringify(validation), validation.valid ? "validated" : "draft", updatedAt, id);
     recordLlmsRevision(sqlite, id, document, "restored");
     return { id, document, updatedAt };

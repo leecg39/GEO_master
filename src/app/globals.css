@@ -58,6 +58,8 @@
   --app-status-good: #c2ef4e;
   --app-chart-current: #c2ef4e;
   --app-chart-previous: #fa7faa;
+  --app-chart-blue: #93c5fd;
+  --app-chart-teal: #5eead4;
   --model-openai: #c2ef4e;
   --model-anthropic: #fa7faa;
   --model-gemini: #b6a7ee;
@@ -128,6 +130,8 @@ html[data-theme="light"] {
   --app-status-good: #326517;
   --app-chart-current: #326517;
   --app-chart-previous: #a52b5a;
+  --app-chart-blue: #1d4ed8;
+  --app-chart-teal: #0f766e;
   --model-openai: #326517;
   --model-anthropic: #a52b5a;
   --model-gemini: #5c4aa2;
