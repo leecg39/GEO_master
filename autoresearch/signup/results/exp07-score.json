@@ -1,0 +1,29 @@
+{
+  "passed": 27,
+  "total": 27,
+  "metric": 100,
+  "outerScore": 100,
+  "groups": {
+    "security": {
+      "passed": 6,
+      "total": 6
+    },
+    "a11y": {
+      "passed": 7,
+      "total": 7
+    },
+    "flow": {
+      "passed": 5,
+      "total": 5
+    },
+    "structured": {
+      "passed": 5,
+      "total": 5
+    },
+    "admin": {
+      "passed": 4,
+      "total": 4
+    }
+  },
+  "failed": []
+}

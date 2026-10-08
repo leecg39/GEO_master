@@ -1,0 +1,31 @@
+{
+  "passed": 26,
+  "total": 27,
+  "metric": 96.3,
+  "outerScore": 83.3,
+  "groups": {
+    "security": {
+      "passed": 5,
+      "total": 6
+    },
+    "a11y": {
+      "passed": 7,
+      "total": 7
+    },
+    "flow": {
+      "passed": 5,
+      "total": 5
+    },
+    "structured": {
+      "passed": 5,
+      "total": 5
+    },
+    "admin": {
+      "passed": 4,
+      "total": 4
+    }
+  },
+  "failed": [
+    "security silently drops honeypot sign-ups and renders the trap field for bots only"
+  ]
+}

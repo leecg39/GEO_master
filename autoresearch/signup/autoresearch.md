@@ -5,3 +5,6 @@
 - 실험 전 평가를 고정하고 SHA-256을 확인한다. 기존 테스트를 수정하지 않는다.
 - 상세 목표: `outer/program.md`. 결과: `inner_results.tsv`, `outer/strategy_log.tsv`, `results/*-score.json`.
 - Bounded 8회(Outer 2회 × 4). 이어받을 때 program, 최근 git log, 결과를 먼저 읽는다.
+
+## 실험 완료
+기준 1/27(3.7%) → 27/27(100%), +96.3%p. 7개 실험 모두 KEEP(2번은 같은 회차에서 BOM 검사 순서 버그를 바로잡음). Outer score 0 → 100. 매 실험에서 기존 기능 테스트 8개 파일·109개, 전체 typecheck, 변경 파일 ESLint 통과. 평가 SHA-256 변경 없음. 상세 결과는 `inner_results.tsv`, `outer/strategy_log.tsv`, `results/*-score.json`.
