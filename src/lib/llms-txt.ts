@@ -202,6 +202,11 @@ export async function verifyRemoteLlmsTxt(website: string, pathInput?: string) {
     throw new AppError(`${path} 요청에 HTML 페이지가 응답했습니다. 파일이 없을 때 보여 주는 페이지일 수 있어 게시로 인정하지 않았습니다.`, 422, "LLMS_HTML_RESPONSE");
   }
   const validation = validateLlmsTxt(fetched.text, site.toString(), { path });
+  if (!validation.valid) {
+    throw new AppError(`${target}에 응답한 내용이 llms.txt 규격에 맞지 않습니다. 사이트 이름 H1과 문서 구조를 확인한 뒤 다시 배포하세요. 편집 중인 문서는 유지됩니다.`, 422, "LLMS_INVALID_DOCUMENT", {
+      requestedUrl: target, url: fetched.url, upstreamStatus: fetched.status, validation,
+    });
+  }
   const quality = (code: string, message: string) => {
     validation.issues.push({ severity: "warning", category: "quality", code, message });
     validation.stats.warnings += 1;
