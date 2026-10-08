@@ -577,6 +577,8 @@ function idempotentAudit(clientRequestId: string, projectId: number, expectedHas
   return publicAudit(row);
 }
 
+const PAGE_EVIDENCE_PARSER_VERSION = "audit-html-1";
+
 export async function createAudit(input: unknown) {
   const parsed = auditCreateSchema.parse(input);
   const active = requireActiveProject();
@@ -615,6 +617,17 @@ export async function createAudit(input: unknown) {
     executiveSummary: engineAnalysis.executiveSummary,
     recommendations: engineAnalysis.recommendations,
     engineMode: engineAnalysis.engineMode,
+    // Qshop P03: 이 진단이 실제로 읽은 페이지의 근거. 값이 없으면 null이며 추정하지 않는다
+    pageEvidence: {
+      finalUrl: page.url,
+      httpStatus: page.status,
+      contentType: page.contentType,
+      fetchedAt: now,
+      contentHash: createHash("sha256").update(page.text).digest("hex"),
+      bytes: Buffer.byteLength(page.text),
+      renderMode: "native" as const,
+      parserVersion: PAGE_EVIDENCE_PARSER_VERSION,
+    },
     _requestHash: fingerprint,
   };
   const { sqlite } = getDatabase();

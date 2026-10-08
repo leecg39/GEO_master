@@ -85,6 +85,11 @@ describe.sequential("audit evidence CRUD API", () => {
     expect(firstAudit).toMatchObject({ projectId, title: payload.title, notes: payload.notes, total: 32, clientRequestId: firstRequestId });
     expect(firstAudit.items).toHaveLength(32);
     expect(firstAudit.metadata).not.toHaveProperty("_requestHash");
+    // Qshop P03: 진단이 읽은 실제 페이지 근거
+    const evidence = firstAudit.metadata.pageEvidence as { contentHash: string; fetchedAt: string };
+    expect(evidence).toMatchObject({ httpStatus: 200, renderMode: "native", parserVersion: expect.any(String) });
+    expect(evidence.contentHash).toMatch(/^[0-9a-f]{64}$/);
+    expect(Date.parse(evidence.fetchedAt)).not.toBeNaN();
     const fetchCalls = vi.mocked(fetchPublicText).mock.calls.length;
     expect(fetchCalls).toBe(4);
     expect((getDatabase().sqlite.prepare("SELECT COUNT(*) AS count FROM audit_items WHERE audit_id = ?").get(firstAudit.id) as { count: number }).count).toBe(32);
