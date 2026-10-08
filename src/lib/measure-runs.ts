@@ -57,6 +57,15 @@ interface MeasureResultRow {
   sentiment: string;
   mention_rank: number | null;
   competitor_mentions: string;
+  slot_status?: string;
+  matched_spans?: string;
+  own_domain_hit?: number;
+  metric_version?: string;
+  search_mode?: string;
+  search_performed?: number | null;
+  citation_supported?: number | null;
+  returned_model?: string | null;
+  slot_error?: string | null;
   created_at: string;
 }
 
@@ -92,6 +101,15 @@ export interface MeasureResultResource {
   sentiment: string;
   mentionRank: number | null;
   competitorMentions: string[];
+  slotStatus: string;
+  matchedSpans: unknown[];
+  ownDomainHit: boolean;
+  metricVersion: string;
+  searchMode: string;
+  searchPerformed: boolean | null;
+  citationSupported: boolean | null;
+  returnedModel: string | null;
+  slotError: string | null;
   createdAt: string;
 }
 
@@ -141,6 +159,15 @@ function publicResult(row: MeasureResultRow): MeasureResultResource {
     sentiment: row.sentiment,
     mentionRank: row.mention_rank,
     competitorMentions: parseJson<string[]>(row.competitor_mentions, []),
+    slotStatus: row.slot_status ?? "succeeded",
+    matchedSpans: parseJson<unknown[]>(row.matched_spans ?? "[]", []),
+    ownDomainHit: Boolean(row.own_domain_hit),
+    metricVersion: row.metric_version ?? "legacy",
+    searchMode: row.search_mode ?? "off",
+    searchPerformed: row.search_performed == null ? null : Boolean(row.search_performed),
+    citationSupported: row.citation_supported == null ? null : Boolean(row.citation_supported),
+    returnedModel: row.returned_model ?? null,
+    slotError: row.slot_error ?? null,
     createdAt: row.created_at,
   };
 }

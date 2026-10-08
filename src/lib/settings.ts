@@ -168,6 +168,9 @@ export function getPublicSettings() {
     brandName: project.brandName,
     category: project.category,
     competitors,
+    brandAliases: parseJson<string[]>(project.brandAliases, []),
+    domain: project.domain,
+    competitorDomains: parseJson<string[]>(project.competitorDomains, []),
     activeProject: {
       id: project.id,
       name: project.name,
