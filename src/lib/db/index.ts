@@ -738,6 +738,27 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       for (const row of rows) insert.run(row.id, row.document, createHash("sha256").update(row.document).digest("hex"), row.created_at);
     },
   },
+  {
+    version: 24,
+    name: "gsc-excel-imports",
+    up(sqlite) {
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS gsc_imports (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          account_id TEXT NOT NULL,
+          property_url TEXT NOT NULL,
+          platform TEXT NOT NULL,
+          filename TEXT NOT NULL,
+          content_hash TEXT NOT NULL,
+          report TEXT NOT NULL,
+          imported_at TEXT NOT NULL,
+          UNIQUE(project_id, account_id, property_url, content_hash)
+        );
+        CREATE INDEX IF NOT EXISTS idx_gsc_imports_project_account ON gsc_imports(project_id, account_id, id DESC);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

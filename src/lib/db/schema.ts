@@ -178,6 +178,18 @@ export const gscConnections = sqliteTable("gsc_connections", {
   updatedAt: text("updated_at").notNull(),
 });
 
+export const gscImports = sqliteTable("gsc_imports", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  accountId: text("account_id").notNull(),
+  propertyUrl: text("property_url").notNull(),
+  platform: text("platform").notNull(),
+  filename: text("filename").notNull(),
+  contentHash: text("content_hash").notNull(),
+  report: text("report").notNull(),
+  importedAt: text("imported_at").notNull(),
+});
+
 export const gbpConnections = sqliteTable("gbp_connections", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),

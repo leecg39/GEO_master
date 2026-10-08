@@ -20,6 +20,7 @@ const coreNavigation = [
   { href: "/share", label: "응답 점유율", icon: BarChart3 },
   { href: "/automation", label: "예약 측정", icon: CalendarClock },
   { href: "/reports", label: "리포트", icon: FileDown },
+  { href: "/search-performance", label: "검색 성과", icon: BarChart3 },
   { href: "/review", label: "검수함", icon: ListChecks },
   { href: "/facts", label: "사실 메모", icon: ClipboardCheck },
   { href: "/changes", label: "수정안 작업대", icon: GitCompare },
