@@ -36,7 +36,8 @@ assert(meta("og:description")?.includes("응답 점유율"), "OG description is 
 assert(meta("og:url") === origin + "/", "Canonical OG URL is the public root");
 assert(meta("twitter:card") === "summary_large_image", "Twitter large image card is configured");
 assert($("script").length === 0, "Public preview has no application scripts or hydration payload");
-assert($("a.action").attr("href") === "/?login=1", "Workspace link explicitly requests protected login");
+assert($('a[href="/login"]').length > 0, "Public landing links to the login form");
+assert(publicHtml.includes("무료 · GEO 측정") && publicHtml.includes("SEMForge Pro"), "Public landing separates the free GEO and paid SEMForge plans");
 await request("/", 200, { method: "HEAD" });
 await request("/?v=20261007", 200);
 await request("/link-preview.html", 200);

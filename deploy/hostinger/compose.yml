@@ -12,9 +12,13 @@ services:
       - runtime.env
     environment:
       GEO_AUTH_MODE: proxy
-      GEO_HTTP_AUTH: ${GEO_HTTP_AUTH:?Set bcrypt login accounts}
+      GEO_HTTP_AUTH: ${GEO_HTTP_AUTH:-}
       GEO_GUEST_USERS: ${GEO_GUEST_USERS:-guest}
       GEO_ADMIN_USERS: ${GEO_ADMIN_USERS:-geo-admin}
+      # .env 관리자 계정(로그인 아이디·비밀번호)과 회원가입 방식(approval/auto/closed)
+      GEO_ADMIN_ID: ${GEO_ADMIN_ID:-}
+      GEO_ADMIN_PASSWORD: ${GEO_ADMIN_PASSWORD:-}
+      GEO_SIGNUP_MODE: ${GEO_SIGNUP_MODE:-approval}
       GEO_AUTH_PROXY_SECRET: ${GEO_AUTH_PROXY_SECRET:?Set a random proxy authentication secret}
     volumes:
       - geo-data:/app/data
@@ -48,7 +52,7 @@ services:
       traefik.http.routers.geo-master.service: geo-master
       traefik.http.routers.geo-master.priority: "10"
 
-      # Anonymous root requests get only a static, data-free link preview.
+      # Anonymous root requests get only the data-free service introduction (/welcome, no scripts).
       # Authenticated sessions and ?login=1 reach the app login gate.
       traefik.http.routers.geo-master-preview.rule: Host(`${GEO_DOMAIN:-geo.soverin.cloud}`) && (Method(`GET`) || Method(`HEAD`)) && (Path(`/link-preview.html`) || (Path(`/`) && !HeaderRegexp(`Authorization`, `.+`) && !HeaderRegexp(`Cookie`, `(^|;[ ]*)__Host-geo_session=`) && !Query(`login`, `1`)))
       traefik.http.routers.geo-master-preview.entrypoints: websecure
@@ -57,7 +61,7 @@ services:
       traefik.http.routers.geo-master-preview.priority: "100"
       traefik.http.routers.geo-master-preview.service: geo-master
       traefik.http.routers.geo-master-preview.middlewares: geo-master-public-headers,geo-master-preview-path
-      traefik.http.middlewares.geo-master-preview-path.replacepath.path: /link-preview.html
+      traefik.http.middlewares.geo-master-preview-path.replacepath.path: /welcome
 
       # Only these two JPEGs are public; no blanket /public or /api exception.
       traefik.http.routers.geo-master-social-images.rule: Host(`${GEO_DOMAIN:-geo.soverin.cloud}`) && (Method(`GET`) || Method(`HEAD`)) && (Path(`/og/geo-master-20261007.jpg`) || Path(`/og/geo-master-thumbnail-20261007.jpg`))

@@ -2,6 +2,8 @@ import { AsyncLocalStorage } from "node:async_hooks";
 import { timingSafeEqual } from "node:crypto";
 import { AppError } from "./errors";
 import { accountRole, type AccountRole } from "./account-policy";
+import { authMode } from "./auth-mode";
+import { authSecret } from "./login-session";
 
 export interface RequestAccount {
   id: string;
@@ -11,20 +13,26 @@ export interface RequestAccount {
 const accounts = new AsyncLocalStorage<RequestAccount>();
 const localAccount: RequestAccount = { id: "local", role: "member" };
 
+/** proxy·app 모드는 신뢰 경계(Traefik 또는 Next 프록시)가 주입한 비밀 헤더와 사용자 헤더로만 계정을 정한다. */
 function proxyMode() {
-  const mode = process.env.GEO_AUTH_MODE?.trim() || "local";
-  if (mode !== "local" && mode !== "proxy") {
+  const mode = authMode();
+  if (!mode) {
     throw new AppError("로그인 설정을 확인해 주세요.", 503, "AUTH_CONFIGURATION_INVALID");
   }
-  return mode === "proxy";
+  return mode !== "local";
+}
+
+function configuredSecret() {
+  try {
+    return authSecret();
+  } catch {
+    throw new AppError("로그인 설정을 확인해 주세요.", 503, "AUTH_CONFIGURATION_INVALID");
+  }
 }
 
 function authenticatedAccount(headers: Headers): RequestAccount {
   if (!proxyMode()) return localAccount;
-  const secret = process.env.GEO_AUTH_PROXY_SECRET?.trim();
-  if (!secret || secret.length < 32) {
-    throw new AppError("로그인 설정을 확인해 주세요.", 503, "AUTH_CONFIGURATION_INVALID");
-  }
+  const secret = configuredSecret();
   const supplied = headers.get("x-geo-auth-secret") ?? "";
   const user = headers.get("x-geo-auth-user") ?? "";
   const expectedBytes = Buffer.from(secret);

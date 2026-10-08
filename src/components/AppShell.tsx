@@ -4,7 +4,7 @@ import type { RequestAccount } from "@/lib/request-account";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarChart3, BookOpen, Bot, CalendarClock, ArrowLeft, ExternalLink, ClipboardCheck, GitCompare, Braces, FileSpreadsheet, FlaskConical, ListChecks, CreditCard, FileCode2, FileDown, FilePenLine, Gauge, Images, LoaderCircle, Menu, PackageOpen, SearchCheck, Settings, Sparkles, Target, X } from "lucide-react";
+import { BarChart3, BookOpen, Bot, CalendarClock, ArrowLeft, ExternalLink, ClipboardCheck, GitCompare, Braces, FileSpreadsheet, FlaskConical, ListChecks, CreditCard, FileCode2, FileDown, FilePenLine, Gauge, Images, LoaderCircle, Menu, PackageOpen, SearchCheck, Settings, Sparkles, Target, Users, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { Modal } from "@/components/Modal";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
@@ -72,8 +72,26 @@ function NavLink({
   );
 }
 
-function Navigation({ close, semforgeActive, guest }: { close?: () => void; semforgeActive: boolean | null; guest: boolean }) {
+type Role = RequestAccount["role"];
+
+/** 게스트는 백업·검색 성과 가져오기를, 회원가입 회원은 운영자용 백업·복원을 쓰지 않는다 */
+function hiddenCoreLinks(role?: Role) {
+  if (role === "guest") return ["/workspace", "/search-console"];
+  if (role === "customer") return ["/workspace"];
+  return [];
+}
+
+function accountLabel(role: Role, semforgeActive: boolean | null) {
+  if (role === "guest") return " · 게스트";
+  if (role === "admin") return " · 관리자";
+  if (semforgeActive === null) return "";
+  return semforgeActive ? " · SEMForge Pro" : " · 무료 · GEO 측정";
+}
+
+function Navigation({ close, semforgeActive, role }: { close?: () => void; semforgeActive: boolean | null; role?: Role }) {
   const pathname = usePathname();
+  const guest = role === "guest";
+  const hidden = hiddenCoreLinks(role);
 
   if (!guest && isSemforgePath(pathname)) {
     return (
@@ -91,7 +109,7 @@ function Navigation({ close, semforgeActive, guest }: { close?: () => void; semf
 
   return (
     <nav className="mt-8 space-y-1.5" aria-label="주요 메뉴">
-      {coreNavigation.filter((item) => !guest || !["/workspace", "/search-console"].includes(item.href)).map(({ href, label, icon }) => {
+      {coreNavigation.filter((item) => !hidden.includes(item.href)).map(({ href, label, icon }) => {
         const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
         return <NavLink key={href} href={href} label={label} icon={icon} active={active} close={close} />;
       })}
@@ -114,7 +132,7 @@ function Navigation({ close, semforgeActive, guest }: { close?: () => void; semf
         </div>
       ))}
 
-      {!guest && <div className="pt-2">
+      {!guest && role !== "customer" && <div className="pt-2">
         <NavLink
           href="/settings"
           label="설정"
@@ -122,6 +140,10 @@ function Navigation({ close, semforgeActive, guest }: { close?: () => void; semf
           active={pathname.startsWith("/settings")}
           close={close}
         />
+      </div>}
+
+      {role === "admin" && <div className="pt-2">
+        <NavLink href="/admin/accounts" label="회원 관리" icon={Users} active={pathname.startsWith("/admin")} close={close} />
       </div>}
     </nav>
   );
@@ -189,12 +211,12 @@ export function AppShell({ children, account }: { children: ReactNode; account?:
         <Brand semforge={semforge} />
         <ProjectSwitcher />
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <Navigation semforgeActive={semforgeActive} guest={guest} />
+          <Navigation semforgeActive={semforgeActive} role={account?.role} />
         </div>
         <div className="mt-4 shrink-0 space-y-3">
           {semforge && <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2 py-2 text-xs text-[color:var(--color-on-dark-muted)] hover:text-white"><ArrowLeft className="h-4 w-4" />GEO Master로 돌아가기</Link>}
           <ThemeToggle />
-          {account && account.id !== "local" && <form action="/api/auth/logout" method="post" className="text-xs text-[color:var(--color-on-dark-muted)]"><span>{account.id}{guest ? " · 게스트" : ""}</span><button type="submit" className="ml-3 underline">로그아웃</button></form>}
+          {account && account.id !== "local" && <form action="/api/auth/logout" method="post" className="text-xs text-[color:var(--color-on-dark-muted)]"><span>{account.id}{accountLabel(account.role, semforgeActive)}</span><button type="submit" className="ml-3 underline">로그아웃</button></form>}
           <div className="rounded-[12px] border border-[color:var(--color-hairline-violet)] bg-[color:var(--color-ink-deep)] p-3.5">
             <div className="flex items-center gap-2 text-xs font-semibold text-[color:var(--color-accent-lime)]">
               <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent-lime)]" />
@@ -217,12 +239,12 @@ export function AppShell({ children, account }: { children: ReactNode; account?:
           <div className="flex items-center justify-between"><Brand semforge={semforge} close={() => setOpen(false)} /><button ref={menuCloseRef} type="button" onClick={() => setOpen(false)} aria-label="메뉴 닫기" className="p-2 text-[color:var(--color-on-dark-muted)]"><X /></button></div>
           <ProjectSwitcher />
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <Navigation close={() => setOpen(false)} semforgeActive={semforgeActive} guest={guest} />
+            <Navigation close={() => setOpen(false)} semforgeActive={semforgeActive} role={account?.role} />
           </div>
           <div className="mt-4 shrink-0">
             {semforge && <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2 py-2 text-xs text-[color:var(--color-on-dark-muted)] hover:text-white"><ArrowLeft className="h-4 w-4" />GEO Master로 돌아가기</Link>}
             <ThemeToggle />
-            {account && account.id !== "local" && <form action="/api/auth/logout" method="post" className="text-xs text-[color:var(--color-on-dark-muted)]"><span>{account.id}{guest ? " · 게스트" : ""}</span><button type="submit" className="ml-3 underline">로그아웃</button></form>}
+            {account && account.id !== "local" && <form action="/api/auth/logout" method="post" className="text-xs text-[color:var(--color-on-dark-muted)]"><span>{account.id}{accountLabel(account.role, semforgeActive)}</span><button type="submit" className="ml-3 underline">로그아웃</button></form>}
           </div>
         </aside>
       </div></Modal>

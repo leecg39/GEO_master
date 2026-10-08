@@ -1,0 +1,148 @@
+{
+  "origin": "http://127.0.0.1:3107",
+  "checkedAt": "2026-10-08T21:45:12.178Z",
+  "passed": 28,
+  "failed": 0,
+  "checks": [
+    {
+      "label": "GET / (anonymous) shows the GEO Master landing page",
+      "passed": true,
+      "detail": "200"
+    },
+    {
+      "label": "landing separates free GEO and paid SEMForge sign-up",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "landing ships no scripts and a strict CSP",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "protected page redirects anonymous visitors to login",
+      "passed": true,
+      "detail": "/login?next=%2Faudit"
+    },
+    {
+      "label": "/?login=1 still opens the login form",
+      "passed": true,
+      "detail": "303"
+    },
+    {
+      "label": "GET /signup?plan=semforge preselects SEMForge Pro",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "SEMForge sign-up is filed for approval",
+      "passed": true,
+      "detail": "/login?notice=pending"
+    },
+    {
+      "label": "free sign-up is filed for approval",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "duplicate email is refused",
+      "passed": true,
+      "detail": "409"
+    },
+    {
+      "label": ".env admin id cannot be claimed by sign-up",
+      "passed": true,
+      "detail": "409"
+    },
+    {
+      "label": "pending member cannot log in yet",
+      "passed": true,
+      "detail": "/login?error=pending&next=%2F"
+    },
+    {
+      "label": ".env administrator logs in",
+      "passed": true,
+      "detail": "/"
+    },
+    {
+      "label": "signed-in root renders the app dashboard, not the landing",
+      "passed": true,
+      "detail": "200"
+    },
+    {
+      "label": "administrator sees pending sign-ups with their plan",
+      "passed": true,
+      "detail": "200"
+    },
+    {
+      "label": "administrator has SEMForge without payment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "administrator approves the SEMForge member",
+      "passed": true,
+      "detail": "{\"id\":1,\"loginId\":\"pro.member@geo.test\",\"displayName\":\"프로 회원\",\"plan\":\"semforge\",\"status\":\"active\",\"consentedAt\":\"2026-10-08T21:45:11.274Z\",\"approvedAt\":\"2026-10-08T21:45:11.859Z\",\"approvedBy\":\"admin@geo.test\",\"createdAt\":\"2026-10-08T21:45:11.274Z\",\"updatedAt\":\"2026-10-08T21:45:11.859Z\",\"semforge\":{\"active\":false,\"status\":\"inactive\"}}"
+    },
+    {
+      "label": "administrator approves the free member",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "SEMForge member lands on the subscription screen",
+      "passed": true,
+      "detail": "/subscription"
+    },
+    {
+      "label": "free member lands on GEO measurement (dashboard)",
+      "passed": true,
+      "detail": "/"
+    },
+    {
+      "label": "member subscription reports an unpaid customer",
+      "passed": true,
+      "detail": "{\"accountId\":\"pro.member@geo.test\",\"role\":\"customer\",\"accessSource\":\"none\",\"billingAvailable\":false,\"status\":\"inactive\",\"active\":false,\"amountKrw\":300000,\"currentPeriodStart\":null,\"currentPeriodEnd\":null,\"daysRemaining\":null,\"features\":[\"Google SERP AI Overview 가시성\",\"Firecrawl 사이트 진단\",\"포지션 추적 · 도메인 개요\",\"GSC · GBP · Map Rank 지역 SEO\"]}"
+    },
+    {
+      "label": "SEMForge API stays locked for an unpaid member",
+      "passed": true,
+      "detail": "402"
+    },
+    {
+      "label": "member home renders",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "member cannot open operator settings",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "member cannot open member administration",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "member cannot approve accounts",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "forged identity headers are ignored",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "administrator suspends the free member",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "suspended member's existing session is revoked",
+      "passed": true,
+      "detail": "303"
+    }
+  ]
+}

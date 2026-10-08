@@ -1,0 +1,89 @@
+{
+  "origin": "http://127.0.0.1:3107",
+  "checkedAt": "2026-10-08T21:45:30.643Z",
+  "passed": 16,
+  "failed": 0,
+  "consoleErrors": [],
+  "checks": [
+    {
+      "label": "desktop: anonymous / shows the landing page at the same URL",
+      "passed": true,
+      "detail": "/"
+    },
+    {
+      "label": "desktop: landing has free and SEMForge CTAs",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "desktop: sign-up form preselects SEMForge Pro",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "desktop: sign-up lands on the pending-approval notice",
+      "passed": true,
+      "detail": "/login?notice=pending"
+    },
+    {
+      "label": "desktop: .env administrator reaches the dashboard",
+      "passed": true,
+      "detail": "/"
+    },
+    {
+      "label": "desktop: administrator sidebar shows member administration",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "desktop: administrator label",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "desktop: members page lists the browser sign-up as pending",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "desktop: approving updates the row in place",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "desktop: logout returns to the login form",
+      "passed": true,
+      "detail": "/login"
+    },
+    {
+      "label": "desktop: SEMForge member lands on the subscription screen",
+      "passed": true,
+      "detail": "/subscription"
+    },
+    {
+      "label": "desktop: member sidebar hides settings, backups and administration",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "desktop: member label shows the free GEO tier until payment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mobile: landing fits without horizontal scrolling",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mobile: sign-up fits without horizontal scrolling",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "no uncaught browser errors",
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}

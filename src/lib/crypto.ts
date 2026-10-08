@@ -71,6 +71,11 @@ export function decryptSecret(value: string | null | undefined) {
   }
 }
 
+/** 별도 비밀이 없을 때 마스터 키에서 용도별 서버 비밀을 파생한다. 같은 키와 라벨이면 항상 같은 값이다. */
+export function deriveServerSecret(label: string) {
+  return crypto.createHmac("sha256", keyMaterial()).update(label).digest("base64url");
+}
+
 export function maskSecret(value: string | null) {
   if (!value) return null;
   const suffix = value.slice(-4);
