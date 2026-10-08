@@ -16,7 +16,8 @@ const querySchema = z.object({
 export function GET(request: NextRequest) {
   try {
     const query = querySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
-    const report = query.type === "audit" ? buildAuditReport(query.id) : buildShareReport(query.id, query.format === "pdf" ? PDF_MAX_RESULTS : undefined);
+    const options = { includeObservations: true };
+    const report = query.type === "audit" ? buildAuditReport(query.id, options) : buildShareReport(query.id, query.format === "pdf" ? PDF_MAX_RESULTS : undefined, options);
     const id = report.kind === "audit" ? report.audit.id : report.run.id;
     const filename = reportFilename(query.type, id, query.format);
     if (query.format === "pdf") {

@@ -7,6 +7,7 @@ import { measureResults, measureRuns } from "@/lib/db/schema";
 import { ensureActiveProject, updateProject } from "@/lib/projects";
 import { renderPublicReportHtml, renderUnavailableHtml } from "@/lib/public-report";
 import { createReportShare, listReportShares, resolvePublicReport, revokeReportShare } from "@/lib/report-shares";
+import { importOutcomeCsv } from "@/lib/outcomes/store";
 import { NextRequest } from "next/server";
 import { GET as publicReport } from "@/app/r/[token]/route";
 
@@ -100,5 +101,13 @@ describe("public report shares", () => {
     expect(stored.snapshot).not.toContain("secret-hash");
     await publicReport(new NextRequest(`https://geo.example${url}`, { method: "HEAD" }), { params: Promise.resolve({ token }) });
     expect(listReportShares(runId).find((item) => item.id === share.id)?.viewCount).toBe(0);
+  });
+
+  it("never puts the internal observation appendix (traffic, logs, business outcomes) into a public snapshot", () => {
+    importOutcomeCsv({ fileName: "private.csv", sourceLabel: "내부 매출 원천", buffer: Buffer.from("date,event name,event count\n2026-10-01,purchase,42") });
+    const { share } = createReportShare({ runId, expiresInDays: 2 });
+    const stored = getDatabase().sqlite.prepare("SELECT snapshot FROM report_shares WHERE id = ?").get(share.id) as { snapshot: string };
+    expect(stored.snapshot).not.toContain("observations");
+    expect(stored.snapshot).not.toContain("내부 매출 원천");
   });
 });

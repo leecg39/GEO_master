@@ -4,17 +4,28 @@ import { audits, measureResults, measureRuns } from "./db/schema";
 import { AppError } from "./errors";
 import type { AuditItemResult } from "./audit";
 import { getRunDiagnostics } from "./claims";
+import { buildObservationAppendix, type ObservationAppendix } from "./observation-appendix";
+import { ensureActiveProject } from "./projects";
 
 export type ReportKind = "audit" | "share";
 export type AuditReport = ReturnType<typeof buildAuditReport>;
 export type ShareReport = ReturnType<typeof buildShareReport>;
 export type PortableReport = AuditReport | ShareReport;
 
+/** 관측 지표 부록은 앱 안에서 내려받는 리포트에만 붙인다(공개 공유 스냅샷 제외) */
+export interface ReportOptions { includeObservations?: boolean }
+
+/** 부록은 활성 프로젝트 데이터이므로, 다른 프로젝트의 진단·측정 리포트에는 붙이지 않는다 */
+function observations(options: ReportOptions, projectId: number | null): ObservationAppendix | undefined {
+  if (!options.includeObservations || projectId === null || projectId !== ensureActiveProject().id) return undefined;
+  return buildObservationAppendix();
+}
+
 function parseJson<T>(value: string, fallback: T): T {
   try { return JSON.parse(value) as T; } catch { return fallback; }
 }
 
-export function buildAuditReport(id?: number) {
+export function buildAuditReport(id?: number, options: ReportOptions = {}) {
   const { orm } = getDatabase();
   const row = id
     ? orm.select().from(audits).where(eq(audits.id, id)).get()
@@ -43,6 +54,7 @@ export function buildAuditReport(id?: number) {
       categories: [...categoryMap.entries()].map(([category, score]) => ({ category, ...score })),
       items,
     },
+    observations: observations(options, row.projectId),
   };
 }
 
@@ -56,7 +68,7 @@ function shareDiagnostics(runId: number) {
   }
 }
 
-export function buildShareReport(id?: number, resultLimit?: number) {
+export function buildShareReport(id?: number, resultLimit?: number, options: ReportOptions = {}) {
   const { orm } = getDatabase();
   const run = id
     ? orm.select().from(measureRuns).where(eq(measureRuns.id, id)).get()
@@ -98,6 +110,7 @@ export function buildShareReport(id?: number, resultLimit?: number) {
       diagnostics: shareDiagnostics(run.id),
       results,
     },
+    observations: observations(options, run.projectId),
   };
 }
 
