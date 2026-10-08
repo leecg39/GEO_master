@@ -1,0 +1,44 @@
+{
+  "passed": 15,
+  "total": 25,
+  "metric": 60,
+  "outerScore": 0,
+  "groups": {
+    "preview": {
+      "passed": 1,
+      "total": 4
+    },
+    "freshness": {
+      "passed": 0,
+      "total": 5
+    },
+    "project": {
+      "passed": 0,
+      "total": 2
+    },
+    "storage": {
+      "passed": 7,
+      "total": 7
+    },
+    "history": {
+      "passed": 3,
+      "total": 3
+    },
+    "remote": {
+      "passed": 4,
+      "total": 4
+    }
+  },
+  "failed": [
+    "preview checks the remote file without overwriting the editor",
+    "preview requires an explicit import to replace the local draft",
+    "preview does not present invalid remote Markdown as a successful deployment",
+    "freshness clears remote evidence after the site URL changes",
+    "freshness clears remote evidence after the scope changes",
+    "freshness ignores a remote response for an old URL",
+    "freshness ignores validation that finishes after the editor changes",
+    "freshness ignores a generated draft that finishes after user editing",
+    "project clears the previous project's draft and verification on switching projects",
+    "project ignores an old project's in-flight result"
+  ]
+}

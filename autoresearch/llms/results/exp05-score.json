@@ -1,0 +1,36 @@
+{
+  "passed": 23,
+  "total": 25,
+  "metric": 92,
+  "outerScore": 0,
+  "groups": {
+    "preview": {
+      "passed": 4,
+      "total": 4
+    },
+    "freshness": {
+      "passed": 5,
+      "total": 5
+    },
+    "project": {
+      "passed": 0,
+      "total": 2
+    },
+    "storage": {
+      "passed": 7,
+      "total": 7
+    },
+    "history": {
+      "passed": 3,
+      "total": 3
+    },
+    "remote": {
+      "passed": 4,
+      "total": 4
+    }
+  },
+  "failed": [
+    "project clears the previous project's draft and verification on switching projects",
+    "project ignores an old project's in-flight result"
+  ]
+}

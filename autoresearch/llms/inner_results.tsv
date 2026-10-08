@@ -1,2 +1,8 @@
 iteration	commit	metric	delta	guard	status	description
 0	1e5982e	16	0	pass	baseline	초기 25개 행동 시나리오 중 4개 통과
+1	0b89b25	40	24	pass	keep	본문·URL·경로 변경 시 배포 증적 무효화
+2	e6e75fd	48	8	pass	keep	리비전 복원 시 범위 재검증 및 과거 배포 증적 초기화
+3	b91f715	60	12	pass	keep	HTTP 성공으로 온 비문서 응답의 가져오기 차단
+4	dd3d180	72	12	pass	keep	원격 확인과 초안 가져오기를 분리하고 미리보기 제공
+5	d1375bb	92	20	pass	keep	편집 후 도착하는 이전 요청의 결과 무시
+6	22c43fc	100	8	pass	keep	프로젝트 전환에서 이전 초안·비동기 결과 분리
