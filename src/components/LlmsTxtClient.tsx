@@ -2,7 +2,7 @@
 
 import { AiFileBundlePanel } from "@/components/AiFileBundlePanel";
 import { LlmsHistoryPanel } from "@/components/LlmsHistoryPanel";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { CheckCircle2, Copy, Download, FileCode2, Globe2, LoaderCircle, RefreshCw, Save, ShieldAlert, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/CrudPrimitives";
 import { Badge, Button, Card, EmptyState, PageHeader, Progress } from "@/components/ui";
@@ -24,6 +24,16 @@ export function LlmsTxtClient() {
   const [documents, setDocuments] = useState<Array<{ id: number; title: string; status: string; updatedAt: string }>>([]);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; title: string; updatedAt: string } | null>(null);
 
+  const requestVersion = useRef(0);
+
+  function invalidateReadRequests() {
+    requestVersion.current += 1;
+    setLoading(false); setRemoteLoading(false);
+  }
+  function edited() {
+    invalidateReadRequests(); setRemote(null); setValidation(null); setError("");
+  }
+
   async function loadDocuments() {
     const data = await json<{ items: Array<{ id: number; title: string; status: string; updatedAt: string }> }>(await fetch("/api/llms-documents?limit=20"));
     setDocuments(data.items);
@@ -35,19 +45,41 @@ export function LlmsTxtClient() {
   }, []);
 
   function parsedLinks() { return resources.split("\n").map((line) => line.trim()).filter(Boolean).map((line) => { const [title = "", url = "", description = ""] = line.split("|").map((part) => part.trim()); return { title, url, description }; }); }
-  async function generate(event: FormEvent) { event.preventDefault(); setLoading(true); setError(""); try { const data = await json<{ result: { document: string; validation: Validation } }>(await fetch("/api/llms", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "generate", input: { brandName, website, summary, details, sections: [{ heading: "핵심 문서", links: parsedLinks() }] } }) })); setDocument(data.result.document); setValidation(data.result.validation); } catch (cause) { setError(cause instanceof Error ? cause.message : "초안을 만들지 못했습니다."); } finally { setLoading(false); } }
-  async function validate() { setLoading(true); setError(""); try { const data = await json<{ result: { validation: Validation } }>(await fetch("/api/llms", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "validate", document, website: website || undefined, path: scopePath }) })); setValidation(data.result.validation); } catch (cause) { setError(cause instanceof Error ? cause.message : "검증하지 못했습니다."); } finally { setLoading(false); } }
+  async function generate(event: FormEvent) {
+    event.preventDefault();
+    const request = ++requestVersion.current;
+    setLoading(true); setRemoteLoading(false); setError("");
+    try {
+      const data = await json<{ result: { document: string; validation: Validation } }>(await fetch("/api/llms", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "generate", input: { brandName, website, summary, details, sections: [{ heading: "핵심 문서", links: parsedLinks() }] } }) }));
+      if (request !== requestVersion.current) return;
+      setDocument(data.result.document); setValidation(data.result.validation);
+    } catch (cause) { if (request === requestVersion.current) setError(cause instanceof Error ? cause.message : "초안을 만들지 못했습니다."); }
+    finally { if (request === requestVersion.current) setLoading(false); }
+  }
+  async function validate() {
+    const request = ++requestVersion.current;
+    setLoading(true); setRemoteLoading(false); setError("");
+    try {
+      const data = await json<{ result: { validation: Validation } }>(await fetch("/api/llms", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "validate", document, website: website || undefined, path: scopePath }) }));
+      if (request !== requestVersion.current) return;
+      setValidation(data.result.validation);
+    } catch (cause) { if (request === requestVersion.current) setError(cause instanceof Error ? cause.message : "검증하지 못했습니다."); }
+    finally { if (request === requestVersion.current) setLoading(false); }
+  }
   async function verifyRemote() {
-    setRemoteLoading(true); setError(""); setRemote(null);
+    const request = ++requestVersion.current;
+    setRemoteLoading(true); setLoading(false); setError(""); setRemote(null);
     try {
       const data = await json<{ result: RemoteResult }>(await fetch("/api/llms", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "remote", website, path: scopePath }) }));
+      if (request !== requestVersion.current) return;
       if (!data.result.validation.valid) throw new Error("원격 파일의 문서 구조가 올바르지 않습니다. 편집 중인 문서는 유지됩니다.");
       setRemote(data.result);
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "배포 파일을 확인하지 못했습니다."); }
-    finally { setRemoteLoading(false); }
+    } catch (cause) { if (request === requestVersion.current) setError(cause instanceof Error ? cause.message : "배포 파일을 확인하지 못했습니다."); }
+    finally { if (request === requestVersion.current) setRemoteLoading(false); }
   }
   function importRemote() {
     if (!remote) return;
+    invalidateReadRequests();
     setDocument(remote.document); setValidation(remote.validation); setError("");
   }
   function download() { if (!validation?.valid) return; const blob = new Blob([document], { type: "text/markdown;charset=utf-8" }); const link = window.document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "llms.txt"; link.click(); window.setTimeout(() => URL.revokeObjectURL(link.href), 0); }
@@ -67,14 +99,17 @@ export function LlmsTxtClient() {
     finally { setLoading(false); }
   }
   async function openDocument(id: number) {
+    invalidateReadRequests(); setRemote(null);
+    const request = requestVersion.current;
     try {
       const data = await json<{ document: { id: number; title: string; website: string; brandName: string; summary: string; details: string; resources: Array<{ title: string; url: string; description: string }>; document: string; validation: Validation; updatedAt: string; scopePath?: string } }>(await fetch(`/api/llms-documents/${id}`));
+      if (request !== requestVersion.current) return;
       const doc = data.document;
       setSavedId(doc.id); setSavedUpdatedAt(doc.updatedAt); setTitle(doc.title); setWebsite(doc.website);
       setBrandName(doc.brandName); setSummary(doc.summary); setDetails(doc.details); setDocument(doc.document);
       setValidation(doc.validation); setScopePath(doc.scopePath ?? "/llms.txt");
       setResources(doc.resources.map((item) => `${item.title} | ${item.url} | ${item.description}`).join("\n"));
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "문서를 열지 못했습니다."); }
+    } catch (cause) { if (request === requestVersion.current) setError(cause instanceof Error ? cause.message : "문서를 열지 못했습니다."); }
   }
   async function duplicateDocument(id: number) {
     try {
@@ -95,8 +130,8 @@ export function LlmsTxtClient() {
   }
 
   return <div><PageHeader eyebrow="AI discovery file" title="llms.txt 워크플로" description="공식 제안 형식의 AI용 사이트 안내 파일을 만들고, 문법을 검사하고, 배포된 /llms.txt까지 안전하게 확인합니다." action={<a href="https://llmstxt.org" target="_blank" rel="noreferrer"><Badge tone="cyan">제안 형식 참고</Badge></a>} />
-    <div className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr]"><Card><form onSubmit={generate} className="space-y-4"><h2 className="font-semibold text-white">초안 정보</h2><label className="text-sm">저장 제목<input className="mt-2" value={title} onChange={(e) => setTitle(e.target.value)} /></label><div className="grid gap-4 sm:grid-cols-2"><label className="text-sm">사이트·브랜드명<input className="mt-2" required value={brandName} onChange={(e) => setBrandName(e.target.value)} /></label><label className="text-sm">공식 사이트 URL<input className="mt-2" type="url" required value={website} onChange={(e) => setWebsite(e.target.value)} onBlur={() => { if (website) setResources((current) => current.replaceAll("https://example.com", website.replace(/\/$/, ""))); }} placeholder="https://example.com" /></label></div><label className="block text-sm">적용 경로 <span className="text-xs text-slate-600">(사이트 루트는 /llms.txt, 문서 영역만이면 /docs/llms.txt)</span><input className="mt-2 font-mono text-xs" value={scopePath} onChange={(e) => { setScopePath(e.target.value); setValidation(null); }} placeholder="/llms.txt" /></label><label className="block text-sm">한 줄 요약<textarea className="mt-2" rows={3} required minLength={20} value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="누구에게 어떤 정보와 가치를 제공하는 공식 사이트인지 설명하세요." /></label><label className="block text-sm">추가 안내 <span className="text-slate-600">(선택)</span><textarea className="mt-2" rows={4} value={details} onChange={(e) => setDetails(e.target.value)} placeholder="AI가 문서를 선택할 때 알아야 할 범위, 기준일, 언어 등을 적으세요." /></label><label className="block text-sm">핵심 문서 <span className="text-xs text-slate-600">(한 줄: 제목 | 절대 URL | 설명)</span><textarea className="mt-2 font-mono text-xs" rows={7} required value={resources} onChange={(e) => setResources(e.target.value)} /></label><div className="grid gap-2 sm:grid-cols-2"><Button className="w-full" disabled={loading}>{loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileCode2 className="h-4 w-4" />}초안 생성</Button><Button type="button" variant="secondary" className="w-full" disabled={loading || !brandName || !website || !summary} onClick={() => void saveDocument()}><Save className="h-4 w-4" />문서 저장</Button></div></form></Card>
-      <Card><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold text-white">llms.txt 편집기</h2><p className="mt-1 text-xs text-slate-500">필수는 H1 하나 · 요약(&gt;)·세부 설명·H2 문서 목록은 선택(llms.txt v2)</p></div><div className="flex gap-2"><Button type="button" variant="secondary" disabled={!document || loading} onClick={() => void validate()}><RefreshCw className="h-4 w-4" />검증</Button><Button type="button" variant="secondary" disabled={!document || !validation?.valid} onClick={download}><Download className="h-4 w-4" />다운로드</Button></div></div>{document ? <textarea aria-label="llms.txt 내용" className="min-h-[28rem] font-mono text-xs leading-5" value={document} onChange={(e) => { setDocument(e.target.value); setValidation(null); }} /> : <EmptyState>왼쪽 정보를 입력해 llms.txt 초안을 만드세요.</EmptyState>}</Card></div>
+    <div className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr]"><Card><form onSubmit={generate} onChangeCapture={edited} className="space-y-4"><h2 className="font-semibold text-white">초안 정보</h2><label className="text-sm">저장 제목<input className="mt-2" value={title} onChange={(e) => setTitle(e.target.value)} /></label><div className="grid gap-4 sm:grid-cols-2"><label className="text-sm">사이트·브랜드명<input className="mt-2" required value={brandName} onChange={(e) => setBrandName(e.target.value)} /></label><label className="text-sm">공식 사이트 URL<input className="mt-2" type="url" required value={website} onChange={(e) => setWebsite(e.target.value)} onBlur={() => { if (website) setResources((current) => current.replaceAll("https://example.com", website.replace(/\/$/, ""))); }} placeholder="https://example.com" /></label></div><label className="block text-sm">적용 경로 <span className="text-xs text-slate-600">(사이트 루트는 /llms.txt, 문서 영역만이면 /docs/llms.txt)</span><input className="mt-2 font-mono text-xs" value={scopePath} onChange={(e) => { setScopePath(e.target.value); setValidation(null); }} placeholder="/llms.txt" /></label><label className="block text-sm">한 줄 요약<textarea className="mt-2" rows={3} required minLength={20} value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="누구에게 어떤 정보와 가치를 제공하는 공식 사이트인지 설명하세요." /></label><label className="block text-sm">추가 안내 <span className="text-slate-600">(선택)</span><textarea className="mt-2" rows={4} value={details} onChange={(e) => setDetails(e.target.value)} placeholder="AI가 문서를 선택할 때 알아야 할 범위, 기준일, 언어 등을 적으세요." /></label><label className="block text-sm">핵심 문서 <span className="text-xs text-slate-600">(한 줄: 제목 | 절대 URL | 설명)</span><textarea className="mt-2 font-mono text-xs" rows={7} required value={resources} onChange={(e) => setResources(e.target.value)} /></label><div className="grid gap-2 sm:grid-cols-2"><Button className="w-full" disabled={loading}>{loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileCode2 className="h-4 w-4" />}초안 생성</Button><Button type="button" variant="secondary" className="w-full" disabled={loading || !brandName || !website || !summary} onClick={() => void saveDocument()}><Save className="h-4 w-4" />문서 저장</Button></div></form></Card>
+      <Card><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold text-white">llms.txt 편집기</h2><p className="mt-1 text-xs text-slate-500">필수는 H1 하나 · 요약(&gt;)·세부 설명·H2 문서 목록은 선택(llms.txt v2)</p></div><div className="flex gap-2"><Button type="button" variant="secondary" disabled={!document || loading} onClick={() => void validate()}><RefreshCw className="h-4 w-4" />검증</Button><Button type="button" variant="secondary" disabled={!document || !validation?.valid} onClick={download}><Download className="h-4 w-4" />다운로드</Button></div></div>{document ? <textarea aria-label="llms.txt 내용" className="min-h-[28rem] font-mono text-xs leading-5" value={document} onChange={(e) => { edited(); setDocument(e.target.value); }} /> : <EmptyState>왼쪽 정보를 입력해 llms.txt 초안을 만드세요.</EmptyState>}</Card></div>
     {error && <p role="alert" className="mt-5 rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-sm text-rose-300">{error}</p>}
     <section className="mt-5 grid gap-5 xl:grid-cols-[1fr_0.7fr]">{validation ? <Card><div className="flex items-start justify-between"><div><h2 className="font-semibold text-white">구조 검증</h2><p className="mt-1 text-xs text-slate-500">{validation.stats.bytes} bytes · {validation.stats.sections} sections · {validation.stats.links} links</p></div><Badge tone={validation.valid ? "good" : "bad"}>{validation.valid ? "규격 적합" : "규격 오류"}</Badge></div><div className="mt-5 flex items-center gap-4"><strong className="text-3xl text-white">{validation.score}</strong><Progress value={validation.score} ariaLabel="llms.txt 구조 점수" className="flex-1" /></div><div className="mt-5 space-y-2" role="list" aria-live="polite">{validation.issues.length ? validation.issues.map((issue, index) => <div role="listitem" key={`${issue.code}-${index}`} className={`flex gap-3 rounded-xl p-3 text-sm ${issue.severity === "error" ? "bg-rose-400/8 text-rose-300" : issue.severity === "warning" ? "bg-amber-400/8 text-amber-300" : "bg-slate-950/40 text-slate-400"}`}>{issue.severity === "error" ? <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />}<span><span className="sr-only">{issue.severity === "error" ? "오류: " : issue.severity === "warning" ? "경고: " : "정보: "}</span>{issue.category && <span className="mr-2 rounded border border-current/30 px-1.5 py-0.5 text-[10px] font-semibold">{issue.category === "spec" ? "규격" : "품질 권고"}</span>}{issue.line ? `${issue.line}행 · ` : ""}{issue.message}</span></div>) : <p className="rounded-xl bg-emerald-400/8 p-3 text-sm text-emerald-300">제안 구조에 맞습니다.</p>}</div></Card> : <Card><EmptyState>초안을 생성하거나 편집한 문서를 검증하세요.</EmptyState></Card>}
       <Card><div className="flex items-center gap-3"><Globe2 className="h-5 w-5 text-cyan-400" /><div><h2 className="font-semibold text-white">배포 확인</h2><p className="text-xs text-slate-500">공식 사이트의 {scopePath || "/llms.txt"} 확인</p></div></div><p className="mt-4 text-xs leading-5 text-slate-500">사이트 URL과 적용 경로에서 로그인 없이 읽을 수 있는 파일을 검사합니다. 초안 생성·저장만으로 대상 사이트에 배포되지는 않습니다. 파일을 업로드하고 해당 경로의 인증 제한을 해제하세요. HTML 페이지는 게시로 인정하지 않습니다.</p><Button type="button" className="mt-5 w-full" variant="secondary" disabled={!website || remoteLoading} onClick={() => void verifyRemote()}>{remoteLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Globe2 className="h-4 w-4" />}원격 {scopePath || "/llms.txt"} 확인</Button>{remote && <div className="mt-3 space-y-3" aria-live="polite">
