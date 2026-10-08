@@ -91,6 +91,10 @@ describe.sequential("audit evidence CRUD API", () => {
     // 수정안 작업대 연결: 진단이 읽은 현재 필드 값이 기록된다 (없는 필드는 null)
     expect(firstAudit.metadata.pageFields).toHaveProperty("title");
     expect(Object.keys(firstAudit.metadata.pageFields as object).sort()).toEqual(["canonical", "description", "og_image", "robots_meta", "title"]);
+    // 정본은 page_snapshots: 단일 URL 진단도 같은 스냅샷에 기록하고 pageEvidence는 그것을 가리킨다
+    const snapshotId = (firstAudit.metadata.pageEvidence as { snapshotId: number }).snapshotId;
+    const snapshot = getDatabase().sqlite.prepare("SELECT url, content_hash, status_code, render_mode FROM page_snapshots WHERE id = ?").get(snapshotId) as { url: string; content_hash: string; status_code: number; render_mode: string } | undefined;
+    expect(snapshot).toMatchObject({ content_hash: evidence.contentHash, status_code: 200, render_mode: "native" });
     expect(evidence.contentHash).toMatch(/^[0-9a-f]{64}$/);
     expect(Date.parse(evidence.fetchedAt)).not.toBeNaN();
     const fetchCalls = vi.mocked(fetchPublicText).mock.calls.length;
@@ -106,6 +110,11 @@ describe.sequential("audit evidence CRUD API", () => {
     expect(mismatch.status).toBe(409);
     expect((await mismatch.json()).code).toBe("IDEMPOTENCY_KEY_REUSED");
     expect(vi.mocked(fetchPublicText)).toHaveBeenCalledTimes(fetchCalls);
+    // 같은 URL·같은 내용을 새 요청으로 다시 진단해도 스냅샷은 중복되지 않고 마지막 확인 시각만 갱신된다
+    const before = (getDatabase().sqlite.prepare("SELECT COUNT(*) AS count FROM page_snapshots").get() as { count: number }).count;
+    const again = await createAudit(request("http://localhost/api/audits", "POST", { ...payload, clientRequestId: undefined, notes: "재진단" }));
+    expect(again.status).toBe(201);
+    expect((getDatabase().sqlite.prepare("SELECT COUNT(*) AS count FROM page_snapshots").get() as { count: number }).count).toBe(before);
   });
 
   it("supports cursor list, escaped search, and item detail", async () => {

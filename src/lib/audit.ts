@@ -16,6 +16,7 @@ import { getDatabase } from "./db";
 import { AppError } from "./errors";
 import { generateText } from "./llm";
 import { extractPageField } from "./page-fields";
+import { analyzeObservation, PAGE_PARSER_VERSION, recordPageSnapshot, type PageObservation } from "./page-snapshots";
 import { requireActiveProject } from "./projects";
 import { analyzeRobotsTxt } from "./robots-policy";
 import { getPublicSettings, getServerSettings, type Provider } from "./settings";
@@ -570,7 +571,6 @@ function idempotentAudit(clientRequestId: string, projectId: number, expectedHas
   return publicAudit(row);
 }
 
-const PAGE_EVIDENCE_PARSER_VERSION = "audit-html-1";
 
 export async function createAudit(input: unknown) {
   const parsed = auditCreateSchema.parse(input);
@@ -621,8 +621,8 @@ export async function createAudit(input: unknown) {
       contentHash: createHash("sha256").update(page.text).digest("hex"),
       bytes: Buffer.byteLength(page.text),
       renderMode: "native" as const,
-      parserVersion: PAGE_EVIDENCE_PARSER_VERSION,
-    },
+      parserVersion: PAGE_PARSER_VERSION,
+    } as Record<string, unknown>,
     _requestHash: fingerprint,
   };
   const { sqlite } = getDatabase();
@@ -631,6 +631,15 @@ export async function createAudit(input: unknown) {
       const existing = idempotentAudit(parsed.clientRequestId, active.id, fingerprint);
       if (existing) return existing;
     }
+    // 정본 저장소(page_snapshots)에 기록하고 pageEvidence가 그 스냅샷을 가리키게 한다 (같은 근거를 두 곳에 따로 저장하지 않음)
+    const observation: PageObservation = {
+      url: page.url, finalUrl: page.url, statusCode: page.status, contentType: page.contentType || null,
+      renderMode: "native", body: page.text, bodyKind: "html",
+    };
+    const pageSnapshotId = recordPageSnapshot(sqlite, {
+      projectId: active.id, campaignId: null, observation, analysis: analyzeObservation(observation, finalUrl.hostname), now,
+    });
+    metadata.pageEvidence = { ...metadata.pageEvidence, snapshotId: pageSnapshotId, parserVersion: PAGE_PARSER_VERSION };
     const inserted = sqlite.prepare(`
       INSERT INTO audits (project_id, title, notes, client_request_id, url, score, grade, items, metadata, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
