@@ -1,0 +1,10 @@
+{
+  "questionRunMetricChecks": 40,
+  "privateCache": true,
+  "fourProviders": true,
+  "csvSameConditionRuns": [
+    6,
+    7
+  ],
+  "csvExcludedRuns": 6
+}

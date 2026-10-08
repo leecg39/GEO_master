@@ -1,0 +1,31 @@
+{
+  "overview-qa.csv": {
+    "bom": true,
+    "rows": 28,
+    "modelRows": 4,
+    "brandRows": 0,
+    "trendRows": 0,
+    "overview": [
+      "전체",
+      "",
+      "라이클",
+      "",
+      "24.5",
+      "68.4",
+      "43.9",
+      "4",
+      "2",
+      "98",
+      "67",
+      "1",
+      "1"
+    ]
+  },
+  "question-qa.csv": {
+    "bom": true,
+    "rows": 148,
+    "modelRows": 0,
+    "brandRows": 13,
+    "trendRows": 130
+  }
+}

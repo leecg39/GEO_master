@@ -5,5 +5,6 @@ import nextTypescript from "eslint-config-next/typescript";
 export default defineConfig([
   ...nextVitals,
   ...nextTypescript,
-  globalIgnores([".next/**", "coverage/**", "data/**", "next-env.d.ts"]),
+  // Local deployment artifacts are generated, git-ignored files, not application source.
+  globalIgnores([".next/**", "coverage/**", "data/**", ".gstack/deploy/**", "next-env.d.ts"]),
 ]);

@@ -24,6 +24,7 @@ const questionFields = {
 
 export const questionSetCreateSchema = z.object({
   name: z.string().trim().min(1).max(120),
+  projectId: resourceIdSchema.optional(),
 }).strict();
 
 export const questionSetUpdateSchema = z.object({
@@ -230,7 +231,7 @@ export function getQuestionSet(idInput: unknown) {
 
 export function createQuestionSet(input: unknown) {
   const parsed = questionSetCreateSchema.parse(input);
-  const active = requireActiveProject();
+  const active = requireActiveProject(parsed.projectId);
   const { sqlite } = getDatabase();
   return transactionalMutation(sqlite, () => {
     const now = new Date().toISOString();
