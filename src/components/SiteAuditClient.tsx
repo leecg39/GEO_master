@@ -160,7 +160,7 @@ export function SiteAuditClient() {
       const updated = await load();
       if (data.result.status === "completed") {
         setMessage(
-          `크롤 완료 · ${data.result.crawledPages ?? 0}개 페이지 · 건강 점수 ${data.result.siteHealth ?? "—"}`
+          `URL 발견 완료 · ${data.result.crawledPages ?? 0}개 · 건강 점수 ${data.result.siteHealth ?? "미측정"}`
           + (data.result.source === "mock-dev" ? " (데모)" : ""),
         );
       }
@@ -262,7 +262,7 @@ export function SiteAuditClient() {
                           <Badge tone={statusTone(campaign.status)}>{statusLabel(campaign.status)}</Badge>
                         </div>
                         <p className="mt-1 text-xs text-slate-500">
-                          건강 점수 {campaign.siteHealth ?? "—"} · {campaign.lastRunAt ? new Date(campaign.lastRunAt).toLocaleString("ko-KR") : "미실행"}
+                          건강 점수 {campaign.siteHealth ?? "미측정"} · {campaign.lastRunAt ? new Date(campaign.lastRunAt).toLocaleString("ko-KR") : "미실행"}
                           {isSelected ? " · 브리핑 펼침" : " · 클릭하여 분석 브리핑 보기"}
                         </p>
                       </button>

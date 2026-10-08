@@ -616,6 +616,17 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 17,
+    name: "site-audit-discovery-states",
+    up(sqlite) {
+      // Qshop P01: 이전 Map 결과(가정한 HTTP 200·건강 점수)는 삭제하지 않고 추정치로 격리한다
+      addColumnIfMissing(sqlite, "site_audit_pages", "fetch_state", "TEXT NOT NULL DEFAULT 'legacy_estimate'");
+      addColumnIfMissing(sqlite, "site_audit_campaigns", "data_state", "TEXT NOT NULL DEFAULT 'legacy_estimate'");
+      addColumnIfMissing(sqlite, "site_audit_campaigns", "llms_txt_state", "TEXT");
+      sqlite.exec("UPDATE site_audit_campaigns SET data_state = 'none' WHERE last_run_at IS NULL");
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

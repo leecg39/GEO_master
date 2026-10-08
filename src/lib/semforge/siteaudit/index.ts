@@ -9,6 +9,9 @@ import { normalizeDomain } from "@/lib/semforge/utils/domain";
 import { requireSemforgeSubscription } from "@/lib/semforge-subscription";
 import { requireActiveProject } from "@/lib/projects";
 import { providerUnavailable, providerLive } from "@/lib/semforge/providers/types";
+import { probeLlmsTxt, urlPathDepth, type LlmsTxtState, type SiteAuditDataState } from "./discovery";
+
+export { probeLlmsTxt, urlPathDepth } from "./discovery";
 
 function firecrawlApiKey(): string | null {
   return resolveFirecrawlApiKey().value;
@@ -96,51 +99,64 @@ async function fetchCrawlLinks(domain: string): Promise<{ links: string[]; sourc
   return { links, source: "firecrawl" };
 }
 
+function insertIssue(sqlite: Database.Database, campaignId: number, issue: { url: string; severity: string; category: string; title: string; detail: string }, now: string) {
+  sqlite.prepare(`
+    INSERT INTO site_audit_issues (campaign_id, url, severity, category, title, detail, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(campaignId, issue.url, issue.severity, issue.category, issue.title, issue.detail, now);
+}
+
+/**
+ * Map 결과 저장 — 페이지를 요청하지 않았으므로 상태 코드·제목·용량·건강 점수를 만들지 않는다 (Qshop P01).
+ * llms.txt는 실제 요청 결과(llms)로만 판정한다.
+ */
 function persistCrawlResults(
   sqlite: Database.Database,
   campaignId: number,
   domain: string,
   links: string[],
   source: string,
+  llms: { state: LlmsTxtState; detail: string },
 ) {
   const now = new Date().toISOString();
   sqlite.prepare("DELETE FROM site_audit_pages WHERE campaign_id = ?").run(campaignId);
   sqlite.prepare("DELETE FROM site_audit_issues WHERE campaign_id = ?").run(campaignId);
 
-  let issueCount = 0;
-  const hasLlmsTxt = links.some((url) => url.includes("/llms.txt"));
-  for (const [index, url] of links.entries()) {
+  for (const url of links) {
     sqlite.prepare(`
-      INSERT INTO site_audit_pages (campaign_id, url, status_code, title, depth, response_ms, bytes, captured_at)
-      VALUES (?, ?, 200, NULL, ?, NULL, 0, ?)
-    `).run(campaignId, url, index === 0 ? 0 : 1, now);
+      INSERT INTO site_audit_pages (campaign_id, url, status_code, title, depth, response_ms, bytes, fetch_state, captured_at)
+      VALUES (?, ?, 0, NULL, ?, NULL, 0, 'discovered', ?)
+    `).run(campaignId, url, urlPathDepth(url), now);
   }
-  if (!hasLlmsTxt) {
-    sqlite.prepare(`
-      INSERT INTO site_audit_issues (campaign_id, url, severity, category, title, detail, created_at)
-      VALUES (?, ?, 'warning', 'aiSearch', '/llms.txt 누락', 'AI 검색 크롤러용 llms.txt 경로가 사이트맵에 없습니다.', ?)
-    `).run(campaignId, links[0] ?? `https://${domain}`, now);
+  let issueCount = 0;
+  const llmsUrl = `https://${domain}/llms.txt`;
+  if (llms.state === "missing") {
+    insertIssue(sqlite, campaignId, { url: llmsUrl, severity: "warning", category: "aiSearch", title: "/llms.txt 없음", detail: `실제 요청 결과: ${llms.detail}` }, now);
+    issueCount += 1;
+  } else if (llms.state === "unknown") {
+    insertIssue(sqlite, campaignId, { url: llmsUrl, severity: "notice", category: "aiSearch", title: "/llms.txt 확인 불가", detail: `${llms.detail} — 없다고 판정하지 않았습니다. 나중에 다시 확인하세요.` }, now);
     issueCount += 1;
   }
   if (links.length < 3) {
-    sqlite.prepare(`
-      INSERT INTO site_audit_issues (campaign_id, url, severity, category, title, detail, created_at)
-      VALUES (?, ?, 'notice', 'coverage', '크롤 범위 제한', '발견된 페이지가 적습니다. 내부 링크 구조를 점검하세요.', ?)
-    `).run(campaignId, links[0] ?? "", now);
+    insertIssue(sqlite, campaignId, { url: links[0] ?? "", severity: "notice", category: "coverage", title: "발견 URL 적음", detail: `Map으로 발견한 URL이 ${links.length}개입니다. 내부 링크·사이트맵을 점검하세요.` }, now);
     issueCount += 1;
   }
 
-  const health = Math.max(35, Math.min(100, 92 - issueCount * 8 - Math.max(0, 10 - links.length) * 2));
   sqlite.prepare(`
-    UPDATE site_audit_campaigns SET status = 'completed', site_health = ?, last_run_at = ?, updated_at = ? WHERE id = ?
-  `).run(health, now, now, campaignId);
+    UPDATE site_audit_campaigns SET status = 'completed', site_health = NULL, data_state = 'discovered', llms_txt_state = ?,
+      last_run_at = ?, updated_at = ? WHERE id = ?
+  `).run(llms.state, now, now, campaignId);
 
   return {
     campaignId,
     status: "completed" as const,
+    discoveredUrls: links.length,
+    /** 이전 응답과의 호환용 — 실제로는 "발견한 URL 수"이며 수집한 페이지 수가 아니다 */
     crawledPages: links.length,
     issueCount,
-    siteHealth: health,
+    siteHealth: null,
+    dataState: "discovered" as const,
+    llmsTxtState: llms.state,
     source,
     provider: providerLive(source, { pages: links.length, issues: issueCount }),
     capturedAt: now,
@@ -219,7 +235,10 @@ export async function runSiteAuditCampaign(idInput: unknown) {
 
   try {
     const { links, source } = await fetchCrawlLinks(campaign.domain);
-    return transactionalMutation(sqlite, () => persistCrawlResults(sqlite, id, campaign.domain, links, source));
+    const llms = source === "mock-dev"
+      ? { state: "unknown" as const, detail: "데모 모드에서는 실제 요청하지 않습니다" }
+      : await probeLlmsTxt(campaign.domain);
+    return transactionalMutation(sqlite, () => persistCrawlResults(sqlite, id, campaign.domain, links, source, llms));
   } catch (error) {
     sqlite.prepare(`
       UPDATE site_audit_campaigns SET status = 'failed', updated_at = ? WHERE id = ?
@@ -249,8 +268,11 @@ export function getSiteAuditOverview(campaignIdInput: unknown) {
   const campaignId = z.coerce.number().int().positive().parse(campaignIdInput);
   const { sqlite } = getDatabase();
   const campaign = sqlite.prepare(`
-    SELECT id, name, domain, status, site_health, last_run_at FROM site_audit_campaigns WHERE id = ? AND project_id = ?
-  `).get(campaignId, project.id) as { id: number; name: string; domain: string; status: string; site_health: number | null; last_run_at: string | null } | undefined;
+    SELECT id, name, domain, status, site_health, data_state, llms_txt_state, last_run_at FROM site_audit_campaigns WHERE id = ? AND project_id = ?
+  `).get(campaignId, project.id) as {
+    id: number; name: string; domain: string; status: string; site_health: number | null;
+    data_state: SiteAuditDataState; llms_txt_state: LlmsTxtState | null; last_run_at: string | null;
+  } | undefined;
   if (!campaign) throw semforgeError("NOT_FOUND", "캠페인을 찾을 수 없습니다.");
   const locked = (() => { try { requireSemforgeSubscription(); return false; } catch { return true; } })();
   const mode = firecrawlMode();
@@ -264,7 +286,7 @@ export function getSiteAuditOverview(campaignIdInput: unknown) {
       siteHealth: campaign.site_health,
       lastRunAt: campaign.last_run_at,
     },
-    briefing: buildSiteAuditBriefing(campaignId, campaign.site_health),
+    briefing: buildSiteAuditBriefing(campaignId, campaign),
     firecrawl: mode === "live"
       ? providerLive("firecrawl", { configured: true })
       : mode === "mock"
@@ -286,6 +308,7 @@ interface BriefingPage {
   url: string;
   statusCode: number;
   depth: number;
+  fetchState: string;
 }
 
 function healthGrade(score: number | null) {
@@ -296,10 +319,18 @@ function healthGrade(score: number | null) {
   return { label: "개선 필요", tone: "bad" as const };
 }
 
-function buildSiteAuditBriefing(campaignId: number, siteHealth: number | null) {
+/**
+ * 브리핑 — 실제로 관측한 값만 점수·레이더에 쓴다 (Qshop P01).
+ * - discovered: Map으로 URL만 발견. 건강 점수는 미측정
+ * - legacy_estimate: 이전 버전이 가정값으로 계산한 결과. 표시하되 추정치로 명시하고 재크롤을 권한다
+ */
+function buildSiteAuditBriefing(
+  campaignId: number,
+  campaign: { site_health: number | null; data_state: SiteAuditDataState; llms_txt_state: LlmsTxtState | null },
+) {
   const { sqlite } = getDatabase();
   const pages = sqlite.prepare(`
-    SELECT url, status_code AS statusCode, depth FROM site_audit_pages
+    SELECT url, status_code AS statusCode, depth, fetch_state AS fetchState FROM site_audit_pages
     WHERE campaign_id = ? ORDER BY depth ASC, url ASC LIMIT 50
   `).all(campaignId) as BriefingPage[];
   const issues = sqlite.prepare(`
@@ -308,69 +339,59 @@ function buildSiteAuditBriefing(campaignId: number, siteHealth: number | null) {
       CASE severity WHEN 'critical' THEN 0 WHEN 'warning' THEN 1 ELSE 2 END, id ASC
   `).all(campaignId) as BriefingIssue[];
 
+  const legacy = campaign.data_state === "legacy_estimate";
   const pageCount = pages.length;
   const issueCount = issues.length;
-  const baseScore = 92;
-  const issuePenalty = issueCount * 8;
-  const coveragePenalty = Math.max(0, 10 - pageCount) * 2;
-  const computedScore = Math.max(35, Math.min(100, baseScore - issuePenalty - coveragePenalty));
-  const score = siteHealth ?? (pageCount > 0 ? computedScore : null);
-  const hasLlmsTxt = pages.some((page) => page.url.includes("/llms.txt"));
+  const llmsTxtState: LlmsTxtState | null = campaign.llms_txt_state ?? (legacy && pageCount > 0 ? (pages.some((page) => page.url.includes("/llms.txt")) ? "present" : "unknown") : null);
+  const hasLlmsTxt = llmsTxtState === "present";
+  const score = legacy ? campaign.site_health : null;
+  const grade = legacy && score !== null ? { label: "이전 방식 추정치", tone: "warn" as const } : healthGrade(null);
   const shallowPages = pages.filter((page) => page.depth <= 1).length;
-  const depthScore = pageCount === 0 ? 0 : Math.round((shallowPages / pageCount) * 100);
-  const coverageScore = Math.min(100, pageCount * 10);
-  const aiSearchScore = hasLlmsTxt ? 100 : pageCount > 0 ? 35 : 0;
-  const issueDensityScore = Math.max(0, 100 - issueCount * 25);
+  const shallowRatio = pageCount === 0 ? 0 : Math.round((shallowPages / pageCount) * 100);
 
   const severityCounts = issues.reduce<Record<string, number>>((acc, issue) => {
     acc[issue.severity] = (acc[issue.severity] ?? 0) + 1;
     return acc;
   }, {});
 
-  const scoreFactors = [
-    { key: "base", label: "기본 점수", points: baseScore, kind: "base" as const },
-    ...(issueCount > 0 ? [{ key: "issues", label: `이슈 ${issueCount}건`, points: -issuePenalty, kind: "penalty" as const }] : []),
-    ...(coveragePenalty > 0 ? [{ key: "coverage", label: `크롤 범위 부족 (${pageCount}페이지)`, points: -coveragePenalty, kind: "penalty" as const }] : []),
-    { key: "final", label: "최종 건강 점수", points: score ?? 0, kind: "total" as const },
-  ];
-
+  const llmsHint = llmsTxtState === "present" ? "실제 요청에서 /llms.txt가 응답했습니다."
+    : llmsTxtState === "missing" ? "실제 요청에서 /llms.txt가 없었습니다."
+      : "아직 /llms.txt를 확인하지 못했습니다 (점수 아님).";
   const radar = [
-    { axis: "AI 검색 준비", score: aiSearchScore, hint: hasLlmsTxt ? "llms.txt 경로가 발견되었습니다." : "llms.txt가 없어 AI 크롤러 신호가 약합니다." },
-    { axis: "크롤 범위", score: coverageScore, hint: `${pageCount}개 URL이 수집되었습니다.` },
-    { axis: "구조 접근성", score: depthScore, hint: `얕은 깊이(0~1) 페이지 비율 ${depthScore}%` },
-    { axis: "이슈 밀도", score: issueDensityScore, hint: issueCount === 0 ? "치명·경고 이슈가 없습니다." : `${issueCount}건의 개선 항목이 있습니다.` },
-    { axis: "GEO 실행력", score: score ?? 0, hint: "사이트 진단 종합 점수입니다." },
+    { axis: "llms.txt", score: hasLlmsTxt ? 100 : 0, hint: llmsHint },
+    { axis: "URL 발견 범위", score: Math.min(100, pageCount * 10), hint: `Map으로 ${pageCount}개 URL을 발견했습니다.` },
+    { axis: "얕은 URL 비율", score: shallowRatio, hint: `경로 깊이 0~1 URL 비율 ${shallowRatio}% (주소 구조 기준)` },
   ];
 
   const narratives: string[] = [];
   if (pageCount === 0) {
     narratives.push("아직 크롤이 실행되지 않았습니다. 캠페인에서 '크롤 실행'을 눌러 분석을 시작하세요.");
+  } else if (legacy) {
+    narratives.push("이 결과는 이전 버전이 페이지를 실제로 요청하지 않고 계산한 추정치입니다. 정확한 결과를 보려면 다시 크롤하세요.");
   } else {
-    narratives.push(`총 ${pageCount}개 URL을 수집했으며, 기본 92점에서 이슈·범위 페널티를 반영해 ${score ?? computedScore}점이 산출되었습니다.`);
-    if (!hasLlmsTxt) narratives.push("llms.txt가 없어 AI 검색·GEO 신호 점수가 크게 깎였습니다. /llms.txt 경로를 추가하고 사이트맵에 노출하세요.");
-    if (coveragePenalty > 0) narratives.push(`발견 페이지가 ${pageCount}개로 적어 크롤 범위 페널티 ${coveragePenalty}점이 적용되었습니다. 내부 링크 허브를 강화하세요.`);
-    if (issueCount === 0) narratives.push("경고·알림 이슈가 없어 기술·AI 검색 기본 요건은 양호합니다.");
-    for (const issue of issues.slice(0, 3)) {
-      narratives.push(`[${issue.severity}] ${issue.title}: ${issue.detail}`);
-    }
+    narratives.push(`Firecrawl Map으로 URL ${pageCount}개를 발견했습니다. 페이지 본문은 아직 요청하지 않아 HTTP 상태·제목·건강 점수는 미측정입니다.`);
   }
+  if (pageCount > 0) narratives.push(`llms.txt: ${llmsHint}`);
+  for (const issue of issues.slice(0, 3)) narratives.push(`[${issue.severity}] ${issue.title}: ${issue.detail}`);
 
   const recommendations = [
-    !hasLlmsTxt && pageCount > 0 ? "llms.txt를 배포하고 내부 링크·사이트맵에 포함하세요." : null,
-    coveragePenalty > 0 ? "핵심 랜딩·카테고리 허브 페이지를 늘려 크롤 범위를 확장하세요." : null,
-    issueCount > 0 ? "상단 이슈부터 우선순위로 수정한 뒤 재크롤하세요." : null,
-    pageCount > 0 && score !== null && score < 75 ? "GEO Cheerio 진단(/audit)과 병행해 온페이지·스키마 신호를 보강하세요." : null,
+    legacy && pageCount > 0 ? "다시 크롤해 이전 방식 추정치를 실제 관측값으로 바꾸세요." : null,
+    llmsTxtState === "missing" ? "llms.txt를 사이트 루트에 배포하세요 (llms.txt 메뉴에서 초안 생성·배포 확인)." : null,
+    pageCount > 0 ? "핵심 URL의 실제 응답·제목·스키마는 GEO 진단(/audit)에서 URL별로 측정하세요." : null,
+    issues.some((issue) => issue.category === "coverage") ? "발견 URL이 적습니다. 내부 링크 허브와 사이트맵을 점검하세요." : null,
   ].filter((item): item is string => Boolean(item));
 
   return {
     ready: pageCount > 0,
     score,
-    grade: healthGrade(score),
-    computedScore,
+    grade,
+    dataState: campaign.data_state,
+    llmsTxtState,
     pageCount,
     issueCount,
     hasLlmsTxt,
-    scoreFactors,
+    // 실측 기반 점수가 없으므로 점수 산출 근거도 없다
+    scoreFactors: [] as Array<{ key: string; label: string; points: number; kind: "base" | "penalty" | "total" }>,
     severityCounts,
     radar,
     narratives,
@@ -378,7 +399,7 @@ function buildSiteAuditBriefing(campaignId: number, siteHealth: number | null) {
     issues,
     pages: pages.slice(0, 12),
     depthBuckets: [
-      { depth: "홈(0)", count: pages.filter((page) => page.depth === 0).length },
+      { depth: "루트(0)", count: pages.filter((page) => page.depth === 0).length },
       { depth: "1단계", count: pages.filter((page) => page.depth === 1).length },
       { depth: "2단계+", count: pages.filter((page) => page.depth >= 2).length },
     ],
