@@ -789,6 +789,54 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       addColumnIfMissing(sqlite, "site_audit_campaigns", "robots_policy", "TEXT");
     },
   },
+  {
+    version: 26,
+    name: "search-console-console-exports",
+    up(sqlite) {
+      // Qshop P10 대안: 콘솔에서 내려받은 성과 보고서(Excel) 가져오기. API 연결(gsc_connections)과 원천을 섞지 않는다
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS search_console_imports (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          source TEXT NOT NULL DEFAULT 'console_export' CHECK(source IN ('console_export')),
+          property_label TEXT NOT NULL,
+          file_name TEXT NOT NULL,
+          content_hash TEXT NOT NULL,
+          period_start TEXT,
+          period_end TEXT,
+          filters TEXT NOT NULL DEFAULT '{}',
+          clicks INTEGER NOT NULL,
+          impressions INTEGER NOT NULL,
+          ctr REAL,
+          position REAL,
+          has_data INTEGER NOT NULL,
+          imported_at TEXT NOT NULL,
+          UNIQUE(project_id, property_label, content_hash)
+        );
+        CREATE TABLE IF NOT EXISTS search_console_daily (
+          import_id INTEGER NOT NULL REFERENCES search_console_imports(id) ON DELETE CASCADE,
+          date TEXT NOT NULL,
+          clicks INTEGER NOT NULL,
+          impressions INTEGER NOT NULL,
+          ctr REAL,
+          position REAL,
+          PRIMARY KEY (import_id, date)
+        );
+        CREATE TABLE IF NOT EXISTS search_console_rows (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          import_id INTEGER NOT NULL REFERENCES search_console_imports(id) ON DELETE CASCADE,
+          kind TEXT NOT NULL CHECK(kind IN ('queries','pages','countries','devices','appearances')),
+          key TEXT NOT NULL,
+          clicks INTEGER NOT NULL,
+          impressions INTEGER NOT NULL,
+          ctr REAL,
+          position REAL
+        );
+        CREATE INDEX IF NOT EXISTS idx_search_console_imports_project ON search_console_imports(project_id, imported_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_search_console_rows_import ON search_console_rows(import_id, kind);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;
