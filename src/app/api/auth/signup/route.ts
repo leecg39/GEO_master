@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { accountRole } from "@/lib/account-policy";
 import { accountHomePath } from "@/lib/accounts/home";
-import { registerAccount, SIGNUP_RATE_LIMITS, signupMode, type SignupValues } from "@/lib/accounts/signup";
+import { registerAccount, SIGNUP_RATE_LIMITS, signupMode, type SignupFieldErrors, type SignupValues } from "@/lib/accounts/signup";
 import { clientAddress, createAttemptLimiter, isFormRequest, readLimitedForm } from "@/lib/auth-form";
 import { loginEnabled } from "@/lib/auth-mode";
 import { createSession, isTrustedProxy, sameOriginMutation, SESSION_COOKIE, SESSION_SECONDS } from "@/lib/login-session";
@@ -19,8 +19,8 @@ function redirect(path: string) {
   return new NextResponse(null, { status: 303, headers: { location: path, "cache-control": "private, no-store" } });
 }
 
-function signupPage(status: number, errors: string[], values?: SignupValues) {
-  return publicHtmlResponse(renderSignupPage({ auth: "login", signupMode: signupMode(), plan: values?.plan ?? "free", values, errors }), status);
+function signupPage(status: number, errors: string[], values?: SignupValues, fieldErrors?: SignupFieldErrors) {
+  return publicHtmlResponse(renderSignupPage({ auth: "login", signupMode: signupMode(), plan: values?.plan ?? "free", values, errors, fieldErrors }), status);
 }
 
 export async function POST(request: NextRequest) {
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const fields = await readLimitedForm(request);
     if (!fields) return new NextResponse(null, { status: 413 });
     const result = await registerAccount(fields);
-    if (!result.ok) return signupPage(result.status, result.messages, result.values);
+    if (!result.ok) return signupPage(result.status, result.messages, result.values, result.fieldErrors);
     // 승인제에서는 로그인시키지 않고 승인 대기 안내로 보낸다.
     if (result.mode !== "auto") return redirect("/login?notice=pending");
     const user = result.account.loginId;

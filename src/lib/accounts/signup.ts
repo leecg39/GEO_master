@@ -28,9 +28,14 @@ export interface SignupValues {
   consent: boolean;
 }
 
+/** 화면에 나오는 순서. 첫 오류 필드에 포커스를 줄 때 쓴다. */
+export const SIGNUP_FIELD_ORDER = ["plan", "email", "displayName", "password", "passwordConfirm", "consent"] as const;
+export type SignupField = (typeof SIGNUP_FIELD_ORDER)[number];
+export type SignupFieldErrors = Partial<Record<SignupField, string>>;
+
 export type SignupResult =
   | { ok: true; account: AccountRecord; mode: SignupMode }
-  | { ok: false; status: number; message: string; messages: string[]; values: SignupValues };
+  | { ok: false; status: number; message: string; messages: string[]; fieldErrors: SignupFieldErrors; values: SignupValues };
 
 const UNAVAILABLE_EMAIL = "이미 가입되었거나 사용할 수 없는 이메일입니다. 가입한 적이 있다면 로그인해 주세요.";
 const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/;
@@ -76,9 +81,21 @@ function reservedLoginIds(): Set<string> {
   return new Set(ids.map((id) => (id ?? "").trim().toLowerCase()).filter(Boolean));
 }
 
-function failure(status: number, messages: string[], values: SignupValues): SignupResult {
+function isSignupField(value: unknown): value is SignupField {
+  return typeof value === "string" && (SIGNUP_FIELD_ORDER as readonly string[]).includes(value);
+}
+
+/** 필드마다 첫 번째 오류만 남긴다. 화면이 입력란과 오류 문구를 연결하는 데 쓴다. */
+function fieldErrorsFrom(issues: readonly { path: readonly PropertyKey[]; message: string }[]): SignupFieldErrors {
+  return issues.reduce<SignupFieldErrors>((errors, issue) => {
+    const field = issue.path[0];
+    return isSignupField(field) && !errors[field] ? { ...errors, [field]: issue.message } : errors;
+  }, {});
+}
+
+function failure(status: number, messages: string[], values: SignupValues, fieldErrors: SignupFieldErrors = {}): SignupResult {
   const unique = [...new Set(messages)];
-  return { ok: false, status, message: unique[0] ?? "입력값을 확인해 주세요.", messages: unique, values };
+  return { ok: false, status, message: unique[0] ?? "입력값을 확인해 주세요.", messages: unique, fieldErrors, values };
 }
 
 export async function registerAccount(fields: URLSearchParams, now = new Date()): Promise<SignupResult> {
@@ -99,16 +116,16 @@ export async function registerAccount(fields: URLSearchParams, now = new Date())
     plan: field("plan"),
     consent: field("consent"),
   });
-  if (!parsed.success) return failure(422, parsed.error.issues.map((issue) => issue.message), values);
+  if (!parsed.success) return failure(422, parsed.error.issues.map((issue) => issue.message), values, fieldErrorsFrom(parsed.error.issues));
   const { email, displayName, password, plan } = parsed.data;
-  if (reservedLoginIds().has(email)) return failure(409, [UNAVAILABLE_EMAIL], values);
+  if (reservedLoginIds().has(email)) return failure(409, [UNAVAILABLE_EMAIL], values, { email: UNAVAILABLE_EMAIL });
   const passwordHash = await bcrypt.hash(password, SIGNUP_BCRYPT_COST);
   try {
     const status = mode === "auto" ? "active" : "pending";
     const account = insertAccount({ loginId: email, displayName, passwordHash, plan, status, consentedAt: now.toISOString() }, now);
     return { ok: true, account, mode };
   } catch (error) {
-    if (error instanceof AppError && error.code === "ACCOUNT_EXISTS") return failure(409, [UNAVAILABLE_EMAIL], values);
+    if (error instanceof AppError && error.code === "ACCOUNT_EXISTS") return failure(409, [UNAVAILABLE_EMAIL], values, { email: UNAVAILABLE_EMAIL });
     throw error;
   }
 }
