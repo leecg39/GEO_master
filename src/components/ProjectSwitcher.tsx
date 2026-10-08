@@ -37,6 +37,7 @@ interface Dependencies {
   outcomeImports: number;
   outcomeEvents: number;
   outcomeDefinitions: number;
+  botLogImports: number;
 }
 
 interface ProjectsPage {
@@ -81,6 +82,7 @@ const dependencyLabels: Record<keyof Dependencies, string> = {
   outcomeImports: "사업 성과 가져오기",
   outcomeEvents: "사업 성과 이벤트",
   outcomeDefinitions: "사업 성과 지표 정의",
+  botLogImports: "봇 로그 가져오기(방문·경로 집계 포함)",
 };
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {

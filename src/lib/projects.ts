@@ -105,6 +105,7 @@ export interface ProjectDependencies extends Record<string, number> {
   outcomeImports: number;
   outcomeEvents: number;
   outcomeDefinitions: number;
+  botLogImports: number;
 }
 
 function parseCompetitors(value: string): string[] {
@@ -180,6 +181,7 @@ function countProjectDependencies(projectId: number): ProjectDependencies {
     outcomeImports: count("outcome_imports"),
     outcomeEvents: (sqlite.prepare("SELECT COUNT(*) AS count FROM outcome_events e JOIN outcome_imports i ON i.id = e.import_id WHERE i.project_id = ?").get(projectId) as { count: number }).count,
     outcomeDefinitions: count("outcome_definitions"),
+    botLogImports: count("bot_log_imports"),
   };
 }
 

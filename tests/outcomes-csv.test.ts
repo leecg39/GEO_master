@@ -3,6 +3,19 @@ import { parseOutcomeCsv } from "@/lib/outcomes/csv";
 import { sanitizePath } from "@/lib/path-privacy";
 
 describe("parseOutcomeCsv", () => {
+  it("masks URL-safe and encoded paths without losing event totals", () => {
+    const csv = [
+      "date,event name,page path,event count",
+      "2026-10-01,cta_click,/reset/AbCdEf0123456789-long_secret,3",
+      "2026-10-01,cta_click,/reset/%2541bCdEf0123456789%252Dlong_secret,4",
+      "2026-10-01,cta_click,/blog/deaf-cafe-bead-face-fade-dead-beef-abba,5",
+    ].join("\n");
+    expect(parseOutcomeCsv(Buffer.from(csv)).events).toEqual([
+      { date: "2026-10-01", eventName: "cta_click", path: "/blog/deaf-cafe-bead-face-fade-dead-beef-abba", count: 5 },
+      { date: "2026-10-01", eventName: "cta_click", path: "/reset/:id", count: 7 },
+    ]);
+  });
+
   it("reads a GA4-style export: skips # metadata, totals rows and BOM; parses YYYYMMDD dates and comma counts", () => {
     const csv = [
       "﻿# ----------------------------------------",
@@ -65,7 +78,7 @@ describe("sanitizePath", () => {
     expect(sanitizePath("/a?b=c#d")).toBe("/a");
     expect(sanitizePath("https://example.com/blog/how-to-write?x=1")).toBe("/blog/how-to-write");
     expect(sanitizePath("/reset/3f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c")).toBe("/reset/:id");
-    expect(sanitizePath(`/${"ab-".repeat(140)}`)).toHaveLength(300);
+    expect(sanitizePath(`/blog/${"read-more/".repeat(50)}`)).toHaveLength(300);
     expect(sanitizePath("x".repeat(400))).toBe(":id");
     expect(sanitizePath("/orders/123e4567-e89b-12d3-a456-426614174000/receipt")).toBe("/orders/:id/receipt");
     expect(sanitizePath("/blog/deaf-cafe-bead-face-fade-dead-beef-abba")).toBe("/blog/deaf-cafe-bead-face-fade-dead-beef-abba");

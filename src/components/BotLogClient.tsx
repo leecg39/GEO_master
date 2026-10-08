@@ -100,11 +100,11 @@ export function BotLogClient() {
     if (!file) return;
     setBusy(true); setError(""); setNotice("");
     try {
-      const result = await request<{ duplicate: boolean; import: Item }>("/api/bot-logs", {
+      const result = await request<{ duplicate: boolean; dnsUpdated: boolean; import: Item }>("/api/bot-logs", {
         method: "POST", headers: { "content-type": "application/json" },
         body: JSON.stringify({ fileName: file.name, contentBase64: toBase64(await file.arrayBuffer()), verifyDns }),
       });
-      setNotice(result.duplicate ? "이미 가져온 로그입니다." : `가져왔습니다 — ${result.import.totals.parsed.toLocaleString("ko-KR")}줄 해석, ${result.import.totals.skipped.toLocaleString("ko-KR")}줄 건너뜀.`);
+      setNotice(result.dnsUpdated ? "기존 로그의 DNS 확인 결과를 갱신했습니다." : result.duplicate ? "이미 가져온 로그입니다." : `가져왔습니다 — ${result.import.totals.parsed.toLocaleString("ko-KR")}줄 해석, ${result.import.totals.skipped.toLocaleString("ko-KR")}줄 건너뜀.`);
       setFile(null); if (input.current) input.current.value = "";
       await load();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "가져오지 못했습니다."); } finally { setBusy(false); }
