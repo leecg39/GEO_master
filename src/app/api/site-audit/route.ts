@@ -2,6 +2,7 @@ import { withSemforgeAccount } from "@/lib/semforge-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { AppError, errorResponse } from "@/lib/errors";
+import { getPageSnapshot } from "@/lib/page-snapshots";
 import { createSiteAuditCampaign, deleteSiteAuditCampaign, getSiteAuditOverview, getSiteAuditWorkspace } from "@/lib/semforge/siteaudit";
 
 export const runtime = "nodejs";
@@ -9,6 +10,8 @@ export const dynamic = "force-dynamic";
 
 function handleGET(request: NextRequest) {
   try {
+    const snapshot = request.nextUrl.searchParams.get("snapshot");
+    if (snapshot) return NextResponse.json({ snapshot: getPageSnapshot(snapshot) });
     const id = request.nextUrl.searchParams.get("id");
     if (id) return NextResponse.json({ overview: getSiteAuditOverview(id) });
     return NextResponse.json(getSiteAuditWorkspace());
