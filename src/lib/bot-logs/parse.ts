@@ -4,11 +4,11 @@
  */
 import { Gunzip } from "fflate";
 import { AppError } from "@/lib/errors";
+import { sanitizePath } from "@/lib/path-privacy";
 
 export const MAX_LOG_INPUT_BYTES = 10 * 1024 * 1024;
 const MAX_LOG_TEXT_BYTES = 50 * 1024 * 1024;
 const MAX_LOG_LINES = 500_000;
-const MAX_PATH_LENGTH = 300;
 const MONTHS: Record<string, string> = { jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06", jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12" };
 const QUOTED = '"((?:[^"\\\\]|\\\\.)*)"';
 const LINE = new RegExp(`^(\\S+) \\S+ \\S+ \\[(\\d{2})/([A-Za-z]{3})/(\\d{4}):\\d{2}:\\d{2}:\\d{2} ([+-]\\d{4})\\] ${QUOTED} (\\d{3}) \\S+(?: ${QUOTED} ${QUOTED})?`);
@@ -53,23 +53,9 @@ function gunzipLimited(input: Uint8Array) {
   return Buffer.concat(chunks, total);
 }
 
-/** 재설정 링크·세션 ID처럼 보이는 경로 조각(긴 영숫자 토큰, 16진수/UUID)은 저장하지 않는다 */
-function maskSegment(segment: string) {
-  return /^[A-Za-z0-9_]{20,}$/.test(segment) || /^[0-9a-f-]{32,}$/i.test(segment) ? ":id" : segment;
-}
-
 function validDate(year: number, month: number, day: number) {
   const date = new Date(Date.UTC(year, month - 1, day));
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
-}
-
-function pathOf(target: string) {
-  let path = target;
-  if (/^https?:\/\//i.test(path)) {
-    try { path = new URL(path).pathname; } catch { path = "/"; }
-  }
-  path = path.split(/[?#]/)[0] ?? "";
-  return path.split("/").map(maskSegment).join("/").slice(0, MAX_PATH_LENGTH);
 }
 
 function parseLine(text: string): LogEntry | null {
@@ -84,7 +70,7 @@ function parseLine(text: string): LogEntry | null {
     date: `${year}-${month}-${day}`,
     offset: offset!,
     method: requestParts?.[1] ?? "-",
-    path: requestParts ? pathOf(requestParts[2]!) : "",
+    path: requestParts ? sanitizePath(requestParts[2]!) : "",
     status: Number(status),
     userAgent: userAgent === undefined ? "" : unescape(userAgent),
   };

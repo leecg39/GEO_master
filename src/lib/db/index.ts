@@ -887,6 +887,46 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 28,
+    name: "outcome-events",
+    up(sqlite) {
+      // Qshop P13: 사업 성과 이벤트 집계. 이벤트의 의미(CTA 클릭·폼 제출·전환)는 사용자가 정의하고 서로 합치지 않는다
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS outcome_imports (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          source_label TEXT NOT NULL,
+          file_name TEXT NOT NULL,
+          content_hash TEXT NOT NULL,
+          period_start TEXT NOT NULL,
+          period_end TEXT NOT NULL,
+          rows_used INTEGER NOT NULL,
+          rows_skipped INTEGER NOT NULL,
+          imported_at TEXT NOT NULL,
+          UNIQUE(project_id, source_label, content_hash)
+        );
+        CREATE TABLE IF NOT EXISTS outcome_events (
+          import_id INTEGER NOT NULL REFERENCES outcome_imports(id) ON DELETE CASCADE,
+          date TEXT NOT NULL,
+          event_name TEXT NOT NULL,
+          path TEXT NOT NULL DEFAULT '',
+          count INTEGER NOT NULL CHECK(count >= 0),
+          PRIMARY KEY (import_id, date, event_name, path)
+        );
+        CREATE TABLE IF NOT EXISTS outcome_definitions (
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          event_name TEXT NOT NULL,
+          kind TEXT NOT NULL CHECK(kind IN ('cta_click','form_submit','conversion')),
+          definition TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          PRIMARY KEY (project_id, event_name)
+        );
+        CREATE INDEX IF NOT EXISTS idx_outcome_imports_project ON outcome_imports(project_id, source_label, imported_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_outcome_events_day ON outcome_events(import_id, date);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;
