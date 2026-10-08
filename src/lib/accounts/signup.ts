@@ -108,10 +108,12 @@ const signupSchema = z.object({
     .max(128, "이메일은 128자 이하로 입력해 주세요.")
     .pipe(z.email("올바른 이메일 주소를 입력해 주세요."))
     .refine((value) => USERNAME_PATTERN.test(value), "이메일에는 영문·숫자와 @ . _ + - 기호만 사용할 수 있습니다."),
-  displayName: z.string().trim()
+  // trim이 지우는 BOM 같은 보이지 않는 문자도 거르도록 앞뒤 공백을 지우기 전에 검사한다.
+  displayName: z.string()
+    .refine((value) => !CONTROL_CHARACTERS.test(value), "이름에 보이지 않는 문자나 제어 문자는 사용할 수 없습니다.")
+    .trim()
     .min(1, "이름을 입력해 주세요.")
-    .max(50, "이름은 50자 이하로 입력해 주세요.")
-    .refine((value) => !CONTROL_CHARACTERS.test(value), "이름에 보이지 않는 문자나 제어 문자는 사용할 수 없습니다."),
+    .max(50, "이름은 50자 이하로 입력해 주세요."),
   password: z.string()
     .min(MIN_PASSWORD_LENGTH, `비밀번호는 ${MIN_PASSWORD_LENGTH}자 이상이어야 합니다.`)
     .refine((value) => !exceedsBcryptLimit(value), "비밀번호가 너무 깁니다. 72바이트 이하로 입력해 주세요."),
