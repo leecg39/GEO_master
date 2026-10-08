@@ -72,6 +72,44 @@ describe("parseAccessLog", () => {
     const parsed = parseAccessLog(Buffer.from(line("192.0.2.1", "08/Oct/2026:10:00:00 +0000", "GET / HTTP/1.1", 200, 'Bot \\"quoted\\" GPTBot/1.0')));
     expect(parsed.entries[0]?.userAgent).toBe('Bot "quoted" GPTBot/1.0');
   });
+
+  it.each([
+    "AbCdEf0123456789-long_secret",
+    "abcdefghijklmnopqrstuvwxyz-012345",
+    "AbCdEf0123456789.long.secret",
+    "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.signature",
+    "AbCdEf0123456789~long_secret",
+    "AbCdEf0123456789+long_secret==",
+    "%41bCdEf0123456789%2Dlong_secret",
+    "%2541bCdEf0123456789%252Dlong_secret",
+    "%252541bCdEf0123456789%25252Dlong_secret",
+    "%25252541bCdEf0123456789-long_secret",
+    "AbCdEf0123%2F456789-long_secret",
+    "AbCdEf0123%3F456789-long_secret",
+    "AbCdEf0123%23456789-long_secret",
+    "AbCdEf0123%5C456789-long_secret",
+    "AbCdEf0123456789%ZZlong_secret",
+    "AbCdEf0123456789%E0%A4long_secret",
+    "12345678-abcd-1234-abcd-1234567890ab",
+  ])("masks URL-safe and encoded synthetic secrets (%#)", (token) => {
+    for (const prefix of ["", "https://example.test"]) {
+      const parsed = parseAccessLog(Buffer.from(line("192.0.2.1", "08/Oct/2026:10:00:00 +0000", `GET ${prefix}/reset/${token}/confirm?private=value HTTP/1.1`, 200, UA.gptbot)));
+      expect(parsed.entries[0]?.path).toBe("/reset/:id/confirm");
+    }
+  });
+
+  it.each([
+    "/blog/how-to-write-llms-txt",
+    "/blog/a-decade-of-feedback-and-decaf-coffee",
+    "/assets/site.css",
+    "/llms.txt",
+    "/products/123",
+    "/%ED%95%9C%EA%B8%80",
+    "/blog/how%2Dto%2Dwrite%2Dllms%2Dtxt",
+  ])("preserves ordinary public paths (%#)", (target) => {
+    const parsed = parseAccessLog(Buffer.from(line("192.0.2.1", "08/Oct/2026:10:00:00 +0000", `GET ${target} HTTP/1.1`, 200, UA.gptbot)));
+    expect(parsed.entries[0]?.path).toBe(target);
+  });
 });
 
 describe("classifyUserAgent", () => {

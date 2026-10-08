@@ -34,27 +34,42 @@ export async function importBotLog(input: { fileName: string; buffer: Buffer; ve
   const contentHash = createHash("sha256").update(input.buffer).digest("hex");
   const { sqlite } = getDatabase();
   const existing = sqlite.prepare("SELECT * FROM bot_log_imports WHERE project_id = ? AND content_hash = ?").get(active.id, contentHash) as ImportRow | undefined;
-  if (existing) return { duplicate: true, import: toImport(existing) };
-
+  // 재업로드는 기존 경로도 새 마스킹 규칙으로 다시 집계한다.
   const parsed = parseAccessLog(input.buffer);
   // DNS 확인은 트랜잭션 밖에서 끝낸다(비동기). 결과는 집계에만 반영하고 IP는 저장하지 않는다
-  const verification = input.verifyDns ? await verifyBotIps(botIpsOf(parsed), { resolver: input.resolver }) : new Map();
+  const checkDns = Boolean(input.verifyDns && !existing?.dns_checked);
+  const verification = checkDns ? await verifyBotIps(botIpsOf(parsed), { resolver: input.resolver }) : new Map();
   const analysis = analyzeAccessLog(parsed, verification);
   return transactionalMutation(sqlite, () => {
+    requireActiveProject(active.id);
     const raced = sqlite.prepare("SELECT * FROM bot_log_imports WHERE project_id = ? AND content_hash = ?").get(active.id, contentHash) as ImportRow | undefined;
-    if (raced) return { duplicate: true, import: toImport(raced) };
-    const result = sqlite.prepare(`
-      INSERT INTO bot_log_imports (project_id, format, file_name, content_hash, period_start, period_end, offsets, lines_total, lines_parsed, lines_skipped, ai_bot_hits, self_hits, other_hits, dns_checked, imported_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(active.id, analysis.format, fileName, contentHash, analysis.period.start, analysis.period.end, JSON.stringify(analysis.offsets),
-      analysis.totals.lines, analysis.totals.parsed, analysis.totals.skipped, analysis.totals.aiBot, analysis.totals.self, analysis.totals.other,
-      input.verifyDns ? 1 : 0, new Date().toISOString());
-    const id = Number(result.lastInsertRowid);
-    const insertHit = sqlite.prepare("INSERT INTO bot_log_hits (import_id, date, bot_token, operator, purpose, status_class, hits, verified_hits, failed_hits) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    for (const row of analysis.hits) insertHit.run(id, row.date, row.botToken, row.operator, row.purpose, row.statusClass, row.hits, row.verifiedHits, row.failedHits);
+    // DNS를 기다리는 동안 명시적으로 삭제된 가져오기를 되살리지 않는다.
+    if (existing) expectFound(raced?.id === existing.id ? raced : undefined, "가져온 로그를 찾을 수 없습니다.", "BOT_LOG_NOT_FOUND");
+    const dnsUpdated = Boolean(raced && checkDns && !raced.dns_checked);
+    let id: number;
+    if (raced) {
+      id = raced.id;
+      if (dnsUpdated) {
+        sqlite.prepare("DELETE FROM bot_log_hits WHERE import_id = ?").run(id);
+        sqlite.prepare("UPDATE bot_log_imports SET dns_checked = 1 WHERE id = ?").run(id);
+      }
+      sqlite.prepare("DELETE FROM bot_log_paths WHERE import_id = ?").run(id);
+    } else {
+      const result = sqlite.prepare(`
+        INSERT INTO bot_log_imports (project_id, format, file_name, content_hash, period_start, period_end, offsets, lines_total, lines_parsed, lines_skipped, ai_bot_hits, self_hits, other_hits, dns_checked, imported_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(active.id, analysis.format, fileName, contentHash, analysis.period.start, analysis.period.end, JSON.stringify(analysis.offsets),
+        analysis.totals.lines, analysis.totals.parsed, analysis.totals.skipped, analysis.totals.aiBot, analysis.totals.self, analysis.totals.other,
+        checkDns ? 1 : 0, new Date().toISOString());
+      id = Number(result.lastInsertRowid);
+    }
+    if (!raced || dnsUpdated) {
+      const insertHit = sqlite.prepare("INSERT INTO bot_log_hits (import_id, date, bot_token, operator, purpose, status_class, hits, verified_hits, failed_hits) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+      for (const row of analysis.hits) insertHit.run(id, row.date, row.botToken, row.operator, row.purpose, row.statusClass, row.hits, row.verifiedHits, row.failedHits);
+    }
     const insertPath = sqlite.prepare("INSERT INTO bot_log_paths (import_id, bot_token, path, hits) VALUES (?, ?, ?, ?)");
     for (const row of analysis.paths) insertPath.run(id, row.botToken, row.path, row.hits);
-    return { duplicate: false, import: toImport(sqlite.prepare("SELECT * FROM bot_log_imports WHERE id = ?").get(id) as ImportRow) };
+    return { duplicate: Boolean(raced), dnsUpdated, import: toImport(sqlite.prepare("SELECT * FROM bot_log_imports WHERE id = ?").get(id) as ImportRow) };
   });
 }
 
