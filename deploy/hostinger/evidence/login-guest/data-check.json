@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-10-07T07:04:28.072Z",
+  "tables": {
+    "projects": {
+      "rows": 2,
+      "beforeRows": 2,
+      "unchanged": false,
+      "changes": [
+        {
+          "id": 3,
+          "fields": [
+            "updated_at",
+            "domain"
+          ],
+          "updatedAt": "2026-10-07T07:00:29.305Z"
+        }
+      ]
+    },
+    "settings": {
+      "rows": 1,
+      "beforeRows": 1,
+      "unchanged": true
+    },
+    "measure_runs": {
+      "rows": 3,
+      "beforeRows": 3,
+      "unchanged": true
+    },
+    "contents": {
+      "rows": 0,
+      "beforeRows": 0,
+      "unchanged": true
+    },
+    "audits": {
+      "rows": 1,
+      "beforeRows": 1,
+      "unchanged": true
+    },
+    "semforge_subscriptions": {
+      "rows": 1,
+      "beforeRows": 1,
+      "unchanged": true
+    },
+    "semforge_payment_intents": {
+      "rows": 0,
+      "beforeRows": 0,
+      "unchanged": true
+    }
+  },
+  "containerStartedAt": "2026-10-07T07:02:25.122093795Z",
+  "note": "프로젝트 3의 domain/updated_at 변경 시각은 새 컨테이너 시작 이전입니다. 운영 중 발생한 변경을 보존했으며, 전체 프로젝트와 나머지 비교 테이블의 행 수는 동일합니다."
+}

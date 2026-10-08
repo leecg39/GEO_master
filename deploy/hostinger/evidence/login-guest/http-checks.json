@@ -1,0 +1,470 @@
+{
+  "origin": "https://geo.soverin.cloud",
+  "checkedAt": "2026-10-07T07:02:43.209Z",
+  "checks": [
+    {
+      "label": "GET /login: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/login: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "Public login renders a native form",
+      "passed": true
+    },
+    {
+      "label": "GET /?login=1: 303 (expected 303)",
+      "passed": true
+    },
+    {
+      "label": "/?login=1: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /settings: 303 (expected 303)",
+      "passed": true
+    },
+    {
+      "label": "/settings: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/settings: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "/api/settings: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/settings: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "/api/settings: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "POST /api/auth/login: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/auth/login: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "POST /api/auth/login: 303 (expected 303)",
+      "passed": true
+    },
+    {
+      "label": "/api/auth/login: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "Wrong password never creates a session",
+      "passed": true
+    },
+    {
+      "label": "POST /api/auth/login: 303 (expected 303)",
+      "passed": true
+    },
+    {
+      "label": "/api/auth/login: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "guest: signed session cookie",
+      "passed": true
+    },
+    {
+      "label": "guest: HttpOnly",
+      "passed": true
+    },
+    {
+      "label": "guest: Secure",
+      "passed": true
+    },
+    {
+      "label": "guest: SameSite=lax",
+      "passed": true
+    },
+    {
+      "label": "guest: Path=/",
+      "passed": true
+    },
+    {
+      "label": "guest: returns to dashboard",
+      "passed": true
+    },
+    {
+      "label": "GET /: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "Guest cookie opens dashboard instead of public preview",
+      "passed": true
+    },
+    {
+      "label": "Guest SSR hides /settings",
+      "passed": true
+    },
+    {
+      "label": "Guest SSR hides /subscription",
+      "passed": true
+    },
+    {
+      "label": "Guest SSR hides /semforge",
+      "passed": true
+    },
+    {
+      "label": "Guest SSR hides /workspace",
+      "passed": true
+    },
+    {
+      "label": "GET /audit: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/audit: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /share: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/share: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /learn: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/learn: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/projects: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/api/projects: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/dashboard: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/api/dashboard: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/measurement-context: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/api/measurement-context: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "Measurement context contains only required inputs",
+      "passed": true
+    },
+    {
+      "label": "No key hints or credentials in measurement context",
+      "passed": true
+    },
+    {
+      "label": "GET /settings: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/settings: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /subscription: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/subscription: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /semforge: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/semforge: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /workspace: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/workspace: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /ai-seo: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/ai-seo: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /site-audit: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/site-audit: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /position-tracking: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/position-tracking: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /analytics/overview: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/analytics/overview: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /local-business: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/local-business: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/settings: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/settings: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/workspace?download=1: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/workspace?download=1: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/workspace/backups: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/workspace/backups: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/semforge/subscription: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/semforge/subscription: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/site-audit: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/site-audit: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "PUT /api/settings: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/settings: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "POST /api/semforge/subscription/checkout: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/semforge/subscription/checkout: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "POST /api/semforge/subscription/confirm: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/semforge/subscription/confirm: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "POST /api/workspace/backups/1/restore: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/workspace/backups/1/restore: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/settings: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/settings: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/settings: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/settings: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "POST /api/projects: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "/api/projects: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "Dashboard references compiled app scripts",
+      "passed": true
+    },
+    {
+      "label": "GET /_next/static/chunks/3_cjls8wt9xjq.js: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/_next/static/chunks/3_cjls8wt9xjq.js: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "POST /api/auth/login: 303 (expected 303)",
+      "passed": true
+    },
+    {
+      "label": "/api/auth/login: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "geo-admin: signed session cookie",
+      "passed": true
+    },
+    {
+      "label": "geo-admin: HttpOnly",
+      "passed": true
+    },
+    {
+      "label": "geo-admin: Secure",
+      "passed": true
+    },
+    {
+      "label": "geo-admin: SameSite=lax",
+      "passed": true
+    },
+    {
+      "label": "geo-admin: Path=/",
+      "passed": true
+    },
+    {
+      "label": "geo-admin: returns to dashboard",
+      "passed": true
+    },
+    {
+      "label": "GET /: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /settings: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/settings: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /subscription: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/subscription: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /semforge: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/semforge: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/settings: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/api/settings: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "GET /api/semforge/subscription: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "/api/semforge/subscription: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "Admin retains active SEMForge without payment",
+      "passed": true
+    },
+    {
+      "label": "POST /api/auth/logout: 303 (expected 303)",
+      "passed": true
+    },
+    {
+      "label": "/api/auth/logout: no browser Basic Auth challenge",
+      "passed": true
+    },
+    {
+      "label": "Logout clears browser session",
+      "passed": true
+    },
+    {
+      "label": "GET /api/projects: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "/api/projects: no browser Basic Auth challenge",
+      "passed": true
+    }
+  ]
+}

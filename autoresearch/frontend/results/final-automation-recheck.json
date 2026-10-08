@@ -1,0 +1,106 @@
+[
+  {
+    "route": "/automation",
+    "config": "desktop-dark",
+    "title": "예약 측정 자동화 · GEO Master",
+    "heading": "예약 측정 자동화",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/automation",
+    "config": "desktop-light",
+    "title": "예약 측정 자동화 · GEO Master",
+    "heading": "예약 측정 자동화",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/automation",
+    "config": "mobile",
+    "title": "예약 측정 자동화 · GEO Master",
+    "heading": "예약 측정 자동화",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/automation",
+    "config": "small-mobile",
+    "title": "예약 측정 자동화 · GEO Master",
+    "heading": "예약 측정 자동화",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  }
+]

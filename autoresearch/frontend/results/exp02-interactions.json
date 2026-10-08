@@ -1,0 +1,111 @@
+[
+  {
+    "id": "menu-dialog",
+    "pass": false
+  },
+  {
+    "id": "menu-initial-focus",
+    "pass": false
+  },
+  {
+    "id": "menu-scroll-lock",
+    "pass": false
+  },
+  {
+    "id": "menu-forward-trap",
+    "pass": false
+  },
+  {
+    "id": "menu-reverse-trap",
+    "pass": false
+  },
+  {
+    "id": "menu-escape",
+    "pass": false
+  },
+  {
+    "id": "menu-restore-focus",
+    "pass": true
+  },
+  {
+    "id": "confirm-initial-focus",
+    "pass": true
+  },
+  {
+    "id": "confirm-scroll-lock",
+    "pass": true
+  },
+  {
+    "id": "confirm-forward-trap",
+    "pass": false
+  },
+  {
+    "id": "confirm-reverse-trap",
+    "pass": false
+  },
+  {
+    "id": "confirm-escape",
+    "pass": true
+  },
+  {
+    "id": "confirm-restore-focus",
+    "pass": true
+  },
+  {
+    "id": "drawer-initial-focus",
+    "pass": true
+  },
+  {
+    "id": "drawer-scroll-lock",
+    "pass": true
+  },
+  {
+    "id": "drawer-forward-trap",
+    "pass": false
+  },
+  {
+    "id": "drawer-reverse-trap",
+    "pass": false
+  },
+  {
+    "id": "drawer-escape",
+    "pass": true
+  },
+  {
+    "id": "drawer-restore-focus",
+    "pass": true
+  },
+  {
+    "id": "settings-save",
+    "pass": true
+  },
+  {
+    "id": "settings-save-announced",
+    "pass": false
+  },
+  {
+    "id": "llms-generate",
+    "pass": true
+  },
+  {
+    "id": "llms-validate",
+    "pass": true
+  },
+  {
+    "id": "memo-save",
+    "pass": true
+  },
+  {
+    "id": "backup-create",
+    "pass": true,
+    "detail": "<input maxlength=\"120\" value=\"로컬 백업\">"
+  },
+  {
+    "id": "backup-rename-enter",
+    "pass": false
+  },
+  {
+    "id": "backup-rename-save",
+    "pass": true
+  }
+]

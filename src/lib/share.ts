@@ -3,12 +3,18 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { idempotencyKeySchema } from "./crud";
 import { getDatabase } from "./db";
-import { measureResults, measureRuns } from "./db/schema";
+import { measureCitations, measureResults, measureRuns } from "./db/schema";
 import { AppError } from "./errors";
+import { classifySource, collectionQuality, METRIC_VERSION, questionMatrix, summarizeCitations, type CitationSlot, type SlotStatus } from "./geo-core";
+import type { Citation } from "./grounding";
 import { generateText } from "./llm";
+import { collectSlot, type SlotOutcome } from "./measurement-slot";
+import { analyzeMentions, type MentionAnalysis } from "./mention-analysis";
 import { listMeasureRuns, publicStoredMeasureRun, storedMeasureRunById, storedMeasureRunByRequest, storedMeasureRunHash } from "./measure-runs";
 import { requireActiveProject } from "./projects";
 import { getServerSettings, providers, type Provider } from "./settings";
+
+export { analyzeMentions } from "./mention-analysis";
 
 export type Sentiment = "positive" | "neutral" | "negative";
 export type FunnelStage = "존재" | "맥락" | "시의성" | "추천";
@@ -19,6 +25,8 @@ export const shareRunSchema = z.object({
   repetitions: z.number().int().min(1).max(5).optional(),
   title: z.string().trim().max(120).optional().default(""),
   notes: z.string().trim().max(5_000).optional().default(""),
+  /** web = 공급자 웹검색 도구로 측정하고 인용 URL을 수집한다 (비용 증가) */
+  searchMode: z.enum(["off", "web"]).optional().default("off"),
   clientRequestId: idempotencyKeySchema.optional(),
 }).strict();
 
@@ -37,23 +45,6 @@ export function normalizeEntity(value: string) {
 export function entityMentioned(text: string, entity: string) {
   const needle = normalizeEntity(entity);
   return needle.length >= 2 && normalizeEntity(text).includes(needle);
-}
-
-export function analyzeMentions(response: string, brand: string, competitors: string[]) {
-  const normalized = normalizeEntity(response);
-  const entities = [brand, ...competitors]
-    .filter(Boolean)
-    .map((name) => ({ name, index: normalized.indexOf(normalizeEntity(name)) }))
-    .filter((entry) => entry.index >= 0)
-    .sort((a, b) => a.index - b.index);
-  const brandIndex = entities.findIndex((entry) => normalizeEntity(entry.name) === normalizeEntity(brand));
-  return {
-    brandMentioned: brandIndex >= 0,
-    mentionRank: brandIndex >= 0 ? brandIndex + 1 : null,
-    competitorMentions: entities
-      .filter((entry) => normalizeEntity(entry.name) !== normalizeEntity(brand))
-      .map((entry) => entry.name),
-  };
 }
 
 export function heuristicSentiment(response: string, brand: string): Sentiment {
@@ -92,6 +83,10 @@ async function classifySentiment(
 
 interface AggregateInput {
   provider: Provider;
+  /** 질문 원문 — 질문별 k/n 집계용 (구버전 호출은 생략 가능) */
+  question?: string;
+  /** 슬롯 상태 — 생략하면 정상 답변으로 본다 */
+  status?: SlotStatus;
   brandMentioned: boolean;
   sentiment: Sentiment;
   mentionRank: number | null;
@@ -106,10 +101,18 @@ export function classifyFunnel(answerShare: number, positiveRate: number): Funne
 }
 
 export function aggregateShare(
-  rows: AggregateInput[],
+  slots: AggregateInput[],
   competitors: string[],
   weights: Record<Provider, number>,
 ) {
+  const slotRows = slots.map((row) => ({
+    question: row.question ?? "",
+    provider: row.provider,
+    status: row.status ?? "succeeded",
+    brandMentioned: row.brandMentioned,
+  }));
+  // 분모는 정상 답변만 — 거절·실패 슬롯은 결측으로 따로 센다
+  const rows = slots.filter((row) => (row.status ?? "succeeded") === "succeeded");
   const total = rows.length;
   const mentions = rows.filter((row) => row.brandMentioned);
   const answerShare = total ? (mentions.length / total) * 100 : 0;
@@ -145,6 +148,9 @@ export function aggregateShare(
     funnelStage: classifyFunnel(answerShare, positiveRate),
     perModel,
     competitorComparison,
+    metricVersion: METRIC_VERSION,
+    quality: collectionQuality(slotRows),
+    questionMatrix: slots.some((row) => row.question !== undefined) ? questionMatrix(slotRows) : [],
   };
 }
 
@@ -167,6 +173,82 @@ function assertNotCanceled(options: ShareMeasurementOptions) {
   }
 }
 
+type SlotMention = Pick<MentionAnalysis, "brandMentioned" | "mentionRank" | "competitorMentions" | "ownDomainHit" | "matchedSpans">;
+
+const EMPTY_MENTION: SlotMention = {
+  brandMentioned: false,
+  mentionRank: null,
+  competitorMentions: [],
+  ownDomainHit: false,
+  matchedSpans: [],
+};
+
+type ServerSettings = ReturnType<typeof getServerSettings>;
+
+interface PendingSlot {
+  aggregate: AggregateInput;
+  citationSlot: CitationSlot;
+  result: typeof measureResults.$inferInsert;
+  citations: Array<Omit<typeof measureCitations.$inferInsert, "runId" | "resultId">>;
+}
+
+function classifyCitations(citations: readonly Citation[], settings: ServerSettings, createdAt: string) {
+  const options = {
+    ownDomains: settings.domain ? [settings.domain] : [],
+    competitorDomains: [{ entityId: "competitors", domains: settings.competitorDomains }],
+  };
+  return citations.map((citation) => ({
+    url: citation.url,
+    domain: citation.domain,
+    title: citation.title,
+    kind: citation.kind,
+    category: classifySource(citation.domain, options).category,
+    createdAt,
+  }));
+}
+
+function pendingSlot(input: {
+  runId: number; question: string; provider: Provider; model: string; repetition: number;
+  slot: SlotOutcome; sentiment: Sentiment; mention: SlotMention; settings: ServerSettings;
+}): PendingSlot {
+  const { runId, question, provider, model, repetition, slot, sentiment, mention, settings } = input;
+  const createdAt = new Date().toISOString();
+  const citations = classifyCitations(slot.citations, settings, createdAt);
+  return {
+    aggregate: { provider, question, status: slot.status, sentiment, brandMentioned: mention.brandMentioned, mentionRank: mention.mentionRank, competitorMentions: mention.competitorMentions },
+    citationSlot: { provider, status: slot.status, citationSupported: slot.citationSupported, brandMentioned: mention.brandMentioned, citations },
+    result: {
+      runId, questionText: question, provider, model, repetition,
+      response: slot.response,
+      brandMentioned: mention.brandMentioned,
+      sentiment,
+      mentionRank: mention.mentionRank,
+      competitorMentions: JSON.stringify(mention.competitorMentions),
+      slotStatus: slot.status,
+      matchedSpans: JSON.stringify(mention.matchedSpans),
+      ownDomainHit: mention.ownDomainHit,
+      metricVersion: METRIC_VERSION,
+      searchMode: slot.searchMode,
+      searchPerformed: slot.searchPerformed,
+      citationSupported: slot.citationSupported,
+      returnedModel: slot.returnedModel,
+      slotError: slot.error,
+      createdAt,
+    },
+    citations,
+  };
+}
+
+function persistSlots(runId: number, slots: readonly PendingSlot[]) {
+  const { orm } = getDatabase();
+  for (const slot of slots) {
+    const stored = orm.insert(measureResults).values(slot.result).returning({ id: measureResults.id }).get();
+    if (slot.citations.length) {
+      orm.insert(measureCitations).values(slot.citations.map((citation) => ({ ...citation, runId, resultId: stored.id }))).run();
+    }
+  }
+}
+
 function measurementRequestHash(input: z.infer<typeof shareRunSchema>) {
   return createHash("sha256").update(JSON.stringify({
     questions: input.questions,
@@ -174,6 +256,8 @@ function measurementRequestHash(input: z.infer<typeof shareRunSchema>) {
     repetitions: input.repetitions,
     title: input.title,
     notes: input.notes,
+    // 기존 요청 지문을 바꾸지 않도록 검색 모드는 켰을 때만 포함한다
+    ...(input.searchMode === "web" ? { searchMode: input.searchMode } : {}),
   })).digest("hex");
 }
 
@@ -213,7 +297,8 @@ export async function runShareMeasurement(input: unknown, options: ShareMeasurem
   const settings = getServerSettings(parsed.providers);
   const brand = settings.brandName.trim();
   if (!brand) throw new AppError("활성 프로젝트의 브랜드 프로필을 먼저 저장해 주세요.", 409, "BRAND_REQUIRED");
-  validateBrandFreeQuestions(parsed.questions, [brand, ...settings.competitors]);
+  // 별칭도 브랜드명으로 본다 — 별칭이 들어간 질문은 측정을 브랜드 쪽으로 기울인다
+  validateBrandFreeQuestions(parsed.questions, [brand, ...settings.brandAliases, ...settings.competitors]);
   for (const provider of parsed.providers) {
     if (!settings.decryptedApiKeys[provider]) {
       const providerLabel = provider === "grok" ? "Grok" : provider;
@@ -238,8 +323,7 @@ export async function runShareMeasurement(input: unknown, options: ShareMeasurem
     updatedAt: now,
   }).returning().get();
 
-  const aggregateRows: AggregateInput[] = [];
-  const pendingResults: (typeof measureResults.$inferInsert)[] = [];
+  const pending: PendingSlot[] = [];
   try {
     options.onRunCreated?.(run.id);
     assertNotCanceled(options);
@@ -250,46 +334,34 @@ export async function runShareMeasurement(input: unknown, options: ShareMeasurem
         for (let repetition = 1; repetition <= repetitions; repetition += 1) {
           assertNotCanceled(options);
           options.onBillableCall?.(provider);
-          const response = await generateText({
-            provider,
-            apiKey,
-            model,
-            system: "사용자의 질문에 독립적이고 균형 잡힌 한국어 답변을 제공하세요. 확인되지 않은 순위나 수치를 만들지 마세요.",
-            prompt: question,
-            maxTokens: 1600,
-          });
+          const slot = await collectSlot({ provider, apiKey, model, question, searchMode: parsed.searchMode });
           assertNotCanceled(options);
-          const mention = analyzeMentions(response, brand, settings.competitors);
+          const mention = slot.status === "succeeded"
+            ? analyzeMentions(slot.response, brand, settings.competitors, { aliases: settings.brandAliases, domain: settings.domain })
+            : EMPTY_MENTION;
           let sentiment: Sentiment = "neutral";
           if (mention.brandMentioned) {
             options.onBillableCall?.(provider);
-            sentiment = await classifySentiment(response, brand, provider, apiKey, model);
+            sentiment = await classifySentiment(slot.response, brand, provider, apiKey, model);
           }
           assertNotCanceled(options);
-          const aggregateRow: AggregateInput = { provider, sentiment, ...mention };
-          aggregateRows.push(aggregateRow);
-          pendingResults.push({
-            runId: run.id,
-            questionText: question,
-            provider,
-            model,
-            repetition,
-            response,
-            brandMentioned: mention.brandMentioned,
-            sentiment,
-            mentionRank: mention.mentionRank,
-            competitorMentions: JSON.stringify(mention.competitorMentions),
-            createdAt: new Date().toISOString(),
-          });
+          pending.push(pendingSlot({ runId: run.id, question, provider, model, repetition, slot, sentiment, mention, settings }));
         }
       }
     }
     assertNotCanceled(options);
-    const summary = aggregateShare(aggregateRows, settings.competitors, settings.modelWeights);
+    if (!pending.some((slot) => slot.aggregate.status !== "failed")) {
+      throw new AppError("모든 측정 호출이 실패했습니다. 잠시 후 다시 시도해 주세요.", 502, "LLM_REQUEST_FAILED");
+    }
+    const summary = {
+      ...aggregateShare(pending.map((slot) => slot.aggregate), settings.competitors, settings.modelWeights),
+      searchMode: parsed.searchMode,
+      ...(parsed.searchMode === "web" ? { citations: summarizeCitations(pending.map((slot) => slot.citationSlot)) } : {}),
+    };
     const completedAt = new Date().toISOString();
     assertNotCanceled(options);
     sqlite.transaction(() => {
-      orm.insert(measureResults).values(pendingResults).run();
+      persistSlots(run.id, pending);
       orm.update(measureRuns).set({
         status: "completed",
         answerShare: summary.answerShare,

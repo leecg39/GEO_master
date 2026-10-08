@@ -1,0 +1,27 @@
+{
+  "origin": "https://geo.soverin.cloud",
+  "checkedAt": "2026-10-07T05:22:42.093Z",
+  "checks": [
+    {
+      "path": "/api/projects/2",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "authenticated": true
+    },
+    {
+      "path": "/api/projects/2",
+      "method": "DELETE",
+      "status": 204,
+      "expected": 204,
+      "authenticated": true
+    },
+    {
+      "path": "/api/projects/2",
+      "method": "GET",
+      "status": 404,
+      "expected": 404,
+      "authenticated": true
+    }
+  ]
+}

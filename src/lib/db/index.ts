@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
@@ -235,6 +236,607 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 6,
+    name: "semforge-integration-and-subscription",
+    up(sqlite) {
+      addColumnIfMissing(sqlite, "projects", "domain", "TEXT NOT NULL DEFAULT ''");
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS semforge_subscriptions (
+          id INTEGER PRIMARY KEY,
+          status TEXT NOT NULL DEFAULT 'inactive' CHECK(status IN ('inactive','pending','active','past_due','canceled')),
+          amount_krw INTEGER NOT NULL DEFAULT 300000,
+          current_period_start TEXT,
+          current_period_end TEXT,
+          canceled_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        INSERT OR IGNORE INTO semforge_subscriptions (id, status, amount_krw, created_at, updated_at)
+        VALUES (1, 'inactive', 300000, datetime('now'), datetime('now'));
+
+        CREATE TABLE IF NOT EXISTS semforge_payment_intents (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          amount_krw INTEGER NOT NULL,
+          status TEXT NOT NULL CHECK(status IN ('pending','paid','failed','expired')),
+          provider TEXT NOT NULL DEFAULT 'toss',
+          provider_order_id TEXT NOT NULL UNIQUE,
+          confirm_token_hash TEXT,
+          checkout_url TEXT,
+          paid_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS sites (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          domain TEXT NOT NULL,
+          name TEXT NOT NULL DEFAULT '',
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          UNIQUE(project_id, domain)
+        );
+
+        CREATE TABLE IF NOT EXISTS ai_visibility_queries (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          domain TEXT NOT NULL,
+          query TEXT NOT NULL,
+          normalized_query TEXT NOT NULL,
+          country_code TEXT NOT NULL DEFAULT 'KR',
+          device TEXT NOT NULL DEFAULT 'desktop',
+          deleted_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_visibility_query_unique
+          ON ai_visibility_queries(project_id, domain, normalized_query, country_code, device)
+          WHERE deleted_at IS NULL;
+
+        CREATE TABLE IF NOT EXISTS ai_visibility_snapshots (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          query_id INTEGER NOT NULL REFERENCES ai_visibility_queries(id) ON DELETE CASCADE,
+          aio_present INTEGER NOT NULL DEFAULT 0,
+          cited INTEGER,
+          cited_url TEXT,
+          cited_domains TEXT NOT NULL DEFAULT '[]',
+          organic_position INTEGER,
+          features TEXT NOT NULL DEFAULT '[]',
+          source TEXT NOT NULL DEFAULT 'talordata',
+          captured_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS site_audit_campaigns (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          name TEXT NOT NULL,
+          domain TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'idle',
+          site_health INTEGER,
+          last_run_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS site_audit_pages (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          campaign_id INTEGER NOT NULL REFERENCES site_audit_campaigns(id) ON DELETE CASCADE,
+          url TEXT NOT NULL,
+          status_code INTEGER NOT NULL DEFAULT 0,
+          title TEXT,
+          depth INTEGER NOT NULL DEFAULT 0,
+          response_ms INTEGER,
+          bytes INTEGER NOT NULL DEFAULT 0,
+          captured_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS site_audit_issues (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          campaign_id INTEGER NOT NULL REFERENCES site_audit_campaigns(id) ON DELETE CASCADE,
+          url TEXT NOT NULL,
+          severity TEXT NOT NULL,
+          category TEXT NOT NULL,
+          title TEXT NOT NULL,
+          detail TEXT NOT NULL DEFAULT '',
+          created_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS position_tracking_campaigns (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          name TEXT NOT NULL,
+          domain TEXT NOT NULL,
+          search_engine TEXT NOT NULL DEFAULT 'google',
+          device TEXT NOT NULL DEFAULT 'desktop',
+          location TEXT NOT NULL DEFAULT 'KR',
+          visibility INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS tracked_keywords (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          campaign_id INTEGER NOT NULL REFERENCES position_tracking_campaigns(id) ON DELETE CASCADE,
+          keyword TEXT NOT NULL,
+          position INTEGER,
+          previous_position INTEGER,
+          volume INTEGER,
+          deleted_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS gsc_connections (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          site_url TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'disconnected',
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS gbp_connections (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          location_name TEXT NOT NULL DEFAULT '',
+          status TEXT NOT NULL DEFAULT 'disconnected',
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_sites_project ON sites(project_id, domain);
+        CREATE INDEX IF NOT EXISTS idx_ai_visibility_project ON ai_visibility_queries(project_id, domain, deleted_at);
+        CREATE INDEX IF NOT EXISTS idx_ai_visibility_snapshots ON ai_visibility_snapshots(query_id, captured_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_site_audit_campaigns ON site_audit_campaigns(project_id, updated_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_position_campaigns ON position_tracking_campaigns(project_id, updated_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_tracked_keywords ON tracked_keywords(campaign_id, deleted_at);
+      `);
+    },
+  },
+  {
+    version: 7,
+    name: "settings-talordata-api-token",
+    up(sqlite) {
+      addColumnIfMissing(sqlite, "settings", "talordata_api_token", "TEXT");
+    },
+  },
+  {
+    version: 8,
+    name: "settings-firecrawl-api-key",
+    up(sqlite) {
+      addColumnIfMissing(sqlite, "settings", "firecrawl_api_key", "TEXT");
+    },
+  },
+  {
+    version: 9,
+    name: "local-business-map-rank",
+    up(sqlite) {
+      addColumnIfMissing(sqlite, "gbp_connections", "address", "TEXT NOT NULL DEFAULT ''");
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS map_rank_campaigns (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          gbp_connection_id INTEGER REFERENCES gbp_connections(id) ON DELETE SET NULL,
+          name TEXT NOT NULL,
+          business_name TEXT NOT NULL,
+          location_label TEXT NOT NULL,
+          visibility INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS map_rank_keywords (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          campaign_id INTEGER NOT NULL REFERENCES map_rank_campaigns(id) ON DELETE CASCADE,
+          keyword TEXT NOT NULL,
+          map_position INTEGER,
+          previous_map_position INTEGER,
+          in_local_pack INTEGER NOT NULL DEFAULT 0,
+          deleted_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_map_rank_campaigns ON map_rank_campaigns(project_id, updated_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_map_rank_keywords ON map_rank_keywords(campaign_id, deleted_at);
+      `);
+    },
+  },
+  {
+    version: 10,
+    name: "account-scoped-semforge-entitlements",
+    up(sqlite) {
+      // Existing single-workspace records belong only to the legacy local account.
+      addColumnIfMissing(sqlite, "semforge_subscriptions", "account_id", "TEXT NOT NULL DEFAULT 'local'");
+      addColumnIfMissing(sqlite, "semforge_subscriptions", "billing_mode", "TEXT NOT NULL DEFAULT 'legacy'");
+      addColumnIfMissing(sqlite, "semforge_payment_intents", "account_id", "TEXT NOT NULL DEFAULT 'local'");
+      addColumnIfMissing(sqlite, "semforge_payment_intents", "billing_mode", "TEXT NOT NULL DEFAULT 'legacy'");
+      addColumnIfMissing(sqlite, "semforge_subscriptions", "payment_intent_id", "INTEGER REFERENCES semforge_payment_intents(id) ON DELETE SET NULL");
+      sqlite.exec(`
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_semforge_subscription_account ON semforge_subscriptions(account_id);
+        CREATE INDEX IF NOT EXISTS idx_semforge_payment_account ON semforge_payment_intents(account_id, provider_order_id);
+      `);
+    },
+  },
+  {
+    version: 11,
+    name: "measurement-slot-status-and-brand-aliases",
+    up(sqlite) {
+      // 컬럼 추가만 한다. 기존 결과는 정상 답변(succeeded) + legacy 산식으로 표기된다.
+      addColumnIfMissing(sqlite, "projects", "brand_aliases", "TEXT NOT NULL DEFAULT '[]'");
+      addColumnIfMissing(sqlite, "measure_results", "slot_status", "TEXT NOT NULL DEFAULT 'succeeded'");
+      addColumnIfMissing(sqlite, "measure_results", "matched_spans", "TEXT NOT NULL DEFAULT '[]'");
+      addColumnIfMissing(sqlite, "measure_results", "own_domain_hit", "INTEGER NOT NULL DEFAULT 0");
+      addColumnIfMissing(sqlite, "measure_results", "metric_version", "TEXT NOT NULL DEFAULT 'legacy'");
+    },
+  },
+  {
+    version: 12,
+    name: "search-grounded-measurement-citations",
+    up(sqlite) {
+      addColumnIfMissing(sqlite, "projects", "competitor_domains", "TEXT NOT NULL DEFAULT '[]'");
+      addColumnIfMissing(sqlite, "measure_results", "search_mode", "TEXT NOT NULL DEFAULT 'off'");
+      addColumnIfMissing(sqlite, "measure_results", "search_performed", "INTEGER");
+      addColumnIfMissing(sqlite, "measure_results", "citation_supported", "INTEGER");
+      addColumnIfMissing(sqlite, "measure_results", "returned_model", "TEXT");
+      addColumnIfMissing(sqlite, "measure_results", "slot_error", "TEXT");
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS measure_citations (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          run_id INTEGER NOT NULL REFERENCES measure_runs(id) ON DELETE CASCADE,
+          result_id INTEGER NOT NULL REFERENCES measure_results(id) ON DELETE CASCADE,
+          url TEXT NOT NULL,
+          domain TEXT NOT NULL,
+          title TEXT,
+          kind TEXT NOT NULL CHECK(kind IN ('cited','searched')),
+          category TEXT NOT NULL CHECK(category IN ('own','competitor','media','community','marketplace','public','other','unknown')),
+          created_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_measure_citations_run ON measure_citations(run_id, category);
+        CREATE INDEX IF NOT EXISTS idx_measure_citations_result ON measure_citations(result_id);
+      `);
+    },
+  },
+  {
+    version: 13,
+    name: "fact-memos-and-claim-checks",
+    up(sqlite) {
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS facts (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          attribute TEXT NOT NULL,
+          attribute_normalized TEXT NOT NULL,
+          value TEXT NOT NULL,
+          unit TEXT,
+          conditions TEXT NOT NULL DEFAULT '',
+          source_url TEXT,
+          excerpt TEXT NOT NULL DEFAULT '',
+          checked_at TEXT,
+          valid_until TEXT,
+          verified INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_facts_project ON facts(project_id, attribute_normalized);
+        CREATE TABLE IF NOT EXISTS measure_claims (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          run_id INTEGER NOT NULL REFERENCES measure_runs(id) ON DELETE CASCADE,
+          result_id INTEGER NOT NULL REFERENCES measure_results(id) ON DELETE CASCADE,
+          claim_text TEXT NOT NULL,
+          attribute TEXT NOT NULL,
+          value TEXT NOT NULL,
+          unit TEXT,
+          verdict TEXT NOT NULL CHECK(verdict IN ('match','conflict','insufficient','time_unknown','needs_review')),
+          fact_id INTEGER REFERENCES facts(id) ON DELETE SET NULL,
+          created_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_measure_claims_run ON measure_claims(run_id, verdict);
+      `);
+    },
+  },
+  {
+    version: 14,
+    name: "featgeo-optimization-runs",
+    up(sqlite) {
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS optimization_runs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          title TEXT NOT NULL DEFAULT '',
+          query TEXT NOT NULL,
+          input TEXT NOT NULL,
+          status TEXT NOT NULL CHECK(status IN ('running','completed','failed','canceled')),
+          progress TEXT NOT NULL DEFAULT '{}',
+          result TEXT,
+          error_code TEXT,
+          cancel_requested INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          completed_at TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_optimization_runs_project ON optimization_runs(project_id, created_at DESC);
+      `);
+    },
+  },
+  {
+    version: 15,
+    name: "review-inbox-and-report-shares",
+    up(sqlite) {
+      addColumnIfMissing(sqlite, "measure_claims", "reviewed", "INTEGER NOT NULL DEFAULT 0");
+      addColumnIfMissing(sqlite, "measure_claims", "original_verdict", "TEXT");
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS mention_reviews (
+          result_id INTEGER PRIMARY KEY REFERENCES measure_results(id) ON DELETE CASCADE,
+          run_id INTEGER NOT NULL REFERENCES measure_runs(id) ON DELETE CASCADE,
+          auto_mentioned INTEGER NOT NULL,
+          human_mentioned INTEGER NOT NULL,
+          reviewed_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_mention_reviews_run ON mention_reviews(run_id);
+        CREATE TABLE IF NOT EXISTS report_shares (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          run_id INTEGER NOT NULL REFERENCES measure_runs(id) ON DELETE CASCADE,
+          token_hash TEXT NOT NULL UNIQUE,
+          snapshot TEXT NOT NULL,
+          expires_at TEXT NOT NULL,
+          revoked_at TEXT,
+          view_count INTEGER NOT NULL DEFAULT 0,
+          last_viewed_at TEXT,
+          created_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_report_shares_run ON report_shares(run_id, created_at DESC);
+      `);
+    },
+  },
+  {
+    version: 16,
+    name: "inline-citation-kind",
+    up(sqlite) {
+      // SQLite는 CHECK 제약을 바꿀 수 없어 테이블을 다시 만든다. 기존 행은 그대로 옮긴다.
+      sqlite.exec(`
+        CREATE TABLE measure_citations_v16 (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          run_id INTEGER NOT NULL REFERENCES measure_runs(id) ON DELETE CASCADE,
+          result_id INTEGER NOT NULL REFERENCES measure_results(id) ON DELETE CASCADE,
+          url TEXT NOT NULL,
+          domain TEXT NOT NULL,
+          title TEXT,
+          kind TEXT NOT NULL CHECK(kind IN ('cited','searched','inline')),
+          category TEXT NOT NULL CHECK(category IN ('own','competitor','media','community','marketplace','public','other','unknown')),
+          created_at TEXT NOT NULL
+        );
+        INSERT INTO measure_citations_v16 (id, run_id, result_id, url, domain, title, kind, category, created_at)
+          SELECT id, run_id, result_id, url, domain, title, kind, category, created_at FROM measure_citations;
+        DROP TABLE measure_citations;
+        ALTER TABLE measure_citations_v16 RENAME TO measure_citations;
+        CREATE INDEX IF NOT EXISTS idx_measure_citations_run ON measure_citations(run_id, category);
+        CREATE INDEX IF NOT EXISTS idx_measure_citations_result ON measure_citations(result_id);
+      `);
+    },
+  },
+  {
+    version: 17,
+    name: "site-audit-discovery-states",
+    up(sqlite) {
+      // Qshop P01: 이전 Map 결과(가정한 HTTP 200·건강 점수)는 삭제하지 않고 추정치로 격리한다
+      addColumnIfMissing(sqlite, "site_audit_pages", "fetch_state", "TEXT NOT NULL DEFAULT 'legacy_estimate'");
+      addColumnIfMissing(sqlite, "site_audit_campaigns", "data_state", "TEXT NOT NULL DEFAULT 'legacy_estimate'");
+      addColumnIfMissing(sqlite, "site_audit_campaigns", "llms_txt_state", "TEXT");
+      sqlite.exec("UPDATE site_audit_campaigns SET data_state = 'none' WHERE last_run_at IS NULL");
+    },
+  },
+  {
+    version: 18,
+    name: "site-audit-page-fetch-evidence",
+    up(sqlite) {
+      // Qshop P02: 실제 페이지 응답 근거 (최종 URL, 본문 해시, 오류, 수집 방식)
+      addColumnIfMissing(sqlite, "site_audit_pages", "final_url", "TEXT");
+      addColumnIfMissing(sqlite, "site_audit_pages", "content_hash", "TEXT");
+      addColumnIfMissing(sqlite, "site_audit_pages", "fetch_error", "TEXT");
+      addColumnIfMissing(sqlite, "site_audit_pages", "render_mode", "TEXT");
+    },
+  },
+  {
+    version: 19,
+    name: "site-audit-cancel-request",
+    up(sqlite) {
+      // Qshop P02: 실행 중인 크롤 취소 요청
+      addColumnIfMissing(sqlite, "site_audit_campaigns", "cancel_requested", "INTEGER NOT NULL DEFAULT 0");
+    },
+  },
+  {
+    version: 20,
+    name: "page-change-items",
+    up(sqlite) {
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS change_items (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          url TEXT NOT NULL,
+          field TEXT NOT NULL CHECK(field IN ('title','description','canonical','og_image','robots_meta','json_ld','body')),
+          original_value TEXT NOT NULL,
+          original_hash TEXT NOT NULL,
+          proposed_value TEXT NOT NULL,
+          rationale TEXT NOT NULL DEFAULT '',
+          evidence_url TEXT,
+          status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','approved','delivered','verification_pending','verified','conflict','failed')),
+          approved_at TEXT,
+          delivery_method TEXT,
+          delivered_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_change_items_project ON change_items(project_id, status, updated_at DESC);
+      `);
+    },
+  },
+  {
+    version: 21,
+    name: "llms-document-revisions",
+    up(sqlite) {
+      // Qshop P07: 이미 저장된 문서를 현재 내용의 첫 리비전으로 보존한다.
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS llms_document_revisions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          document_id INTEGER NOT NULL REFERENCES llms_documents(id) ON DELETE CASCADE,
+          revision INTEGER NOT NULL,
+          document TEXT NOT NULL,
+          content_hash TEXT NOT NULL,
+          origin TEXT NOT NULL CHECK(origin IN ('created','edited','remote','restored')),
+          created_at TEXT NOT NULL,
+          UNIQUE(document_id, revision)
+        );
+        CREATE INDEX IF NOT EXISTS idx_llms_revisions_doc ON llms_document_revisions(document_id, revision DESC);
+      `);
+      const rows = sqlite.prepare("SELECT id, document, created_at FROM llms_documents").all() as { id: number; document: string; created_at: string }[];
+      const insert = sqlite.prepare("INSERT OR IGNORE INTO llms_document_revisions (document_id, revision, document, content_hash, origin, created_at) VALUES (?, 1, ?, ?, 'created', ?)");
+      for (const row of rows) insert.run(row.id, row.document, createHash("sha256").update(row.document).digest("hex"), row.created_at);
+    },
+  },
+  {
+    version: 22,
+    name: "page-change-items-v2",
+    up(sqlite) {
+      // 호환 마이그레이션: 20번을 이미 적용한 DB에서는 버전으로 건너뛴다.
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS change_items (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          url TEXT NOT NULL,
+          field TEXT NOT NULL CHECK(field IN ('title','description','canonical','og_image','robots_meta','json_ld','body')),
+          original_value TEXT NOT NULL,
+          original_hash TEXT NOT NULL,
+          proposed_value TEXT NOT NULL,
+          rationale TEXT NOT NULL DEFAULT '',
+          evidence_url TEXT,
+          status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','approved','delivered','verification_pending','verified','conflict','failed')),
+          approved_at TEXT,
+          delivery_method TEXT,
+          delivered_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_change_items_project ON change_items(project_id, status, updated_at DESC);
+      `);
+    },
+  },
+  {
+    version: 23,
+    name: "llms-document-revisions-v2",
+    up(sqlite) {
+      // 호환 마이그레이션: 21번을 이미 적용한 DB에서는 버전으로 건너뛴다.
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS llms_document_revisions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          document_id INTEGER NOT NULL REFERENCES llms_documents(id) ON DELETE CASCADE,
+          revision INTEGER NOT NULL,
+          document TEXT NOT NULL,
+          content_hash TEXT NOT NULL,
+          origin TEXT NOT NULL CHECK(origin IN ('created','edited','remote','restored')),
+          created_at TEXT NOT NULL,
+          UNIQUE(document_id, revision)
+        );
+        CREATE INDEX IF NOT EXISTS idx_llms_revisions_doc ON llms_document_revisions(document_id, revision DESC);
+      `);
+      const rows = sqlite.prepare("SELECT id, document, created_at FROM llms_documents").all() as { id: number; document: string; created_at: string }[];
+      const insert = sqlite.prepare("INSERT OR IGNORE INTO llms_document_revisions (document_id, revision, document, content_hash, origin, created_at) VALUES (?, 1, ?, ?, 'created', ?)");
+      for (const row of rows) insert.run(row.id, row.document, createHash("sha256").update(row.document).digest("hex"), row.created_at);
+    },
+  },
+  {
+    version: 24,
+    name: "page-snapshots",
+    up(sqlite) {
+      // Qshop P03: URL별 실제 수집 버전과 규칙 버전이 있는 진단 근거
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS page_snapshots (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          campaign_id INTEGER REFERENCES site_audit_campaigns(id) ON DELETE SET NULL,
+          url TEXT NOT NULL,
+          final_url TEXT,
+          status_code INTEGER NOT NULL,
+          content_type TEXT,
+          body_kind TEXT NOT NULL DEFAULT 'html' CHECK(body_kind IN ('html','markdown','text')),
+          render_mode TEXT NOT NULL CHECK(render_mode IN ('native','rendered','cache')),
+          content_hash TEXT NOT NULL,
+          bytes INTEGER NOT NULL,
+          html TEXT,
+          html_truncated INTEGER NOT NULL DEFAULT 0,
+          facts TEXT,
+          findings TEXT NOT NULL,
+          skipped_reason TEXT,
+          parser_version TEXT NOT NULL,
+          rules_version TEXT NOT NULL,
+          captured_at TEXT NOT NULL,
+          last_seen_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_page_snapshots_url ON page_snapshots(project_id, url, captured_at DESC);
+      `);
+      addColumnIfMissing(sqlite, "page_snapshots", "body_kind", "TEXT NOT NULL DEFAULT 'html' CHECK(body_kind IN ('html','markdown','text'))");
+      addColumnIfMissing(sqlite, "site_audit_pages", "snapshot_id", "INTEGER REFERENCES page_snapshots(id) ON DELETE SET NULL");
+    },
+  },
+  {
+    version: 25,
+    name: "llms-scope-and-robots-policy",
+    up(sqlite) {
+      // Qshop P04: 경로별 llms.txt, 사이트 진단의 AI 크롤러 정책(목적별)
+      addColumnIfMissing(sqlite, "llms_documents", "scope_path", "TEXT NOT NULL DEFAULT '/llms.txt'");
+      addColumnIfMissing(sqlite, "site_audit_campaigns", "robots_policy", "TEXT");
+    },
+  },
+  {
+    version: 26,
+    name: "search-console-console-exports",
+    up(sqlite) {
+      // Qshop P10 대안: 콘솔에서 내려받은 성과 보고서(Excel) 가져오기. API 연결(gsc_connections)과 원천을 섞지 않는다
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS search_console_imports (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          source TEXT NOT NULL DEFAULT 'console_export' CHECK(source IN ('console_export')),
+          property_label TEXT NOT NULL,
+          file_name TEXT NOT NULL,
+          content_hash TEXT NOT NULL,
+          period_start TEXT,
+          period_end TEXT,
+          filters TEXT NOT NULL DEFAULT '{}',
+          clicks INTEGER NOT NULL,
+          impressions INTEGER NOT NULL,
+          ctr REAL,
+          position REAL,
+          has_data INTEGER NOT NULL,
+          imported_at TEXT NOT NULL,
+          UNIQUE(project_id, property_label, content_hash)
+        );
+        CREATE TABLE IF NOT EXISTS search_console_daily (
+          import_id INTEGER NOT NULL REFERENCES search_console_imports(id) ON DELETE CASCADE,
+          date TEXT NOT NULL,
+          clicks INTEGER NOT NULL,
+          impressions INTEGER NOT NULL,
+          ctr REAL,
+          position REAL,
+          PRIMARY KEY (import_id, date)
+        );
+        CREATE TABLE IF NOT EXISTS search_console_rows (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          import_id INTEGER NOT NULL REFERENCES search_console_imports(id) ON DELETE CASCADE,
+          kind TEXT NOT NULL CHECK(kind IN ('queries','pages','countries','devices','appearances')),
+          key TEXT NOT NULL,
+          clicks INTEGER NOT NULL,
+          impressions INTEGER NOT NULL,
+          ctr REAL,
+          position REAL
+        );
+        CREATE INDEX IF NOT EXISTS idx_search_console_imports_project ON search_console_imports(project_id, imported_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_search_console_rows_import ON search_console_rows(import_id, kind);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;
@@ -293,6 +895,8 @@ function bootstrap(sqlite: Database.Database) {
       gemini_api_key TEXT,
       grok_api_key TEXT,
       subscription_pin TEXT,
+      talordata_api_token TEXT,
+      firecrawl_api_key TEXT,
       models TEXT NOT NULL DEFAULT '{}',
       repetitions INTEGER NOT NULL DEFAULT 3,
       model_weights TEXT NOT NULL DEFAULT '{}',

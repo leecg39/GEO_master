@@ -1,0 +1,547 @@
+[
+  {
+    "route": "/",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/audit",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/multimodal",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/llms",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/share",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/automation",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/reports",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/studio",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/strategy",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/learn",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/workspace",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/settings",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/subscription",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/semforge",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/ai-seo",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/site-audit",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/position-tracking",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/local-business",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "desktop-dark",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/audit",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/multimodal",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/llms",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/share",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/automation",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "nodes": [
+          {
+            "target": [
+              ".text-amber-200\\/60"
+            ],
+            "html": "<small class=\"text-amber-200/60\">서버가 실행 중이고 비용 한도·API 키 조건을 만족하면 사용자 입력 없이 유료 호출할 수 있습니다.</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.12 (foreground color: #feefb1, background color: #fffcf2, font size: 8.4pt (11.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/reports",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/studio",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/strategy",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/learn",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/workspace",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/settings",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1430,
+    "violations": []
+  },
+  {
+    "route": "/subscription",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/semforge",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/ai-seo",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/site-audit",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/position-tracking",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/local-business",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "desktop-light",
+    "width": 1440,
+    "docWidth": 1440,
+    "violations": []
+  },
+  {
+    "route": "/",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/audit",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/multimodal",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/llms",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/share",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/automation",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/reports",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/studio",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/strategy",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/learn",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/workspace",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/settings",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/subscription",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/semforge",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/ai-seo",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/site-audit",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 375,
+    "violations": []
+  },
+  {
+    "route": "/position-tracking",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/local-business",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 365,
+    "violations": []
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "mobile",
+    "width": 375,
+    "docWidth": 375,
+    "violations": []
+  },
+  {
+    "route": "/",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/audit",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/multimodal",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/llms",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/share",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/automation",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/reports",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/studio",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/strategy",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/learn",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/workspace",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/settings",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/subscription",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/semforge",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/ai-seo",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/site-audit",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/position-tracking",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/local-business",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 310,
+    "violations": []
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "small-mobile",
+    "width": 320,
+    "docWidth": 320,
+    "violations": []
+  }
+]

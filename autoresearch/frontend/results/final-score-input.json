@@ -1,0 +1,2776 @@
+[
+  {
+    "route": "/",
+    "config": "desktop-dark",
+    "title": "GEO Master",
+    "heading": "안나타르",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/audit",
+    "config": "desktop-dark",
+    "title": "GEO 진단 · GEO Master",
+    "heading": "GEO 진단",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/multimodal",
+    "config": "desktop-dark",
+    "title": "이미지·영상 일괄 감사 · GEO Master",
+    "heading": "이미지·영상 일괄 감사",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/llms",
+    "config": "desktop-dark",
+    "title": "llms.txt 워크플로 · GEO Master",
+    "heading": "llms.txt 워크플로",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/share",
+    "config": "desktop-dark",
+    "title": "응답 점유율 · GEO Master",
+    "heading": "응답 점유율 측정",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/automation",
+    "config": "desktop-dark",
+    "title": "예약 측정 자동화 · GEO Master",
+    "heading": "예약 측정 자동화",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "desktop-dark",
+    "title": "리포트 내보내기 · GEO Master",
+    "heading": "리포트 내보내기",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".flex-wrap.gap-2.flex > .bg-\\[color\\:var\\(--app-cta-bg\\)\\].text-\\[color\\:var\\(--app-cta-text\\)\\].shadow-\\[rgba\\(0\\,0\\,0\\,0\\.08\\)_0_2px_8px_0\\]"
+            ],
+            "html": "<button class=\"inline-flex min-h-11...\" type=\"button\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.36 (foreground color: #756e7f, background color: #f1f2f4, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/studio",
+    "config": "desktop-dark",
+    "title": "콘텐츠 스튜디오 · GEO Master",
+    "heading": "콘텐츠 스튜디오",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/strategy",
+    "config": "desktop-dark",
+    "title": "전략 워크스페이스 · GEO Master",
+    "heading": "전략 워크스페이스",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "desktop-dark",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "desktop-dark",
+    "title": "팀 공유 스냅샷 · GEO Master",
+    "heading": "팀 공유 스냅샷",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/settings",
+    "config": "desktop-dark",
+    "title": "설정 · GEO Master",
+    "heading": "설정",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/subscription",
+    "config": "desktop-dark",
+    "title": "SEMForge Pro 구독 · GEO Master",
+    "heading": "GEO 실행 구독",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/semforge",
+    "config": "desktop-dark",
+    "title": "SEMForge · GEO Master",
+    "heading": "ALL IN SEMForge",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/ai-seo",
+    "config": "desktop-dark",
+    "title": "AI SEO · GEO Master",
+    "heading": "AI SEO (SERP)",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/site-audit",
+    "config": "desktop-dark",
+    "title": "사이트 진단 · GEO Master",
+    "heading": "사이트 진단",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/position-tracking",
+    "config": "desktop-dark",
+    "title": "포지션 추적 · GEO Master",
+    "heading": "포지션 추적",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/local-business",
+    "config": "desktop-dark",
+    "title": "지역 SEO · GEO Master",
+    "heading": "지역 SEO",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "desktop-dark",
+    "title": "도메인 개요 · GEO Master",
+    "heading": "도메인 개요",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/",
+    "config": "desktop-light",
+    "title": "GEO Master",
+    "heading": "안나타르",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->01</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.51 (foreground color: #6b567b, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .items-start.gap-2\\.5.flex > .line-clamp-2.leading-5.flex-1"
+            ],
+            "html": "<p class=\"line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200\">민감성 피부를 위한 저자극 수분크림 브랜드를 추천해 주세요.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.07 (foreground color: #2a2045, background color: #241a3c, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">58.3<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1) > .text-emerald-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-emerald-300\">58.3<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.9위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500 > .ml-1.text-\\[color\\:var\\(--color-accent-lime\\)\\]"
+            ],
+            "html": "<strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.9위</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">71.4<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500 > .text-amber-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-amber-300\">71.4<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #a16207, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->02</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.51 (foreground color: #6b567b, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .items-start.gap-2\\.5.flex > .line-clamp-2.leading-5.flex-1"
+            ],
+            "html": "<p class=\"line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200\">국내 비건 스킨케어 브랜드의 성분과 보습력을 비교해 주세요.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.07 (foreground color: #2a2045, background color: #241a3c, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1) > .text-emerald-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.6위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500 > .ml-1.text-\\[color\\:var\\(--color-accent-lime\\)\\]"
+            ],
+            "html": "<strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.6위</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">55.6<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500 > .text-amber-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-amber-300\">55.6<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #a16207, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->03</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.51 (foreground color: #6b567b, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .items-start.gap-2\\.5.flex > .line-clamp-2.leading-5.flex-1"
+            ],
+            "html": "<p class=\"line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200\">피부 장벽 개선에 도움이 되는 세라마이드 화장품은 무엇인가요?</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.07 (foreground color: #2a2045, background color: #241a3c, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">66.7<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1) > .text-emerald-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-emerald-300\">66.7<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.5위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500 > .ml-1.text-\\[color\\:var\\(--color-accent-lime\\)\\]"
+            ],
+            "html": "<strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.5위</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">100<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500 > .text-amber-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-amber-300\">100<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #a16207, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->04</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.51 (foreground color: #6b567b, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .items-start.gap-2\\.5.flex > .line-clamp-2.leading-5.flex-1"
+            ],
+            "html": "<p class=\"line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200\">데일리 루틴에 적합한 순한 클렌저와 토너 조합을 알려 주세요.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.07 (foreground color: #2a2045, background color: #241a3c, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1) > .text-emerald-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.4위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500 > .ml-1.text-\\[color\\:var\\(--color-accent-lime\\)\\]"
+            ],
+            "html": "<strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.4위</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">55.6<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500 > .text-amber-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-amber-300\">55.6<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #a16207, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->05</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.51 (foreground color: #6b567b, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .items-start.gap-2\\.5.flex > .line-clamp-2.leading-5.flex-1"
+            ],
+            "html": "<p class=\"line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200\">지속가능한 패키지를 사용하는 한국 스킨케어 브랜드는 어디인가요?</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.07 (foreground color: #2a2045, background color: #241a3c, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1) > .text-emerald-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.3위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500 > .ml-1.text-\\[color\\:var\\(--color-accent-lime\\)\\]"
+            ],
+            "html": "<strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.3위</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.11 (foreground color: #3f7a1f, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">77.8<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500 > .text-amber-300.ml-1"
+            ],
+            "html": "<strong class=\"ml-1 text-amber-300\">77.8<!-- -->%</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #a16207, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/audit",
+    "config": "desktop-light",
+    "title": "GEO 진단 · GEO Master",
+    "heading": "GEO 진단",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/multimodal",
+    "config": "desktop-light",
+    "title": "이미지·영상 일괄 감사 · GEO Master",
+    "heading": "이미지·영상 일괄 감사",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/llms",
+    "config": "desktop-light",
+    "title": "llms.txt 워크플로 · GEO Master",
+    "heading": "llms.txt 워크플로",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/share",
+    "config": "desktop-light",
+    "title": "응답 점유율 · GEO Master",
+    "heading": "응답 점유율 측정",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".max-w-48"
+            ],
+            "html": "<span class=\"block max-w-48 truncate font-semibold\">안나타르 GEO 모니터링 (Mock)</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.28 (foreground color: #c2ef4e, background color: #f9fded, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".opacity-70"
+            ],
+            "html": "<span class=\"mt-0.5 block text-[10px] opacity-70\">6개 질문</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.2 (foreground color: #d3f37e, background color: #f9fded, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".border-\\[color\\:var\\(--color-accent-pink\\)\\]\\/25"
+            ],
+            "html": "<button class=\"inline-flex min-h-11...\" type=\"button\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.22 (foreground color: #fa7faa, background color: #fff2f6, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(1)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">GEO 분석 도구</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(2)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">SEO 도구</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(3)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">콘텐츠 마케팅</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(4)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">마케팅 자동화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(5)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">데이터 분석</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(6)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">AI 챗봇</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(7)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">전자상거래</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(8)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">소셜 커머스</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(9)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">중고 거래</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(10)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">구독 서비스</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(11)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">결제 서비스</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(12)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">핀테크</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(13)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">클라우드 서비스</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(14)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">협업 도구</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(15)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">화상회의</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(16)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">프로젝트 관리</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(17)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">노코드 도구</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(18)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">개발자 도구</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(19)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">CRM</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(20)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">ERP</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(21)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">회계 소프트웨어</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(22)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">인사 관리</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(23)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">채용 플랫폼</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(24)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">법률 서비스</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(25)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">세무 서비스</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(26)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">보안 솔루션</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(27)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">모니터링 도구</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(28)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">번역 도구</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(29)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">디자인 도구</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(30)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">동영상 편집</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(31)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">음악 스트리밍</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(32)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">온라인 교육</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(33)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">전자책</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(34)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">헬스케어</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(35)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">시니어 케어</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(36)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">육아 용품</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(37)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">반려동물 용품</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(38)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">여행/숙박</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(39)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">부동산</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(40)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">음식 배달</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(41)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">물류/배송</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(42)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">패션/뷰티</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(43)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">게임</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(44)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">스마트홈</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(45)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">전기차 충전</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(46)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">모빌리티</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(47)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">보험</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(48)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">투자/자산 관리</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".cursor-grab.active\\:cursor-grabbing[draggable=\"true\"]:nth-child(49)"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-white/8 bg-white/[0.03] text-slate-400 hover:border-cyan-400/20 hover:text-cyan-300\">정부/공공 서비스</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".max-h-24 > .border-cyan-400\\/30.bg-cyan-400\\/10.text-cyan-200"
+            ],
+            "html": "<button type=\"button\" draggable=\"true\" title=\"클릭하거나 입력란으로 드래그하세요\" class=\"cursor-grab rounded-lg border px-2.5 py-1.5 text-[11px] transition active:cursor-grabbing border-cyan-400/30 bg-cyan-400/10 text-cyan-200\">화장품 · 비건 스킨케어</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.28 (foreground color: #c2ef4e, background color: #f9fded, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/automation",
+    "config": "desktop-light",
+    "title": "예약 측정 자동화 · GEO Master",
+    "heading": "예약 측정 자동화",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "desktop-light",
+    "title": "리포트 내보내기 · GEO Master",
+    "heading": "리포트 내보내기",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".min-h-10.border-white\\/10.bg-white\\/5:nth-child(1)"
+            ],
+            "html": "<a href=\"/api/reports?type=audit&id=1&format=json\" download=\"\" ...>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.23 (foreground color: #e2e8f0, background color: #ffffff, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".min-h-10.border-white\\/10.bg-white\\/5:nth-child(2)"
+            ],
+            "html": "<a href=\"/api/reports?type=audit&id=1&format=csv\" download=\"\" ...>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.23 (foreground color: #e2e8f0, background color: #ffffff, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".border-cyan-400\\/20"
+            ],
+            "html": "<a href=\"/api/reports?type=au...\" download=\"\" class=\"inline-flex min-h-10...\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.28 (foreground color: #c2ef4e, background color: #f9fded, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".flex-wrap.gap-2.flex > .bg-\\[color\\:var\\(--app-cta-bg\\)\\].text-\\[color\\:var\\(--app-cta-text\\)\\].shadow-\\[rgba\\(0\\,0\\,0\\,0\\.08\\)_0_2px_8px_0\\]"
+            ],
+            "html": "<button class=\"inline-flex min-h-11...\" type=\"button\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #83828d, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/studio",
+    "config": "desktop-light",
+    "title": "콘텐츠 스튜디오 · GEO Master",
+    "heading": "콘텐츠 스튜디오",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/strategy",
+    "config": "desktop-light",
+    "title": "전략 워크스페이스 · GEO Master",
+    "heading": "전략 워크스페이스",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "desktop-light",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "desktop-light",
+    "title": "팀 공유 스냅샷 · GEO Master",
+    "heading": "팀 공유 스냅샷",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/settings",
+    "config": "desktop-light",
+    "title": "설정 · GEO Master",
+    "heading": "설정",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/subscription",
+    "config": "desktop-light",
+    "title": "SEMForge Pro 구독 · GEO Master",
+    "heading": "GEO 실행 구독",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/semforge",
+    "config": "desktop-light",
+    "title": "SEMForge · GEO Master",
+    "heading": "ALL IN SEMForge",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/ai-seo",
+    "config": "desktop-light",
+    "title": "AI SEO · GEO Master",
+    "heading": "AI SEO (SERP)",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".border-t.border-white\\/5.hover\\:bg-white\\/3:nth-child(1) > .pr-4 > .gap-2.items-center.flex > .underline-offset-4.hover\\:underline"
+            ],
+            "html": "<span class=\"underline-offset-4 hover:underline\">ANNATAR 공식 사이트</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.48 (foreground color: #d7d2de, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".border-t.border-white\\/5.hover\\:bg-white\\/3:nth-child(2) > .pr-4 > .gap-2.items-center.flex > .underline-offset-4.hover\\:underline"
+            ],
+            "html": "<span class=\"underline-offset-4 hover:underline\">ANNATAR 추천</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.48 (foreground color: #d7d2de, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".border-t.border-white\\/5.hover\\:bg-white\\/3:nth-child(3) > .pr-4 > .gap-2.items-center.flex > .underline-offset-4.hover\\:underline"
+            ],
+            "html": "<span class=\"underline-offset-4 hover:underline\">ANNATAR 후기</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.48 (foreground color: #d7d2de, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".border-t.border-white\\/5.hover\\:bg-white\\/3:nth-child(4) > .pr-4 > .gap-2.items-center.flex > .underline-offset-4.hover\\:underline"
+            ],
+            "html": "<span class=\"underline-offset-4 hover:underline\">ANNATAR</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.48 (foreground color: #d7d2de, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".border-t.border-white\\/5.hover\\:bg-white\\/3:nth-child(5) > .pr-4 > .gap-2.items-center.flex > .underline-offset-4.hover\\:underline"
+            ],
+            "html": "<span class=\"underline-offset-4 hover:underline\">ANNATAR 화장품 · 비건 스킨케어</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.48 (foreground color: #d7d2de, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/site-audit",
+    "config": "desktop-light",
+    "title": "사이트 진단 · GEO Master",
+    "heading": "사이트 진단",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".border-\\[color\\:var\\(--color-accent-lime\\)\\]\\/30"
+            ],
+            "html": "<span class=\"inline-flex rounded-[4px] border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.25px] border-[color:var(--color-accent-lime)]/30 bg-[color:var(--color-accent-lime)]/15 text-[color:var(--app-status-good)]\">완료</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.73 (foreground color: #326517, background color: #9da49c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".mt-1.text-slate-500"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">건강 점수 84 · 2026. 10. 7. 오후 1:28:05 · 클릭하여 분석 브리핑 보기</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.34 (foreground color: #79628c, background color: #adabb2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".border-\\[color\\:var\\(--color-accent-pink\\)\\]\\/25"
+            ],
+            "html": "<button class=\"inline-flex min-h-11...\" aria-label=\"ANNATAR 진단 캠페인 삭제\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.05 (foreground color: #fa7faa, background color: #b5a7b1, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/position-tracking",
+    "config": "desktop-light",
+    "title": "포지션 추적 · GEO Master",
+    "heading": "포지션 추적",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/local-business",
+    "config": "desktop-light",
+    "title": "지역 SEO · GEO Master",
+    "heading": "지역 SEO",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "desktop-light",
+    "title": "도메인 개요 · GEO Master",
+    "heading": "도메인 개요",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/",
+    "config": "mobile",
+    "title": "GEO Master",
+    "heading": "안나타르",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/audit",
+    "config": "mobile",
+    "title": "GEO 진단 · GEO Master",
+    "heading": "GEO 진단",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/multimodal",
+    "config": "mobile",
+    "title": "이미지·영상 일괄 감사 · GEO Master",
+    "heading": "이미지·영상 일괄 감사",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/llms",
+    "config": "mobile",
+    "title": "llms.txt 워크플로 · GEO Master",
+    "heading": "llms.txt 워크플로",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/share",
+    "config": "mobile",
+    "title": "응답 점유율 · GEO Master",
+    "heading": "응답 점유율 측정",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/automation",
+    "config": "mobile",
+    "title": "예약 측정 자동화 · GEO Master",
+    "heading": "예약 측정 자동화",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "mobile",
+    "title": "리포트 내보내기 · GEO Master",
+    "heading": "리포트 내보내기",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".flex-wrap.gap-2.flex > .bg-\\[color\\:var\\(--app-cta-bg\\)\\].text-\\[color\\:var\\(--app-cta-text\\)\\].shadow-\\[rgba\\(0\\,0\\,0\\,0\\.08\\)_0_2px_8px_0\\]"
+            ],
+            "html": "<button class=\"inline-flex min-h-11...\" type=\"button\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #bdb8c0, background color: #e5e7eb, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/studio",
+    "config": "mobile",
+    "title": "콘텐츠 스튜디오 · GEO Master",
+    "heading": "콘텐츠 스튜디오",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/strategy",
+    "config": "mobile",
+    "title": "전략 워크스페이스 · GEO Master",
+    "heading": "전략 워크스페이스",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "mobile",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "mobile",
+    "title": "팀 공유 스냅샷 · GEO Master",
+    "heading": "팀 공유 스냅샷",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/settings",
+    "config": "mobile",
+    "title": "설정 · GEO Master",
+    "heading": "설정",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/subscription",
+    "config": "mobile",
+    "title": "SEMForge Pro 구독 · GEO Master",
+    "heading": "GEO 실행 구독",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/semforge",
+    "config": "mobile",
+    "title": "SEMForge · GEO Master",
+    "heading": "ALL IN SEMForge",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/ai-seo",
+    "config": "mobile",
+    "title": "AI SEO · GEO Master",
+    "heading": "AI SEO (SERP)",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/site-audit",
+    "config": "mobile",
+    "title": "사이트 진단 · GEO Master",
+    "heading": "사이트 진단",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 375,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/position-tracking",
+    "config": "mobile",
+    "title": "포지션 추적 · GEO Master",
+    "heading": "포지션 추적",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/local-business",
+    "config": "mobile",
+    "title": "지역 SEO · GEO Master",
+    "heading": "지역 SEO",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "mobile",
+    "title": "도메인 개요 · GEO Master",
+    "heading": "도메인 개요",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 375,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/",
+    "config": "small-mobile",
+    "title": "GEO Master",
+    "heading": "안나타르",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/audit",
+    "config": "small-mobile",
+    "title": "GEO 진단 · GEO Master",
+    "heading": "GEO 진단",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/multimodal",
+    "config": "small-mobile",
+    "title": "이미지·영상 일괄 감사 · GEO Master",
+    "heading": "이미지·영상 일괄 감사",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/llms",
+    "config": "small-mobile",
+    "title": "llms.txt 워크플로 · GEO Master",
+    "heading": "llms.txt 워크플로",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/share",
+    "config": "small-mobile",
+    "title": "응답 점유율 · GEO Master",
+    "heading": "응답 점유율 측정",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/automation",
+    "config": "small-mobile",
+    "title": "예약 측정 자동화 · GEO Master",
+    "heading": "예약 측정 자동화",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "small-mobile",
+    "title": "리포트 내보내기 · GEO Master",
+    "heading": "리포트 내보내기",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/studio",
+    "config": "small-mobile",
+    "title": "콘텐츠 스튜디오 · GEO Master",
+    "heading": "콘텐츠 스튜디오",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/strategy",
+    "config": "small-mobile",
+    "title": "전략 워크스페이스 · GEO Master",
+    "heading": "전략 워크스페이스",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "small-mobile",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "small-mobile",
+    "title": "팀 공유 스냅샷 · GEO Master",
+    "heading": "팀 공유 스냅샷",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/settings",
+    "config": "small-mobile",
+    "title": "설정 · GEO Master",
+    "heading": "설정",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/subscription",
+    "config": "small-mobile",
+    "title": "SEMForge Pro 구독 · GEO Master",
+    "heading": "GEO 실행 구독",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/semforge",
+    "config": "small-mobile",
+    "title": "SEMForge · GEO Master",
+    "heading": "ALL IN SEMForge",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/ai-seo",
+    "config": "small-mobile",
+    "title": "AI SEO · GEO Master",
+    "heading": "AI SEO (SERP)",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/site-audit",
+    "config": "small-mobile",
+    "title": "사이트 진단 · GEO Master",
+    "heading": "사이트 진단",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/position-tracking",
+    "config": "small-mobile",
+    "title": "포지션 추적 · GEO Master",
+    "heading": "포지션 추적",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/local-business",
+    "config": "small-mobile",
+    "title": "지역 SEO · GEO Master",
+    "heading": "지역 SEO",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "small-mobile",
+    "title": "도메인 개요 · GEO Master",
+    "heading": "도메인 개요",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 320,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  }
+]

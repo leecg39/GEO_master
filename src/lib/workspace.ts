@@ -2,7 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { getDatabase } from "./db";
 import {
-  auditItems, audits, checklistStates, contentRevisions, contents, llmsDocuments, measureResults, measureRuns,
+  auditItems, audits, checklistStates, contentRevisions, contents, facts, llmsDocuments, measureCitations, measureClaims, measureResults, measureRuns, mentionReviews, optimizationRuns,
   projects, questionSets, questions, reportPresets, settings as settingsTable, strategyItems,
 } from "./db/schema";
 import { AppError } from "./errors";
@@ -42,8 +42,11 @@ const snapshotDataSchema = z.object({
     repetitions: z.number().int().min(1).max(5), modelWeights: providerWeightsSchema,
   }).strict(),
   projects: z.array(z.object({
-    id, name: short, brandName: z.string().max(120), category: z.string().max(120),
-    competitors: encodedJson(200_000, jsonArray), createdAt: timestamp, updatedAt: timestamp,
+    id, name: short, brandName: z.string().max(120), domain: z.string().max(253).optional().default(""),
+    category: z.string().max(120),
+    competitors: encodedJson(200_000, jsonArray), brandAliases: encodedJson(200_000, jsonArray).optional(),
+    competitorDomains: encodedJson(200_000, jsonArray).optional(),
+    createdAt: timestamp, updatedAt: timestamp,
   }).strict()).max(20_000),
   questionSets: z.array(z.object({
     id, projectId: optionalId, name: short, createdAt: timestamp, updatedAt: timestamp.optional(),
@@ -65,8 +68,38 @@ const snapshotDataSchema = z.object({
     id, runId: id, questionText: z.string().max(10_000), provider: z.string().max(120),
     model: z.string().max(200), repetition: z.number().int().min(1).max(100),
     response: z.string().max(2_000_000), brandMentioned: z.boolean(), sentiment: z.string().max(30),
-    mentionRank: z.number().int().positive().nullable(), competitorMentions: encodedJson(200_000, jsonArray), createdAt: timestamp,
+    mentionRank: z.number().int().positive().nullable(), competitorMentions: encodedJson(200_000, jsonArray),
+    slotStatus: z.enum(["succeeded", "refused", "failed"]).optional(), matchedSpans: encodedJson(200_000, jsonArray).optional(),
+    ownDomainHit: z.boolean().optional(), metricVersion: z.string().max(30).optional(),
+    searchMode: z.enum(["off", "web"]).optional(), searchPerformed: z.boolean().nullable().optional(),
+    citationSupported: z.boolean().nullable().optional(), returnedModel: z.string().max(200).nullable().optional(),
+    slotError: z.string().max(60).nullable().optional(), createdAt: timestamp,
   }).strict()).max(250_000),
+  measureCitations: z.array(z.object({
+    id, runId: id, resultId: id, url: z.string().max(2048), domain: z.string().max(253), title: z.string().max(1_000).nullable(),
+    kind: z.enum(["cited", "searched", "inline"]),
+    category: z.enum(["own", "competitor", "media", "community", "marketplace", "public", "other", "unknown"]), createdAt: timestamp,
+  }).strict()).max(1_000_000).optional().default([]),
+  facts: z.array(z.object({
+    id, projectId: id, attribute: z.string().max(60), attributeNormalized: z.string().max(60), value: z.string().max(200),
+    unit: z.string().max(20).nullable(), conditions: z.string().max(500), sourceUrl: z.string().max(2048).nullable(),
+    excerpt: z.string().max(2_000), checkedAt: z.string().max(10).nullable(), validUntil: z.string().max(10).nullable(),
+    verified: z.boolean(), createdAt: timestamp, updatedAt: timestamp,
+  }).strict()).max(100_000).optional().default([]),
+  measureClaims: z.array(z.object({
+    id, runId: id, resultId: id, claimText: z.string().max(1_000), attribute: z.string().max(60), value: z.string().max(200),
+    unit: z.string().max(20).nullable(), verdict: z.enum(["match", "conflict", "insufficient", "time_unknown", "needs_review"]),
+    factId: optionalId, createdAt: timestamp,
+  }).strict()).max(500_000).optional().default([]),
+  mentionReviews: z.array(z.object({
+    resultId: id, runId: id, autoMentioned: z.boolean(), humanMentioned: z.boolean(), reviewedAt: timestamp,
+  }).strict()).max(250_000).optional().default([]),
+  optimizationRuns: z.array(z.object({
+    id, projectId: id, title: z.string().max(200), query: z.string().max(500), input: encodedJson(2_000_000, jsonObject),
+    status: z.enum(["completed", "failed", "canceled"]), progress: encodedJson(10_000, jsonObject),
+    result: z.string().max(5_000_000).nullable(), errorCode: z.string().max(60).nullable(),
+    createdAt: timestamp, updatedAt: timestamp, completedAt: timestamp.nullable(),
+  }).strict()).max(10_000).optional().default([]),
   audits: z.array(z.object({
     id, projectId: optionalId.optional(), title: z.string().max(120).optional(), notes: z.string().max(5_000).optional(),
     clientRequestId: z.string().max(64).nullable().optional(), url: z.string().max(2048),
@@ -102,7 +135,8 @@ const snapshotDataSchema = z.object({
     summary: z.string().max(500), details: z.string().max(2000), resources: encodedJson(200_000, jsonArray),
     document: z.string().max(102_400), validation: encodedJson(200_000, jsonObject), status: short,
     remoteUrl: z.string().max(2048).nullable(), remoteContentType: z.string().max(200).nullable(),
-    remoteCheckedAt: timestamp.nullable(), createdAt: timestamp, updatedAt: timestamp,
+    remoteCheckedAt: timestamp.nullable(), scopePath: z.string().max(512).optional().default("/llms.txt"),
+    createdAt: timestamp, updatedAt: timestamp,
   }).strict()).max(20_000).optional().default([]),
   reportPresets: z.array(z.object({
     id, projectId: optionalId, name: short, kind: z.enum(["audit", "share"]),
@@ -120,6 +154,11 @@ const statsSchema = z.object({
   contentRevisions: z.number().int().nonnegative().optional(),
   llmsDocuments: z.number().int().nonnegative().optional(),
   reportPresets: z.number().int().nonnegative().optional(),
+  measureCitations: z.number().int().nonnegative().optional(),
+  facts: z.number().int().nonnegative().optional(),
+  measureClaims: z.number().int().nonnegative().optional(),
+  mentionReviews: z.number().int().nonnegative().optional(),
+  optimizationRuns: z.number().int().nonnegative().optional(),
 }).strict();
 
 export const workspaceSnapshotSchema = z.object({
@@ -135,7 +174,7 @@ export const workspaceSnapshotSchema = z.object({
       context.addIssue({ code: "custom", path: ["stats", key], message: `${key} 개수와 실제 데이터가 일치하지 않습니다.` });
     }
   }
-  const idGroups = ["projects", "questionSets", "questions", "measureRuns", "measureResults", "audits", "auditItems", "contents", "checklistStates", "strategyItems", "contentRevisions", "llmsDocuments", "reportPresets"] as const;
+  const idGroups = ["projects", "questionSets", "questions", "measureRuns", "measureResults", "audits", "auditItems", "contents", "checklistStates", "strategyItems", "contentRevisions", "llmsDocuments", "reportPresets", "measureCitations", "facts", "measureClaims", "optimizationRuns"] as const;
   for (const key of idGroups) {
     const rows = snapshot.data[key] ?? [];
     const ids = rows.map((row) => row.id);
@@ -166,7 +205,9 @@ function statsFromData(data: z.infer<typeof snapshotDataSchema>): WorkspaceStats
     audits: data.audits.length, auditItems: data.auditItems.length, contents: data.contents.length,
     checklistStates: data.checklistStates.length, strategyItems: data.strategyItems.length,
     contentRevisions: data.contentRevisions.length, llmsDocuments: data.llmsDocuments.length,
-    reportPresets: data.reportPresets.length,
+    reportPresets: data.reportPresets.length, measureCitations: data.measureCitations.length,
+    facts: data.facts.length, measureClaims: data.measureClaims.length,
+    mentionReviews: data.mentionReviews.length, optimizationRuns: data.optimizationRuns.length,
   };
 }
 
@@ -175,7 +216,9 @@ export function getWorkspaceStats(): WorkspaceStats {
   const count = (table: string) => (sqlite.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get() as { count: number }).count;
   return {
     projects: count("projects"), questionSets: count("question_sets"), questions: count("questions"),
-    measureRuns: count("measure_runs"), measureResults: count("measure_results"), audits: count("audits"),
+    measureRuns: count("measure_runs"), measureResults: count("measure_results"), measureCitations: count("measure_citations"),
+    facts: count("facts"), measureClaims: count("measure_claims"),
+    mentionReviews: count("mention_reviews"), optimizationRuns: count("optimization_runs"), audits: count("audits"),
     auditItems: count("audit_items"), contents: count("contents"), checklistStates: count("checklist_states"),
     strategyItems: count("strategy_items"), contentRevisions: count("content_revisions"),
     llmsDocuments: count("llms_documents"), reportPresets: count("report_presets"),
@@ -191,7 +234,11 @@ export function buildWorkspaceSnapshot(): WorkspaceSnapshot {
       competitors: publicSettings.competitors, models: publicSettings.models,
       repetitions: publicSettings.repetitions, modelWeights: publicSettings.modelWeights,
     },
-    projects: orm.select().from(projects).orderBy(asc(projects.id)).all(),
+    projects: orm.select().from(projects).orderBy(asc(projects.id)).all().map((row) => ({
+      id: row.id, name: row.name, brandName: row.brandName, domain: row.domain ?? "",
+      category: row.category, competitors: row.competitors, brandAliases: row.brandAliases,
+      competitorDomains: row.competitorDomains, createdAt: row.createdAt, updatedAt: row.updatedAt,
+    })),
     questionSets: orm.select().from(questionSets).orderBy(asc(questionSets.id)).all().map((row) => ({
       id: row.id, projectId: row.projectId, name: row.name, createdAt: row.createdAt, updatedAt: row.updatedAt || row.createdAt,
     })),
@@ -208,6 +255,14 @@ export function buildWorkspaceSnapshot(): WorkspaceSnapshot {
       createdAt: row.createdAt, updatedAt: row.updatedAt || row.createdAt, completedAt: row.completedAt,
     })),
     measureResults: orm.select().from(measureResults).orderBy(asc(measureResults.id)).all(),
+    measureCitations: orm.select().from(measureCitations).orderBy(asc(measureCitations.id)).all(),
+    facts: orm.select().from(facts).orderBy(asc(facts.id)).all(),
+    measureClaims: orm.select().from(measureClaims).orderBy(asc(measureClaims.id)).all(),
+    mentionReviews: orm.select().from(mentionReviews).orderBy(asc(mentionReviews.resultId)).all(),
+    // 실행 중인 최적화는 백업하지 않는다 (복원된 곳에서 이어서 실행할 수 없음)
+    optimizationRuns: orm.select().from(optimizationRuns).orderBy(asc(optimizationRuns.id)).all()
+      .filter((row) => row.status !== "running")
+      .map(({ cancelRequested, ...row }) => { void cancelRequested; return { ...row, status: row.status as "completed" | "failed" | "canceled" }; }),
     audits: orm.select().from(audits).orderBy(asc(audits.id)).all().map((row) => ({
       id: row.id, projectId: row.projectId, title: row.title, notes: row.notes,
       clientRequestId: row.clientRequestId, url: row.url, score: row.score, grade: row.grade,
@@ -235,7 +290,7 @@ export function buildWorkspaceSnapshot(): WorkspaceSnapshot {
       id: row.id, projectId: row.projectId, title: row.title, website: row.website, brandName: row.brandName,
       summary: row.summary, details: row.details, resources: row.resources, document: row.document,
       validation: row.validation, status: row.status, remoteUrl: row.remoteUrl,
-      remoteContentType: row.remoteContentType, remoteCheckedAt: row.remoteCheckedAt,
+      remoteContentType: row.remoteContentType, remoteCheckedAt: row.remoteCheckedAt, scopePath: row.scopePath,
       createdAt: row.createdAt, updatedAt: row.updatedAt,
     })),
     reportPresets: orm.select().from(reportPresets).orderBy(asc(reportPresets.id)).all().map((row) => ({
@@ -271,7 +326,8 @@ export function importWorkspace(input: unknown) {
   const execute = sqlite.transaction(() => {
     if (parsed.mode === "replace") {
       sqlite.exec(`
-        DELETE FROM audit_items; DELETE FROM measure_results; DELETE FROM questions;
+        DELETE FROM audit_items; DELETE FROM measure_claims; DELETE FROM measure_citations; DELETE FROM measure_results;
+        DELETE FROM facts; DELETE FROM optimization_runs; DELETE FROM questions;
         DELETE FROM question_sets; DELETE FROM measure_runs; DELETE FROM audits;
         DELETE FROM contents; DELETE FROM checklist_states; DELETE FROM strategy_items;
         DELETE FROM llms_documents; DELETE FROM report_presets; DELETE FROM projects;
@@ -287,7 +343,9 @@ export function importWorkspace(input: unknown) {
     for (const row of data.projects) {
       const inserted = orm.insert(projects).values({
         ...(parsed.mode === "replace" ? { id: row.id } : {}), name: row.name, brandName: row.brandName,
-        category: row.category, competitors: row.competitors, createdAt: row.createdAt, updatedAt: row.updatedAt,
+        domain: row.domain ?? "", category: row.category, competitors: row.competitors, brandAliases: row.brandAliases ?? "[]",
+        competitorDomains: row.competitorDomains ?? "[]",
+        createdAt: row.createdAt, updatedAt: row.updatedAt,
       }).returning({ id: projects.id }).get();
       projectMap.set(row.id, inserted.id);
     }
@@ -311,7 +369,8 @@ export function importWorkspace(input: unknown) {
     for (const row of data.measureRuns) {
       const inserted = orm.insert(measureRuns).values({
         ...(parsed.mode === "replace" ? { id: row.id } : {}), projectId: mapped(projectMap, row.projectId, "측정/프로젝트"),
-        title: row.title ?? "", notes: row.notes ?? "", clientRequestId: row.clientRequestId ?? null,
+        title: row.title ?? "", notes: row.notes ?? "",
+        clientRequestId: parsed.mode === "replace" ? row.clientRequestId ?? null : null,
         status: row.status, models: row.models, repetitions: row.repetitions, totalQueries: row.totalQueries,
         answerShare: row.answerShare, genrank: row.genrank, funnelStage: row.funnelStage,
         summary: row.summary, createdAt: row.createdAt, updatedAt: row.updatedAt ?? row.createdAt,
@@ -319,12 +378,55 @@ export function importWorkspace(input: unknown) {
       }).returning({ id: measureRuns.id }).get();
       runMap.set(row.id, inserted.id);
     }
+    const resultMap = new Map<number, number>();
     for (const row of data.measureResults) {
-      orm.insert(measureResults).values({
+      const inserted = orm.insert(measureResults).values({
         ...(parsed.mode === "replace" ? { id: row.id } : {}), runId: mapped(runMap, row.runId, "측정 결과/측정"),
         questionText: row.questionText, provider: row.provider, model: row.model, repetition: row.repetition,
         response: row.response, brandMentioned: row.brandMentioned, sentiment: row.sentiment,
-        mentionRank: row.mentionRank, competitorMentions: row.competitorMentions, createdAt: row.createdAt,
+        mentionRank: row.mentionRank, competitorMentions: row.competitorMentions,
+        slotStatus: row.slotStatus ?? "succeeded", matchedSpans: row.matchedSpans ?? "[]",
+        ownDomainHit: row.ownDomainHit ?? false, metricVersion: row.metricVersion ?? "legacy",
+        searchMode: row.searchMode ?? "off", searchPerformed: row.searchPerformed ?? null,
+        citationSupported: row.citationSupported ?? null, returnedModel: row.returnedModel ?? null,
+        slotError: row.slotError ?? null, createdAt: row.createdAt,
+      }).returning({ id: measureResults.id }).get();
+      resultMap.set(row.id, inserted.id);
+    }
+    for (const row of data.measureCitations) {
+      orm.insert(measureCitations).values({
+        ...(parsed.mode === "replace" ? { id: row.id } : {}),
+        runId: mapped(runMap, row.runId, "인용/측정"), resultId: mapped(resultMap, row.resultId, "인용/측정 결과"),
+        url: row.url, domain: row.domain, title: row.title, kind: row.kind, category: row.category, createdAt: row.createdAt,
+      }).run();
+    }
+    const factMap = new Map<number, number>();
+    for (const row of data.facts) {
+      const { id: sourceId, projectId, ...fields } = row;
+      const inserted = orm.insert(facts).values({
+        ...fields, ...(parsed.mode === "replace" ? { id: sourceId } : {}),
+        projectId: mapped(projectMap, projectId, "사실 메모/프로젝트"),
+      }).returning({ id: facts.id }).get();
+      factMap.set(row.id, inserted.id);
+    }
+    for (const row of data.measureClaims) {
+      orm.insert(measureClaims).values({
+        ...(parsed.mode === "replace" ? { id: row.id } : {}), claimText: row.claimText, attribute: row.attribute,
+        value: row.value, unit: row.unit, verdict: row.verdict, createdAt: row.createdAt,
+        runId: mapped(runMap, row.runId, "주장/측정"), resultId: mapped(resultMap, row.resultId, "주장/측정 결과"),
+        factId: row.factId === null ? null : factMap.get(row.factId) ?? null,
+      }).run();
+    }
+    for (const row of data.mentionReviews) {
+      orm.insert(mentionReviews).values({
+        ...row, resultId: mapped(resultMap, row.resultId, "검수/측정 결과"), runId: mapped(runMap, row.runId, "검수/측정"),
+      }).run();
+    }
+    for (const row of data.optimizationRuns) {
+      const { id: sourceId, projectId, ...fields } = row;
+      orm.insert(optimizationRuns).values({
+        ...fields, ...(parsed.mode === "replace" ? { id: sourceId } : {}),
+        projectId: mapped(projectMap, projectId, "최적화 실행/프로젝트"),
       }).run();
     }
     const auditMap = new Map<number, number>();
@@ -332,7 +434,8 @@ export function importWorkspace(input: unknown) {
       const inserted = orm.insert(audits).values({
         ...(parsed.mode === "replace" ? { id: row.id } : {}),
         projectId: mapped(projectMap, row.projectId ?? data.projects[0]?.id ?? null, "진단/프로젝트"),
-        title: row.title ?? "", notes: row.notes ?? "", clientRequestId: row.clientRequestId ?? null,
+        title: row.title ?? "", notes: row.notes ?? "",
+        clientRequestId: parsed.mode === "replace" ? row.clientRequestId ?? null : null,
         url: row.url, score: row.score, grade: row.grade, items: row.items, metadata: row.metadata,
         createdAt: row.createdAt, updatedAt: row.updatedAt ?? row.createdAt,
       }).returning({ id: audits.id }).get();
@@ -350,7 +453,8 @@ export function importWorkspace(input: unknown) {
         ...(parsed.mode === "replace" ? { id: row.id } : {}),
         projectId: mapped(projectMap, row.projectId ?? data.projects[0]?.id ?? null, "콘텐츠/프로젝트"),
         tool: row.tool, title: row.title ?? "", notes: row.notes ?? "", status: row.status ?? "generated",
-        pinned: row.pinned ?? false, provider: row.provider ?? null, clientRequestId: row.clientRequestId ?? null,
+        pinned: row.pinned ?? false, provider: row.provider ?? null,
+        clientRequestId: parsed.mode === "replace" ? row.clientRequestId ?? null : null,
         input: row.input, output: row.output, metadata: row.metadata ?? "{}",
         createdAt: row.createdAt, updatedAt: row.updatedAt ?? row.createdAt,
       }).returning({ id: contents.id }).get();
@@ -407,7 +511,7 @@ export function importWorkspace(input: unknown) {
         title: row.title, website: row.website, brandName: row.brandName, summary: row.summary,
         details: row.details, resources: row.resources, document: row.document, validation: row.validation,
         status: row.status, remoteUrl: row.remoteUrl, remoteContentType: row.remoteContentType,
-        remoteCheckedAt: row.remoteCheckedAt, createdAt: row.createdAt, updatedAt: row.updatedAt,
+        remoteCheckedAt: row.remoteCheckedAt, scopePath: row.scopePath, createdAt: row.createdAt, updatedAt: row.updatedAt,
       }).run();
     }
     for (const row of data.reportPresets) {

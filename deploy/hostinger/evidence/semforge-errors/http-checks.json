@@ -1,0 +1,184 @@
+{
+  "checkedAt": "2026-10-07T07:13:13.657Z",
+  "origin": "https://geo.soverin.cloud",
+  "domain": "axbridge.soverin.cloud",
+  "checks": [
+    "GET /api/projects?limit=1: 200",
+    "original AX bridge project is active",
+    "GET /semforge: 200",
+    "GET /ai-seo: 200",
+    "GET /site-audit: 200",
+    "GET /position-tracking: 200",
+    "GET /analytics/overview: 200",
+    "GET /local-business: 200",
+    "GET /api/ai-seo/overview?domain=axbridge.soverin.cloud: 200",
+    "POST /api/ai-seo/collect: 200",
+    "one failed request; remaining keywords skipped",
+    "actual provider account expiration classified",
+    "all outcomes carry the actionable cause",
+    "GET /api/ai-seo/overview?domain=axbridge.soverin.cloud: 200",
+    "failed AI collection preserves existing query snapshots",
+    "GET /api/position-tracking: 200",
+    "existing position campaign found",
+    "PATCH /api/position-tracking?campaignId=1: 200",
+    "one failed request; remaining keywords skipped",
+    "actual provider account expiration classified",
+    "all outcomes carry the actionable cause",
+    "failed ranking report does not present a new 0% measurement",
+    "GET /api/position-tracking: 200",
+    "position visibility and last update are preserved",
+    "GET /api/local-business: 200",
+    "existing local campaign found",
+    "PATCH /api/local-business?campaignId=1: 200",
+    "one failed request; remaining keywords skipped",
+    "actual provider account expiration classified",
+    "all outcomes carry the actionable cause",
+    "failed local report does not present a new 0% measurement",
+    "GET /api/local-business: 200",
+    "local visibility and last update are preserved",
+    "GET /api/site-audit: 200",
+    "existing site audit campaign found",
+    "GET /api/site-audit?id=1: 200",
+    "PATCH /api/site-audit?id=1: 503",
+    "Firecrawl insufficient credits reported accurately",
+    "GET /api/site-audit?id=1: 200",
+    "site health, last successful run and pages are preserved",
+    "GET /api/analytics/overview?domain=axbridge.soverin.cloud: 200",
+    "anonymous social preview remains available",
+    "measurement data still requires authentication"
+  ],
+  "reports": {
+    "aiSeo": {
+      "domain": "axbridge.soverin.cloud",
+      "collected": 0,
+      "failed": 1,
+      "skipped": 4,
+      "outcomes": [
+        {
+          "queryId": 5,
+          "query": "이음 파트너스 공식 사이트",
+          "aioPresent": false,
+          "cited": null,
+          "error": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요.",
+          "errorCode": "TALORDATA_PLAN_EXPIRED"
+        },
+        {
+          "queryId": 4,
+          "query": "이음 파트너스 후기",
+          "aioPresent": false,
+          "cited": null,
+          "error": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요.",
+          "errorCode": "TALORDATA_PLAN_EXPIRED",
+          "skipped": true
+        },
+        {
+          "queryId": 3,
+          "query": "이음 파트너스 추천",
+          "aioPresent": false,
+          "cited": null,
+          "error": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요.",
+          "errorCode": "TALORDATA_PLAN_EXPIRED",
+          "skipped": true
+        },
+        {
+          "queryId": 2,
+          "query": "이음 파트너스 AI",
+          "aioPresent": false,
+          "cited": null,
+          "error": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요.",
+          "errorCode": "TALORDATA_PLAN_EXPIRED",
+          "skipped": true
+        },
+        {
+          "queryId": 1,
+          "query": "이음 파트너스",
+          "aioPresent": false,
+          "cited": null,
+          "error": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요.",
+          "errorCode": "TALORDATA_PLAN_EXPIRED",
+          "skipped": true
+        }
+      ],
+      "capturedAt": "2026-10-07T07:13:05.368Z",
+      "blockingError": {
+        "code": "TALORDATA_PLAN_EXPIRED",
+        "message": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요."
+      }
+    },
+    "position": {
+      "campaignId": 1,
+      "visibility": null,
+      "collected": 0,
+      "failed": 1,
+      "skipped": 2,
+      "outcomes": [
+        {
+          "keyword": "이음 파트너스",
+          "position": null,
+          "error": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요.",
+          "errorCode": "TALORDATA_PLAN_EXPIRED"
+        },
+        {
+          "keyword": "이음 파트너스 AI",
+          "position": null,
+          "error": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요.",
+          "errorCode": "TALORDATA_PLAN_EXPIRED",
+          "skipped": true
+        },
+        {
+          "keyword": "이음 파트너스 추천",
+          "position": null,
+          "error": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요.",
+          "errorCode": "TALORDATA_PLAN_EXPIRED",
+          "skipped": true
+        }
+      ],
+      "blockingError": {
+        "code": "TALORDATA_PLAN_EXPIRED",
+        "message": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요."
+      }
+    },
+    "local": {
+      "campaignId": 1,
+      "visibility": null,
+      "collected": 0,
+      "failed": 1,
+      "skipped": 2,
+      "outcomes": [
+        {
+          "keyword": "이음 파트너스 서울",
+          "mapPosition": null,
+          "inLocalPack": false,
+          "error": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요.",
+          "errorCode": "TALORDATA_PLAN_EXPIRED"
+        },
+        {
+          "keyword": "이음 파트너스 추천",
+          "mapPosition": null,
+          "inLocalPack": false,
+          "error": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요.",
+          "errorCode": "TALORDATA_PLAN_EXPIRED",
+          "skipped": true
+        },
+        {
+          "keyword": "이음 파트너스",
+          "mapPosition": null,
+          "inLocalPack": false,
+          "error": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요.",
+          "errorCode": "TALORDATA_PLAN_EXPIRED",
+          "skipped": true
+        }
+      ],
+      "blockingError": {
+        "code": "TALORDATA_PLAN_EXPIRED",
+        "message": "TalorData SERP 이용권이 만료되었습니다. 제공사에서 이용권을 갱신하거나 설정에서 유효한 API 토큰으로 교체한 뒤 다시 측정해 주세요."
+      }
+    },
+    "siteAudit": {
+      "error": "Firecrawl 크레딧이 부족하여 사이트 진단을 실행할 수 없습니다. Firecrawl 계정에서 크레딧을 충전하거나 설정에서 잔여 크레딧이 있는 API 키로 교체해 주세요.",
+      "code": "FIRECRAWL_CREDITS_EXHAUSTED"
+    }
+  },
+  "image": "geo-master:semforge-errors-20261007-v1",
+  "note": "최종 v2는 안내 문구만 간소화했으며 실제 ALL IN 화면은 deployment.json 및 all-in-ui 파일에 재검증했습니다."
+}

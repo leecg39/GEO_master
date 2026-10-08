@@ -1,0 +1,97 @@
+[
+  {
+    "route": "/",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/audit",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/multimodal",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/llms",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/share",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/automation",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/reports",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/studio",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/strategy",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/learn",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/workspace",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/settings",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/subscription",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/semforge",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/ai-seo",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/site-audit",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/position-tracking",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/local-business",
+    "status": 200,
+    "pass": true
+  },
+  {
+    "route": "/analytics/overview",
+    "status": 200,
+    "pass": true
+  }
+]

@@ -1,0 +1,175 @@
+[
+  {
+    "route": "/reports",
+    "config": "desktop-dark",
+    "title": "리포트 내보내기 · GEO Master",
+    "heading": "리포트 내보내기",
+    "unnamed": [
+      {
+        "html": "<input class=\"min-w-48 flex-1\" maxlength=\"120\" placeholder=\"현재 선택을 프리셋으로 저장\" value=\"\">",
+        "placeholder": "현재 선택을 프리셋으로 저장"
+      }
+    ],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": false,
+      "buttons": true,
+      "skip": false,
+      "current": false,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "desktop-light",
+    "title": "리포트 내보내기 · GEO Master",
+    "heading": "리포트 내보내기",
+    "unnamed": [
+      {
+        "html": "<input class=\"min-w-48 flex-1\" maxlength=\"120\" placeholder=\"현재 선택을 프리셋으로 저장\" value=\"\">",
+        "placeholder": "현재 선택을 프리셋으로 저장"
+      }
+    ],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".gap-2.flex:nth-child(1) > .bg-\\[color\\:var\\(--app-cta-bg\\)\\].text-\\[color\\:var\\(--app-cta-text\\)\\].shadow-\\[rgba\\(0\\,0\\,0\\,0\\.08\\)_0_2px_8px_0\\]"
+            ],
+            "html": "<button class=\"inline-flex min-h-11...\" type=\"button\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.21 (foreground color: #868191, background color: #94919a, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-2.flex:nth-child(1) > .bg-\\[color\\:var\\(--color-on-dark-faint\\)\\].hover\\:bg-\\[color\\:var\\(--color-accent-violet-mid\\)\\]\\/40.text-\\[14px\\]"
+            ],
+            "html": "<button class=\"inline-flex min-h-11...\" type=\"button\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.78 (foreground color: #9894a1, background color: #3f3849, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".min-h-10.border-white\\/10.bg-white\\/5:nth-child(1)"
+            ],
+            "html": "<a href=\"/api/reports?type=audit&id=1&format=json\" download=\"\" ...>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.36 (foreground color: #87869e, background color: #f9f9fa, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".min-h-10.border-white\\/10.bg-white\\/5:nth-child(2)"
+            ],
+            "html": "<a href=\"/api/reports?type=audit&id=1&format=csv\" download=\"\" ...>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.36 (foreground color: #87869e, background color: #f9f9fa, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".border-cyan-400\\/20"
+            ],
+            "html": "<a href=\"/api/reports?type=au...\" download=\"\" class=\"inline-flex min-h-10...\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #879066, background color: #f2f4f2, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-slate-600.mt-1.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-600\">2026. 9. 1. 오후 4:30</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.94 (foreground color: #bdb8c0, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": false,
+      "title": true,
+      "fields": false,
+      "buttons": true,
+      "skip": false,
+      "current": false,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "mobile",
+    "title": "리포트 내보내기 · GEO Master",
+    "heading": "리포트 내보내기",
+    "unnamed": [
+      {
+        "html": "<input class=\"min-w-48 flex-1\" maxlength=\"120\" placeholder=\"현재 선택을 프리셋으로 저장\" value=\"\">",
+        "placeholder": "현재 선택을 프리셋으로 저장"
+      }
+    ],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": false,
+      "buttons": true,
+      "skip": false,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "small-mobile",
+    "title": "리포트 내보내기 · GEO Master",
+    "heading": "리포트 내보내기",
+    "unnamed": [
+      {
+        "html": "<input class=\"min-w-48 flex-1\" maxlength=\"120\" placeholder=\"현재 선택을 프리셋으로 저장\" value=\"\">",
+        "placeholder": "현재 선택을 프리셋으로 저장"
+      }
+    ],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": false,
+      "buttons": true,
+      "skip": false,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  }
+]

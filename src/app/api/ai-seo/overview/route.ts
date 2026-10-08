@@ -1,0 +1,29 @@
+import { withSemforgeAccount } from "@/lib/semforge-route";
+import { NextRequest, NextResponse } from "next/server";
+import { errorResponse } from "@/lib/errors";
+import { getAiVisibilityOverviewPublic } from "@/lib/semforge/ai-visibility";
+import { getSemforgeSubscription } from "@/lib/semforge-subscription";
+import { requireActiveProject } from "@/lib/projects";
+import { normalizeDomain, projectDomainFromBrand } from "@/lib/semforge/utils/domain";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+function handleGET(request: NextRequest) {
+  try {
+    const project = requireActiveProject();
+    const domain = normalizeDomain(
+      request.nextUrl.searchParams.get("domain")
+      ?? project.domain
+      ?? projectDomainFromBrand(project.brandName),
+    );
+    return NextResponse.json({
+      subscription: getSemforgeSubscription(),
+      overview: getAiVisibilityOverviewPublic(domain),
+    }, { headers: { "cache-control": "no-store" } });
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
+
+export const GET = withSemforgeAccount(handleGET, { requireSubscription: true });

@@ -19,9 +19,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-export function GET() {
+export function GET(request: NextRequest) {
   try {
-    return NextResponse.json(getAutomationState());
+    return NextResponse.json(getAutomationState(new Date(), Object.fromEntries(request.nextUrl.searchParams.entries())), {
+      headers: { "cache-control": "no-store" },
+    });
   } catch (error) {
     return errorResponse(error);
   }

@@ -1,0 +1,106 @@
+[
+  {
+    "route": "/workspace",
+    "config": "desktop-dark",
+    "title": "팀 공유 스냅샷 · GEO Master",
+    "heading": "팀 공유 스냅샷",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "desktop-light",
+    "title": "팀 공유 스냅샷 · GEO Master",
+    "heading": "팀 공유 스냅샷",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "mobile",
+    "title": "팀 공유 스냅샷 · GEO Master",
+    "heading": "팀 공유 스냅샷",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "small-mobile",
+    "title": "팀 공유 스냅샷 · GEO Master",
+    "heading": "팀 공유 스냅샷",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  }
+]

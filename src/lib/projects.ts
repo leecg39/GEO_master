@@ -11,6 +11,7 @@ import {
 } from "./crud";
 import { getDatabase } from "./db";
 import { AppError } from "./errors";
+import { normalizeDomain } from "./mention-analysis";
 import { ensureSettingsRow } from "./settings";
 
 const projectFields = {
@@ -18,10 +19,16 @@ const projectFields = {
   brandName: z.string().trim().max(120),
   category: z.string().trim().max(120),
   competitors: z.array(z.string().trim().min(1).max(120)).max(20),
+  brandAliases: z.array(z.string().trim().min(2).max(120)).max(20),
+  domain: z.string().trim().max(253),
+  competitorDomains: z.array(z.string().trim().min(3).max(253)).max(40),
 };
 
 export const projectCreateSchema = z.object({
   ...projectFields,
+  brandAliases: projectFields.brandAliases.optional().default([]),
+  domain: projectFields.domain.optional().default(""),
+  competitorDomains: projectFields.competitorDomains.optional().default([]),
   activate: z.boolean().optional().default(false),
 }).strict();
 
@@ -30,9 +37,12 @@ export const projectUpdateSchema = z.object({
   brandName: projectFields.brandName.optional(),
   category: projectFields.category.optional(),
   competitors: projectFields.competitors.optional(),
+  brandAliases: projectFields.brandAliases.optional(),
+  domain: projectFields.domain.optional(),
+  competitorDomains: projectFields.competitorDomains.optional(),
   expectedUpdatedAt: z.string().min(1).max(64),
 }).strict().refine(
-  (value) => value.name !== undefined || value.brandName !== undefined || value.category !== undefined || value.competitors !== undefined,
+  (value) => [value.name, value.brandName, value.category, value.competitors, value.brandAliases, value.domain, value.competitorDomains].some((field) => field !== undefined),
   { message: "수정할 프로젝트 필드를 하나 이상 입력해 주세요." },
 );
 
@@ -46,8 +56,11 @@ interface ProjectRow {
   id: number;
   name: string;
   brand_name: string;
+  domain: string;
   category: string;
   competitors: string;
+  brand_aliases?: string;
+  competitor_domains?: string;
   created_at: string;
   updated_at: string;
 }
@@ -65,8 +78,11 @@ export interface ProjectResource {
   id: number;
   name: string;
   brandName: string;
+  domain: string;
   category: string;
   competitors: string[];
+  brandAliases: string[];
+  competitorDomains: string[];
   active: boolean;
   createdAt: string;
   updatedAt: string;
@@ -83,6 +99,9 @@ export interface ProjectDependencies extends Record<string, number> {
   strategyItems: number;
   llmsDocuments: number;
   reportPresets: number;
+  facts: number;
+  optimizationRuns: number;
+  reportShares: number;
 }
 
 function parseCompetitors(value: string): string[] {
@@ -98,13 +117,20 @@ function normalizeCompetitors(values: readonly string[]) {
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }
 
+function normalizeDomains(values: readonly string[]) {
+  return [...new Set(values.map(normalizeDomain).filter(Boolean))];
+}
+
 function toProject(row: ProjectRow, activeProjectId: number | null): ProjectResource {
   return {
     id: row.id,
     name: row.name,
     brandName: row.brand_name,
+    domain: row.domain ?? "",
     category: row.category,
     competitors: parseCompetitors(row.competitors),
+    brandAliases: parseCompetitors(row.brand_aliases ?? "[]"),
+    competitorDomains: parseCompetitors(row.competitor_domains ?? "[]"),
     active: row.id === activeProjectId,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -145,6 +171,9 @@ function countProjectDependencies(projectId: number): ProjectDependencies {
     strategyItems: count("strategy_items"),
     llmsDocuments: count("llms_documents"),
     reportPresets: count("report_presets"),
+    facts: count("facts"),
+    optimizationRuns: count("optimization_runs"),
+    reportShares: count("report_shares"),
   };
 }
 
@@ -240,13 +269,16 @@ export function createProject(input: unknown) {
     const currentActive = settings.active_project_id ? findProjectRow(settings.active_project_id) : undefined;
     const now = new Date().toISOString();
     const result = sqlite.prepare(`
-      INSERT INTO projects (name, brand_name, category, competitors, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO projects (name, brand_name, category, competitors, brand_aliases, domain, competitor_domains, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       parsed.name,
       parsed.brandName,
       parsed.category,
       JSON.stringify(normalizeCompetitors(parsed.competitors)),
+      JSON.stringify(normalizeCompetitors(parsed.brandAliases)),
+      normalizeDomain(parsed.domain),
+      JSON.stringify(normalizeDomains(parsed.competitorDomains)),
       now,
       now,
     );
@@ -269,12 +301,15 @@ export function updateProject(idInput: unknown, input: unknown) {
     assertExpectedUpdatedAt(row.updated_at, parsed.expectedUpdatedAt);
     const updatedAt = nextTimestamp(row.updated_at);
     sqlite.prepare(`
-      UPDATE projects SET name = ?, brand_name = ?, category = ?, competitors = ?, updated_at = ? WHERE id = ?
+      UPDATE projects SET name = ?, brand_name = ?, category = ?, competitors = ?, brand_aliases = ?, domain = ?, competitor_domains = ?, updated_at = ? WHERE id = ?
     `).run(
       parsed.name ?? row.name,
       parsed.brandName ?? row.brand_name,
       parsed.category ?? row.category,
       parsed.competitors === undefined ? row.competitors : JSON.stringify(normalizeCompetitors(parsed.competitors)),
+      parsed.brandAliases === undefined ? row.brand_aliases ?? "[]" : JSON.stringify(normalizeCompetitors(parsed.brandAliases)),
+      parsed.domain === undefined ? row.domain ?? "" : normalizeDomain(parsed.domain),
+      parsed.competitorDomains === undefined ? row.competitor_domains ?? "[]" : JSON.stringify(normalizeDomains(parsed.competitorDomains)),
       updatedAt,
       id,
     );

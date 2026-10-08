@@ -1,0 +1,83 @@
+{
+  "revision": "37843a3",
+  "origin": "https://geo.soverin.cloud",
+  "checkedAt": "2026-10-07T05:24:12.909Z",
+  "checks": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/audit",
+      "status": 200
+    },
+    {
+      "path": "/multimodal",
+      "status": 200
+    },
+    {
+      "path": "/llms",
+      "status": 200
+    },
+    {
+      "path": "/share",
+      "status": 200
+    },
+    {
+      "path": "/automation",
+      "status": 200
+    },
+    {
+      "path": "/reports",
+      "status": 200
+    },
+    {
+      "path": "/studio",
+      "status": 200
+    },
+    {
+      "path": "/strategy",
+      "status": 200
+    },
+    {
+      "path": "/learn",
+      "status": 200
+    },
+    {
+      "path": "/workspace",
+      "status": 200
+    },
+    {
+      "path": "/settings",
+      "status": 200
+    },
+    {
+      "path": "/subscription",
+      "status": 200
+    },
+    {
+      "path": "/semforge",
+      "status": 200
+    },
+    {
+      "path": "/ai-seo",
+      "status": 200
+    },
+    {
+      "path": "/site-audit",
+      "status": 200
+    },
+    {
+      "path": "/position-tracking",
+      "status": 200
+    },
+    {
+      "path": "/local-business",
+      "status": 200
+    },
+    {
+      "path": "/analytics/overview",
+      "status": 200
+    }
+  ]
+}

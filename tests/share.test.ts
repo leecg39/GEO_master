@@ -4,7 +4,7 @@ import { aggregateShare, analyzeMentions, classifyFunnel, entityMentioned, heuri
 describe("answer share analytics", () => {
   it("normalizes Unicode and ranks entities by first appearance", () => {
     expect(entityMentioned("ＧＥＯ　Master는 좋은 도구", "GEO Master")).toBe(true);
-    expect(analyzeMentions("경쟁사A와 브랜드Z, 경쟁사B를 비교합니다.", "브랜드Z", ["경쟁사A", "경쟁사B"])).toEqual({
+    expect(analyzeMentions("경쟁사A와 브랜드Z, 경쟁사B를 비교합니다.", "브랜드Z", ["경쟁사A", "경쟁사B"])).toMatchObject({
       brandMentioned: true,
       mentionRank: 2,
       competitorMentions: ["경쟁사A", "경쟁사B"],
@@ -29,6 +29,35 @@ describe("answer share analytics", () => {
     expect(result.competitorComparison[0]).toEqual({ name: "경쟁사A", mentions: 2, share: 50 });
     expect(result.genrank).toBeGreaterThan(50);
     expect(result.funnelStage).toBe("추천");
+  });
+
+  it("identifies Korean brands followed by particles but not inside longer words", () => {
+    expect(analyzeMentions("가구는 한샘이 유명합니다.", "한샘", []).brandMentioned).toBe(true);
+    expect(analyzeMentions("한샘물 생수를 추천합니다.", "한샘", []).brandMentioned).toBe(false);
+  });
+
+  it("matches configured brand aliases and keeps domain-only hits out of mentions", () => {
+    const aliased = analyzeMentions("Hanssem and IKEA are popular.", "한샘", ["이케아"], { aliases: ["Hanssem"] });
+    expect(aliased.brandMentioned).toBe(true);
+    expect(aliased.mentionRank).toBe(1);
+    const domainOnly = analyzeMentions("자세한 내용은 hanssem.com에서 확인하세요.", "한샘", [], { aliases: ["Hanssem"], domain: "hanssem.com" });
+    expect(domainOnly.brandMentioned).toBe(false);
+    expect(domainOnly.ownDomainHit).toBe(true);
+  });
+
+  it("excludes refused and failed slots from the share denominator and reports k/n per question", () => {
+    const result = aggregateShare([
+      { provider: "openai", question: "Q1", status: "succeeded", brandMentioned: true, sentiment: "positive", mentionRank: 1, competitorMentions: [] },
+      { provider: "openai", question: "Q1", status: "refused", brandMentioned: false, sentiment: "neutral", mentionRank: null, competitorMentions: [] },
+      { provider: "openai", question: "Q2", status: "failed", brandMentioned: false, sentiment: "neutral", mentionRank: null, competitorMentions: [] },
+      { provider: "openai", question: "Q2", status: "succeeded", brandMentioned: false, sentiment: "neutral", mentionRank: null, competitorMentions: [] },
+    ], [], { openai: 1, anthropic: 0, gemini: 0, grok: 0 });
+    expect(result.total).toBe(2);
+    expect(result.answerShare).toBe(50);
+    expect(result.perModel.openai).toEqual({ total: 2, mentions: 1, share: 50 });
+    expect(result.quality.completionRate).toEqual({ numerator: 3, denominator: 4, value: 75 });
+    expect(result.questionMatrix.map((cell) => cell.label)).toEqual(["1/1", "0/1"]);
+    expect(result.metricVersion).toBe("m1.0");
   });
 
   it("classifies all four funnel stages", () => {

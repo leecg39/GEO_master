@@ -9,15 +9,15 @@
 | 대시보드 | GEO 퍼널 4단계, 4개 모델별 월간 응답 점유율, GenRank, 최근 진단, 38항목 진행률, 4주 사이클 |
 | GEO 진단 | URL·robots.txt·llms.txt·sitemap 수집, SEO/GEO/E-E-A-T/기술/브랜드 32항목 점검과 이력 |
 | 멀티모달 감사 | 최대 10개 URL의 이미지 alt·파일명·차트 텍스트와 영상 자막·챕터·대본 신호 일괄 점검 |
-| llms.txt | 공식 제안 형식 초안 생성, 편집, 구조 검증, 다운로드, 원격 `/llms.txt` 배포 확인 |
+| llms.txt | 공식 제안 형식 초안 생성, 저장 문서 CRUD·복제, 구조 검증, 다운로드, 원격 `/llms.txt` 배포 확인 |
 | 응답 점유율 | 브랜드 없는 질문 × GPT/Claude/Gemini/Grok × 반복 실행, 언급·순위·감정·경쟁사·GenRank 분석 |
 | 예약 측정 | SQLite 영속 일정·작업 큐, 원자 claim, 취소·재시도, 월·건별 비용 한도와 호출 시도 기반 정산 |
-| 리포트 | 진단·점유율 근거 미리보기, JSON/UTF-8 CSV, 전용 서버 PDF 1.7 다운로드와 보조 브라우저 인쇄 |
+| 리포트 | 진단·점유율 근거 미리보기, 저장 프리셋 CRUD·복제, JSON/UTF-8 CSV, 전용 서버 PDF 1.7 다운로드와 보조 브라우저 인쇄 |
 | 콘텐츠 스튜디오 | 4개 LLM의 리라이팅 5패턴, 도입부 3단 공식, FAQ+FAQPage, 엔티티 정의+Organization JSON-LD |
 | 전략 | 질문 매핑, Pillar–Cluster–Supporting 보드, 콘텐츠 캘린더, 4주 모니터링 사이클 CRUD |
-| 학습 센터 | 핵심 개념, 7가지 도구, 6원칙, 패러다임 시프트, 용어 대조, 사례, 38항목 체크리스트 |
-| 팀 공유 | 비밀을 제외한 schema v1 JSON 스냅샷, ID 재매핑 병합, 확인형 교체와 트랜잭션 롤백 |
-| 설정 | 브랜드·경쟁사·모델·가중치·반복 수와 암호화된 4사 API 키 관리 |
+| 학습 센터 | 핵심 개념, 7가지 도구, 6원칙, 패러다임 시프트, 용어 대조, 사례, 프로젝트별 38항목 체크리스트와 확인형 초기화 |
+| 팀 공유 | 비밀을 제외한 schema v2 JSON 스냅샷, ID 재매핑 병합, 확인형 교체, 로컬 백업 이름 변경·복원·삭제 |
+| 설정 | 활성 프로젝트 프로필, 모델·가중치·반복 수 기본값 되돌리기, 암호화된 4사 API 키 관리 |
 
 ## 시작하기
 
@@ -76,18 +76,19 @@ npm start
 - Grok은 xAI 공식 `https://api.x.ai/v1` 고정 Base URL과 Responses API만 사용하며 Bearer 키·업스트림 오류 세부정보를 노출하지 않습니다.
 - 전용 PDF는 외부 문자열을 NFC 정규화·제어문자 제거 후 UTF-16BE hex text로만 기록해 PDF 연산자 주입을 차단합니다. A4 200페이지, 12MB, PDF당 측정 근거 1,000건 상한과 생략 고지를 적용하며 JSON/CSV 원본은 전량 유지합니다.
 - 한국어 PDF는 `HYSMyeongJo-Medium`·`UniKS-UTF16-H` Type0 CID font를 사용합니다. 비임베드 글꼴의 CJK viewer 의존성을 명시하고, 지원 범위 밖 보조평면 문자는 `?`로 결정적으로 치환합니다.
-- 워크스페이스 스냅샷은 API 키·암호문·마스터 키를 구조적으로 제외하고 25MB 상한, strict Zod 검증, ID 재매핑과 트랜잭션 롤백을 적용합니다. 자동 실행 오작동을 막기 위해 일정·큐·비용 정책은 schema v1 스냅샷에서 제외합니다.
+- 워크스페이스 스냅샷은 API 키·암호문·마스터 키와 로컬 백업 페이로드를 구조적으로 제외하고 25MB 상한, strict Zod 검증, ID 재매핑과 트랜잭션 롤백을 적용합니다. 자동 실행 오작동을 막기 위해 일정·큐·비용 정책은 스냅샷에서 제외합니다. schema v2는 콘텐츠 revision, llms.txt 문서, 리포트 프리셋을 포함하며 v1 파일도 가져올 수 있습니다.
 
 ## 데이터 구조
 
-앱 최초 요청 때 SQLite 디렉터리와 14개 테이블을 자동 생성합니다.
+앱 최초 요청 때 SQLite 디렉터리와 18개 업무 테이블을 자동 생성합니다.
 
 - 설정/프로젝트: `settings`, `projects`
 - 질문: `question_sets`, `questions`
 - 측정: `measure_runs`, `measure_results`
 - 예약 자동화: `measurement_schedules`, `measurement_jobs`, `automation_policy`
 - 진단: `audits`, `audit_items`
-- 콘텐츠/실행: `contents`, `checklist_states`, `strategy_items`
+- 콘텐츠/실행: `contents`, `content_revisions`, `checklist_states`, `strategy_items`
+- 저장 문서: `llms_documents`, `report_presets`, `workspace_backups`
 
 Next.js HMR에서도 DB 연결과 자동화 worker는 `globalThis` 캐시를 사용해 프로세스 내 중복을 피합니다. DB의 원자 claim이 여러 서버 프로세스 간 최종 안전망이며, 이 앱의 지원 운영 범위는 로컬 단일 서버입니다. `better-sqlite3`는 서버 외부 패키지로 번들링합니다.
 
@@ -101,6 +102,9 @@ Next.js HMR에서도 DB 연결과 자동화 worker는 `globalThis` 캐시를 사
 | POST | `/api/multimodal` | 공개 URL 이미지·차트·영상 일괄 감사 |
 | GET | `/api/reports` | 진단·점유율 JSON/CSV/PDF attachment |
 | GET/POST | `/api/workspace` | 스냅샷 현황·내보내기/가져오기 |
+| GET/POST/PATCH/DELETE | `/api/workspace/backups` | 로컬 백업 CRUD와 병합 복원 |
+| GET/POST/PATCH/DELETE | `/api/llms-documents` | 저장 llms.txt 문서 CRUD·복제 |
+| GET/POST/PATCH/DELETE | `/api/report-presets` | 리포트 프리셋 CRUD·복제 |
 | GET/PUT | `/api/settings` | 공개 설정/저장 |
 | GET | `/api/share` | 측정 이력·질문 템플릿 |
 | POST | `/api/share/run` | 응답 점유율 즉시 실행 |
@@ -119,7 +123,7 @@ npm run lint
 npm run build
 ```
 
-현재 기준: **21개 테스트 파일, 110개 테스트 통과**, statements 79.87% / branches 69.75% / functions 83.60% / lines 82.54%, TypeScript·ESLint(경고 0)·Next 프로덕션 빌드 통과. 프로덕션 API, 공개 URL 진단·멀티모달 감사, JSON/CSV/PDF·스냅샷 attachment, 자동화 비용·큐 상태 전이, 12개 화면과 375px 모바일 UI를 실제 브라우저로 검증했습니다. 전용 PDF는 실제 API 응답의 xref·CMap·보안 헤더를 검사하고 macOS `file`·Quartz 렌더링으로 한국어 출력과 페이지 레이아웃을 확인했으며, 독립 적대적 검토와 fix verifier에서 신규 P0/P1이 없었습니다.
+현재 기준: **31개 테스트 파일, 177개 테스트 통과**, TypeScript·ESLint(경고 0)·Next 프로덕션 빌드 통과. 프로덕션 API, 공개 URL 진단·멀티모달 감사, JSON/CSV/PDF·스냅샷 attachment, 자동화 비용·큐 상태 전이, 12개 화면과 375px 모바일 UI를 실제 브라우저로 검증했습니다. 전용 PDF는 실제 API 응답의 xref·CMap·보안 헤더를 검사하고 macOS `file`·Quartz 렌더링으로 한국어 출력과 페이지 레이아웃을 확인했으며, 독립 적대적 검토와 fix verifier에서 신규 P0/P1이 없었습니다.
 
 ## 기술 스택
 

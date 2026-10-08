@@ -1,0 +1,2050 @@
+[
+  {
+    "route": "/",
+    "config": "desktop-dark",
+    "title": "GEO Master",
+    "heading": "안나타르",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".py-2.px-4:nth-child(1) > .tracking-wider.text-\\[9px\\].uppercase"
+            ],
+            "html": "<span class=\"text-[9px] uppercase tracking-wider text-slate-500\">queries</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-2.px-4:nth-child(2) > .tracking-wider.text-\\[9px\\].uppercase"
+            ],
+            "html": "<span class=\"text-[9px] uppercase tracking-wider text-slate-500\">models</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-2.px-4:nth-child(3) > .tracking-wider.text-\\[9px\\].uppercase"
+            ],
+            "html": "<span class=\"text-[9px] uppercase tracking-wider text-slate-500\">runs</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".pt-3.mt-2.border-dash-line\\/25 > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">이전 측정 대비</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-violet-300"
+            ],
+            "html": "<strong class=\"block text-lg text-violet-300\">25<!-- -->/<!-- -->32</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.29 (foreground color: #6a5fc1, background color: #1f1633, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".justify-between.py-3.flex:nth-child(1) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">현재 퍼널</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".justify-between.py-3.flex:nth-child(2) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">최신 응답</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".justify-between.py-3.flex:nth-child(3) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">실행 준비도</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".justify-between.py-3.flex:nth-child(4) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">개선 사이클</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "th:nth-child(1)"
+            ],
+            "html": "<th class=\"pb-3 font-semibold\">모델</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.42 (foreground color: #79628c, background color: #181128, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "th:nth-child(2)"
+            ],
+            "html": "<th class=\"pb-3 text-right font-semibold\">기존</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.42 (foreground color: #79628c, background color: #181128, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "th:nth-child(3)"
+            ],
+            "html": "<th class=\"pb-3 text-right font-semibold\">현재</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.42 (foreground color: #79628c, background color: #181128, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:bg-white\\/\\[0\\.02\\].last\\:border-0:nth-child(3) > .tabular-nums:nth-child(3)"
+            ],
+            "html": "<td class=\"py-3.5 text-right font-bold tabular-nums\" style=\"color:#6a5fc1\">66.7<!-- -->%</td>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #6a5fc1, background color: #181128, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:bg-white\\/\\[0\\.02\\].last\\:border-0:nth-child(4) > .tabular-nums:nth-child(3)"
+            ],
+            "html": "<td class=\"py-3.5 text-right font-bold tabular-nums\" style=\"color:#79628c\">61.1<!-- -->%</td>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.42 (foreground color: #79628c, background color: #181128, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".items-end > div > .tracking-wider.uppercase.text-\\[10px\\]"
+            ],
+            "html": "<span class=\"text-[10px] uppercase tracking-wider text-slate-500\">체크리스트 완료율</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".items-end > .text-slate-500.text-xs"
+            ],
+            "html": "<span class=\"text-xs text-slate-500\">11<!-- -->개 남음</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3.gap-3.text-xs:nth-child(4) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">4주차 · 콘텐츠 개선</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".mb-2.border-\\[color\\:var\\(--color-accent-lime\\)\\]\\/35.bg-\\[color\\:var\\(--color-accent-lime\\)\\]\\/10 > span > small"
+            ],
+            "html": "<small class=\"mt-1 block text-[10px] text-slate-500\">통합 KPI와 실행 상태</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.56 (foreground color: #79628c, background color: #2f2c36, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->01</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.45 (foreground color: #3f3849, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">58.3<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.9위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">71.4<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->02</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.45 (foreground color: #3f3849, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.6위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">55.6<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->03</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.45 (foreground color: #3f3849, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">66.7<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.5위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">100<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->04</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.45 (foreground color: #3f3849, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.4위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">55.6<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->05</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.45 (foreground color: #3f3849, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.3위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">77.8<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".max-w-md"
+            ],
+            "html": "<p class=\"mx-auto mt-2 max-w-md text-xs leading-5 text-slate-500\">왼쪽 질문을 선택하면 모델별 언급률, 평균 순위, 긍정 문맥과 실행별 추이를 드릴다운합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-4.px-3:nth-child(1) > .tracking-wider.text-\\[9px\\].uppercase"
+            ],
+            "html": "<span class=\"text-[9px] uppercase tracking-wider text-slate-500\">질문</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-4.px-3:nth-child(2) > .tracking-wider.text-\\[9px\\].uppercase"
+            ],
+            "html": "<span class=\"text-[9px] uppercase tracking-wider text-slate-500\">응답</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-4.px-3:nth-child(3) > .tracking-wider.text-\\[9px\\].uppercase"
+            ],
+            "html": "<span class=\"text-[9px] uppercase tracking-wider text-slate-500\">긍정</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "desktop-dark",
+    "title": "리포트 내보내기 · GEO Master",
+    "heading": "리포트 내보내기",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".flex-wrap.gap-2.flex > .bg-\\[color\\:var\\(--app-cta-bg\\)\\].text-\\[color\\:var\\(--app-cta-text\\)\\].shadow-\\[rgba\\(0\\,0\\,0\\,0\\.08\\)_0_2px_8px_0\\]"
+            ],
+            "html": "<button class=\"inline-flex min-h-11...\" type=\"button\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #bdb8c0, background color: #e5e7eb, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".break-all"
+            ],
+            "html": "<p class=\"mt-2 break-all text-sm text-slate-500\">https://annatar.example.com</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-slate-600.mt-1.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-600\">2026. 9. 1. 오후 4:30</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-right > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\"> / 32</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".print-card.rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(1) > .text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">기반 SEO</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".print-card.rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(2) > .text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">GEO 콘텐츠 구조</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".print-card.rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(3) > .text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">신뢰도·E-E-A-T</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".print-card.rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(4) > .text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">기술적 GEO</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".print-card.rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(5) > .text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">브랜드 노출</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(1) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(2) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(3) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(4) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(5) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(6) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(7) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "desktop-dark",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".relative.overflow-hidden.border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(1) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->1</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(2) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(3) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->3</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(4) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->4</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".tracking-widest.text-violet-300.font-bold"
+            ],
+            "html": "<p class=\"text-xs font-bold uppercase tracking-widest text-violet-300\">Framework 1.0</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.29 (foreground color: #6a5fc1, background color: #1f1633, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(1) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">정의 템플릿과 JSON-LD로 브랜드 관계를 명확히 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(2) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">공식·언론·학술·커뮤니티의 4중창을 만듭니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(3) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">검증 가능한 권위 엔티티와 가까운 맥락을 확보합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(4) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">고객 고통→표준·인증→브랜드의 관계를 설명합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(5) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">추천 조건과 트리거 표현을 근거와 함께 반복합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(6) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">영문을 포함한 다국어 데이터로 맥락 범위를 넓힙니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(7) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">정기 질의로 오해를 찾고 데이터를 고친 뒤 다시 측정합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-3.flex:nth-child(1) > .leading-5 > .mr-1.text-slate-600.text-xs"
+            ],
+            "html": "<span class=\"mr-1 text-xs text-slate-600\">1<!-- -->.</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-3.flex:nth-child(2) > .leading-5 > .mr-1.text-slate-600.text-xs"
+            ],
+            "html": "<span class=\"mr-1 text-xs text-slate-600\">2<!-- -->.</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-3.flex:nth-child(3) > .leading-5 > .mr-1.text-slate-600.text-xs"
+            ],
+            "html": "<span class=\"mr-1 text-xs text-slate-600\">3<!-- -->.</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-3.flex:nth-child(4) > .leading-5 > .mr-1.text-slate-600.text-xs"
+            ],
+            "html": "<span class=\"mr-1 text-xs text-slate-600\">4<!-- -->.</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-3.flex:nth-child(5) > .leading-5 > .mr-1.text-slate-600.text-xs"
+            ],
+            "html": "<span class=\"mr-1 text-xs text-slate-600\">5<!-- -->.</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-3.flex:nth-child(6) > .leading-5 > .mr-1.text-slate-600.text-xs"
+            ],
+            "html": "<span class=\"mr-1 text-xs text-slate-600\">6<!-- -->.</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".grid-cols-\\[1fr_auto_1\\.3fr\\].py-3.grid:nth-child(1) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">키워드</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".grid-cols-\\[1fr_auto_1\\.3fr\\].py-3.grid:nth-child(2) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">검색 순위</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".grid-cols-\\[1fr_auto_1\\.3fr\\].py-3.grid:nth-child(3) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">CTR</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".grid-cols-\\[1fr_auto_1\\.3fr\\].py-3.grid:nth-child(4) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">백링크</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".grid-cols-\\[1fr_auto_1\\.3fr\\].py-3.grid:nth-child(5) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">도메인 점수</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".grid-cols-\\[1fr_auto_1\\.3fr\\].py-3.grid:nth-child(6) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">트래픽</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4.rounded-xl.bg-slate-950\\/40:nth-child(1) > .mt-1\\.5.leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-1.5 text-xs leading-5 text-slate-500\">구조화된 열린 데이터가 글로벌 파트너가 이해할 수 있는 엔티티 기반을 만들었습니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4.rounded-xl.bg-slate-950\\/40:nth-child(2) > .mt-1\\.5.leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-1.5 text-xs leading-5 text-slate-500\">카테고리 선두도 정의·근거·소스 합의를 지속적으로 관리해야 함을 보여줍니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4.rounded-xl.bg-slate-950\\/40:nth-child(3) > .mt-1\\.5.leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-1.5 text-xs leading-5 text-slate-500\">PLG와 사용자 생성 콘텐츠가 다양한 사용 맥락을 축적했습니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4.rounded-xl.bg-slate-950\\/40:nth-child(4) > .mt-1\\.5.leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-1.5 text-xs leading-5 text-slate-500\">장기간 누적한 교육 콘텐츠와 도구가 주제 권위를 형성했습니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".sm\\:items-center > div:nth-child(1) > .text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-sm text-slate-500\">완료 상태와 메모는 활성 프로젝트 SQLite에 저장됩니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-slate-600.text-sm"
+            ],
+            "html": "<span class=\"text-sm text-slate-600\"> / 38</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.6 (foreground color: #3f3849, background color: #1a122b, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".mb-1"
+            ],
+            "html": "<button type=\"button\" class=\"mb-1 text-xs text-slate-500 hover:text-rose-300\">전체 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/30.border-white\\/7.p-4:nth-child(1) > .mb-3.justify-between.gap-2 > .gap-2.items-center.flex > .hover\\:text-rose-300.text-slate-600[type=\"button\"]"
+            ],
+            "html": "<button type=\"button\" class=\"text-[10px] text-slate-600 hover:text-rose-300\">카테고리 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/30.border-white\\/7.p-4:nth-child(2) > .mb-3.justify-between.gap-2 > .gap-2.items-center.flex > .hover\\:text-rose-300.text-slate-600[type=\"button\"]"
+            ],
+            "html": "<button type=\"button\" class=\"text-[10px] text-slate-600 hover:text-rose-300\">카테고리 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/30.border-white\\/7.p-4:nth-child(3) > .mb-3.justify-between.gap-2 > .gap-2.items-center.flex > .hover\\:text-rose-300.text-slate-600[type=\"button\"]"
+            ],
+            "html": "<button type=\"button\" class=\"text-[10px] text-slate-600 hover:text-rose-300\">카테고리 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/30.border-white\\/7.p-4:nth-child(4) > .mb-3.justify-between.gap-2 > .gap-2.items-center.flex > .hover\\:text-rose-300.text-slate-600[type=\"button\"]"
+            ],
+            "html": "<button type=\"button\" class=\"text-[10px] text-slate-600 hover:text-rose-300\">카테고리 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/30.border-white\\/7.p-4:nth-child(5) > .mb-3.justify-between.gap-2 > .gap-2.items-center.flex > .hover\\:text-rose-300.text-slate-600[type=\"button\"]"
+            ],
+            "html": "<button type=\"button\" class=\"text-[10px] text-slate-600 hover:text-rose-300\">카테고리 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/30.border-white\\/7.p-4:nth-child(6) > .mb-3.justify-between.gap-2 > .gap-2.items-center.flex > .hover\\:text-rose-300.text-slate-600[type=\"button\"]"
+            ],
+            "html": "<button type=\"button\" class=\"text-[10px] text-slate-600 hover:text-rose-300\">카테고리 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "desktop-dark",
+    "title": "팀 공유 스냅샷 · GEO Master",
+    "heading": "팀 공유 스냅샷",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\].bg-\\[color\\:var\\(--app-card-bg\\)\\]:nth-child(1) > .gap-3.items-center.flex > div > p"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">총 <!-- -->803<!-- -->개 레코드 · schema v<!-- -->2</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(1) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">프로젝트</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(2) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">질문 세트</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(3) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">질문</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(4) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">측정</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(5) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">측정 응답</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(6) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">진단</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(7) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">진단 항목</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(8) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">콘텐츠 결과</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(9) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">체크리스트</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(10) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">전략 항목</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".border-\\[color\\:var\\(--color-accent-violet\\)\\]\\/30"
+            ],
+            "html": "<span class=\"inline-flex rounded-[4px] border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.25px] border-[color:var(--color-accent-violet)]/30 bg-[color:var(--color-accent-violet)]/15 text-[color:var(--color-accent-violet)]\">병합</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.85 (foreground color: #6a5fc1, background color: #2a2148, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "form > .gap-3.items-center.flex > div > p"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">구조·버전·레코드 수·관계 무결성을 서버에서 다시 검증합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".mt-1"
+            ],
+            "html": "<span class=\"mt-1 text-xs text-slate-600\">최대 24MB</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/strategy",
+    "config": "desktop-dark",
+    "title": "전략 워크스페이스 · GEO Master",
+    "heading": "전략 워크스페이스",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".p-4:nth-child(1)"
+            ],
+            "html": "<th class=\"p-4\">질문</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.39 (foreground color: #79628c, background color: #191229, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4:nth-child(2)"
+            ],
+            "html": "<th class=\"p-4\">소스</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.39 (foreground color: #79628c, background color: #191229, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4:nth-child(3)"
+            ],
+            "html": "<th class=\"p-4\">의도</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.39 (foreground color: #79628c, background color: #191229, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4:nth-child(4)"
+            ],
+            "html": "<th class=\"p-4\">세그먼트</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.39 (foreground color: #79628c, background color: #191229, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4:nth-child(5)"
+            ],
+            "html": "<th class=\"p-4\">여정</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.39 (foreground color: #79628c, background color: #191229, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4:nth-child(6)"
+            ],
+            "html": "<th class=\"p-4\">상태</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.39 (foreground color: #79628c, background color: #191229, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/subscription",
+    "config": "desktop-dark",
+    "title": "SEMForge Pro 구독 · GEO Master",
+    "heading": "GEO 실행 구독",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\].bg-\\[color\\:var\\(--app-card-bg\\)\\]:nth-child(1) > .mb-4.gap-3.items-center > div > .text-slate-500"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">로컬 SQLite에 저장 · 단일 워크스페이스</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".font-normal.text-slate-500.text-sm"
+            ],
+            "html": "<span class=\"text-sm font-normal text-slate-500\">/월</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\].bg-\\[color\\:var\\(--app-card-bg\\)\\]:nth-child(2) > .mb-4.gap-3.items-center > div > .text-slate-500"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">운영 결제 준비 중 · 개발 환경에서만 테스트 활성화 가능</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1440,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/",
+    "config": "small-mobile",
+    "title": "GEO Master",
+    "heading": "안나타르",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".py-2.px-4:nth-child(1) > .tracking-wider.text-\\[9px\\].uppercase"
+            ],
+            "html": "<span class=\"text-[9px] uppercase tracking-wider text-slate-500\">queries</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-2.px-4:nth-child(2) > .tracking-wider.text-\\[9px\\].uppercase"
+            ],
+            "html": "<span class=\"text-[9px] uppercase tracking-wider text-slate-500\">models</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-2.px-4:nth-child(3) > .tracking-wider.text-\\[9px\\].uppercase"
+            ],
+            "html": "<span class=\"text-[9px] uppercase tracking-wider text-slate-500\">runs</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".pt-3.mt-2.border-dash-line\\/25 > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">이전 측정 대비</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-violet-300"
+            ],
+            "html": "<strong class=\"block text-lg text-violet-300\">25<!-- -->/<!-- -->32</strong>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.29 (foreground color: #6a5fc1, background color: #1f1633, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".justify-between.py-3.flex:nth-child(1) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">현재 퍼널</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".justify-between.py-3.flex:nth-child(2) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">최신 응답</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".justify-between.py-3.flex:nth-child(3) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">실행 준비도</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".justify-between.py-3.flex:nth-child(4) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">개선 사이클</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "th:nth-child(1)"
+            ],
+            "html": "<th class=\"pb-3 font-semibold\">모델</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.42 (foreground color: #79628c, background color: #181128, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "th:nth-child(2)"
+            ],
+            "html": "<th class=\"pb-3 text-right font-semibold\">기존</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.42 (foreground color: #79628c, background color: #181128, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "th:nth-child(3)"
+            ],
+            "html": "<th class=\"pb-3 text-right font-semibold\">현재</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.42 (foreground color: #79628c, background color: #181128, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:bg-white\\/\\[0\\.02\\].last\\:border-0:nth-child(3) > .tabular-nums:nth-child(3)"
+            ],
+            "html": "<td class=\"py-3.5 text-right font-bold tabular-nums\" style=\"color:#6a5fc1\">66.7<!-- -->%</td>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #6a5fc1, background color: #181128, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:bg-white\\/\\[0\\.02\\].last\\:border-0:nth-child(4) > .tabular-nums:nth-child(3)"
+            ],
+            "html": "<td class=\"py-3.5 text-right font-bold tabular-nums\" style=\"color:#79628c\">61.1<!-- -->%</td>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.42 (foreground color: #79628c, background color: #181128, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".items-end > div > .tracking-wider.uppercase.text-\\[10px\\]"
+            ],
+            "html": "<span class=\"text-[10px] uppercase tracking-wider text-slate-500\">체크리스트 완료율</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".items-end > .text-slate-500.text-xs"
+            ],
+            "html": "<span class=\"text-xs text-slate-500\">11<!-- -->개 남음</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3.gap-3.text-xs:nth-child(4) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">4주차 · 콘텐츠 개선</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".mb-2.border-\\[color\\:var\\(--color-accent-lime\\)\\]\\/35.bg-\\[color\\:var\\(--color-accent-lime\\)\\]\\/10 > span > small"
+            ],
+            "html": "<small class=\"mt-1 block text-[10px] text-slate-500\">통합 KPI와 실행 상태</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.56 (foreground color: #79628c, background color: #2f2c36, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->01</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.45 (foreground color: #3f3849, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">58.3<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.9위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(1) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">71.4<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->02</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.45 (foreground color: #3f3849, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.6위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(2) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">55.6<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->03</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.45 (foreground color: #3f3849, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">66.7<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.5위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(3) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">100<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->04</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.45 (foreground color: #3f3849, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.4위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(4) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">55.6<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->05</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.45 (foreground color: #3f3849, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2.3위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(5) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">77.8<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(6) > .items-start.gap-2\\.5.flex > .mt-0\\.5.text-slate-600.font-black"
+            ],
+            "html": "<span class=\"mt-0.5 text-[10px] font-black text-slate-600\">Q<!-- -->06</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.45 (foreground color: #3f3849, background color: #241a3c, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(6) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-slate-500:nth-child(1)"
+            ],
+            "html": "<span class=\"text-slate-500\">점유율 <strong class=\"ml-1 text-emerald-300\">66.7<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(6) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-center.text-slate-500"
+            ],
+            "html": "<span class=\"text-center text-slate-500\">순위 <strong class=\"ml-1 text-[color:var(--color-accent-lime)]\">2위</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".hover\\:border-dash-line-hover\\/60.hover\\:bg-dash-icon.p-3:nth-child(6) > .mt-2\\.5.border-dash-line\\/20.grid-cols-3 > .text-right.text-slate-500"
+            ],
+            "html": "<span class=\"text-right text-slate-500\">긍정 <strong class=\"ml-1 text-amber-300\">75<!-- -->%</strong></span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".max-w-md"
+            ],
+            "html": "<p class=\"mx-auto mt-2 max-w-md text-xs leading-5 text-slate-500\">왼쪽 질문을 선택하면 모델별 언급률, 평균 순위, 긍정 문맥과 실행별 추이를 드릴다운합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-4.px-3:nth-child(1) > .tracking-wider.text-\\[9px\\].uppercase"
+            ],
+            "html": "<span class=\"text-[9px] uppercase tracking-wider text-slate-500\">질문</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-4.px-3:nth-child(2) > .tracking-wider.text-\\[9px\\].uppercase"
+            ],
+            "html": "<span class=\"text-[9px] uppercase tracking-wider text-slate-500\">응답</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-4.px-3:nth-child(3) > .tracking-wider.text-\\[9px\\].uppercase"
+            ],
+            "html": "<span class=\"text-[9px] uppercase tracking-wider text-slate-500\">긍정</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.05 (foreground color: #79628c, background color: #241a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "small-mobile",
+    "title": "리포트 내보내기 · GEO Master",
+    "heading": "리포트 내보내기",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".flex-wrap.gap-2.flex > .bg-\\[color\\:var\\(--app-cta-bg\\)\\].text-\\[color\\:var\\(--app-cta-text\\)\\].shadow-\\[rgba\\(0\\,0\\,0\\,0\\.08\\)_0_2px_8px_0\\]"
+            ],
+            "html": "<button class=\"inline-flex min-h-11...\" type=\"button\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.02 (foreground color: #7a7384, background color: #f0f1f3, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".break-all"
+            ],
+            "html": "<p class=\"mt-2 break-all text-sm text-slate-500\">https://annatar.example.com</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-slate-600.mt-1.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-600\">2026. 9. 1. 오후 4:30</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-right > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\"> / 32</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".print-card.rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(1) > .text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">기반 SEO</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".print-card.rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(2) > .text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">GEO 콘텐츠 구조</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".print-card.rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(3) > .text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">신뢰도·E-E-A-T</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".print-card.rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(4) > .text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">기술적 GEO</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".print-card.rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(5) > .text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">브랜드 노출</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(1) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(2) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(3) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(4) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(5) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(6) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-3:nth-child(7) > .mt-1.text-slate-500.text-xs"
+            ],
+            "html": "<p class=\"mt-1 text-xs text-slate-500\">근거 출처와 구조화 데이터를 보강해야 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "small-mobile",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".relative.overflow-hidden.border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(1) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->1</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(2) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(3) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->3</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".relative.overflow-hidden.border-\\[color\\:var\\(--app-card-border\\)\\]:nth-child(4) > .right-4.top-3.text-5xl"
+            ],
+            "html": "<span class=\"absolute right-4 top-3 text-5xl font-black text-white/[0.025]\">0<!-- -->4</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.06 (foreground color: #251c38, background color: #1f1633, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".tracking-widest.text-violet-300.font-bold"
+            ],
+            "html": "<p class=\"text-xs font-bold uppercase tracking-widest text-violet-300\">Framework 1.0</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.29 (foreground color: #6a5fc1, background color: #1f1633, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(1) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">정의 템플릿과 JSON-LD로 브랜드 관계를 명확히 합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(2) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">공식·언론·학술·커뮤니티의 4중창을 만듭니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(3) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">검증 가능한 권위 엔티티와 가까운 맥락을 확보합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(4) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">고객 고통→표준·인증→브랜드의 관계를 설명합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(5) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">추천 조건과 트리거 표현을 근거와 함께 반복합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(6) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">영문을 포함한 다국어 데이터로 맥락 범위를 넓힙니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/35.border-white\\/7.p-4:nth-child(7) > .leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-xs leading-5 text-slate-500\">정기 질의로 오해를 찾고 데이터를 고친 뒤 다시 측정합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #79628c, background color: #1c142d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-3.flex:nth-child(1) > .leading-5 > .mr-1.text-slate-600.text-xs"
+            ],
+            "html": "<span class=\"mr-1 text-xs text-slate-600\">1<!-- -->.</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-3.flex:nth-child(2) > .leading-5 > .mr-1.text-slate-600.text-xs"
+            ],
+            "html": "<span class=\"mr-1 text-xs text-slate-600\">2<!-- -->.</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-3.flex:nth-child(3) > .leading-5 > .mr-1.text-slate-600.text-xs"
+            ],
+            "html": "<span class=\"mr-1 text-xs text-slate-600\">3<!-- -->.</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-3.flex:nth-child(4) > .leading-5 > .mr-1.text-slate-600.text-xs"
+            ],
+            "html": "<span class=\"mr-1 text-xs text-slate-600\">4<!-- -->.</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-3.flex:nth-child(5) > .leading-5 > .mr-1.text-slate-600.text-xs"
+            ],
+            "html": "<span class=\"mr-1 text-xs text-slate-600\">5<!-- -->.</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".gap-3.flex:nth-child(6) > .leading-5 > .mr-1.text-slate-600.text-xs"
+            ],
+            "html": "<span class=\"mr-1 text-xs text-slate-600\">6<!-- -->.</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #3f3849, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".grid-cols-\\[1fr_auto_1\\.3fr\\].py-3.grid:nth-child(1) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">키워드</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".grid-cols-\\[1fr_auto_1\\.3fr\\].py-3.grid:nth-child(2) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">검색 순위</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".grid-cols-\\[1fr_auto_1\\.3fr\\].py-3.grid:nth-child(3) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">CTR</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".grid-cols-\\[1fr_auto_1\\.3fr\\].py-3.grid:nth-child(4) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">백링크</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".grid-cols-\\[1fr_auto_1\\.3fr\\].py-3.grid:nth-child(5) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">도메인 점수</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".grid-cols-\\[1fr_auto_1\\.3fr\\].py-3.grid:nth-child(6) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">트래픽</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4.rounded-xl.bg-slate-950\\/40:nth-child(1) > .mt-1\\.5.leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-1.5 text-xs leading-5 text-slate-500\">구조화된 열린 데이터가 글로벌 파트너가 이해할 수 있는 엔티티 기반을 만들었습니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4.rounded-xl.bg-slate-950\\/40:nth-child(2) > .mt-1\\.5.leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-1.5 text-xs leading-5 text-slate-500\">카테고리 선두도 정의·근거·소스 합의를 지속적으로 관리해야 함을 보여줍니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4.rounded-xl.bg-slate-950\\/40:nth-child(3) > .mt-1\\.5.leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-1.5 text-xs leading-5 text-slate-500\">PLG와 사용자 생성 콘텐츠가 다양한 사용 맥락을 축적했습니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4.rounded-xl.bg-slate-950\\/40:nth-child(4) > .mt-1\\.5.leading-5.text-slate-500"
+            ],
+            "html": "<p class=\"mt-1.5 text-xs leading-5 text-slate-500\">장기간 누적한 교육 콘텐츠와 도구가 주제 권위를 형성했습니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".sm\\:items-center > div:nth-child(1) > .text-slate-500"
+            ],
+            "html": "<p class=\"mt-2 text-sm text-slate-500\">완료 상태와 메모는 활성 프로젝트 SQLite에 저장됩니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-slate-600.text-sm"
+            ],
+            "html": "<span class=\"text-sm text-slate-600\"> / 38</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.6 (foreground color: #3f3849, background color: #1a122b, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".mb-1"
+            ],
+            "html": "<button type=\"button\" class=\"mb-1 text-xs text-slate-500 hover:text-rose-300\">전체 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/30.border-white\\/7.p-4:nth-child(1) > .mb-3.justify-between.gap-2 > .gap-2.items-center.flex > .hover\\:text-rose-300.text-slate-600[type=\"button\"]"
+            ],
+            "html": "<button type=\"button\" class=\"text-[10px] text-slate-600 hover:text-rose-300\">카테고리 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/30.border-white\\/7.p-4:nth-child(2) > .mb-3.justify-between.gap-2 > .gap-2.items-center.flex > .hover\\:text-rose-300.text-slate-600[type=\"button\"]"
+            ],
+            "html": "<button type=\"button\" class=\"text-[10px] text-slate-600 hover:text-rose-300\">카테고리 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/30.border-white\\/7.p-4:nth-child(3) > .mb-3.justify-between.gap-2 > .gap-2.items-center.flex > .hover\\:text-rose-300.text-slate-600[type=\"button\"]"
+            ],
+            "html": "<button type=\"button\" class=\"text-[10px] text-slate-600 hover:text-rose-300\">카테고리 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/30.border-white\\/7.p-4:nth-child(4) > .mb-3.justify-between.gap-2 > .gap-2.items-center.flex > .hover\\:text-rose-300.text-slate-600[type=\"button\"]"
+            ],
+            "html": "<button type=\"button\" class=\"text-[10px] text-slate-600 hover:text-rose-300\">카테고리 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/30.border-white\\/7.p-4:nth-child(5) > .mb-3.justify-between.gap-2 > .gap-2.items-center.flex > .hover\\:text-rose-300.text-slate-600[type=\"button\"]"
+            ],
+            "html": "<button type=\"button\" class=\"text-[10px] text-slate-600 hover:text-rose-300\">카테고리 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-slate-950\\/30.border-white\\/7.p-4:nth-child(6) > .mb-3.justify-between.gap-2 > .gap-2.items-center.flex > .hover\\:text-rose-300.text-slate-600[type=\"button\"]"
+            ],
+            "html": "<button type=\"button\" class=\"text-[10px] text-slate-600 hover:text-rose-300\">카테고리 초기화</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "small-mobile",
+    "title": "팀 공유 스냅샷 · GEO Master",
+    "heading": "팀 공유 스냅샷",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\].bg-\\[color\\:var\\(--app-card-bg\\)\\]:nth-child(1) > .gap-3.items-center.flex > div > p"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">총 <!-- -->803<!-- -->개 레코드 · schema v<!-- -->2</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(1) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">프로젝트</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(2) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">질문 세트</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(3) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">질문</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(4) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">측정</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(5) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">측정 응답</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(6) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">진단</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(7) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">진단 항목</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(8) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">콘텐츠 결과</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(9) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">체크리스트</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-lg.bg-slate-950\\/40.justify-between:nth-child(10) > .text-slate-500"
+            ],
+            "html": "<span class=\"text-slate-500\">전략 항목</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #79628c, background color: #1b132d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".border-\\[color\\:var\\(--color-accent-violet\\)\\]\\/30"
+            ],
+            "html": "<span class=\"inline-flex rounded-[4px] border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.25px] border-[color:var(--color-accent-violet)]/30 bg-[color:var(--color-accent-violet)]/15 text-[color:var(--color-accent-violet)]\">병합</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.85 (foreground color: #6a5fc1, background color: #2a2148, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "form > .gap-3.items-center.flex > div > p"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">구조·버전·레코드 수·관계 무결성을 서버에서 다시 검증합니다.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".mt-1"
+            ],
+            "html": "<span class=\"mt-1 text-xs text-slate-600\">최대 24MB</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.57 (foreground color: #3f3849, background color: #1c142e, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 320,
+    "docWidth": 356,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": false,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/strategy",
+    "config": "small-mobile",
+    "title": "전략 워크스페이스 · GEO Master",
+    "heading": "전략 워크스페이스",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".p-4:nth-child(1)"
+            ],
+            "html": "<th class=\"p-4\">질문</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.39 (foreground color: #79628c, background color: #191229, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".p-4:nth-child(2)"
+            ],
+            "html": "<th class=\"p-4\">소스</th>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.39 (foreground color: #79628c, background color: #191229, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  },
+  {
+    "route": "/subscription",
+    "config": "small-mobile",
+    "title": "SEMForge Pro 구독 · GEO Master",
+    "heading": "GEO 실행 구독",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\].bg-\\[color\\:var\\(--app-card-bg\\)\\]:nth-child(1) > .mb-4.gap-3.items-center > div > .text-slate-500"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">로컬 SQLite에 저장 · 단일 워크스페이스</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".font-normal.text-slate-500.text-sm"
+            ],
+            "html": "<span class=\"text-sm font-normal text-slate-500\">/월</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".rounded-\\[18px\\].border-\\[color\\:var\\(--app-card-border\\)\\].bg-\\[color\\:var\\(--app-card-bg\\)\\]:nth-child(2) > .mb-4.gap-3.items-center > div > .text-slate-500"
+            ],
+            "html": "<p class=\"text-xs text-slate-500\">운영 결제 준비 중 · 개발 환경에서만 테스트 활성화 가능</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.22 (foreground color: #79628c, background color: #1f1633, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": false
+    }
+  }
+]

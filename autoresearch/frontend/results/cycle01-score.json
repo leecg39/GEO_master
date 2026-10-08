@@ -1,0 +1,18 @@
+{
+  "pageConfigurations": 76,
+  "interactionChecks": 27,
+  "scores": {
+    "error": 100,
+    "dom": 100,
+    "form": 100,
+    "visual": 54.60526315789474
+  },
+  "score": 93.1907894736842,
+  "failures": {
+    "logs": 0,
+    "unnamed": 0,
+    "contrastNodes": 823,
+    "overflow": [],
+    "interactions": []
+  }
+}

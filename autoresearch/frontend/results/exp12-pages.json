@@ -1,0 +1,106 @@
+[
+  {
+    "route": "/learn",
+    "config": "desktop-dark",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "desktop-light",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 1440,
+    "docWidth": 1430,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "mobile",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 375,
+    "docWidth": 365,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "small-mobile",
+    "title": "학습 센터 · GEO Master",
+    "heading": "학습 센터",
+    "unnamed": [],
+    "badButtons": [],
+    "violations": [],
+    "logs": [],
+    "width": 320,
+    "docWidth": 310,
+    "domChecks": {
+      "main": true,
+      "heading": true,
+      "title": true,
+      "fields": true,
+      "buttons": true,
+      "skip": true,
+      "current": true,
+      "axe": true
+    },
+    "visualChecks": {
+      "overflow": true,
+      "contrast": true
+    }
+  }
+]

@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useRef, useState } from "react";
 import { Braces, Check, Clipboard, FilePenLine, HelpCircle, Layers3, LoaderCircle, WandSparkles } from "lucide-react";
+import { DraftEvidenceNotice } from "@/components/DraftEvidenceNotice";
 import { StudioHistoryPanel, notifyStudioContentChanged, type StudioContentResource, type StudioTool } from "@/components/StudioHistoryPanel";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
 
@@ -172,6 +173,7 @@ export function StudioClient() {
           {"intro" in result && <p className="whitespace-pre-wrap rounded-xl bg-slate-950/40 p-4 text-sm leading-7 text-slate-200">{String(result.intro)}</p>}
           {"definition" in result && <p className="rounded-xl border border-cyan-400/15 bg-cyan-400/5 p-4 text-base leading-7 text-cyan-100">{String(result.definition)}</p>}
           {"faqs" in result && <div className="space-y-3">{(result.faqs as { question: string; answer: string }[]).map((faq) => <details key={faq.question} className="rounded-xl border border-white/7 bg-slate-950/40 p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-200">{faq.question}</summary><p className="mt-3 text-sm leading-6 text-slate-400">{faq.answer}</p></details>)}</div>}
+          {"evidence" in result && <DraftEvidenceNotice evidence={result.evidence} />}
           {"jsonLd" in result && <pre className="max-h-96 rounded-xl bg-slate-950 p-4 text-xs leading-5 text-emerald-300">{JSON.stringify(result.jsonLd, null, 2)}</pre>}
         </div> : <div className="grid min-h-96 place-items-center text-center"><div><WandSparkles className="mx-auto h-8 w-8 text-slate-700" /><p className="mt-3 text-sm text-slate-600">도구를 실행하면 전·후 비교와<br />구조화 데이터가 여기에 표시됩니다.</p></div></div>}
       </Card>

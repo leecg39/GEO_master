@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useCallback, useId, useRef, useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { Button } from "@/components/ui";
+import { Modal } from "@/components/Modal";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -16,14 +17,17 @@ interface ConfirmDialogProps {
   onConfirm: () => void | Promise<void>;
 }
 
-export function ConfirmDialog({
+export function ConfirmDialog(props: ConfirmDialogProps) {
+  return props.open ? <ConfirmDialogContent key={props.requiredText ?? props.title} {...props} /> : null;
+}
+
+function ConfirmDialogContent({
   open, title, description, confirmLabel = "확인", busy = false, destructive = false,
   requiredText, onClose, onConfirm,
 }: ConfirmDialogProps) {
   const titleId = useId();
   const descriptionId = useId();
   const cancelRef = useRef<HTMLButtonElement>(null);
-  const previousFocus = useRef<HTMLElement | null>(null);
   const [typed, setTyped] = useState("");
 
   const close = useCallback(() => {
@@ -32,27 +36,15 @@ export function ConfirmDialog({
     onClose();
   }, [busy, onClose]);
 
-  useEffect(() => {
-    if (!open) return;
-    previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    cancelRef.current?.focus();
-    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") close(); };
-    document.addEventListener("keydown", escape);
-    return () => {
-      document.removeEventListener("keydown", escape);
-      previousFocus.current?.focus();
-    };
-  }, [close, open]);
-
   if (!open) return null;
   const confirmationMatches = !requiredText || typed === requiredText;
-  return <div className="fixed inset-0 z-[70] grid place-items-center bg-black/70 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
-    <section role="alertdialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} className="w-full max-w-lg rounded-2xl border border-white/10 bg-slate-950 p-5 shadow-2xl">
+  return <Modal open={open} labelledBy={titleId} describedBy={descriptionId} role="alertdialog" busy={busy} initialFocus={cancelRef} onClose={close}><div className="fixed inset-0 z-[70] grid place-items-center bg-black/70 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
+    <section className="w-full max-w-lg rounded-2xl border border-white/10 bg-slate-950 p-5 shadow-2xl">
       <div className="flex items-start justify-between gap-4"><div><h2 id={titleId} className="text-lg font-semibold text-white">{title}</h2><div id={descriptionId} className="mt-2 text-sm leading-6 text-slate-400">{description}</div></div><button type="button" aria-label="닫기" disabled={busy} onClick={close} className="rounded-lg p-1.5 text-slate-500 hover:bg-white/5 hover:text-white"><X className="h-4 w-4" /></button></div>
       {requiredText && <label className="mt-4 block text-xs text-slate-400">확인을 위해 <strong className="text-slate-200">{requiredText}</strong> 입력<input className="mt-2" value={typed} onChange={(event) => setTyped(event.target.value)} autoComplete="off" /></label>}
       <div className="mt-5 flex justify-end gap-2"><Button ref={cancelRef} type="button" variant="secondary" disabled={busy} onClick={close}>취소</Button><Button type="button" variant={destructive ? "danger" : "primary"} disabled={busy || !confirmationMatches} onClick={() => void onConfirm()}>{busy ? "처리 중…" : confirmLabel}</Button></div>
     </section>
-  </div>;
+  </div></Modal>;
 }
 
 interface DetailDrawerProps {
@@ -68,28 +60,15 @@ interface DetailDrawerProps {
 export function DetailDrawer({ open, title, description, children, footer, busy = false, onClose }: DetailDrawerProps) {
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
-  const previousFocus = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    closeRef.current?.focus();
-    const escape = (event: KeyboardEvent) => { if (event.key === "Escape" && !busy) onClose(); };
-    document.addEventListener("keydown", escape);
-    return () => {
-      document.removeEventListener("keydown", escape);
-      previousFocus.current?.focus();
-    };
-  }, [busy, onClose, open]);
 
   if (!open) return null;
-  return <div className="fixed inset-0 z-[60] bg-black/55" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
-    <aside role="dialog" aria-modal="true" aria-labelledby={titleId} className="ml-auto flex h-full w-full max-w-2xl flex-col border-l border-white/10 bg-slate-950 shadow-2xl">
+  return <Modal open={open} labelledBy={titleId} busy={busy} initialFocus={closeRef} onClose={onClose}><div className="fixed inset-0 z-[60] bg-black/55" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
+    <aside className="ml-auto flex h-full w-full max-w-2xl flex-col border-l border-white/10 bg-slate-950 shadow-2xl">
       <header className="flex items-start justify-between gap-4 border-b border-white/8 p-5"><div><h2 id={titleId} className="text-lg font-semibold text-white">{title}</h2>{description && <p className="mt-1 text-xs text-slate-500">{description}</p>}</div><button ref={closeRef} type="button" aria-label="상세 닫기" disabled={busy} onClick={onClose} className="rounded-lg p-2 text-slate-500 hover:bg-white/5 hover:text-white"><X className="h-5 w-5" /></button></header>
       <div className="flex-1 overflow-y-auto p-5">{children}</div>
       {footer && <footer className="border-t border-white/8 p-4">{footer}</footer>}
     </aside>
-  </div>;
+  </div></Modal>;
 }
 
 export function CrudListToolbar({

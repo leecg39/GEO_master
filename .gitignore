@@ -1,5 +1,6 @@
 node_modules/
 .next/
+next-env.d.ts
 out/
 coverage/
 *.log
@@ -12,3 +13,5 @@ data/.master-key
 playwright-report/
 test-results/
 *.tsbuildinfo
+.gstack/
+deploy/hostinger/runtime.env

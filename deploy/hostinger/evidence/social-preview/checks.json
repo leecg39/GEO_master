@@ -1,0 +1,275 @@
+{
+  "origin": "https://geo.soverin.cloud",
+  "checkedAt": "2026-10-07T07:03:01.481Z",
+  "authenticatedChecks": true,
+  "checks": [
+    {
+      "label": "GET /: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "Public root is HTML",
+      "passed": true
+    },
+    {
+      "label": "Public root is not cached across auth states",
+      "passed": true
+    },
+    {
+      "label": "Public root does not request a crawler login",
+      "passed": true
+    },
+    {
+      "label": "OG title is in the initial HTML head",
+      "passed": true
+    },
+    {
+      "label": "OG description is present",
+      "passed": true
+    },
+    {
+      "label": "Canonical OG URL is the public root",
+      "passed": true
+    },
+    {
+      "label": "Twitter large image card is configured",
+      "passed": true
+    },
+    {
+      "label": "Public preview has no application scripts or hydration payload",
+      "passed": true
+    },
+    {
+      "label": "Workspace link explicitly requests protected login",
+      "passed": true
+    },
+    {
+      "label": "HEAD /: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "GET /?v=20261007: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "GET /link-preview.html: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "GET /: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "kakaotalk-scrap/1.0 receives only the same public preview",
+      "passed": true
+    },
+    {
+      "label": "GET /: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "facebookexternalhit/1.1 receives only the same public preview",
+      "passed": true
+    },
+    {
+      "label": "GET /: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "Twitterbot/1.0 receives only the same public preview",
+      "passed": true
+    },
+    {
+      "label": "GET /: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "Slackbot-LinkExpanding 1.0 receives only the same public preview",
+      "passed": true
+    },
+    {
+      "label": "GET /: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "TelegramBot receives only the same public preview",
+      "passed": true
+    },
+    {
+      "label": "GET /: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "Discordbot receives only the same public preview",
+      "passed": true
+    },
+    {
+      "label": "og:image has an absolute HTTPS URL",
+      "passed": true
+    },
+    {
+      "label": "GET /og/geo-master-20261007.jpg: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "og:image is served as JPEG",
+      "passed": true
+    },
+    {
+      "label": "og:image is 1200×630",
+      "passed": true
+    },
+    {
+      "label": "og:image is below 5 MiB",
+      "passed": true
+    },
+    {
+      "label": "og:image matches the approved local artwork",
+      "passed": true
+    },
+    {
+      "label": "HEAD /og/geo-master-20261007.jpg: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "twitter:image has an absolute HTTPS URL",
+      "passed": true
+    },
+    {
+      "label": "GET /og/geo-master-thumbnail-20261007.jpg: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "twitter:image is served as JPEG",
+      "passed": true
+    },
+    {
+      "label": "twitter:image is 1280×720",
+      "passed": true
+    },
+    {
+      "label": "twitter:image is below 5 MiB",
+      "passed": true
+    },
+    {
+      "label": "twitter:image matches the approved local artwork",
+      "passed": true
+    },
+    {
+      "label": "HEAD /og/geo-master-thumbnail-20261007.jpg: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "GET /?login=1: 303 (expected 303)",
+      "passed": true
+    },
+    {
+      "label": "GET /audit: 303 (expected 303)",
+      "passed": true
+    },
+    {
+      "label": "GET /settings: 303 (expected 303)",
+      "passed": true
+    },
+    {
+      "label": "GET /workspace: 303 (expected 303)",
+      "passed": true
+    },
+    {
+      "label": "GET /api/dashboard: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "GET /api/projects: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "GET /api/settings: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "GET /api/workspace: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "GET /api/semforge/subscription: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "GET /og/unlisted.jpg: 303 (expected 303)",
+      "passed": true
+    },
+    {
+      "label": "POST /: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "POST /link-preview.html: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "POST /og/geo-master-20261007.jpg: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "POST /api/projects: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "GET /: 303 (expected 303)",
+      "passed": true
+    },
+    {
+      "label": "GET /: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "Forged identity headers cannot turn the public preview into private data",
+      "passed": true
+    },
+    {
+      "label": "GET /api/settings: 401 (expected 401)",
+      "passed": true
+    },
+    {
+      "label": "GET /: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "Authenticated root still renders the dashboard",
+      "passed": true
+    },
+    {
+      "label": "Authenticated app has the same OG metadata",
+      "passed": true
+    },
+    {
+      "label": "GET /?login=1: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "GET /audit: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "GET /settings: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "GET /api/dashboard: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "GET /api/semforge/subscription: 200 (expected 200)",
+      "passed": true
+    },
+    {
+      "label": "POST /api/projects: 403 (expected 403)",
+      "passed": true
+    },
+    {
+      "label": "GET /api/projects: 200 (expected 200)",
+      "passed": true
+    }
+  ]
+}

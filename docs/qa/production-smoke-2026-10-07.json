@@ -1,0 +1,124 @@
+[
+  {
+    "route": "/",
+    "status": 200
+  },
+  {
+    "route": "/audit",
+    "status": 200
+  },
+  {
+    "route": "/multimodal",
+    "status": 200
+  },
+  {
+    "route": "/llms",
+    "status": 200
+  },
+  {
+    "route": "/share",
+    "status": 200
+  },
+  {
+    "route": "/automation",
+    "status": 200
+  },
+  {
+    "route": "/reports",
+    "status": 200
+  },
+  {
+    "route": "/studio",
+    "status": 200
+  },
+  {
+    "route": "/strategy",
+    "status": 200
+  },
+  {
+    "route": "/learn",
+    "status": 200
+  },
+  {
+    "route": "/workspace",
+    "status": 200
+  },
+  {
+    "route": "/settings",
+    "status": 200
+  },
+  {
+    "route": "/semforge",
+    "status": 200
+  },
+  {
+    "route": "/ai-seo",
+    "status": 200
+  },
+  {
+    "route": "/site-audit",
+    "status": 200
+  },
+  {
+    "route": "/position-tracking",
+    "status": 200
+  },
+  {
+    "route": "/analytics/overview",
+    "status": 200
+  },
+  {
+    "route": "/local-business",
+    "status": 200
+  },
+  {
+    "route": "/subscription",
+    "status": 200
+  },
+  {
+    "name": "JSON required",
+    "status": 415
+  },
+  {
+    "name": "Cross-site blocked",
+    "status": 403
+  },
+  {
+    "name": "Live checkout blocked",
+    "status": 503
+  },
+  {
+    "name": "audit json",
+    "status": 200,
+    "bytes": 11951
+  },
+  {
+    "name": "audit csv",
+    "status": 200,
+    "bytes": 8935
+  },
+  {
+    "name": "audit pdf",
+    "status": 200,
+    "bytes": 13246
+  },
+  {
+    "name": "share json",
+    "status": 200,
+    "bytes": 46306
+  },
+  {
+    "name": "share csv",
+    "status": 200,
+    "bytes": 28264
+  },
+  {
+    "name": "share pdf",
+    "status": 200,
+    "bytes": 88688
+  },
+  {
+    "name": "Workspace snapshot v2",
+    "status": 200
+  }
+]

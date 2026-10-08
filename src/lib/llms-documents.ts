@@ -9,7 +9,8 @@ import {
   transactionalMutation,
 } from "./crud";
 import { getDatabase } from "./db";
-import { generateLlmsTxt, validateLlmsTxt, verifyRemoteLlmsTxt } from "./llms-txt";
+import { DEFAULT_LLMS_PATH, generateLlmsTxt, normalizeLlmsPath, validateLlmsTxt, verifyRemoteLlmsTxt } from "./llms-txt";
+import { recordLlmsRevision } from "./llms-history";
 import { requireActiveProject } from "./projects";
 
 const documentStatuses = ["draft", "validated", "deployed"] as const;
@@ -29,6 +30,8 @@ export const llmsDocumentCreateSchema = z.object({
   details: z.string().trim().max(2000).optional().default(""),
   resources: z.array(resourceSchema).min(1).max(100),
   document: z.string().max(MAX_DOCUMENT_BYTES).optional().default(""),
+  /** 적용 경로 — 사이트 루트(/llms.txt) 또는 하위 경로(/docs/llms.txt) */
+  scopePath: z.string().trim().max(512).optional().default(DEFAULT_LLMS_PATH).transform((value) => normalizeLlmsPath(value)),
 }).strict();
 
 export const llmsDocumentUpdateSchema = z.object({
@@ -40,9 +43,10 @@ export const llmsDocumentUpdateSchema = z.object({
   resources: z.array(resourceSchema).min(1).max(100).optional(),
   document: z.string().max(MAX_DOCUMENT_BYTES).optional(),
   status: z.enum(documentStatuses).optional(),
+  scopePath: z.string().trim().max(512).transform((value) => normalizeLlmsPath(value)).optional(),
   expectedUpdatedAt: z.string().min(1).max(64),
 }).strict().refine(
-  (value) => ["title", "website", "brandName", "summary", "details", "resources", "document", "status"]
+  (value) => ["title", "website", "brandName", "summary", "details", "resources", "document", "status", "scopePath"]
     .some((key) => value[key as keyof typeof value] !== undefined),
   { message: "수정할 문서 필드를 하나 이상 입력해 주세요." },
 );
@@ -70,6 +74,7 @@ interface DocumentRow {
   remote_url: string | null;
   remote_content_type: string | null;
   remote_checked_at: string | null;
+  scope_path: string;
   created_at: string;
   updated_at: string;
 }
@@ -104,6 +109,7 @@ function publicDocument(row: DocumentRow) {
     remoteUrl: row.remote_url,
     remoteContentType: row.remote_content_type,
     remoteCheckedAt: row.remote_checked_at,
+    scopePath: row.scope_path || DEFAULT_LLMS_PATH,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -171,7 +177,7 @@ export function createLlmsDocument(input: unknown) {
   const parsed = llmsDocumentCreateSchema.parse(input);
   const active = requireActiveProject();
   const generated = parsed.document.trim()
-    ? { document: parsed.document, validation: validateLlmsTxt(parsed.document, parsed.website) }
+    ? { document: parsed.document, validation: validateLlmsTxt(parsed.document, parsed.website, { path: parsed.scopePath }) }
     : generatedDocument(parsed);
   const { sqlite } = getDatabase();
   return transactionalMutation(sqlite, () => {
@@ -179,13 +185,14 @@ export function createLlmsDocument(input: unknown) {
     const result = sqlite.prepare(`
       INSERT INTO llms_documents (
         project_id, title, website, brand_name, summary, details, resources, document,
-        validation, status, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        validation, status, scope_path, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       active.id, parsed.title, parsed.website, parsed.brandName, parsed.summary, parsed.details,
       JSON.stringify(parsed.resources), generated.document, JSON.stringify(generated.validation),
-      generated.validation.valid ? "validated" : "draft", now, now,
+      generated.validation.valid ? "validated" : "draft", parsed.scopePath, now, now,
     );
+    recordLlmsRevision(sqlite, Number(result.lastInsertRowid), generated.document, "created");
     return publicDocument(ownedRow(Number(result.lastInsertRowid)));
   });
 }
@@ -206,17 +213,19 @@ export function updateLlmsDocument(idInput: unknown, input: unknown) {
       resources: parsed.resources ?? parseResources(row.resources),
       document: parsed.document ?? row.document,
       status: parsed.status ?? row.status,
+      scopePath: parsed.scopePath ?? row.scope_path ?? DEFAULT_LLMS_PATH,
     };
-    const validation = validateLlmsTxt(next.document, next.website);
+    const validation = validateLlmsTxt(next.document, next.website, { path: next.scopePath });
     const updatedAt = nextTimestamp(row.updated_at);
     sqlite.prepare(`
       UPDATE llms_documents SET title = ?, website = ?, brand_name = ?, summary = ?, details = ?,
-        resources = ?, document = ?, validation = ?, status = ?, updated_at = ? WHERE id = ?
+        resources = ?, document = ?, validation = ?, status = ?, scope_path = ?, updated_at = ? WHERE id = ?
     `).run(
       next.title, next.website, next.brandName, next.summary, next.details,
       JSON.stringify(next.resources), next.document, JSON.stringify(validation),
-      next.status, updatedAt, id,
+      next.status, next.scopePath, updatedAt, id,
     );
+    recordLlmsRevision(sqlite, id, next.document, "edited");
     return publicDocument(ownedRow(id));
   });
 }
@@ -242,6 +251,7 @@ export function duplicateLlmsDocument(idInput: unknown) {
     details: source.details,
     resources: source.resources,
     document: source.document,
+    scopePath: source.scopePath,
   });
 }
 
@@ -252,7 +262,7 @@ export function validateStoredLlmsDocument(idInput: unknown, input: unknown) {
   return transactionalMutation(sqlite, () => {
     const row = ownedRow(id);
     assertExpectedUpdatedAt(row.updated_at, parsed.expectedUpdatedAt);
-    const validation = validateLlmsTxt(row.document, row.website);
+    const validation = validateLlmsTxt(row.document, row.website, { path: row.scope_path });
     const updatedAt = nextTimestamp(row.updated_at);
     sqlite.prepare("UPDATE llms_documents SET validation = ?, status = ?, updated_at = ? WHERE id = ?")
       .run(JSON.stringify(validation), validation.valid ? "validated" : "draft", updatedAt, id);
@@ -265,7 +275,7 @@ export async function verifyStoredLlmsDocument(idInput: unknown, input: unknown)
   const parsed = llmsDocumentDeleteSchema.parse(input);
   const row = ownedRow(id);
   assertExpectedUpdatedAt(row.updated_at, parsed.expectedUpdatedAt);
-  const remote = await verifyRemoteLlmsTxt(row.website);
+  const remote = await verifyRemoteLlmsTxt(row.website, row.scope_path);
   const { sqlite } = getDatabase();
   return transactionalMutation(sqlite, () => {
     const current = ownedRow(id);
@@ -279,6 +289,7 @@ export async function verifyStoredLlmsDocument(idInput: unknown, input: unknown)
       remote.validation.valid ? "deployed" : "draft",
       remote.url, remote.contentType, updatedAt, updatedAt, id,
     );
+    recordLlmsRevision(sqlite, id, remote.document, "remote");
     return publicDocument(ownedRow(id));
   });
 }

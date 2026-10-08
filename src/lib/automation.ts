@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
+import { collectionQuerySchema, cursorPage, decodeCursor } from "./crud";
 import { getDatabase } from "./db";
 import { AppError } from "./errors";
 import { requireActiveProject } from "./projects";
@@ -35,6 +36,10 @@ export const scheduleInputSchema = z.object({
   intervalMinutes: z.number().int().min(60).max(525_600),
   nextRunAt: z.string().datetime({ offset: true }),
   enabled: z.boolean(),
+}).strict();
+
+export const automationListQuerySchema = collectionQuerySchema.extend({
+  status: z.enum(["queued", "running", "completed", "failed", "canceled", "blocked"]).optional(),
 }).strict();
 
 export const automationActionSchema = z.discriminatedUnion("action", [
@@ -594,7 +599,8 @@ export function retryJob(id: number) {
   });
 }
 
-export function getAutomationState(now = new Date()) {
+export function getAutomationState(now = new Date(), input: unknown = {}) {
+  const query = automationListQuerySchema.parse(input);
   const sqlite = getDatabase().sqlite;
   const policy = getAutomationPolicy();
   const period = budgetPeriod(now);
@@ -630,7 +636,19 @@ export function getAutomationState(now = new Date()) {
         };
       }
     });
-  const jobs = (sqlite.prepare("SELECT * FROM measurement_jobs WHERE project_id = ? ORDER BY id DESC LIMIT 50").all(active.id) as JobRow[]).map(publicJob);
+  const jobWhere = ["project_id = ?"];
+  const jobParameters: Array<string | number> = [active.id];
+  if (query.status) { jobWhere.push("status = ?"); jobParameters.push(query.status); }
+  if (query.cursor) {
+    const cursor = decodeCursor(query.cursor);
+    jobWhere.push("(created_at < ? OR (created_at = ? AND id < ?))");
+    jobParameters.push(cursor.timestamp, cursor.timestamp, cursor.id);
+  }
+  const jobRows = sqlite.prepare(`
+    SELECT * FROM measurement_jobs WHERE ${jobWhere.join(" AND ")}
+    ORDER BY created_at DESC, id DESC LIMIT ?
+  `).all(...jobParameters, query.limit + 1) as JobRow[];
+  const jobsPage = cursorPage(jobRows.map(publicJob), query.limit, (job) => ({ timestamp: job.createdAt, id: job.id }));
   const usagePercent = policy.monthlyBudgetUsd > 0 ? (usedUsd / policy.monthlyBudgetUsd) * 100 : 0;
   return {
     policy,
@@ -644,7 +662,8 @@ export function getAutomationState(now = new Date()) {
       alert: policy.monthlyBudgetUsd > 0 && usagePercent >= policy.alertThreshold * 100,
     },
     schedules,
-    jobs,
+    jobs: jobsPage.items,
+    jobsPage: jobsPage.page,
   };
 }
 
