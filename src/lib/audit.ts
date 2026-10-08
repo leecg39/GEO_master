@@ -15,6 +15,7 @@ import {
 import { getDatabase } from "./db";
 import { AppError } from "./errors";
 import { generateText } from "./llm";
+import { extractPageField } from "./page-fields";
 import { requireActiveProject } from "./projects";
 import { getPublicSettings, getServerSettings, type Provider } from "./settings";
 import { fetchPublicText } from "./url-security";
@@ -618,6 +619,8 @@ export async function createAudit(input: unknown) {
     recommendations: engineAnalysis.recommendations,
     engineMode: engineAnalysis.engineMode,
     // Qshop P03: 이 진단이 실제로 읽은 페이지의 근거. 값이 없으면 null이며 추정하지 않는다
+    // 수정안 작업대 연결용 — 진단이 읽은 현재 필드 값 (없으면 null)
+    pageFields: Object.fromEntries((["title", "description", "canonical", "og_image", "robots_meta"] as const).map((field) => [field, extractPageField(page.text, field)])),
     pageEvidence: {
       finalUrl: page.url,
       httpStatus: page.status,
