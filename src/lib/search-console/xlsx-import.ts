@@ -73,21 +73,65 @@ function readSheetRows(xml: string, shared: string[]): string[][] {
   return rows;
 }
 
+const MAX_ZIP_ENTRIES = 200;
+const WANTED_PART = /^xl\/(workbook\.xml|sharedStrings\.xml|_rels\/workbook\.xml\.rels|worksheets\/[^/]+\.xml)$/;
+
 function unzipSafely(buffer: Buffer) {
   if (buffer.length > MAX_INPUT_BYTES) fail("XLSX_TOO_LARGE", "파일이 너무 큽니다(2MB 이하만 가져올 수 있습니다).");
   let total = 0;
+  const seen = new Set<string>();
   try {
     return unzipSync(new Uint8Array(buffer), {
       filter: (file) => {
+        // 콘솔 원본에는 없는 구조(경로 탈출, 중복 이름, 과도한 항목)는 변조 파일로 보고 거부한다
+        if (seen.has(file.name) || seen.size >= MAX_ZIP_ENTRIES || file.name.startsWith("/") || /(^|\/)\.\.(\/|$)|\\/.test(file.name)) {
+          throw new AppError("허용되지 않는 xlsx 압축 구조입니다. 콘솔에서 내려받은 원본을 올려 주세요.", 422, "XLSX_UNSAFE");
+        }
+        seen.add(file.name);
         total += file.originalSize;
         if (total > MAX_UNZIPPED_BYTES) throw new AppError("압축을 풀면 너무 큰 파일입니다.", 422, "XLSX_TOO_LARGE");
-        return /^xl\/(workbook\.xml|sharedStrings\.xml|worksheets\/sheet\d+\.xml)$/.test(file.name);
+        return WANTED_PART.test(file.name);
       },
     });
   } catch (error) {
     if (error instanceof AppError) throw error;
     return fail("XLSX_INVALID", "xlsx 파일이 아닙니다. 콘솔에서 내려받은 Excel 파일을 올려 주세요.");
   }
+}
+
+const utf8 = new TextDecoder("utf-8", { fatal: true });
+
+/** 엄격한 UTF-8 해석 + DTD/엔티티 선언 거부 */
+function readPart(bytes: Uint8Array): string {
+  let text: string;
+  try { text = utf8.decode(bytes); } catch { return fail("XLSX_INVALID", "xlsx 내부 문서를 UTF-8로 읽을 수 없습니다."); }
+  if (/<!DOCTYPE|<!ENTITY/i.test(text)) fail("XLSX_UNSAFE", "허용되지 않는 XML 선언이 포함된 파일입니다.");
+  return text;
+}
+
+const attr = (tag: string, name: string) => {
+  const raw = new RegExp(`\\s${name}="([^"]*)"`).exec(tag)?.[1];
+  return raw === undefined ? undefined : decodeXml(raw);
+};
+
+/** workbook.xml의 시트 목록을 관계 파일로 실제 시트 파트에 연결한다. 외부·패키지 밖 대상은 거부 */
+function resolveSheetParts(workbook: string, rels: string | undefined): Array<{ name: string; part: string }> {
+  const targets = new Map<string, { target: string; mode?: string }>();
+  for (const match of (rels ?? "").matchAll(/<Relationship\b[^>]*>/g)) {
+    const id = attr(match[0], "Id");
+    const target = attr(match[0], "Target");
+    if (id && target !== undefined) targets.set(id, { target, mode: attr(match[0], "TargetMode") });
+  }
+  return [...workbook.matchAll(/<sheet\b[^>]*>/g)].map((match) => {
+    const name = attr(match[0], "name") ?? "";
+    const relId = attr(match[0], "r:id");
+    const rel = relId ? targets.get(relId) : undefined;
+    if (!rel) return fail("XLSX_INVALID", `시트 '${name}'의 위치를 찾을 수 없습니다.`);
+    if (rel.mode === "External") return fail("XLSX_UNSAFE", "외부 시트 참조는 지원하지 않습니다.");
+    const part = rel.target.startsWith("/") ? rel.target.slice(1) : `xl/${rel.target}`;
+    if (!/^xl\/worksheets\/[^/]+\.xml$/.test(part)) return fail("XLSX_UNSAFE", "올바른 시트 경로가 아닙니다.");
+    return { name, part };
+  });
 }
 
 function metricIndexes(header: string[]) {
@@ -130,14 +174,18 @@ export function parseConsoleExport(buffer: Buffer): ParsedConsoleExport {
   const files = unzipSafely(buffer);
   const workbookXml = files["xl/workbook.xml"];
   if (!workbookXml) fail("XLSX_INVALID", "xlsx 구조를 읽을 수 없습니다(workbook.xml 없음).");
-  const decoder = new TextDecoder();
   const sharedXml = files["xl/sharedStrings.xml"];
-  const shared = sharedXml ? [...decoder.decode(sharedXml).matchAll(/<si\b[^>]*>([\s\S]*?)<\/si>/g)].map((match) => textOf(match[1]!)) : [];
-  const names = [...decoder.decode(workbookXml!).matchAll(/<sheet\b[^>]*\bname="([^"]*)"/g)].map((match) => decodeXml(match[1]!));
+  const shared = sharedXml ? [...readPart(sharedXml).matchAll(/<si\b[^>]*>([\s\S]*?)<\/si>/g)].map((match) => textOf(match[1]!)) : [];
+  const relsXml = files["xl/_rels/workbook.xml.rels"];
+  const parts = resolveSheetParts(readPart(workbookXml!), relsXml ? readPart(relsXml) : undefined);
 
-  const sheets = names.map((name, i) => {
-    const xml = files[`xl/worksheets/sheet${i + 1}.xml`];
-    return { name, rows: xml ? readSheetRows(decoder.decode(xml), shared) : [] };
+  const sheets = parts.map(({ name, part }) => {
+    const bytes = files[part];
+    if (!bytes) return { name, rows: [] as string[][] };
+    const xml = readPart(bytes);
+    // 수식 셀은 콘솔 원본에 없으므로 편집된 파일로 보고 거부한다(캐시 값을 성과로 믿지 않음)
+    if (/<f[\s>\/]/.test(xml)) fail("XLSX_UNSAFE", "수식이 포함된 파일은 가져올 수 없습니다. 콘솔에서 원본을 다시 내려받아 주세요.");
+    return { name, rows: readSheetRows(xml, shared) };
   });
 
   const dailySheet = sheets.find((sheet) => HEADERS.date.includes(norm(sheet.rows[0]?.[0] ?? "")));

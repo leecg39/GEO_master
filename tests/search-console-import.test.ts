@@ -3,7 +3,7 @@ import path from "node:path";
 import { strToU8, zipSync } from "fflate";
 import { describe, expect, it } from "vitest";
 import { parseConsoleExport } from "@/lib/search-console/xlsx-import";
-import { buildXlsx } from "./helpers-xlsx";
+import { buildXlsx, rawWorkbook, sheetXml } from "./helpers-xlsx";
 
 const H = ["날짜", "클릭수", "노출", "CTR", "게재 순위"];
 const populated = () => buildXlsx({
@@ -56,6 +56,50 @@ describe("parseConsoleExport", () => {
     expect(() => parseConsoleExport(buildXlsx({ 차트: [H, ["2026-09-08", "-1", "1", "", ""]] }))).toThrow(expect.objectContaining({ code: "XLSX_INVALID_ROW" }));
     // 클릭이 노출보다 많을 수 없다
     expect(() => parseConsoleExport(buildXlsx({ 차트: [H, ["2026-09-08", "5", "2", "", ""]] }))).toThrow(expect.objectContaining({ code: "XLSX_INVALID_ROW" }));
+  });
+
+  it("maps sheets through workbook relationships instead of assuming sheetN order", () => {
+    const files = rawWorkbook({
+      sheets: [["필터", "rId2"], ["차트", "rId1"]],
+      rels: [["rId1", "worksheets/sheet2.xml"], ["rId2", "worksheets/sheet1.xml"]],
+      parts: {
+        "xl/worksheets/sheet1.xml": sheetXml([["필터", "값"], ["검색 유형", "웹"]]),
+        "xl/worksheets/sheet2.xml": sheetXml([H, ["2026-09-08", "1", "10", "", ""]]),
+      },
+    });
+    const parsed = parseConsoleExport(files);
+    expect(parsed.daily).toHaveLength(1);
+    expect(parsed.filters).toEqual({ "검색 유형": "웹" });
+  });
+
+  it("rejects external or out-of-package sheet relationships", () => {
+    const external = rawWorkbook({ sheets: [["차트", "rId1"]], rels: [["rId1", "https://evil.example/sheet.xml", "External"]], parts: {} });
+    expect(() => parseConsoleExport(external)).toThrow(expect.objectContaining({ code: "XLSX_UNSAFE" }));
+    const escaped = rawWorkbook({ sheets: [["차트", "rId1"]], rels: [["rId1", "../../etc/passwd"]], parts: {} });
+    expect(() => parseConsoleExport(escaped)).toThrow(expect.objectContaining({ code: "XLSX_UNSAFE" }));
+  });
+
+  it("rejects DOCTYPE/ENTITY declarations and formula cells (not an original console export)", () => {
+    const doctype = rawWorkbook({
+      sheets: [["차트", "rId1"]], rels: [["rId1", "worksheets/sheet1.xml"]],
+      parts: { "xl/worksheets/sheet1.xml": `<?xml version="1.0"?><!DOCTYPE x [<!ENTITY a "b">]>${sheetXml([H]).replace(/^<\?xml[^>]*>/, "")}` },
+    });
+    expect(() => parseConsoleExport(doctype)).toThrow(expect.objectContaining({ code: "XLSX_UNSAFE" }));
+    const formula = rawWorkbook({
+      sheets: [["차트", "rId1"]], rels: [["rId1", "worksheets/sheet1.xml"]],
+      parts: { "xl/worksheets/sheet1.xml": sheetXml([H]).replace("</sheetData>", '<row r="2"><c r="A2" t="inlineStr"><is><t>2026-09-08</t></is></c><c r="B2"><f>1+1</f><v>2</v></c></row></sheetData>') },
+    });
+    expect(() => parseConsoleExport(formula)).toThrow(expect.objectContaining({ code: "XLSX_UNSAFE" }));
+  });
+
+  it("rejects suspicious zip structures and non UTF-8 parts", () => {
+    const traversal = Buffer.from(zipSync({ "xl/workbook.xml": strToU8("<x/>"), "../evil.xml": strToU8("<x/>") }));
+    expect(() => parseConsoleExport(traversal)).toThrow(expect.objectContaining({ code: "XLSX_UNSAFE" }));
+    const many: Record<string, Uint8Array> = { "xl/workbook.xml": strToU8("<x/>") };
+    for (let i = 0; i < 201; i += 1) many[`junk/${i}.txt`] = strToU8("x");
+    expect(() => parseConsoleExport(Buffer.from(zipSync(many)))).toThrow(expect.objectContaining({ code: "XLSX_UNSAFE" }));
+    const badUtf8 = rawWorkbook({ sheets: [["차트", "rId1"]], rels: [["rId1", "worksheets/sheet1.xml"]], parts: { "xl/worksheets/sheet1.xml": new Uint8Array([0x3c, 0xff, 0xfe, 0x3e]) } });
+    expect(() => parseConsoleExport(badUtf8)).toThrow(expect.objectContaining({ code: "XLSX_INVALID" }));
   });
 
   it("guards against zip bombs and oversized inputs", () => {
