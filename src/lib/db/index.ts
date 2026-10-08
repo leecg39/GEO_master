@@ -837,6 +837,56 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 27,
+    name: "bot-log-imports",
+    up(sqlite) {
+      // Qshop P11: 서버 접근 로그의 AI 봇 방문 집계. IP·쿼리스트링은 저장하지 않고 일자×봇×상태 대역 집계만 남긴다
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS bot_log_imports (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          source TEXT NOT NULL DEFAULT 'access_log' CHECK(source IN ('access_log')),
+          format TEXT NOT NULL CHECK(format IN ('combined','common')),
+          file_name TEXT NOT NULL,
+          content_hash TEXT NOT NULL,
+          period_start TEXT NOT NULL,
+          period_end TEXT NOT NULL,
+          offsets TEXT NOT NULL DEFAULT '[]',
+          lines_total INTEGER NOT NULL,
+          lines_parsed INTEGER NOT NULL,
+          lines_skipped INTEGER NOT NULL,
+          ai_bot_hits INTEGER NOT NULL,
+          self_hits INTEGER NOT NULL,
+          other_hits INTEGER NOT NULL,
+          dns_checked INTEGER NOT NULL,
+          imported_at TEXT NOT NULL,
+          UNIQUE(project_id, content_hash)
+        );
+        CREATE TABLE IF NOT EXISTS bot_log_hits (
+          import_id INTEGER NOT NULL REFERENCES bot_log_imports(id) ON DELETE CASCADE,
+          date TEXT NOT NULL,
+          bot_token TEXT NOT NULL,
+          operator TEXT NOT NULL,
+          purpose TEXT NOT NULL CHECK(purpose IN ('search','training','user')),
+          status_class TEXT NOT NULL,
+          hits INTEGER NOT NULL,
+          verified_hits INTEGER NOT NULL,
+          failed_hits INTEGER NOT NULL,
+          PRIMARY KEY (import_id, date, bot_token, status_class)
+        );
+        CREATE TABLE IF NOT EXISTS bot_log_paths (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          import_id INTEGER NOT NULL REFERENCES bot_log_imports(id) ON DELETE CASCADE,
+          bot_token TEXT NOT NULL,
+          path TEXT NOT NULL,
+          hits INTEGER NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_bot_log_imports_project ON bot_log_imports(project_id, imported_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_bot_log_paths_import ON bot_log_paths(import_id, bot_token);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;
