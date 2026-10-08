@@ -15,6 +15,12 @@ export interface SignupPageOptions {
   errors?: string[];
   /** 입력란별 오류. 해당 입력란에 aria-invalid·오류 문구 연결·첫 오류 포커스를 준다. */
   fieldErrors?: SignupFieldErrors;
+  /** 가입 뒤 돌아갈 화면(safeReturnPath로 검증된 값) */
+  next?: string;
+}
+
+function loginHref(next?: string) {
+  return next && next !== "/" ? `/login?next=${encodeURIComponent(next)}` : "/login";
 }
 
 interface FieldContext {
@@ -106,11 +112,12 @@ function signupForm(options: SignupPageOptions): SafeHtml {
   ${approval ? html`<p class="notice" role="note">가입 신청 후 관리자가 승인하면 로그인할 수 있습니다.</p>` : ""}
   ${errorSummary(options.errors ?? [], fieldErrors)}
   <form method="post" action="/api/auth/signup">
+    ${options.next && options.next !== "/" ? html`<input type="hidden" name="next" value="${options.next}">` : ""}
     ${planOptions(options.plan, context)}
     ${accountFields(options.values ?? {}, context)}
     <button class="btn btn-primary submit" type="submit">${approval ? "가입 신청하기" : "가입하고 시작하기"}</button>
   </form>
-  <div class="auth-links"><span>이미 계정이 있나요? <a href="/login">로그인</a></span><a href="/welcome">서비스 소개</a></div>
+  <div class="auth-links"><span>이미 계정이 있나요? <a href="${loginHref(options.next)}">로그인</a></span><a href="/welcome">서비스 소개</a></div>
 </div>`;
 }
 

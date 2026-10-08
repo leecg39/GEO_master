@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { accountRole, canAccessPath } from "@/lib/account-policy";
 import { signupMode } from "@/lib/accounts/signup";
-import { safeReturnPath } from "@/lib/login-session";
+import { loginEnabled } from "@/lib/auth-mode";
+import { safeReturnPath, SESSION_COOKIE, sessionUser } from "@/lib/login-session";
 
 export const dynamic = "force-dynamic";
 const escape = (value: string) => value.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
@@ -10,12 +12,29 @@ const errorMessages = new Map([
   ["disabled", "이용이 중지된 계정입니다. 관리자에게 문의해 주세요."],
 ]);
 
+/** 이미 로그인한 방문자가 갈 곳. 권한이 없는 경로는 대시보드로 바꾼다. 세션을 확인할 수 없으면 null. */
+function signedInDestination(request: NextRequest, next: string): string | null {
+  if (!loginEnabled()) return null;
+  try {
+    const user = sessionUser(request.cookies.get(SESSION_COOKIE)?.value);
+    if (!user) return null;
+    return canAccessPath(accountRole(user), new URL(next, "https://geo.invalid").pathname) ? next : "/";
+  } catch {
+    return null;
+  }
+}
+
 export function GET(request: NextRequest) {
-  const next = escape(safeReturnPath(request.nextUrl.searchParams.get("next")));
+  const nextPath = safeReturnPath(request.nextUrl.searchParams.get("next"));
+  const destination = signedInDestination(request, nextPath);
+  if (destination) return new NextResponse(null, { status: 303, headers: { location: destination, "cache-control": "private, no-store" } });
+  const next = escape(nextPath);
+  // 가입 화면에도 돌아갈 화면을 넘겨 가입 직후 원래 가려던 곳으로 보낸다.
+  const signupHref = escape(nextPath === "/" ? "/signup" : `/signup?next=${encodeURIComponent(nextPath)}`);
   const error = request.nextUrl.searchParams.get("error");
   const message = error ? errorMessages.get(error) ?? "아이디 또는 비밀번호를 확인해 주세요." : "";
   const notice = request.nextUrl.searchParams.get("notice") === "pending" ? "가입 신청이 접수되었습니다. 관리자 승인 후 로그인할 수 있습니다." : "";
-  const signup = signupMode() === "closed" ? "" : `<p class="note">계정이 없나요? <a href="/signup">회원가입</a></p>`;
+  const signup = signupMode() === "closed" ? "" : `<p class="note">계정이 없나요? <a href="${signupHref}">회원가입</a></p>`;
   return new NextResponse(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>로그인 · GEO Master</title><style>
 *{box-sizing:border-box}body{margin:0;min-height:100svh;display:grid;place-items:center;padding:24px;background:#130d23;color:#f9f6ff;font-family:system-ui,-apple-system,sans-serif}main{width:min(100%,420px);padding:36px;border:1px solid #403455;border-radius:24px;background:#20172f}small{color:#c7f34c;font-weight:700;letter-spacing:.12em}h1{font-size:30px;margin:16px 0 12px}p{color:#bcb2cd;line-height:1.6}label{display:block;margin:22px 0 8px;font-size:14px;font-weight:600}input{width:100%;padding:14px;border:1px solid #655379;border-radius:10px;background:#171021;color:white;font:inherit}input:focus{outline:2px solid #c7f34c;outline-offset:2px}button{width:100%;margin:28px 0 12px;padding:14px;border:0;border-radius:10px;background:#c7f34c;color:#171021;font:inherit;font-weight:700;cursor:pointer}a{color:#c7f34c;font-size:14px}form p{color:#ffb4c2;font-size:14px}.note{font-size:12px}p.notice{margin:18px 0 0;padding:12px 14px;border:1px solid #5f7a24;border-radius:10px;background:#1f2a14;color:#e6f8b8;font-size:14px}
 </style></head><body><main><small>GEO MASTER</small><h1>워크스페이스 로그인</h1><p>계정으로 로그인해 분석을 이어가세요.</p>${notice ? `<p class="notice" role="status">${notice}</p>` : ""}<form method="post" action="/api/auth/login"><input type="hidden" name="next" value="${next}"><label for="username">이메일 또는 아이디</label><input id="username" name="username" autocomplete="username" maxlength="128" required autofocus><label for="password">비밀번호</label><input id="password" name="password" type="password" autocomplete="current-password" maxlength="72" required>${message ? `<p role="alert">${message}</p>` : ""}<button type="submit">로그인</button></form><p class="note">로그인 상태는 최대 12시간 유지됩니다.</p>${signup}<a href="/welcome">서비스 소개 보기</a></main></body></html>`, {
