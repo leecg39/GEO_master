@@ -34,7 +34,6 @@ interface Dependencies {
   facts: number;
   optimizationRuns: number;
   reportShares: number;
-  searchPerformanceImports: number;
 }
 
 interface ProjectsPage {
@@ -76,7 +75,6 @@ const dependencyLabels: Record<keyof Dependencies, string> = {
   facts: "사실 메모",
   optimizationRuns: "최적화 실행",
   reportShares: "공개 리포트 링크",
-  searchPerformanceImports: "검색 성과 보고서",
 };
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {
