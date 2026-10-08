@@ -927,6 +927,62 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 29,
+    name: "gsc-api-connection",
+    up(sqlite) {
+      // Qshop P10: Search Console 읽기 전용 API 연결. refresh token은 암호화해 저장하고, 콘솔 내보내기와 저장소를 섞지 않는다
+      // 이전 버전에서 SEMForge 테이블 없이 올라온 DB도 있으므로 기본 테이블부터 보장한다
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS gsc_connections (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          site_url TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'disconnected',
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+      `);
+      addColumnIfMissing(sqlite, "gsc_connections", "refresh_token", "TEXT");
+      addColumnIfMissing(sqlite, "gsc_connections", "granted_scope", "TEXT");
+      addColumnIfMissing(sqlite, "gsc_connections", "last_error", "TEXT");
+      addColumnIfMissing(sqlite, "gsc_connections", "last_synced_at", "TEXT");
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS gsc_oauth_states (
+          state_hash TEXT PRIMARY KEY,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          code_verifier TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          expires_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS gsc_api_syncs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          site_url TEXT NOT NULL,
+          start_date TEXT NOT NULL,
+          end_date TEXT NOT NULL,
+          data_state TEXT NOT NULL,
+          search_type TEXT NOT NULL,
+          aggregation TEXT,
+          timezone TEXT NOT NULL,
+          row_count INTEGER NOT NULL,
+          status TEXT NOT NULL CHECK(status IN ('ok','no_rows','error')),
+          error_code TEXT,
+          fetched_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS gsc_api_daily (
+          sync_id INTEGER NOT NULL REFERENCES gsc_api_syncs(id) ON DELETE CASCADE,
+          date TEXT NOT NULL,
+          clicks REAL NOT NULL,
+          impressions REAL NOT NULL,
+          ctr REAL,
+          position REAL,
+          PRIMARY KEY (sync_id, date)
+        );
+        CREATE INDEX IF NOT EXISTS idx_gsc_api_syncs_project ON gsc_api_syncs(project_id, id DESC);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;
