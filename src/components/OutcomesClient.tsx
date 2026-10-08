@@ -104,12 +104,11 @@ export function OutcomesClient() {
     if (!file || !sourceLabel.trim()) return;
     setBusy(true);
     await act(async () => {
-      const result = await request<{ duplicate: boolean }>("/api/outcomes", {
+      await request<{ duplicate: boolean }>("/api/outcomes", {
         method: "POST", headers: { "content-type": "application/json" },
         body: JSON.stringify({ fileName: file.name, sourceLabel: sourceLabel.trim(), contentBase64: toBase64(await file.arrayBuffer()) }),
       });
       setFile(null); if (input.current) input.current.value = "";
-      if (result.duplicate) throw new Error("이미 같은 원천으로 가져온 파일입니다.");
     }, "가져왔습니다.");
     setBusy(false);
   }

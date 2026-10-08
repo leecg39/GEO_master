@@ -69,8 +69,22 @@ function parseCount(raw: string): number | null {
 export function parseOutcomeCsv(buffer: Buffer): ParsedOutcomeCsv {
   if (buffer.length > MAX_OUTCOME_CSV_BYTES) fail("OUTCOME_TOO_LARGE", "CSV는 5MB 이하만 올릴 수 있습니다. 기간을 나눠 내보내 주세요.", 413);
   const text = buffer.toString("utf8").replace(/^﻿/, "");
-  // GA4 내보내기의 # 메타데이터 줄과 빈 줄은 건너뛴다
-  const records = parseCsv(text).filter(({ cells }) => !(cells.length === 1 && !cells[0]!.trim()) && !cells[0]!.trim().startsWith("#"));
+  const allRecords = parseCsv(text);
+  const range: { start?: string; end?: string } = {};
+  for (const { cells } of allRecords) {
+    const metadata = cells.join(",").trim();
+    const match = /^#\s*(Start date|End date|시작 날짜|종료 날짜)\s*:\s*(.*?)\s*$/i.exec(metadata);
+    if (!match) continue;
+    const key = /^(start date|시작 날짜)$/i.test(match[1]!) ? "start" : "end";
+    const date = parseDate(match[2]!);
+    if (!date || (range[key] && range[key] !== date)) fail("OUTCOME_INVALID_PERIOD", "보고서의 시작·종료 날짜가 잘못되었거나 서로 충돌합니다.");
+    range[key] = date!;
+  }
+  if ((range.start || range.end) && (!range.start || !range.end || range.start > range.end)) {
+    fail("OUTCOME_INVALID_PERIOD", "보고서의 시작·종료 날짜를 모두 올바른 순서로 지정해 주세요.");
+  }
+  // 기간을 읽은 뒤 GA4 메타데이터와 빈 줄을 제외한다.
+  const records = allRecords.filter(({ cells }) => !(cells.length === 1 && !cells[0]!.trim()) && !cells[0]!.trim().startsWith("#"));
   const headerIndex = records.findIndex(({ cells }) => {
     const names = cells.map(norm);
     return names.some((name) => (HEADERS.date as readonly string[]).includes(name))
@@ -97,13 +111,16 @@ export function parseOutcomeCsv(buffer: Buffer): ParsedOutcomeCsv {
     if (!date || !eventName || eventName.length > 120 || count === null) {
       fail("OUTCOME_INVALID_ROW", `${line}행: 날짜(${rawDate || "빈 값"})·이벤트 이름·0 이상의 정수 이벤트 수를 확인해 주세요.`);
     }
+    if (range.start && range.end && (date! < range.start || date! > range.end)) {
+      fail("OUTCOME_INVALID_PERIOD", `${line}행: 이벤트 날짜가 보고서 기간 밖에 있습니다.`);
+    }
     const path = pathCol >= 0 ? sanitizePath(cells[pathCol] ?? "") : "";
     const key = `${date}\u0000${eventName}\u0000${path}`;
     const current = totals.get(key);
     totals.set(key, { date: date!, eventName, path, count: (current?.count ?? 0) + count! });
     used += 1;
   }
-  if (used === 0) fail("OUTCOME_EMPTY", "가져올 이벤트 행이 없습니다.");
+  if (used === 0 && !range.start) fail("OUTCOME_EMPTY", "가져올 이벤트 행이 없습니다.");
   const events = [...totals.values()].sort((a, b) => a.date.localeCompare(b.date) || a.eventName.localeCompare(b.eventName) || a.path.localeCompare(b.path));
-  return { events, period: { start: events[0]!.date, end: events.at(-1)!.date }, counts: { rows: rows.length, used, skipped } };
+  return { events, period: { start: range.start ?? events[0]!.date, end: range.end ?? events.at(-1)!.date }, counts: { rows: rows.length, used, skipped } };
 }

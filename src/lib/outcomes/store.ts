@@ -38,11 +38,18 @@ export function importOutcomeCsv(input: { fileName: string; sourceLabel: string;
   const { sqlite } = getDatabase();
   return transactionalMutation(sqlite, () => {
     const existing = sqlite.prepare("SELECT * FROM outcome_imports WHERE project_id = ? AND source_label = ? AND content_hash = ?").get(active.id, meta.sourceLabel, contentHash) as ImportRow | undefined;
-    if (existing) return { duplicate: true, import: toImport(existing) };
+    const latest = sqlite.prepare("SELECT MAX(imported_at) AS timestamp FROM outcome_imports WHERE project_id = ? AND source_label = ?").get(active.id, meta.sourceLabel) as { timestamp: string | null };
+    const importedAt = new Date(Math.max(Date.now(), latest.timestamp ? Date.parse(latest.timestamp) + 1 : 0)).toISOString();
+    if (existing) {
+      // A repeated upload is the latest report, even after an intervening import.
+      sqlite.prepare("UPDATE outcome_imports SET imported_at = ?, file_name = ?, period_start = ?, period_end = ? WHERE id = ?")
+        .run(importedAt, meta.fileName, parsed.period.start, parsed.period.end, existing.id);
+      return { duplicate: true, import: toImport({ ...existing, imported_at: importedAt, file_name: meta.fileName, period_start: parsed.period.start, period_end: parsed.period.end }) };
+    }
     const result = sqlite.prepare(`
       INSERT INTO outcome_imports (project_id, source_label, file_name, content_hash, period_start, period_end, rows_used, rows_skipped, imported_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(active.id, meta.sourceLabel, meta.fileName, contentHash, parsed.period.start, parsed.period.end, parsed.counts.used, parsed.counts.skipped, new Date().toISOString());
+    `).run(active.id, meta.sourceLabel, meta.fileName, contentHash, parsed.period.start, parsed.period.end, parsed.counts.used, parsed.counts.skipped, importedAt);
     const id = Number(result.lastInsertRowid);
     const insert = sqlite.prepare("INSERT INTO outcome_events (import_id, date, event_name, path, count) VALUES (?, ?, ?, ?, ?)");
     for (const event of parsed.events) insert.run(id, event.date, event.eventName, event.path, event.count);
@@ -102,14 +109,19 @@ export function getOutcomeSummary() {
     GROUP BY o.source_label, e.event_name ORDER BY o.source_label, e.event_name
   `).all(active.id) as EffectiveRow[];
 
+  // Keep previously observed, defined events visible as zero after an empty replacement.
+  const observed = sqlite.prepare(`
+    SELECT DISTINCT i.source_label, e.event_name FROM outcome_events e
+    JOIN outcome_imports i ON i.id = e.import_id WHERE i.project_id = ? ORDER BY i.source_label, e.event_name
+  `).all(active.id) as Array<{ source_label: string; event_name: string }>;
   const definitionOf = new Map(definitions.map((item) => [item.eventName, item]));
   const labels = [...new Set(imports.map((item) => item.sourceLabel))].sort((a, b) => a.localeCompare(b, "ko"));
   const sources = labels.map((sourceLabel) => {
     const own = imports.filter((item) => item.sourceLabel === sourceLabel);
     const rows = effective.filter((row) => row.source_label === sourceLabel);
     const metrics = OUTCOME_KINDS.map((kind) => {
-      const events = rows.filter((row) => definitionOf.get(row.event_name)?.kind === kind)
-        .map((row) => ({ eventName: row.event_name, definition: definitionOf.get(row.event_name)!.definition, count: row.count }));
+      const events = observed.filter((row) => row.source_label === sourceLabel && definitionOf.get(row.event_name)?.kind === kind)
+        .map((row) => ({ eventName: row.event_name, definition: definitionOf.get(row.event_name)!.definition, count: rows.find((effective) => effective.event_name === row.event_name)?.count ?? 0 }));
       return { kind, count: events.reduce((sum, event) => sum + event.count, 0), events };
     }).filter((metric) => metric.events.length > 0);
     return {

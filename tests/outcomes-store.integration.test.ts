@@ -4,10 +4,11 @@ import path from "node:path";
 import { NextRequest } from "next/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { GET, POST } from "@/app/api/outcomes/route";
+import { DELETE as DELETE_PROJECT } from "@/app/api/projects/[id]/route";
 import { DELETE as DELETE_DEFINITION, PUT } from "@/app/api/outcomes/definitions/route";
-import { closeDatabase } from "@/lib/db";
+import { closeDatabase, getDatabase } from "@/lib/db";
 import { deleteOutcomeDefinition, deleteOutcomeImport, getOutcomeSummary, importOutcomeCsv, upsertOutcomeDefinition } from "@/lib/outcomes/store";
-import { activateProject, createProject, ensureActiveProject } from "@/lib/projects";
+import { activateProject, createProject, ensureActiveProject, getProjectDetail } from "@/lib/projects";
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "geo-outcomes-"));
 const databasePath = path.join(dir, "geo.db");
@@ -66,6 +67,43 @@ describe("outcome store", () => {
       { kind: "form_submit", count: 9, events: [{ eventName: "generate_lead", definition: "상담 폼 제출 완료(서버 응답 200)", count: 9 }] },
     ]);
     expect(importOutcomeCsv({ fileName: "crm.csv", sourceLabel: "CRM 리드", buffer: csv(["2026-10-01,generate_lead,,9"]) }).duplicate).toBe(true);
+  });
+
+  it("replaces inclusive boundaries, overlapping periods and empty periods, then reactivates a repeated report", () => {
+    const sourceLabel = "GA4 boundary regression";
+    const upload = (start: string, end: string, rows: string[]) => importOutcomeCsv({ fileName: "range.csv", sourceLabel, buffer: Buffer.from([`# Start date: ${start}`, `# End date: ${end}`, "date,event name,page path,event count", ...rows].join("\n")) });
+    const summary = () => getOutcomeSummary().sources.find((source) => source.sourceLabel === sourceLabel)!;
+    const total = () => summary().metrics.reduce((sum, metric) => sum + metric.count, 0);
+    upload("20261001", "20261101", ["20261001,generate_lead,,10", "20261002,generate_lead,,20", "20261031,generate_lead,,30", "20261101,generate_lead,,40"]);
+    upload("20261001", "20261031", ["20261002,generate_lead,,7"]);
+    expect(total()).toBe(47); // Both zero-event boundaries are replaced; Nov 1 survives.
+    upload("20261002", "20261101", []);
+    expect(total()).toBe(0);
+    expect(summary().metrics).toMatchObject([{ kind: "form_submit", count: 0 }]);
+    expect(summary()).toMatchObject({ periodStart: "2026-10-01", periodEnd: "2026-11-01", importCount: 3 });
+    expect(upload("20261001", "20261031", ["20261002,generate_lead,,7"]).duplicate).toBe(true);
+    expect(total()).toBe(7);
+    expect(summary().importCount).toBe(3);
+  });
+
+  it("guards outcome-only project deletion and cascades only after confirmation", async () => {
+    const original = ensureActiveProject().id;
+    const project = createProject({ name: "Outcome deletion", brandName: "Test", category: "", competitors: [], activate: true });
+    const imported = importOutcomeCsv({ fileName: "one.csv", sourceLabel: "GA4", buffer: csv(["20261001,signup,,1"]) });
+    upsertOutcomeDefinition({ eventName: "signup", kind: "conversion", definition: "완료" });
+    expect(getProjectDetail(project.id).dependencies).toMatchObject({ outcomeImports: 1, outcomeEvents: 1, outcomeDefinitions: 1 });
+    const request = (confirmed: boolean) => new NextRequest(`http://localhost/api/projects/${project.id}`, { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ expectedUpdatedAt: project.updatedAt, cascadeConfirmed: confirmed, replacementProjectId: original }) });
+    const context = { params: Promise.resolve({ id: String(project.id) }) };
+    const guarded = await DELETE_PROJECT(request(false), context);
+    expect(guarded.status).toBe(409);
+    expect((await guarded.json()).code).toBe("PROJECT_HAS_DEPENDENCIES");
+    expect(getOutcomeSummary().imports).toHaveLength(1);
+    expect((await DELETE_PROJECT(request(true), context)).status).toBe(204);
+    const sqlite = getDatabase().sqlite;
+    expect(sqlite.prepare("SELECT * FROM outcome_imports WHERE id = ?").get(imported.import.id)).toBeUndefined();
+    expect(sqlite.prepare("SELECT * FROM outcome_events WHERE import_id = ?").get(imported.import.id)).toBeUndefined();
+    expect(sqlite.prepare("SELECT * FROM outcome_definitions WHERE project_id = ?").get(project.id)).toBeUndefined();
+    expect(sqlite.pragma("foreign_key_check")).toEqual([]);
   });
 
   it("scopes data to the active project and supports deleting imports and definitions", () => {

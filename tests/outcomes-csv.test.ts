@@ -8,6 +8,7 @@ describe("parseOutcomeCsv", () => {
       "﻿# ----------------------------------------",
       "# 이벤트",
       "# 시작 날짜: 20261001",
+      "# 종료 날짜: 20261002",
       "",
       "날짜,이벤트 이름,페이지 경로,이벤트 수",
       ",총계,,\"1,250\"",
@@ -24,6 +25,19 @@ describe("parseOutcomeCsv", () => {
       { date: "2026-10-01", eventName: "generate_lead", path: "/contact", count: 30 },
       { date: "2026-10-02", eventName: "cta_click", path: "/products/1", count: 25 },
     ]);
+  });
+
+  it("preserves zero-event boundaries and accepts an empty exported period", () => {
+    const header = "# Start date: 20261001\n# End date: 20261031\nDate,Event name,Event count\n";
+    expect(parseOutcomeCsv(Buffer.from(header + "20261002,x,3")).period).toEqual({ start: "2026-10-01", end: "2026-10-31" });
+    expect(parseOutcomeCsv(Buffer.from(header))).toMatchObject({ events: [], period: { start: "2026-10-01", end: "2026-10-31" } });
+    expect(parseOutcomeCsv(Buffer.from(header + ",Total,0")).counts).toEqual({ rows: 1, used: 0, skipped: 1 });
+  });
+
+  it("rejects invalid, incomplete, conflicting ranges and out-of-range events", () => {
+    for (const metadata of ["# Start date: 20261001", "# Start date: 20260230\n# End date: 20261031", "# Start date: 20261101\n# End date: 20261031", "# Start date: 20261001\n# Start date: 20261002\n# End date: 20261031", "# Start date: 20261002\n# End date: 20261031"]) {
+      expect(() => parseOutcomeCsv(Buffer.from(metadata + "\nDate,Event name,Event count\n20261001,x,1"))).toThrow(expect.objectContaining({ code: "OUTCOME_INVALID_PERIOD" }));
+    }
   });
 
   it("accepts English headers, ISO dates and a file without a page column", () => {
