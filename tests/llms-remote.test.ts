@@ -49,6 +49,22 @@ describe("remote llms.txt verification", () => {
     await expect(verifyRemoteLlmsTxt("https://example.com")).rejects.toMatchObject({ code: "LLMS_HTML_RESPONSE" });
   });
 
+  it.each([
+    [401, "LLMS_AUTH_REQUIRED", "인증이 필요합니다"],
+    [403, "LLMS_ACCESS_DENIED", "접근이 차단되었습니다"],
+    [404, "LLMS_NOT_FOUND", "파일을 해당 경로에 업로드"],
+    [410, "LLMS_NOT_FOUND", "파일을 해당 경로에 업로드"],
+    [429, "LLMS_RATE_LIMITED", "요청 한도를 초과"],
+    [500, "LLMS_HTTP_ERROR", "사이트 응답 상태"],
+    [503, "LLMS_HTTP_ERROR", "사이트 응답 상태"],
+  ])("explains upstream HTTP %i without misreporting it as a missing file", async (status, code, guidance) => {
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => ({ url, status, text: "<html>Error</html>", contentType: "text/html" }));
+    await expect(verifyRemoteLlmsTxt("https://example.com", "/docs/llms.txt")).rejects.toMatchObject({
+      status: 422, code, message: expect.stringContaining(guidance),
+      details: { requestedUrl: "https://example.com/docs/llms.txt", url: "https://example.com/docs/llms.txt", upstreamStatus: status },
+    });
+  });
+
   it("warns when the request was redirected away from the llms.txt path", async () => {
     vi.mocked(fetchPublicText).mockImplementation(async () => ({ url: "https://example.com/llms-guide.txt", status: 200, text: "# Site\n", contentType: "text/plain" }));
     const result = await verifyRemoteLlmsTxt("https://example.com");
@@ -76,5 +92,13 @@ describe("stored llms.txt documents with a scope path", () => {
     expect(created.scopePath).toBe("/llms.txt");
     expect(() => updateLlmsDocument(created.id, { scopePath: "/docs/readme.txt", expectedUpdatedAt: created.updatedAt })).toThrow();
     expect(updateLlmsDocument(created.id, { scopePath: "/docs/llms.txt", expectedUpdatedAt: created.updatedAt })).toMatchObject({ scopePath: "/docs/llms.txt" });
+  });
+
+  it("keeps a saved draft and its verification state when authentication blocks the public file", async () => {
+    const created = createLlmsDocument(base);
+    const before = getLlmsDocument(created.id);
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => ({ url, status: 401, text: "Authorization Required", contentType: "text/html" }));
+    await expect(verifyStoredLlmsDocument(created.id, { expectedUpdatedAt: created.updatedAt })).rejects.toMatchObject({ code: "LLMS_AUTH_REQUIRED" });
+    expect(getLlmsDocument(created.id)).toEqual(before);
   });
 });
