@@ -1,0 +1,2 @@
+iteration	commit	metric	delta	guard	status	description
+0	1e5982e	16	0	pass	baseline	초기 25개 행동 시나리오 중 4개 통과
