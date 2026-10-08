@@ -9,7 +9,7 @@ import { fetchPublicText } from "@/lib/url-security";
 const call = (body: unknown) => POST(new NextRequest("http://localhost/api/structured-data", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }));
 const html = (ld: string, body: string) => ({ url: "https://channel.io/plan", status: 200, contentType: "text/html", text: `<html><head><script type="application/ld+json">${ld}</script></head><body>${body}</body></html>` });
 
-beforeEach(() => vi.mocked(fetchPublicText).mockReset());
+beforeEach(() => { vi.mocked(fetchPublicText).mockReset(); });
 
 describe("POST /api/structured-data", () => {
   it("generates without a page and reports missing fields", async () => {

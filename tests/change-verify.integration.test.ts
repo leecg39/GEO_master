@@ -28,7 +28,7 @@ beforeAll(() => {
   process.env.GEO_MASTER_KEY = "change-verify-master-key-with-32-characters";
   ensureActiveProject();
 });
-beforeEach(() => vi.mocked(fetchPublicText).mockReset());
+beforeEach(() => { vi.mocked(fetchPublicText).mockReset(); });
 afterAll(() => {
   closeDatabase(databasePath);
   fs.rmSync(dir, { recursive: true, force: true });
