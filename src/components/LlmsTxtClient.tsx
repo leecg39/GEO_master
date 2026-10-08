@@ -10,11 +10,12 @@ import { Badge, Button, Card, EmptyState, PageHeader, Progress } from "@/compone
 interface Validation { valid: boolean; score: number; issues: { severity: "error" | "warning" | "info"; category?: "spec" | "quality"; code: string; message: string; line?: number }[]; stats: { bytes: number; lines: number; sections: number; links: number; errors: number; warnings: number; specErrors?: number } }
 interface RemoteResult { url: string; contentType: string; document: string; validation: Validation }
 interface Settings { brandName: string; category: string }
+const defaultResources = "홈 | https://example.com/ | 브랜드와 핵심 서비스 소개\n서비스 | https://example.com/service | 주요 기능과 이용 대상";
 async function json<T>(response: Response): Promise<T> { const body = await response.json() as T & { error?: string }; if (!response.ok) throw new Error(body.error ?? "요청에 실패했습니다."); return body; }
 
 export function LlmsTxtClient() {
   const [brandName, setBrandName] = useState(""); const [website, setWebsite] = useState(""); const [summary, setSummary] = useState(""); const [details, setDetails] = useState("");
-  const [resources, setResources] = useState("홈 | https://example.com/ | 브랜드와 핵심 서비스 소개\n서비스 | https://example.com/service | 주요 기능과 이용 대상");
+  const [resources, setResources] = useState(defaultResources);
   const [document, setDocument] = useState(""); const [validation, setValidation] = useState<Validation | null>(null); const [remote, setRemote] = useState<RemoteResult | null>(null);
   const [loading, setLoading] = useState(false); const [remoteLoading, setRemoteLoading] = useState(false); const [error, setError] = useState("");
   const [title, setTitle] = useState("공식 llms.txt");
@@ -25,6 +26,9 @@ export function LlmsTxtClient() {
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; title: string; updatedAt: string } | null>(null);
 
   const requestVersion = useRef(0);
+  const projectVersion = useRef(0);
+  const listVersion = useRef(0);
+  const [mutating, setMutating] = useState(false);
 
   function invalidateReadRequests() {
     requestVersion.current += 1;
@@ -35,13 +39,37 @@ export function LlmsTxtClient() {
   }
 
   async function loadDocuments() {
+    const project = projectVersion.current;
+    const request = ++listVersion.current;
     const data = await json<{ items: Array<{ id: number; title: string; status: string; updatedAt: string }> }>(await fetch("/api/llms-documents?limit=20"));
-    setDocuments(data.items);
+    if (project === projectVersion.current && request === listVersion.current) setDocuments(data.items);
   }
-  useEffect(() => { void (async () => { try { const data = await json<{ settings: Settings }>(await fetch("/api/measurement-context")); setBrandName(data.settings.brandName); if (data.settings.category) setSummary(`${data.settings.brandName || "브랜드"}은(는) ${data.settings.category} 정보를 제공하는 공식 웹사이트입니다.`); } catch { /* 직접 입력으로 계속 사용할 수 있다. */ } try { await loadDocuments(); } catch { /* 이력은 없어도 편집 가능 */ } })();
-    const onProject = () => { setSavedId(null); void loadDocuments().catch(() => undefined); };
+  useEffect(() => {
+    async function loadSettings() {
+      const project = projectVersion.current;
+      const request = requestVersion.current;
+      try {
+        const data = await json<{ settings: Settings }>(await fetch("/api/measurement-context"));
+        if (project !== projectVersion.current || request !== requestVersion.current) return;
+        setBrandName(data.settings.brandName);
+        if (data.settings.category) setSummary(`${data.settings.brandName || "브랜드"}은(는) ${data.settings.category} 정보를 제공하는 공식 웹사이트입니다.`);
+      } catch { /* 직접 입력으로 계속 사용할 수 있다. */ }
+    }
+    const onProject = () => {
+      projectVersion.current += 1; requestVersion.current += 1;
+      setSavedId(null); setSavedUpdatedAt(""); setTitle("공식 llms.txt");
+      setBrandName(""); setWebsite(""); setSummary(""); setDetails(""); setResources(defaultResources);
+      setScopePath("/llms.txt"); setDocument(""); setValidation(null); setRemote(null);
+      setError(""); setLoading(false); setRemoteLoading(false); setMutating(false);
+      setDeleteTarget(null); setDocuments([]);
+      void loadSettings(); void loadDocuments().catch(() => undefined);
+    };
+    void loadSettings(); void loadDocuments().catch(() => undefined);
     window.addEventListener("geo-master:project-changed", onProject);
-    return () => window.removeEventListener("geo-master:project-changed", onProject);
+    return () => {
+      projectVersion.current += 1; requestVersion.current += 1;
+      window.removeEventListener("geo-master:project-changed", onProject);
+    };
   }, []);
 
   function parsedLinks() { return resources.split("\n").map((line) => line.trim()).filter(Boolean).map((line) => { const [title = "", url = "", description = ""] = line.split("|").map((part) => part.trim()); return { title, url, description }; }); }
@@ -84,19 +112,23 @@ export function LlmsTxtClient() {
   }
   function download() { if (!validation?.valid) return; const blob = new Blob([document], { type: "text/markdown;charset=utf-8" }); const link = window.document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "llms.txt"; link.click(); window.setTimeout(() => URL.revokeObjectURL(link.href), 0); }
   async function saveDocument() {
-    setLoading(true); setError("");
+    if (mutating) return;
+    const project = projectVersion.current;
+    invalidateReadRequests(); setMutating(true); setLoading(true); setError("");
     try {
       const payload = { title, website, brandName, summary, details, resources: parsedLinks(), document, scopePath };
       if (savedId && savedUpdatedAt) {
         const data = await json<{ document: { id: number; updatedAt: string; validation: Validation } }>(await fetch(`/api/llms-documents/${savedId}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...payload, expectedUpdatedAt: savedUpdatedAt }) }));
+        if (project !== projectVersion.current) return;
         setSavedUpdatedAt(data.document.updatedAt); setValidation(data.document.validation);
       } else {
         const data = await json<{ document: { id: number; updatedAt: string; validation: Validation; document: string } }>(await fetch("/api/llms-documents", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }));
+        if (project !== projectVersion.current) return;
         setSavedId(data.document.id); setSavedUpdatedAt(data.document.updatedAt); setDocument(data.document.document); setValidation(data.document.validation);
       }
       await loadDocuments();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "문서를 저장하지 못했습니다."); }
-    finally { setLoading(false); }
+    } catch (cause) { if (project === projectVersion.current) setError(cause instanceof Error ? cause.message : "문서를 저장하지 못했습니다."); }
+    finally { if (project === projectVersion.current) { setLoading(false); setMutating(false); } }
   }
   async function openDocument(id: number) {
     invalidateReadRequests(); setRemote(null);
@@ -112,37 +144,47 @@ export function LlmsTxtClient() {
     } catch (cause) { if (request === requestVersion.current) setError(cause instanceof Error ? cause.message : "문서를 열지 못했습니다."); }
   }
   async function duplicateDocument(id: number) {
+    if (mutating) return;
+    const project = projectVersion.current;
+    invalidateReadRequests(); setMutating(true);
     try {
       const data = await json<{ document: { id: number; updatedAt: string } }>(await fetch(`/api/llms-documents/${id}/duplicate`, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" }));
+      if (project !== projectVersion.current) return;
       await loadDocuments();
+      if (project !== projectVersion.current) return;
       await openDocument(data.document.id);
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "문서를 복제하지 못했습니다."); }
+    } catch (cause) { if (project === projectVersion.current) setError(cause instanceof Error ? cause.message : "문서를 복제하지 못했습니다."); }
+    finally { if (project === projectVersion.current) setMutating(false); }
   }
   async function removeDocument() {
-    if (!deleteTarget) return;
+    if (!deleteTarget || mutating) return;
+    const project = projectVersion.current;
+    invalidateReadRequests(); setMutating(true);
     try {
       const response = await fetch(`/api/llms-documents/${deleteTarget.id}`, { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ expectedUpdatedAt: deleteTarget.updatedAt }) });
+      if (project !== projectVersion.current) return;
       if (!response.ok) throw new Error("삭제하지 못했습니다.");
       if (savedId === deleteTarget.id) { setSavedId(null); setSavedUpdatedAt(""); }
       setDeleteTarget(null);
       await loadDocuments();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "문서를 삭제하지 못했습니다."); }
+    } catch (cause) { if (project === projectVersion.current) setError(cause instanceof Error ? cause.message : "문서를 삭제하지 못했습니다."); }
+    finally { if (project === projectVersion.current) setMutating(false); }
   }
 
   return <div><PageHeader eyebrow="AI discovery file" title="llms.txt 워크플로" description="공식 제안 형식의 AI용 사이트 안내 파일을 만들고, 문법을 검사하고, 배포된 /llms.txt까지 안전하게 확인합니다." action={<a href="https://llmstxt.org" target="_blank" rel="noreferrer"><Badge tone="cyan">제안 형식 참고</Badge></a>} />
-    <div className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr]"><Card><form onSubmit={generate} onChangeCapture={edited} className="space-y-4"><h2 className="font-semibold text-white">초안 정보</h2><label className="text-sm">저장 제목<input className="mt-2" value={title} onChange={(e) => setTitle(e.target.value)} /></label><div className="grid gap-4 sm:grid-cols-2"><label className="text-sm">사이트·브랜드명<input className="mt-2" required value={brandName} onChange={(e) => setBrandName(e.target.value)} /></label><label className="text-sm">공식 사이트 URL<input className="mt-2" type="url" required value={website} onChange={(e) => setWebsite(e.target.value)} onBlur={() => { if (website) setResources((current) => current.replaceAll("https://example.com", website.replace(/\/$/, ""))); }} placeholder="https://example.com" /></label></div><label className="block text-sm">적용 경로 <span className="text-xs text-slate-600">(사이트 루트는 /llms.txt, 문서 영역만이면 /docs/llms.txt)</span><input className="mt-2 font-mono text-xs" value={scopePath} onChange={(e) => { setScopePath(e.target.value); setValidation(null); }} placeholder="/llms.txt" /></label><label className="block text-sm">한 줄 요약<textarea className="mt-2" rows={3} required minLength={20} value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="누구에게 어떤 정보와 가치를 제공하는 공식 사이트인지 설명하세요." /></label><label className="block text-sm">추가 안내 <span className="text-slate-600">(선택)</span><textarea className="mt-2" rows={4} value={details} onChange={(e) => setDetails(e.target.value)} placeholder="AI가 문서를 선택할 때 알아야 할 범위, 기준일, 언어 등을 적으세요." /></label><label className="block text-sm">핵심 문서 <span className="text-xs text-slate-600">(한 줄: 제목 | 절대 URL | 설명)</span><textarea className="mt-2 font-mono text-xs" rows={7} required value={resources} onChange={(e) => setResources(e.target.value)} /></label><div className="grid gap-2 sm:grid-cols-2"><Button className="w-full" disabled={loading}>{loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileCode2 className="h-4 w-4" />}초안 생성</Button><Button type="button" variant="secondary" className="w-full" disabled={loading || !brandName || !website || !summary} onClick={() => void saveDocument()}><Save className="h-4 w-4" />문서 저장</Button></div></form></Card>
-      <Card><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold text-white">llms.txt 편집기</h2><p className="mt-1 text-xs text-slate-500">필수는 H1 하나 · 요약(&gt;)·세부 설명·H2 문서 목록은 선택(llms.txt v2)</p></div><div className="flex gap-2"><Button type="button" variant="secondary" disabled={!document || loading} onClick={() => void validate()}><RefreshCw className="h-4 w-4" />검증</Button><Button type="button" variant="secondary" disabled={!document || !validation?.valid} onClick={download}><Download className="h-4 w-4" />다운로드</Button></div></div>{document ? <textarea aria-label="llms.txt 내용" className="min-h-[28rem] font-mono text-xs leading-5" value={document} onChange={(e) => { edited(); setDocument(e.target.value); }} /> : <EmptyState>왼쪽 정보를 입력해 llms.txt 초안을 만드세요.</EmptyState>}</Card></div>
+    <div className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr]"><Card><form onSubmit={generate} onChangeCapture={edited}><fieldset disabled={mutating} className="space-y-4"><h2 className="font-semibold text-white">초안 정보</h2><label className="text-sm">저장 제목<input className="mt-2" value={title} onChange={(e) => setTitle(e.target.value)} /></label><div className="grid gap-4 sm:grid-cols-2"><label className="text-sm">사이트·브랜드명<input className="mt-2" required value={brandName} onChange={(e) => setBrandName(e.target.value)} /></label><label className="text-sm">공식 사이트 URL<input className="mt-2" type="url" required value={website} onChange={(e) => setWebsite(e.target.value)} onBlur={() => { if (website) setResources((current) => current.replaceAll("https://example.com", website.replace(/\/$/, ""))); }} placeholder="https://example.com" /></label></div><label className="block text-sm">적용 경로 <span className="text-xs text-slate-600">(사이트 루트는 /llms.txt, 문서 영역만이면 /docs/llms.txt)</span><input className="mt-2 font-mono text-xs" value={scopePath} onChange={(e) => { setScopePath(e.target.value); setValidation(null); }} placeholder="/llms.txt" /></label><label className="block text-sm">한 줄 요약<textarea className="mt-2" rows={3} required minLength={20} value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="누구에게 어떤 정보와 가치를 제공하는 공식 사이트인지 설명하세요." /></label><label className="block text-sm">추가 안내 <span className="text-slate-600">(선택)</span><textarea className="mt-2" rows={4} value={details} onChange={(e) => setDetails(e.target.value)} placeholder="AI가 문서를 선택할 때 알아야 할 범위, 기준일, 언어 등을 적으세요." /></label><label className="block text-sm">핵심 문서 <span className="text-xs text-slate-600">(한 줄: 제목 | 절대 URL | 설명)</span><textarea className="mt-2 font-mono text-xs" rows={7} required value={resources} onChange={(e) => setResources(e.target.value)} /></label><div className="grid gap-2 sm:grid-cols-2"><Button className="w-full" disabled={loading}>{loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileCode2 className="h-4 w-4" />}초안 생성</Button><Button type="button" variant="secondary" className="w-full" disabled={loading || !brandName || !website || !summary} onClick={() => void saveDocument()}><Save className="h-4 w-4" />문서 저장</Button></div></fieldset></form></Card>
+      <Card><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold text-white">llms.txt 편집기</h2><p className="mt-1 text-xs text-slate-500">필수는 H1 하나 · 요약(&gt;)·세부 설명·H2 문서 목록은 선택(llms.txt v2)</p></div><div className="flex gap-2"><Button type="button" variant="secondary" disabled={!document || loading || mutating} onClick={() => void validate()}><RefreshCw className="h-4 w-4" />검증</Button><Button type="button" variant="secondary" disabled={!document || !validation?.valid} onClick={download}><Download className="h-4 w-4" />다운로드</Button></div></div>{document ? <textarea aria-label="llms.txt 내용" readOnly={mutating} className="min-h-[28rem] font-mono text-xs leading-5" value={document} onChange={(e) => { edited(); setDocument(e.target.value); }} /> : <EmptyState>왼쪽 정보를 입력해 llms.txt 초안을 만드세요.</EmptyState>}</Card></div>
     {error && <p role="alert" className="mt-5 rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-sm text-rose-300">{error}</p>}
     <section className="mt-5 grid gap-5 xl:grid-cols-[1fr_0.7fr]">{validation ? <Card><div className="flex items-start justify-between"><div><h2 className="font-semibold text-white">구조 검증</h2><p className="mt-1 text-xs text-slate-500">{validation.stats.bytes} bytes · {validation.stats.sections} sections · {validation.stats.links} links</p></div><Badge tone={validation.valid ? "good" : "bad"}>{validation.valid ? "규격 적합" : "규격 오류"}</Badge></div><div className="mt-5 flex items-center gap-4"><strong className="text-3xl text-white">{validation.score}</strong><Progress value={validation.score} ariaLabel="llms.txt 구조 점수" className="flex-1" /></div><div className="mt-5 space-y-2" role="list" aria-live="polite">{validation.issues.length ? validation.issues.map((issue, index) => <div role="listitem" key={`${issue.code}-${index}`} className={`flex gap-3 rounded-xl p-3 text-sm ${issue.severity === "error" ? "bg-rose-400/8 text-rose-300" : issue.severity === "warning" ? "bg-amber-400/8 text-amber-300" : "bg-slate-950/40 text-slate-400"}`}>{issue.severity === "error" ? <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />}<span><span className="sr-only">{issue.severity === "error" ? "오류: " : issue.severity === "warning" ? "경고: " : "정보: "}</span>{issue.category && <span className="mr-2 rounded border border-current/30 px-1.5 py-0.5 text-[10px] font-semibold">{issue.category === "spec" ? "규격" : "품질 권고"}</span>}{issue.line ? `${issue.line}행 · ` : ""}{issue.message}</span></div>) : <p className="rounded-xl bg-emerald-400/8 p-3 text-sm text-emerald-300">제안 구조에 맞습니다.</p>}</div></Card> : <Card><EmptyState>초안을 생성하거나 편집한 문서를 검증하세요.</EmptyState></Card>}
-      <Card><div className="flex items-center gap-3"><Globe2 className="h-5 w-5 text-cyan-400" /><div><h2 className="font-semibold text-white">배포 확인</h2><p className="text-xs text-slate-500">공식 사이트의 {scopePath || "/llms.txt"} 확인</p></div></div><p className="mt-4 text-xs leading-5 text-slate-500">사이트 URL과 적용 경로에서 로그인 없이 읽을 수 있는 파일을 검사합니다. 초안 생성·저장만으로 대상 사이트에 배포되지는 않습니다. 파일을 업로드하고 해당 경로의 인증 제한을 해제하세요. HTML 페이지는 게시로 인정하지 않습니다.</p><Button type="button" className="mt-5 w-full" variant="secondary" disabled={!website || remoteLoading} onClick={() => void verifyRemote()}>{remoteLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Globe2 className="h-4 w-4" />}원격 {scopePath || "/llms.txt"} 확인</Button>{remote && <div className="mt-3 space-y-3" aria-live="polite">
+      <Card><div className="flex items-center gap-3"><Globe2 className="h-5 w-5 text-cyan-400" /><div><h2 className="font-semibold text-white">배포 확인</h2><p className="text-xs text-slate-500">공식 사이트의 {scopePath || "/llms.txt"} 확인</p></div></div><p className="mt-4 text-xs leading-5 text-slate-500">사이트 URL과 적용 경로에서 로그인 없이 읽을 수 있는 파일을 검사합니다. 초안 생성·저장만으로 대상 사이트에 배포되지는 않습니다. 파일을 업로드하고 해당 경로의 인증 제한을 해제하세요. HTML 페이지는 게시로 인정하지 않습니다.</p><Button type="button" className="mt-5 w-full" variant="secondary" disabled={!website || remoteLoading || mutating} onClick={() => void verifyRemote()}>{remoteLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Globe2 className="h-4 w-4" />}원격 {scopePath || "/llms.txt"} 확인</Button>{remote && <div className="mt-3 space-y-3" aria-live="polite">
         <p className="break-all text-xs text-emerald-300">확인: {remote.url}<br /><span className="text-slate-500">{remote.contentType || "content-type 없음"}</span></p>
         <p className="text-xs text-slate-400">{remote.document === document ? "편집기와 배포된 파일의 내용이 같습니다." : "편집기와 배포된 파일의 내용이 다릅니다. 확인만으로 초안을 덮어쓰지 않습니다."}</p>
         <details className="text-xs text-slate-400"><summary className="cursor-pointer">원격 파일 미리보기</summary><pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-950/40 p-3">{remote.document}</pre></details>
-        {remote.document !== document && <Button type="button" variant="secondary" onClick={importRemote}>원격 내용 가져오기</Button>}
+        {remote.document !== document && <Button type="button" variant="secondary" disabled={mutating} onClick={importRemote}>원격 내용 가져오기</Button>}
       </div>}</Card></section>
     <AiFileBundlePanel website={website} />
     {savedId && savedUpdatedAt && <LlmsHistoryPanel documentId={savedId} updatedAt={savedUpdatedAt} onRestored={() => void openDocument(savedId)} />}
-    <Card className="mt-5"><h2 className="font-semibold text-white">저장된 llms.txt</h2>{documents.length ? <div className="mt-3 divide-y divide-white/5">{documents.map((item) => <div key={item.id} className="flex items-center justify-between gap-3 py-3"><button type="button" className="min-w-0 text-left" onClick={() => void openDocument(item.id)}><p className="truncate text-sm text-slate-200">{item.title}</p><p className="text-xs text-slate-600">{item.status}</p></button><div className="flex"><button type="button" aria-label={`${item.title} 복제`} onClick={() => void duplicateDocument(item.id)} className="rounded-lg p-2 text-slate-500 hover:text-cyan-300"><Copy className="h-4 w-4" /></button><button type="button" aria-label={`${item.title} 삭제`} onClick={() => setDeleteTarget(item)} className="rounded-lg p-2 text-slate-600 hover:text-rose-400"><Trash2 className="h-4 w-4" /></button></div></div>)}</div> : <p className="mt-3 text-sm text-slate-600">저장한 문서가 없습니다.</p>}</Card>
-    <ConfirmDialog open={Boolean(deleteTarget)} title="llms.txt 문서를 삭제할까요?" description={deleteTarget && <>{deleteTarget.title} 초안과 검증 결과가 삭제됩니다.</>} confirmLabel="문서 삭제" destructive onClose={() => setDeleteTarget(null)} onConfirm={removeDocument} />
+    <Card className="mt-5"><h2 className="font-semibold text-white">저장된 llms.txt</h2>{documents.length ? <div className="mt-3 divide-y divide-white/5">{documents.map((item) => <div key={item.id} className="flex items-center justify-between gap-3 py-3"><button type="button" disabled={mutating} className="min-w-0 text-left" onClick={() => void openDocument(item.id)}><p className="truncate text-sm text-slate-200">{item.title}</p><p className="text-xs text-slate-600">{item.status}</p></button><div className="flex"><button type="button" disabled={mutating} aria-label={`${item.title} 복제`} onClick={() => void duplicateDocument(item.id)} className="rounded-lg p-2 text-slate-500 hover:text-cyan-300"><Copy className="h-4 w-4" /></button><button type="button" disabled={mutating} aria-label={`${item.title} 삭제`} onClick={() => setDeleteTarget(item)} className="rounded-lg p-2 text-slate-600 hover:text-rose-400"><Trash2 className="h-4 w-4" /></button></div></div>)}</div> : <p className="mt-3 text-sm text-slate-600">저장한 문서가 없습니다.</p>}</Card>
+    <ConfirmDialog busy={mutating} open={Boolean(deleteTarget)} title="llms.txt 문서를 삭제할까요?" description={deleteTarget && <>{deleteTarget.title} 초안과 검증 결과가 삭제됩니다.</>} confirmLabel="문서 삭제" destructive onClose={() => setDeleteTarget(null)} onConfirm={removeDocument} />
   </div>;
 }
