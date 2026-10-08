@@ -86,7 +86,7 @@ describe("login and session boundary", () => {
 });
 
 describe("guest restrictions", () => {
-  it.each(["/settings", "/settings/", "/subscription", "/workspace", "/semforge", "/ai-seo", "/api/settings", "/api/workspace?download=1", "/api/workspace/backups/1", "/api/semforge/subscription", "/api/semforge/subscription/checkout", "/api/semforge/subscription/confirm", "/api/site-audit", "/api/%73ettings"])("blocks direct access to %s", async (path) => {
+  it.each(["/settings", "/settings/", "/subscription", "/workspace", "/semforge", "/semforge/subscription", "/ai-seo", "/api/settings", "/api/workspace?download=1", "/api/workspace/backups/1", "/api/semforge/subscription", "/api/semforge/subscription/checkout", "/api/semforge/subscription/confirm", "/api/site-audit", "/api/%73ettings"])("blocks direct access to %s", async (path) => {
     expect((await proxy(request(path, "guest"))).status).toBe(403);
   });
   it("blocks guest settings mutations and payment requests even with forged headers", async () => {

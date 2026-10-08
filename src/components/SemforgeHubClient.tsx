@@ -11,7 +11,7 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
-import { semforgeFeatures } from "@/lib/semforge/navigation";
+import { SEMFORGE_SUBSCRIPTION_PATH, semforgeFeatures } from "@/lib/semforge/navigation";
 import type { AllInStepResult } from "@/lib/semforge/all-in";
 import { SemforgeGateBanner } from "@/components/SemforgeGateBanner";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
@@ -118,7 +118,7 @@ export function SemforgeHubClient() {
         title="ALL IN SEMForge"
         description="브랜드명과 도메인을 입력하면 AI SEO · 사이트 진단 · 포지션 추적 · 도메인 개요 · 지역 SEO를 순차 실행합니다."
         action={(
-          <Link href="/subscription" className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10">
+          <Link href={SEMFORGE_SUBSCRIPTION_PATH} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10">
             <CreditCard className="h-4 w-4" />구독 관리
           </Link>
         )}
