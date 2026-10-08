@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Check, LoaderCircle, Plus, Send, Trash2 } from "lucide-react";
+import { Check, LoaderCircle, Plus, SearchCheck, Send, Trash2 } from "lucide-react";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
 
 type Status = "draft" | "approved" | "delivered" | "verification_pending" | "verified" | "conflict" | "failed";
@@ -30,6 +30,7 @@ export function ChangeItemsClient() {
   const [form, setForm] = useState<typeof empty | null>(null);
   const [current, setCurrent] = useState<Record<number, string>>({});
   const [busy, setBusy] = useState(false);
+  const [checks, setChecks] = useState<Record<number, { matched: boolean; httpStatus: number; actual: string | null }>>({});
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
@@ -81,10 +82,21 @@ export function ChangeItemsClient() {
                 <div><p className="text-xs text-slate-500">수정안</p><pre className="mt-1 whitespace-pre-wrap rounded-xl border border-cyan-400/15 bg-cyan-400/5 p-3 text-sm text-slate-200">{item.proposedValue}</pre></div>
               </div>
               {item.rationale && <p className="mt-2 text-xs text-slate-500">근거: {item.rationale}</p>}
+              {checks[item.id] && (
+                <p className={`mt-2 text-xs ${checks[item.id]!.matched ? "text-emerald-300" : "text-amber-300"}`}>
+                  {checks[item.id]!.matched ? "공개 페이지의 값이 수정안과 일치합니다." : `HTTP ${checks[item.id]!.httpStatus} · 공개 페이지의 값이 아직 수정안과 다릅니다. 현재 값: ${checks[item.id]!.actual ?? "(없음)"}`}
+                </p>
+              )}
               {item.status === "conflict" && <p className="mt-2 text-xs text-rose-300">페이지의 현재 값이 처음 기록한 값과 달라졌습니다. 현재 값을 확인해 수정안을 새로 만드세요.</p>}
               <div className="mt-3 flex flex-wrap items-center gap-2 print:hidden">
                 {item.status === "draft" && <Button type="button" disabled={busy} onClick={() => void run(() => request(`/api/change-items/${item.id}`, send("PATCH", { action: "approve", expectedUpdatedAt: item.updatedAt })))}><Check className="h-4 w-4" />승인</Button>}
                 {item.status === "approved" && <Button type="button" disabled={busy} onClick={() => void run(() => request(`/api/change-items/${item.id}`, send("PATCH", { action: "deliver", method: "manual" })))}><Send className="h-4 w-4" />전달 처리(직접 반영함)</Button>}
+                {["delivered", "verification_pending", "failed"].includes(item.status) && (
+                  <Button type="button" disabled={busy} onClick={() => void run(async () => {
+                    const result = await request<{ check: { matched: boolean; httpStatus: number; actual: string | null } }>(`/api/change-items/${item.id}`, send("PATCH", { action: "verify" }));
+                    setChecks((existing) => ({ ...existing, [item.id]: result.check }));
+                  })}><SearchCheck className="h-4 w-4" />반영 확인(공개 페이지 다시 읽기)</Button>
+                )}
                 {["draft", "approved"].includes(item.status) && (
                   <span className="flex items-center gap-2">
                     <input aria-label="페이지의 현재 값 붙여넣기" className="w-56" placeholder="페이지의 지금 값으로 충돌 확인" value={current[item.id] ?? ""} onChange={(e) => setCurrent({ ...current, [item.id]: e.target.value })} />
