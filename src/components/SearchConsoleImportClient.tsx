@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LoaderCircle, Trash2, Upload } from "lucide-react";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
+import { formatCtr as pct, formatPosition as num } from "@/lib/search-console/format";
 
 interface Item {
   id: number; propertyLabel: string; fileName: string; periodStart: string | null; periodEnd: string | null; hasData: boolean; importedAt: string;
@@ -26,8 +27,6 @@ function toBase64(buffer: ArrayBuffer) {
   return btoa(binary);
 }
 
-const pct = (value: number | null) => (value === null ? "N/A" : `${(value * 100).toFixed(1)}%`);
-const num = (value: number | null) => (value === null ? "N/A" : value.toFixed(1));
 
 /** 파일명에서 플랫폼을 추정해 이름 입력란의 기본값으로만 제안한다 (확정은 사용자가) */
 function suggestLabel(fileName: string) {
