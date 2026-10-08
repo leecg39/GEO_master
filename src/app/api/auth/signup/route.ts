@@ -31,6 +31,8 @@ export async function POST(request: NextRequest) {
     if (!perAddress.allow(clientAddress(request)) || !overall.allow("all")) return signupPage(429, ["가입 시도가 너무 많습니다. 10분 후 다시 시도해 주세요."]);
     const fields = await readLimitedForm(request);
     if (!fields) return new NextResponse(null, { status: 413 });
+    // 사람에게는 보이지 않는 미끼 입력란이 채워졌다면 봇이다. 계정을 만들지 않고 정상 접수처럼 응답한다.
+    if (fields.get("website")?.trim()) return redirect("/login?notice=pending");
     // 가입 뒤 돌아갈 화면. 외부 주소·API·로그인 경로는 safeReturnPath가 /로 바꾼다.
     const next = safeReturnPath(fields.get("next"));
     const result = await registerAccount(fields);

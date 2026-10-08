@@ -113,6 +113,7 @@ function signupForm(options: SignupPageOptions): SafeHtml {
   ${errorSummary(options.errors ?? [], fieldErrors)}
   <form method="post" action="/api/auth/signup">
     ${options.next && options.next !== "/" ? html`<input type="hidden" name="next" value="${options.next}">` : ""}
+    <div class="hp" aria-hidden="true"><label for="website">웹사이트(이 칸은 비워 두세요)</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off" value=""></div>
     ${planOptions(options.plan, context)}
     ${accountFields(options.values ?? {}, context)}
     <button class="btn btn-primary submit" type="submit">${approval ? "가입 신청하기" : "가입하고 시작하기"}</button>
