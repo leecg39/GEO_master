@@ -17,7 +17,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useState } from "react";
 import { AlertTriangle, FileSearch, Lightbulb, Sparkles } from "lucide-react";
+import { PageSnapshotDrawer } from "@/components/PageSnapshotDrawer";
 import { Badge, Card, EmptyState, Progress } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +32,11 @@ export interface SiteAuditBriefingData {
   hasLlmsTxt: boolean;
   dataState?: "none" | "discovered" | "measured" | "legacy_estimate";
   llmsTxtState?: "present" | "missing" | "unknown" | null;
+  robots?: {
+    state: "parsed" | "missing" | "unknown";
+    detail: string;
+    summary: { searchBlocked: string[]; trainingBlocked: string[]; userBlocked: string[]; searchPartial: string[]; trainingPartial: string[]; userPartial: string[] };
+  } | null;
   measured?: { fetched: number; failed: number; ok: number; missingTitle: number; outOfScope: number; notRequested: number; rendered: number } | null;
   scoreFactors: Array<{ key: string; label: string; points: number; kind: "base" | "penalty" | "total" }>;
   severityCounts: Record<string, number>;
@@ -37,7 +44,7 @@ export interface SiteAuditBriefingData {
   narratives: string[];
   recommendations: string[];
   issues: Array<{ id: number; url: string; severity: string; category: string; title: string; detail: string }>;
-  pages: Array<{ url: string; statusCode: number; depth: number; fetchState?: string; renderMode?: string | null; fetchError?: string | null }>;
+  pages: Array<{ url: string; statusCode: number; depth: number; fetchState?: string; renderMode?: string | null; fetchError?: string | null; snapshotId?: number | null; technicalIssues?: number }>;
   depthBuckets: Array<{ depth: string; count: number }>;
 }
 
@@ -86,6 +93,39 @@ function pageStateLabel(page: SiteAuditBriefingData["pages"][number]) {
   return "추정치";
 }
 
+const robotsRows = [
+  { key: "searchBlocked", label: "검색용 전체 차단", hint: "AI 검색 답변 노출에 영향" },
+  { key: "searchPartial", label: "검색용 일부 경로 제한", hint: "제한된 경로가 AI 검색 답변 근거에서 빠질 수 있음" },
+  { key: "trainingBlocked", label: "학습용 전체 차단", hint: "모델 학습 거부 — 검색 노출과 별개" },
+  { key: "trainingPartial", label: "학습용 일부 경로 제한", hint: "모델 학습 제한 — 검색 노출과 별개" },
+  { key: "userBlocked", label: "사용자 요청 전체 차단", hint: "일부 서비스는 robots.txt를 적용하지 않음" },
+  { key: "userPartial", label: "사용자 요청 일부 경로 제한", hint: "일부 서비스는 robots.txt를 적용하지 않음" },
+] as const;
+
+function RobotsPolicySummary({ robots }: { robots: NonNullable<SiteAuditBriefingData["robots"]> }) {
+  return (
+    <div className="rounded-lg border border-white/6 bg-slate-950/40 p-3">
+      <p className="mb-2 text-xs font-semibold text-slate-300">AI 크롤러 정책 (robots.txt 실제 요청)</p>
+      {robots.state === "unknown" ? (
+        <p className="text-xs text-slate-400">확인 불가 — {robots.detail}</p>
+      ) : (
+        <dl className="space-y-1.5 text-xs">
+          {robots.state === "missing" && <p className="text-slate-500">robots.txt가 없어 제한이 없는 것으로 봅니다.</p>}
+          {robotsRows.map((row) => {
+            const blocked = robots.summary[row.key];
+            return (
+              <div key={row.key} className="flex items-start justify-between gap-3">
+                <dt className="text-slate-500" title={row.hint}>{row.label}</dt>
+                <dd className={blocked.length ? (row.key === "searchBlocked" ? "text-rose-300" : "text-amber-200") : "text-emerald-300"}>{blocked.length ? blocked.join(", ") : "없음"}</dd>
+              </div>
+            );
+          })}
+        </dl>
+      )}
+    </div>
+  );
+}
+
 function HealthGauge({ score, label }: { score: number | null; label: string }) {
   const safe = score ?? 0;
   const available = score !== null;
@@ -123,6 +163,7 @@ export function SiteAuditBriefing({
   briefing: SiteAuditBriefingData | null;
   loading: boolean;
 }) {
+  const [snapshotId, setSnapshotId] = useState<number | null>(null);
   if (loading) {
     return (
       <Card className="mt-5 border-cyan-400/15">
@@ -291,6 +332,7 @@ export function SiteAuditBriefing({
               <div className="mb-1 flex justify-between text-xs"><span className="text-slate-500">llms.txt (실제 요청)</span><span className={briefing.llmsTxtState === "present" ? "text-emerald-300" : briefing.llmsTxtState === "missing" ? "text-rose-300" : "text-slate-400"}>{briefing.llmsTxtState === "present" ? "있음" : briefing.llmsTxtState === "missing" ? "없음" : "확인 불가"}</span></div>
               <Progress value={briefing.llmsTxtState === "present" ? 100 : 0} ariaLabel="llms.txt 확인 결과" />
             </div>
+            {briefing.robots && <RobotsPolicySummary robots={briefing.robots} />}
             <div>
               {briefing.measured && (
                 <dl className="mb-3 grid grid-cols-2 gap-2 text-xs">
@@ -358,18 +400,30 @@ export function SiteAuditBriefing({
         </Card>
 
         <Card>
-          <h4 className="mb-4 text-sm font-semibold text-white">발견 URL 샘플</h4>
+          <h4 className="mb-1 text-sm font-semibold text-white">발견 URL</h4>
+          <p className="mb-3 text-xs text-slate-500">응답을 받은 페이지는 &lsquo;근거&rsquo;에서 실제 값·규칙 판정·버전을 볼 수 있습니다.</p>
           <ul className="max-h-72 space-y-1 overflow-y-auto text-xs">
             {briefing.pages.map((page) => (
               <li key={page.url} className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-white/5">
                 <Badge tone="default">d{page.depth}</Badge>
                 <span className="truncate text-slate-400">{page.url}</span>
                 <span className="ml-auto shrink-0 text-[10px] text-slate-500" title={page.fetchError ?? undefined}>{pageStateLabel(page)}</span>
+                {page.snapshotId ? (
+                  <button
+                    type="button"
+                    onClick={() => setSnapshotId(page.snapshotId ?? null)}
+                    aria-label={`${page.url} 근거 보기${page.technicalIssues ? ` (기술 오류 ${page.technicalIssues}건)` : ""}`}
+                    className="shrink-0 rounded-md border border-cyan-400/20 px-2 py-0.5 text-[10px] font-semibold text-cyan-300 hover:bg-cyan-400/10"
+                  >
+                    근거{page.technicalIssues ? <span className="ml-1 text-rose-300">{page.technicalIssues}</span> : null}
+                  </button>
+                ) : null}
               </li>
             ))}
           </ul>
         </Card>
       </div>
+      {snapshotId !== null && <PageSnapshotDrawer key={snapshotId} snapshotId={snapshotId} onClose={() => setSnapshotId(null)} />}
     </div>
   );
 }

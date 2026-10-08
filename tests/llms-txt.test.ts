@@ -49,6 +49,29 @@ describe("llms.txt workflow", () => {
     expect(result.validation.stats.sections).toBe(1);
   });
 
+  it("accepts a v2 document with only the required H1 and reports the rest as quality advice", () => {
+    const validation = validateLlmsTxt("# Example\n");
+    expect(validation.valid).toBe(true);
+    expect(validation.issues.filter((issue) => issue.category === "spec")).toEqual([]);
+    expect(validation.issues.find((issue) => issue.code === "SUMMARY_MISSING")).toMatchObject({ category: "quality", severity: "warning" });
+  });
+
+  it("allows lists in the details section and only checks list items under H2 file lists", () => {
+    const text = "\uFEFF# Site\n\n> 요약\n\n주의 사항:\n\n- 이 목록은 설명이고 링크가 아닙니다\n\n## Docs\n\n- [A](https://example.com/a): 설명\n- 링크 없는 항목\n\n## Optional\n\n- [B](https://example.com/b)\n";
+    const validation = validateLlmsTxt(text, "https://example.com");
+    expect(validation.issues.filter((issue) => issue.code === "LINK_FORMAT").map((issue) => issue.line)).toEqual([12]);
+    expect(validation.issues.find((issue) => issue.code === "LINK_FORMAT")).toMatchObject({ category: "spec", severity: "error" });
+    expect(validation.stats).toMatchObject({ links: 2, optionalLinks: 1, sections: 2 });
+    expect(validation.issues.map((issue) => issue.code)).not.toContain("H1_FIRST");
+  });
+
+  it("marks links outside a path-scoped file's directory as information", () => {
+    const text = "# Docs\n\n> 문서 영역만 다루는 llms.txt입니다.\n\n## Docs\n\n- [A](https://example.com/docs/a): 설명\n- [B](https://example.com/blog/b): 설명\n";
+    const validation = validateLlmsTxt(text, "https://example.com", { path: "/docs/llms.txt" });
+    expect(validation.valid).toBe(true);
+    expect(validation.issues.find((issue) => issue.code === "OUTSIDE_SCOPE")).toMatchObject({ category: "quality", severity: "info", message: expect.stringContaining("1개") });
+  });
+
   it("round-trips escaped closing brackets in link titles", () => {
     const result = generateLlmsTxt({ ...input, sections: [{ heading: "Docs", links: [{ title: "a]b", url: "https://example.com/x", description: "설명" }] }] });
     expect(result.document).toContain("[a\\]b]");
