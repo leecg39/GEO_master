@@ -646,6 +646,33 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       addColumnIfMissing(sqlite, "site_audit_campaigns", "cancel_requested", "INTEGER NOT NULL DEFAULT 0");
     },
   },
+  {
+    version: 20,
+    name: "page-change-items",
+    up(sqlite) {
+      // Qshop P05: 현재 값 / 수정안 / 근거 / 적용 상태 작업대
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS change_items (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          url TEXT NOT NULL,
+          field TEXT NOT NULL CHECK(field IN ('title','description','canonical','og_image','robots_meta','json_ld','body')),
+          original_value TEXT NOT NULL,
+          original_hash TEXT NOT NULL,
+          proposed_value TEXT NOT NULL,
+          rationale TEXT NOT NULL DEFAULT '',
+          evidence_url TEXT,
+          status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','approved','delivered','verification_pending','verified','conflict','failed')),
+          approved_at TEXT,
+          delivery_method TEXT,
+          delivered_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_change_items_project ON change_items(project_id, status, updated_at DESC);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;
