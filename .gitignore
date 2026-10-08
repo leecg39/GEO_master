@@ -15,3 +15,5 @@ test-results/
 *.tsbuildinfo
 .gstack/
 deploy/hostinger/runtime.env
+# Search Console 수집기 개인 설정(속성 식별자 포함)
+gsc-collect.config.json

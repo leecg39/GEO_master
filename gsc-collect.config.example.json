@@ -1,0 +1,11 @@
+{
+  "appUrl": "http://127.0.0.1:3000",
+  "profileDir": "~/.geo-master/gsc-chrome-profile",
+  "outDir": "~/.geo-master/gsc-exports",
+  "schedule": { "hour": 9, "minute": 0 },
+  "properties": [
+    { "label": "Instagram @your_account", "resourceId": "sc-creator-profile:instagram.com/your_account" },
+    { "label": "X @your_account", "resourceId": "sc-creator-profile:twitter.com/your_account" },
+    { "label": "TikTok @your_account", "resourceId": "sc-creator-profile:tiktok.com/user/your_account" }
+  ]
+}
