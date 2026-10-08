@@ -189,21 +189,22 @@ export function recordPageSnapshot(sqlite: Database.Database, input: {
 }): number {
   const { projectId, campaignId, observation, analysis, now } = input;
   const latest = sqlite.prepare(`
-    SELECT id, content_hash, status_code, render_mode, parser_version, rules_version FROM page_snapshots
+    SELECT id, content_hash, final_url, status_code, content_type, body_kind, render_mode, parser_version, rules_version FROM page_snapshots
     WHERE project_id = ? AND url = ? ORDER BY captured_at DESC, id DESC LIMIT 1
-  `).get(projectId, observation.url) as { id: number; content_hash: string; status_code: number; render_mode: string; parser_version: string; rules_version: string } | undefined;
+  `).get(projectId, observation.url) as { id: number; content_hash: string; final_url: string | null; status_code: number; content_type: string | null; body_kind: BodyKind; render_mode: string; parser_version: string; rules_version: string } | undefined;
   if (latest && latest.content_hash === analysis.contentHash && latest.status_code === observation.statusCode && latest.render_mode === observation.renderMode
+    && latest.final_url === observation.finalUrl && latest.content_type === observation.contentType && latest.body_kind === observation.bodyKind
     && latest.parser_version === analysis.parserVersion && latest.rules_version === analysis.rulesVersion) {
     sqlite.prepare("UPDATE page_snapshots SET last_seen_at = ?, campaign_id = COALESCE(?, campaign_id) WHERE id = ?").run(now, campaignId, latest.id);
     return latest.id;
   }
   const { html, truncated } = cappedHtml(observation);
   const inserted = sqlite.prepare(`
-    INSERT INTO page_snapshots (project_id, campaign_id, url, final_url, status_code, content_type, render_mode, content_hash, bytes,
+    INSERT INTO page_snapshots (project_id, campaign_id, url, final_url, status_code, content_type, body_kind, render_mode, content_hash, bytes,
       html, html_truncated, facts, findings, skipped_reason, parser_version, rules_version, captured_at, last_seen_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
-    projectId, campaignId, observation.url, observation.finalUrl, observation.statusCode, observation.contentType, observation.renderMode,
+    projectId, campaignId, observation.url, observation.finalUrl, observation.statusCode, observation.contentType, observation.bodyKind, observation.renderMode,
     analysis.contentHash, Buffer.byteLength(observation.body), html, truncated ? 1 : 0,
     analysis.facts ? JSON.stringify(analysis.facts) : null, JSON.stringify(analysis.findings), analysis.skipped,
     analysis.parserVersion, analysis.rulesVersion, now, now,
@@ -217,7 +218,7 @@ export function recordPageSnapshot(sqlite: Database.Database, input: {
 }
 
 interface SnapshotRow {
-  id: number; url: string; final_url: string | null; status_code: number; content_type: string | null; render_mode: SnapshotRenderMode;
+  id: number; url: string; final_url: string | null; status_code: number; content_type: string | null; body_kind: BodyKind; render_mode: SnapshotRenderMode;
   content_hash: string; bytes: number; html_stored: number; html_truncated: number; facts: string | null; findings: string;
   skipped_reason: string | null; parser_version: string; rules_version: string; captured_at: string; last_seen_at: string;
 }
@@ -237,7 +238,7 @@ export function getPageSnapshot(idInput: unknown) {
   const id = z.coerce.number().int().positive().parse(idInput);
   const { sqlite } = getDatabase();
   const row = sqlite.prepare(`
-    SELECT id, url, final_url, status_code, content_type, render_mode, content_hash, bytes, html IS NOT NULL AS html_stored, html_truncated,
+    SELECT id, url, final_url, status_code, content_type, body_kind, render_mode, content_hash, bytes, html IS NOT NULL AS html_stored, html_truncated,
       facts, findings, skipped_reason, parser_version, rules_version, captured_at, last_seen_at
     FROM page_snapshots WHERE id = ? AND project_id = ?
   `).get(id, project.id) as SnapshotRow | undefined;
@@ -252,6 +253,7 @@ export function getPageSnapshot(idInput: unknown) {
     finalUrl: row.final_url,
     statusCode: row.status_code,
     contentType: row.content_type,
+    bodyKind: row.body_kind,
     renderMode: row.render_mode,
     contentHash: row.content_hash,
     bytes: row.bytes,

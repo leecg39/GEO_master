@@ -20,6 +20,8 @@ const databasePath = path.join(directory, "test.db");
 const request = vi.fn();
 let sequence = 0;
 let homeHtml = "";
+let homeFinalUrl = "https://example.com";
+let homeContentType = "text/html; charset=utf-8";
 
 const productHtml = `<html lang="ko"><head><title>상품</title><link rel="canonical" href="https://mirror.example.net/product">
   <script type="application/ld+json">{ not json</script></head><body><h1>상품</h1></body></html>`;
@@ -28,7 +30,7 @@ function route(url: string) {
   if (url.endsWith("/llms.txt")) return Promise.resolve({ url, status: 404, text: "", contentType: "text/plain" });
   if (url.endsWith("/product")) return Promise.resolve({ url, status: 200, text: productHtml, contentType: "text/html" });
   if (url.endsWith("/gone")) return Promise.resolve({ url, status: 404, text: "<html><title>없음</title></html>", contentType: "text/html" });
-  return Promise.resolve({ url, status: 200, text: homeHtml, contentType: "text/html; charset=utf-8" });
+  return Promise.resolve({ url: url === "https://example.com" ? homeFinalUrl : url, status: 200, text: homeHtml, contentType: homeContentType });
 }
 
 function activate() {
@@ -44,6 +46,8 @@ beforeEach(() => {
   vi.mocked(fetchPublicText).mockReset().mockImplementation((url: string) => route(url));
   request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com", "https://example.com/product", "https://example.com/gone", "https://other.example.net/x"] }));
   homeHtml = "<html lang=\"ko\"><head><title>홈</title><meta name=\"description\" content=\"홈 설명\"></head><body><h1>홈</h1></body></html>";
+  homeFinalUrl = "https://example.com";
+  homeContentType = "text/html; charset=utf-8";
   const db = getDatabase().sqlite;
   db.exec("DELETE FROM semforge_payment_intents; DELETE FROM semforge_subscriptions;");
   ensureActiveProject();
@@ -109,6 +113,22 @@ describe("Qshop P03: crawls store versioned page snapshots", () => {
     expect(detail.versions.map((version) => version.id)).toHaveLength(3);
     expect(detail.versions[0]).toMatchObject({ id: latest });
     expect(() => getPageSnapshot(first)).toThrow(expect.objectContaining({ code: "NOT_FOUND" }));
+  });
+
+  it("creates a new version when response metadata changes even if the body is unchanged", async () => {
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    await runSiteAuditCampaign(campaign.id);
+    const first = snapshotRows(campaign.id).find((row) => row.url === "https://example.com")!.snapshotId!;
+    const body = homeHtml;
+
+    homeFinalUrl = "https://example.com/home";
+    homeContentType = "application/xhtml+xml";
+    await runSiteAuditCampaign(campaign.id);
+
+    const latest = snapshotRows(campaign.id).find((row) => row.url === "https://example.com")!.snapshotId!;
+    expect(latest).not.toBe(first);
+    expect(getPageSnapshot(latest)).toMatchObject({ finalUrl: homeFinalUrl, contentType: homeContentType, bodyKind: "html" });
+    expect(homeHtml).toBe(body);
   });
 
   it("deletes a campaign's snapshots with the campaign but keeps ones another campaign still shows", async () => {

@@ -382,6 +382,19 @@ describe("Qshop P04: AI crawler policy from robots.txt", () => {
     expect(getSiteAuditOverview(campaign.id).briefing.recommendations.join(" ")).toContain("검색용 AI 크롤러");
   });
 
+  it("surfaces partially restricted search crawlers in the issue, briefing and recommendation", async () => {
+    request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com"] }));
+    vi.mocked(fetchPublicText).mockImplementation(robots("User-agent: OAI-SearchBot\nDisallow: /private\n"));
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    await runSiteAuditCampaign(campaign.id);
+    const issue = titles(campaign.id).find((item) => item.title === "AI 검색 크롤러 일부 경로 제한");
+    expect(issue).toMatchObject({ severity: "warning", detail: expect.stringContaining("일부 경로 제한: OAI-SearchBot") });
+    expect(getSiteAuditOverview(campaign.id).briefing.robots).toMatchObject({
+      state: "parsed", summary: { searchBlocked: [], searchPartial: ["OAI-SearchBot"] },
+    });
+    expect(getSiteAuditOverview(campaign.id).briefing.recommendations.join(" ")).toContain("OAI-SearchBot");
+  });
+
   it("does not treat an unreadable robots.txt as allowing everything", async () => {
     request.mockImplementation(() => Response.json({ success: true, links: ["https://example.com"] }));
     vi.mocked(fetchPublicText).mockImplementation(robots("", 503));

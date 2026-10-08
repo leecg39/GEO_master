@@ -35,7 +35,7 @@ export interface SiteAuditBriefingData {
   robots?: {
     state: "parsed" | "missing" | "unknown";
     detail: string;
-    summary: { searchBlocked: string[]; trainingBlocked: string[]; userBlocked: string[] };
+    summary: { searchBlocked: string[]; trainingBlocked: string[]; userBlocked: string[]; searchPartial: string[]; trainingPartial: string[]; userPartial: string[] };
   } | null;
   measured?: { fetched: number; failed: number; ok: number; missingTitle: number; outOfScope: number; notRequested: number; rendered: number } | null;
   scoreFactors: Array<{ key: string; label: string; points: number; kind: "base" | "penalty" | "total" }>;
@@ -94,9 +94,12 @@ function pageStateLabel(page: SiteAuditBriefingData["pages"][number]) {
 }
 
 const robotsRows = [
-  { key: "searchBlocked", label: "검색용 차단", hint: "AI 검색 답변 노출에 영향" },
-  { key: "trainingBlocked", label: "학습용 차단", hint: "모델 학습 거부 — 검색 노출과 별개" },
-  { key: "userBlocked", label: "사용자 요청 차단", hint: "일부 서비스는 robots.txt를 적용하지 않음" },
+  { key: "searchBlocked", label: "검색용 전체 차단", hint: "AI 검색 답변 노출에 영향" },
+  { key: "searchPartial", label: "검색용 일부 경로 제한", hint: "제한된 경로가 AI 검색 답변 근거에서 빠질 수 있음" },
+  { key: "trainingBlocked", label: "학습용 전체 차단", hint: "모델 학습 거부 — 검색 노출과 별개" },
+  { key: "trainingPartial", label: "학습용 일부 경로 제한", hint: "모델 학습 제한 — 검색 노출과 별개" },
+  { key: "userBlocked", label: "사용자 요청 전체 차단", hint: "일부 서비스는 robots.txt를 적용하지 않음" },
+  { key: "userPartial", label: "사용자 요청 일부 경로 제한", hint: "일부 서비스는 robots.txt를 적용하지 않음" },
 ] as const;
 
 function RobotsPolicySummary({ robots }: { robots: NonNullable<SiteAuditBriefingData["robots"]> }) {
