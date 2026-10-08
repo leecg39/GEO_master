@@ -212,18 +212,25 @@ export function updateLlmsDocument(idInput: unknown, input: unknown) {
       details: parsed.details ?? row.details,
       resources: parsed.resources ?? parseResources(row.resources),
       document: parsed.document ?? row.document,
-      status: parsed.status ?? row.status,
       scopePath: parsed.scopePath ?? row.scope_path ?? DEFAULT_LLMS_PATH,
     };
     const validation = validateLlmsTxt(next.document, next.website, { path: next.scopePath });
+    // Deployment evidence describes a specific document at a specific URL.
+    const keepDeployment = validation.valid && parsed.status !== "draft" && row.status === "deployed"
+      && Boolean(row.remote_url && row.remote_checked_at)
+      && next.document === row.document && next.website === row.website && next.scopePath === row.scope_path;
+    const status = !validation.valid || parsed.status === "draft" ? "draft" : keepDeployment ? "deployed" : "validated";
     const updatedAt = nextTimestamp(row.updated_at);
     sqlite.prepare(`
       UPDATE llms_documents SET title = ?, website = ?, brand_name = ?, summary = ?, details = ?,
-        resources = ?, document = ?, validation = ?, status = ?, scope_path = ?, updated_at = ? WHERE id = ?
+        resources = ?, document = ?, validation = ?, status = ?, scope_path = ?,
+        remote_url = ?, remote_content_type = ?, remote_checked_at = ?, updated_at = ? WHERE id = ?
     `).run(
       next.title, next.website, next.brandName, next.summary, next.details,
       JSON.stringify(next.resources), next.document, JSON.stringify(validation),
-      next.status, next.scopePath, updatedAt, id,
+      status, next.scopePath,
+      keepDeployment ? row.remote_url : null, keepDeployment ? row.remote_content_type : null,
+      keepDeployment ? row.remote_checked_at : null, updatedAt, id,
     );
     recordLlmsRevision(sqlite, id, next.document, "edited");
     return publicDocument(ownedRow(id));
@@ -263,9 +270,11 @@ export function validateStoredLlmsDocument(idInput: unknown, input: unknown) {
     const row = ownedRow(id);
     assertExpectedUpdatedAt(row.updated_at, parsed.expectedUpdatedAt);
     const validation = validateLlmsTxt(row.document, row.website, { path: row.scope_path });
+    const status = !validation.valid ? "draft"
+      : row.status === "deployed" && row.remote_url && row.remote_checked_at ? "deployed" : "validated";
     const updatedAt = nextTimestamp(row.updated_at);
     sqlite.prepare("UPDATE llms_documents SET validation = ?, status = ?, updated_at = ? WHERE id = ?")
-      .run(JSON.stringify(validation), validation.valid ? "validated" : "draft", updatedAt, id);
+      .run(JSON.stringify(validation), status, updatedAt, id);
     return publicDocument(ownedRow(id));
   });
 }
