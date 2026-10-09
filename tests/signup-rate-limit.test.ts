@@ -26,6 +26,9 @@ beforeEach(() => {
   vi.stubEnv("GEO_AUTH_MODE", "app");
   vi.stubEnv("GEO_AUTH_PROXY_SECRET", secret);
   vi.stubEnv("GEO_SIGNUP_MODE", "approval");
+  vi.stubEnv("GEO_ADMIN_ID", "owner@example.com");
+  vi.stubEnv("GEO_ADMIN_PASSWORD", "owner-password-1");
+  vi.stubEnv("GEO_GUEST_USERS", "guest");
 });
 afterEach(() => vi.unstubAllEnvs());
 afterAll(() => {

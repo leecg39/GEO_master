@@ -35,8 +35,8 @@ beforeEach(() => {
   vi.stubEnv("GEO_HTTP_AUTH", "");
   vi.stubEnv("GEO_ADMIN_USERS", "");
   vi.stubEnv("GEO_GUEST_USERS", "guest");
-  vi.stubEnv("GEO_ADMIN_ID", "");
-  vi.stubEnv("GEO_ADMIN_PASSWORD", "");
+  vi.stubEnv("GEO_ADMIN_ID", "owner@example.com");
+  vi.stubEnv("GEO_ADMIN_PASSWORD", "owner-password-1");
   vi.stubEnv("GEO_SIGNUP_MODE", "");
   getDatabase().sqlite.exec("DELETE FROM accounts;");
 });
@@ -54,6 +54,61 @@ describe("login identifiers", () => {
 });
 
 describe("signup service", () => {
+  it.each(["", "approval", "auto"])("closes %s signup when only an administrator role is configured", async (mode) => {
+    vi.stubEnv("GEO_ADMIN_ID", "");
+    vi.stubEnv("GEO_ADMIN_PASSWORD", "");
+    vi.stubEnv("GEO_ADMIN_USERS", "geo-admin");
+    vi.stubEnv("GEO_SIGNUP_MODE", mode);
+    expect(signupMode()).toBe("closed");
+    expect(await registerAccount(form({}))).toMatchObject({ ok: false, status: 403 });
+    expect(listAccounts()).toHaveLength(0);
+  });
+
+  it.each([
+    ["", "owner-password-1"],
+    ["owner@example.com", ""],
+    ["owner@example.com", "short"],
+    ["bad id", "owner-password-1"],
+    ["owner@example.com", "$2b$00$" + "a".repeat(53)],
+  ])("closes signup for incomplete or invalid administrator credentials (%s)", (id, password) => {
+    vi.stubEnv("GEO_ADMIN_ID", id);
+    vi.stubEnv("GEO_ADMIN_PASSWORD", password);
+    expect(signupMode()).toBe("closed");
+  });
+
+  it("requires valid HTTP credentials with an admin role and honors guest precedence", async () => {
+    vi.stubEnv("GEO_ADMIN_ID", "");
+    vi.stubEnv("GEO_ADMIN_PASSWORD", "");
+    vi.stubEnv("GEO_ADMIN_USERS", "geo-admin");
+    vi.stubEnv("GEO_HTTP_AUTH", "geo-admin:not-a-bcrypt-hash");
+    expect(signupMode()).toBe("closed");
+    vi.stubEnv("GEO_HTTP_AUTH", `geo-admin:$2b$00$${"a".repeat(53)}`);
+    expect(signupMode()).toBe("closed");
+    vi.stubEnv("GEO_HTTP_AUTH", `geo-admin:${bcrypt.hashSync("admin-password", 4)}`);
+    expect(signupMode()).toBe("approval");
+    expect(await verifyPassword("geo-admin", "admin-password")).toBe("geo-admin");
+    expect((await registerAccount(form({}))).ok).toBe(true);
+    vi.stubEnv("GEO_ADMIN_USERS", "someone-else");
+    expect(signupMode()).toBe("closed");
+    vi.stubEnv("GEO_ADMIN_USERS", "geo-admin");
+    vi.stubEnv("GEO_GUEST_USERS", "geo-admin");
+    expect(signupMode()).toBe("closed");
+  });
+
+  it("does not count a guest administrator or its shadowed HTTP identity", () => {
+    vi.stubEnv("GEO_GUEST_USERS", "owner@example.com");
+    vi.stubEnv("GEO_HTTP_AUTH", `OWNER@example.com:${bcrypt.hashSync("admin-password", 4)}`);
+    vi.stubEnv("GEO_ADMIN_USERS", "OWNER@example.com");
+    expect(signupMode()).toBe("closed");
+  });
+
+  it("retains approval signup with a bcrypt environment administrator", async () => {
+    vi.stubEnv("GEO_ADMIN_PASSWORD", bcrypt.hashSync("admin-password", 4));
+    expect(signupMode()).toBe("approval");
+    expect(await verifyPassword("owner@example.com", "admin-password")).toBe("owner@example.com");
+    expect((await registerAccount(form({}))).ok).toBe(true);
+  });
+
   it("defaults to administrator approval and rejects unknown modes safely", () => {
     expect(signupMode()).toBe("approval");
     vi.stubEnv("GEO_SIGNUP_MODE", "auto");

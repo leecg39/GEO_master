@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { AppError } from "@/lib/errors";
+import { hasConfiguredAdministrator } from "@/lib/account-policy";
 import { configuredAccountIds } from "@/lib/login-session";
 import { envAdmin, MIN_PASSWORD_LENGTH } from "./env-admin";
 import { exceedsBcryptLimit, USERNAME_PATTERN } from "./identity";
@@ -37,6 +38,9 @@ const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/;
 
 export function signupMode(): SignupMode {
   const value = (process.env.GEO_SIGNUP_MODE ?? "").trim().toLowerCase();
+  // Fail closed for both approval and auto: a usable operator must be able to
+  // approve/suspend accounts. All public pages and the POST handler use this gate.
+  if (!hasConfiguredAdministrator()) return "closed";
   if (!value || value === "approval") return "approval";
   return value === "auto" ? "auto" : "closed";
 }

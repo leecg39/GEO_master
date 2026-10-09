@@ -13,6 +13,7 @@ import { findAccount, updateAccountStatus } from "@/lib/accounts/store";
 import { closeDatabase, getDatabase } from "@/lib/db";
 import { authSecret, createSession, SESSION_COOKIE, sessionUser } from "@/lib/login-session";
 import { getRequestAccount, withRequestAccount } from "@/lib/request-account";
+import { activateProject, createProject, listProjects } from "@/lib/projects";
 import { proxy } from "@/proxy";
 
 const directory = fs.mkdtempSync(path.join(os.tmpdir(), "geo-signup-flow-"));
@@ -143,6 +144,22 @@ describe("sign-up page", () => {
 });
 
 describe("sign-up submission", () => {
+  it.each(["proxy", "app"])("closes the UI and POST without an administrator in %s mode", async (mode) => {
+    vi.stubEnv("GEO_AUTH_MODE", mode);
+    vi.stubEnv("GEO_ADMIN_ID", "");
+    vi.stubEnv("GEO_ADMIN_PASSWORD", "");
+    vi.stubEnv("GEO_ADMIN_USERS", "geo-admin");
+    expect(await welcomePage(request("/welcome")).text()).not.toContain("/signup?plan=");
+    expect(await loginPage(request("/login")).text()).not.toContain('href="/signup"');
+    const page = await signupPage(request("/signup")).text();
+    expect(page).toContain("현재 신규 가입을 받지 않습니다");
+    expect(page).not.toContain('action="/api/auth/signup"');
+    const response = await signup(postForm("/api/auth/signup", signupForm()));
+    expect(response.status).toBe(403);
+    expect(response.headers.has("set-cookie")).toBe(false);
+    expect(findAccount("member@example.com")).toBeNull();
+  });
+
   it("files an approval request without logging the visitor in", async () => {
     const response = await signup(postForm("/api/auth/signup", signupForm()));
     expect(response.status).toBe(303);
@@ -235,6 +252,29 @@ describe("login after sign-up", () => {
 });
 
 describe("role-aware proxy", () => {
+  // Characterizes a deployment risk, not a tenant-isolation guarantee.
+  it("exposes shared projects and a global active project to approved customers", async () => {
+    await activeCustomer();
+    await activeCustomer({ email: "second@example.com" });
+    const asCustomer = <T,>(user: string, operation: () => T) => withRequestAccount(
+      new Headers({ "x-geo-auth-user": user, "x-geo-auth-secret": secret }), operation,
+    );
+    const project = asCustomer("member@example.com", () => createProject({
+      name: "Shared customer project", brandName: "Shared", category: "SaaS", competitors: [], activate: false,
+    }));
+    for (const user of ["member@example.com", "second@example.com"]) {
+      for (const pathname of ["/api/projects", `/api/projects/${project.id}/activate`, "/api/measure-runs", "/api/report-shares"]) {
+        expect((await proxy(request(pathname, { user }))).status).toBe(200);
+      }
+      for (const pathname of ["/api/settings", "/api/workspace", "/api/admin/accounts"]) {
+        expect((await proxy(request(pathname, { user }))).status).toBe(403);
+      }
+      expect(asCustomer(user, () => listProjects({})).items.map((item) => item.id)).toContain(project.id);
+    }
+    asCustomer("second@example.com", () => activateProject(project.id));
+    expect(asCustomer("member@example.com", () => listProjects({})).activeProject.id).toBe(project.id);
+  });
+
   it("keeps customers out of operator settings and lets administrators manage members", async () => {
     await activeCustomer();
     expect((await proxy(request("/settings", { user: "member@example.com" }))).status).toBe(403);
@@ -267,6 +307,28 @@ describe("role-aware proxy", () => {
 });
 
 describe("member administration API", () => {
+  it("preserves pending, admin approval, login and existing access after signup closes", async () => {
+    await signup(postForm("/api/auth/signup", signupForm()));
+    const loginBody = new URLSearchParams({ username: "member@example.com", password, next: "/" }).toString();
+    expect((await login(postForm("/api/auth/login", loginBody))).headers.get("location")).toContain("error=pending");
+    const id = String(findAccount("member@example.com")!.id);
+    const approved = await patchAccount(request(`/api/admin/accounts/${id}`, {
+      method: "PATCH", body: JSON.stringify({ status: "active" }), headers: adminHeaders("owner@example.com"),
+    }), { params: Promise.resolve({ id }) });
+    expect(approved.status).toBe(200);
+    const signedIn = await login(postForm("/api/auth/login", loginBody));
+    const token = signedIn.cookies.get(SESSION_COOKIE)!.value;
+    expect(sessionUser(token)).toBe("member@example.com");
+    vi.stubEnv("GEO_SIGNUP_MODE", "closed");
+    expect(sessionUser(token)).toBe("member@example.com");
+    expect((await login(postForm("/api/auth/login", loginBody))).headers.get("location")).toBe("/");
+    expect((await signup(postForm("/api/auth/signup", signupForm({ email: "late@example.com" })))).status).toBe(403);
+    expect(findAccount("late@example.com")).toBeNull();
+    vi.stubEnv("GEO_ADMIN_PASSWORD", "");
+    expect(sessionUser(token)).toBe("member@example.com");
+    expect((await login(postForm("/api/auth/login", loginBody))).headers.get("location")).toBe("/");
+  });
+
   it("lets the administrator approve and suspend sign-ups", async () => {
     await signup(postForm("/api/auth/signup", signupForm({ plan: "semforge" })));
     const id = String(findAccount("member@example.com")!.id);

@@ -1,6 +1,6 @@
 import { exceedsBcryptLimit, normalizeLoginId, USERNAME_PATTERN } from "./identity";
 
-export const BCRYPT_HASH_PATTERN = /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/;
+export const BCRYPT_HASH_PATTERN = /^\$2[aby]\$(?:0[4-9]|[12]\d|3[01])\$[./A-Za-z0-9]{53}$/;
 export const MIN_PASSWORD_LENGTH = 8;
 
 export interface EnvAdmin {
@@ -20,6 +20,8 @@ export function envAdmin(): EnvAdmin | null {
   const password = (process.env.GEO_ADMIN_PASSWORD ?? "").trim();
   if (!id || !USERNAME_PATTERN.test(id) || !password) return null;
   if (BCRYPT_HASH_PATTERN.test(password)) return { id, password, kind: "bcrypt" };
+  // A malformed bcrypt setting must not silently become a plaintext password.
+  if (password.startsWith("$2")) return null;
   if (password.length < MIN_PASSWORD_LENGTH || exceedsBcryptLimit(password)) return null;
   return { id, password, kind: "plain" };
 }

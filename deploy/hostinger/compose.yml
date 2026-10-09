@@ -16,6 +16,8 @@ services:
       GEO_GUEST_USERS: ${GEO_GUEST_USERS:-guest}
       GEO_ADMIN_USERS: ${GEO_ADMIN_USERS:-geo-admin}
       # .env 관리자 계정(로그인 아이디·비밀번호)과 회원가입 방식(approval/auto/closed)
+      # 앱은 유효한 관리자 자격 증명이 없으면 approval/auto 모두 closed로 처리한다.
+      # GEO_ADMIN_USERS 역할 지정만으로는 관리자 로그인 계정이 만들어지지 않는다.
       GEO_ADMIN_ID: ${GEO_ADMIN_ID:-}
       GEO_ADMIN_PASSWORD: ${GEO_ADMIN_PASSWORD:-}
       GEO_SIGNUP_MODE: ${GEO_SIGNUP_MODE:-approval}

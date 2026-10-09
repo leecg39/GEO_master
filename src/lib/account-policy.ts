@@ -1,5 +1,6 @@
-import { isEnvAdmin } from "@/lib/accounts/env-admin";
-import { isSelfRegisteredAccount } from "./login-session";
+import { envAdmin, isEnvAdmin } from "@/lib/accounts/env-admin";
+import { normalizeLoginId } from "@/lib/accounts/identity";
+import { configuredAccountIds, isSelfRegisteredAccount } from "./login-session";
 
 /**
  * admin: .env 관리자 또는 GEO_ADMIN_USERS · member: 운영 계정(GEO_HTTP_AUTH)
@@ -13,6 +14,15 @@ export function accountRole(user: string): AccountRole {
   if (contains(process.env.GEO_GUEST_USERS ?? "guest")) return "guest";
   if (isEnvAdmin(user) || contains(process.env.GEO_ADMIN_USERS)) return "admin";
   return isSelfRegisteredAccount(user) ? "customer" : "member";
+}
+
+/** Role names alone do not create credentials. Guests cannot approve accounts. */
+export function hasConfiguredAdministrator(): boolean {
+  const admin = envAdmin();
+  const users = [...(admin ? [admin.id] : []), ...configuredAccountIds()];
+  // Match login's .env-admin precedence and normalized identity, including
+  // an HTTP account shadowed by the same email-shaped administrator id.
+  return users.some((user) => accountRole(admin?.id === normalizeLoginId(user) ? admin.id : user) === "admin");
 }
 
 /** 회원 승인 등 관리 화면은 관리자만 */
