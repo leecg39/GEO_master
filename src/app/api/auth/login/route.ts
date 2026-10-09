@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { accountRole, canAccessPath } from "@/lib/account-policy";
-import { createSession, isTrustedProxy, safeReturnPath, sameOriginMutation, SESSION_COOKIE, SESSION_SECONDS, verifyPassword } from "@/lib/login-session";
+import { accountHomePath } from "@/lib/accounts/home";
+import { loginEnabled } from "@/lib/auth-mode";
+import { createSession, isTrustedProxy, safeReturnPath, sameOriginMutation, SESSION_COOKIE, SESSION_SECONDS, verifyCredentials } from "@/lib/login-session";
 
 export const runtime = "nodejs";
 const attempts = new Map<string, { count: number; until: number }>();
@@ -11,7 +13,7 @@ function redirect(path: string) {
 }
 
 export async function POST(request: NextRequest) {
-  if (process.env.GEO_AUTH_MODE !== "proxy") return NextResponse.json({ error: "로그인이 구성되지 않았습니다." }, { status: 503 });
+  if (!loginEnabled()) return NextResponse.json({ error: "로그인이 구성되지 않았습니다." }, { status: 503 });
   try {
     if (!isTrustedProxy(request.headers) || !sameOriginMutation(request)) return NextResponse.json({ error: "허용되지 않은 요청입니다." }, { status: 403 });
     if (!/^application\/x-www-form-urlencoded(?:\s*;|$)/i.test(request.headers.get("content-type") ?? "")) return new NextResponse(null, { status: 415 });
@@ -36,10 +38,16 @@ export async function POST(request: NextRequest) {
     }
     const fields = new URLSearchParams(Buffer.concat(chunks).toString("utf8"));
     const next = safeReturnPath(fields.get("next"));
-    const user = await verifyPassword(fields.get("username")?.trim() ?? "", fields.get("password") ?? "");
-    if (!user) return redirect(`/login?error=invalid&next=${encodeURIComponent(next)}`);
+    const result = await verifyCredentials(fields.get("username")?.trim() ?? "", fields.get("password") ?? "");
+    if (!result) return redirect(`/login?error=invalid&next=${encodeURIComponent(next)}`);
+    // 비밀번호가 맞은 승인 대기·이용 중지 계정에만 상태를 알린다.
+    if (result.status !== "active") return redirect(`/login?error=${result.status}&next=${encodeURIComponent(next)}`);
     attempts.delete(key);
-    const destination = canAccessPath(accountRole(user), new URL(next, "https://geo.invalid").pathname) ? next : "/";
+    const { user } = result;
+    const role = accountRole(user);
+    // 돌아갈 화면이 없으면 가입 유형에 맞는 첫 화면으로 보낸다(SEMForge Pro 가입자는 결제·SEMForge 화면).
+    const requested = next === "/" ? accountHomePath(user, role) : next;
+    const destination = canAccessPath(role, new URL(requested, "https://geo.invalid").pathname) ? requested : "/";
     const response = redirect(destination);
     response.cookies.set(SESSION_COOKIE, createSession(user), { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: SESSION_SECONDS });
     return response;

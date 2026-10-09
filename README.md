@@ -41,6 +41,9 @@ npm start
 - `GEO_MASTER_KEY`: API 키 암호화에 사용할 32바이트 이상의 임의 문자열. 비워 두면 `data/.master-key`를 권한 `0600`으로 자동 생성합니다.
 - `GEO_DB_PATH`: SQLite 파일 경로. 기본값은 `data/geo.db`입니다.
 - `GEO_DISABLE_AUTOMATION_WORKER=1`: 유지보수·격리 검증 중 예약 worker 자동 기동을 막습니다. 수동 큐 처리 API는 별도입니다.
+- `GEO_AUTH_MODE`: `local`(기본, 로그인 없음) · `app`(앱 자체 로그인·회원가입) · `proxy`(Traefik 운영 배포). `app`·`proxy`에서는 비로그인 첫 화면이 서비스 소개(`/welcome`)이며 `/signup`에서 **무료(GEO 측정)** 또는 **SEMForge Pro(유료, 결제 후 이용)** 계정으로 가입합니다.
+- `GEO_ADMIN_ID`, `GEO_ADMIN_PASSWORD`: `.env`에 넣는 관리자 계정입니다. 비밀번호는 8자 이상 평문 또는 bcrypt 해시입니다. 관리자는 `/admin/accounts`에서 가입 신청을 승인·중지하고 SEMForge를 결제 없이 사용합니다.
+- `GEO_SIGNUP_MODE`: `approval`(기본, 관리자 승인 후 이용) · `auto`(가입 즉시 이용) · `closed`(신규 가입 중단). 모든 계정이 하나의 워크스페이스를 공유하므로 공개 운영에서는 `approval`을 권장합니다. 가입 회원은 설정(API 키)과 워크스페이스 백업·복원에 접근할 수 없습니다.
 - `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `GROK_API_KEY`: 설정 화면의 암호화 키 대신 사용할 선택적 환경 키입니다. Grok은 표준 `XAI_API_KEY`도 fallback으로 인식합니다.
 - `GUDOKPIN_API_KEY`: `csk_`로 시작하는 구독핀 키입니다. 설정하면 OpenAI·Anthropic 직접 키보다 우선하며 `gpt-5.6-luna`·`claude-sonnet-5`를 기본 사용합니다.
 - 구독핀 Base URL은 OpenAI/Responses용 `https://api.gudokpin.com/v1`, Anthropic/Messages용 `https://api.gudokpin.com`으로 검증하며 잘못된 `/v1` 조합은 실행 전에 차단합니다.

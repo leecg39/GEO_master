@@ -5,7 +5,8 @@ import type { ReactNode } from "react";
 import { Rubik, Space_Grotesk } from "next/font/google";
 import { Agentation } from "agentation";
 import { AppShell } from "@/components/AppShell";
-import { DEFAULT_THEME, themeInitScript } from "@/lib/theme";
+import { ThemeInitScript } from "@/components/ThemeInitScript";
+import { DEFAULT_THEME } from "@/lib/theme";
 import "./globals.css";
 
 const rubik = Rubik({
@@ -55,7 +56,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="ko" data-theme={DEFAULT_THEME} className={`${rubik.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript() }} />
+        <ThemeInitScript />
       </head>
       <body>
         <AppShell account={account}>{children}</AppShell>

@@ -4,7 +4,7 @@ import { transactionalMutation } from "./crud";
 import { getDatabase } from "./db";
 import { AppError } from "./errors";
 import { subscriptionRequiredError } from "./semforge/errors";
-import { getRequestAccount } from "./request-account";
+import { getRequestAccount, type RequestAccount } from "./request-account";
 
 export const SEMFORGE_MONTHLY_PRICE_KRW = 300_000;
 export const SEMFORGE_BILLING_PERIOD_DAYS = 30;
@@ -41,7 +41,7 @@ interface PaymentIntentRow {
 
 export interface SemforgeSubscriptionPublic {
   accountId: string;
-  role: "admin" | "member" | "guest";
+  role: "admin" | "member" | "customer" | "guest";
   accessSource: "admin" | "paid" | "none";
   billingAvailable: boolean;
   status: SemforgeSubscriptionStatus;
@@ -77,8 +77,7 @@ function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
-function ensureSubscriptionRow(sqlite: ReturnType<typeof getDatabase>["sqlite"]): SubscriptionRow {
-  const accountId = getRequestAccount().id;
+function ensureSubscriptionRow(sqlite: ReturnType<typeof getDatabase>["sqlite"], accountId = getRequestAccount().id): SubscriptionRow {
   const existing = sqlite.prepare("SELECT * FROM semforge_subscriptions WHERE account_id = ?").get(accountId) as SubscriptionRow | undefined;
   if (existing) return existing;
   const now = new Date().toISOString();
@@ -89,14 +88,19 @@ function ensureSubscriptionRow(sqlite: ReturnType<typeof getDatabase>["sqlite"])
   return sqlite.prepare("SELECT * FROM semforge_subscriptions WHERE account_id = ?").get(accountId) as SubscriptionRow;
 }
 
-const features = [
+/** SEMForge Pro 구독으로 열리는 기능. 소개 화면 요금제 비교에도 쓴다. */
+export const SEMFORGE_FEATURES = [
   "Google SERP AI Overview 가시성",
   "Firecrawl 사이트 진단",
   "포지션 추적 · 도메인 개요",
   "GSC · GBP · Map Rank 지역 SEO",
-];
+] as const;
 
-function toPublic(row: SubscriptionRow): SemforgeSubscriptionPublic {
+function subscriberRole(account: RequestAccount): "member" | "customer" {
+  return account.role === "customer" ? "customer" : "member";
+}
+
+function toPublic(row: SubscriptionRow, role: "member" | "customer" = "member"): SemforgeSubscriptionPublic {
   const now = Date.now();
   const end = row.current_period_end ? Date.parse(row.current_period_end) : Number.NaN;
   const paid = row.billing_mode === billingMode() && row.payment_intent_id !== null
@@ -111,7 +115,7 @@ function toPublic(row: SubscriptionRow): SemforgeSubscriptionPublic {
     : null;
   return {
     accountId: row.account_id,
-    role: "member",
+    role,
     accessSource: active ? "paid" : "none",
     billingAvailable: billingMode() === "dev",
     status: row.status === "active" && !active ? "past_due" : row.status,
@@ -120,12 +124,12 @@ function toPublic(row: SubscriptionRow): SemforgeSubscriptionPublic {
     currentPeriodStart: row.current_period_start,
     currentPeriodEnd: row.current_period_end,
     daysRemaining,
-    features: [...features],
+    features: [...SEMFORGE_FEATURES],
   };
 }
 
-export function getSemforgeSubscription(): SemforgeSubscriptionPublic {
-  const account = getRequestAccount();
+/** account를 생략하면 현재 요청의 계정을 쓴다. 로그인 직후처럼 요청 문맥이 없을 때만 명시한다. */
+export function getSemforgeSubscription(account: RequestAccount = getRequestAccount()): SemforgeSubscriptionPublic {
   if (account.role === "guest") {
     return { accountId: account.id, role: "guest", accessSource: "none", billingAvailable: false,
       status: "inactive", active: false, amountKrw: 0, currentPeriodStart: null, currentPeriodEnd: null, daysRemaining: null, features: [] };
@@ -134,11 +138,11 @@ export function getSemforgeSubscription(): SemforgeSubscriptionPublic {
     return {
       accountId: account.id, role: "admin", accessSource: "admin", billingAvailable: false,
       status: "active", active: true, amountKrw: 0,
-      currentPeriodStart: null, currentPeriodEnd: null, daysRemaining: null, features: [...features],
+      currentPeriodStart: null, currentPeriodEnd: null, daysRemaining: null, features: [...SEMFORGE_FEATURES],
     };
   }
   const { sqlite } = getDatabase();
-  return toPublic(ensureSubscriptionRow(sqlite));
+  return toPublic(ensureSubscriptionRow(sqlite, account.id), subscriberRole(account));
 }
 
 /** SEMForge API/실행 기능 게이트 */
@@ -235,7 +239,7 @@ export function confirmSemforgePayment(input: unknown): SemforgeSubscriptionPubl
         billing_mode = 'dev', payment_intent_id = ?, updated_at = ?
       WHERE account_id = ?
     `).run(start, end, intent.id, iso, account.id);
-    return toPublic(ensureSubscriptionRow(sqlite));
+    return toPublic(ensureSubscriptionRow(sqlite, account.id), subscriberRole(account));
   });
 }
 
@@ -249,6 +253,14 @@ export function cancelSemforgeSubscription(): SemforgeSubscriptionPublic {
     sqlite.prepare(`
       UPDATE semforge_subscriptions SET status = 'canceled', canceled_at = ?, updated_at = ? WHERE account_id = ?
     `).run(now, now, account.id);
-    return toPublic(ensureSubscriptionRow(sqlite));
+    return toPublic(ensureSubscriptionRow(sqlite, account.id), subscriberRole(account));
   });
+}
+
+/** 관리자 회원 목록용 조회. 구독 행을 새로 만들지 않고 결제 검증 결과만 확인한다. */
+export function peekSemforgeAccess(accountId: string): Pick<SemforgeSubscriptionPublic, "active" | "status"> {
+  const row = getDatabase().sqlite.prepare("SELECT * FROM semforge_subscriptions WHERE account_id = ?").get(accountId) as SubscriptionRow | undefined;
+  if (!row) return { active: false, status: "inactive" };
+  const { active, status } = toPublic(row);
+  return { active, status };
 }

@@ -81,3 +81,27 @@ Traefik이 외부 `X-Geo-Auth-User`를 제거하고 서버 전용 `X-Geo-Auth-Se
 참고: [Next.js standalone](https://nextjs.org/docs/app/api-reference/config/next-config-js/output), [Traefik BasicAuth](https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/).
 
 로그인·게스트 권한 상세와 검증 결과: [LOGIN_GUEST_ACCESS.md](LOGIN_GUEST_ACCESS.md).
+
+## 서비스 소개·회원가입·관리자 계정
+
+관리자 자격 증명이 없으면 앱이 `approval`·`auto`를 모두 **`closed`로 처리**합니다. 소개·로그인 화면의 가입 링크와 가입 폼을 숨기고, 직접 가입 POST도 403으로 거절하며 계정을 저장하지 않습니다. 기존 회원의 로그인·세션과 공개 소개 화면은 유지됩니다. `GEO_ADMIN_USERS=geo-admin`만 지정해서는 가입이 열리지 않습니다.
+
+유효한 `GEO_ADMIN_ID` + `GEO_ADMIN_PASSWORD`, 또는 유효한 bcrypt `GEO_HTTP_AUTH` 계정 + 일치하는 `GEO_ADMIN_USERS` 역할이 필요합니다. 게스트로도 지정된 계정은 관리자로 인정하지 않습니다. 관리자 설정을 복구하고 재시작하면 지정한 가입 방식이 다시 적용됩니다. 명시적인 `closed`와 알 수 없는 모드는 관리자가 있어도 가입을 허용하지 않습니다.
+
+공개 운영 전에는 [가입 안전장치와 공유 데이터 위험 검토](SIGNUP_SAFETY.md)를 확인하세요. 승인제 자체는 고객별 데이터 격리를 제공하지 않습니다.
+
+비로그인 `GET /`(및 `/link-preview.html`)는 Traefik이 `/welcome`으로 내부 재작성해 스크립트 없는 서비스 소개 화면을 보여 줍니다. 소개 화면은 OG 메타태그를 유지하며 무료(GEO 측정)·SEMForge Pro(유료) 가입 경로를 구분합니다. `/signup`·`/api/auth/signup`은 로그인 폼과 같은 동일 출처·4KB·신뢰 프록시 검사를 거치며 같은 주소에서 10분에 10회로 제한합니다.
+
+서버 `.env`에 아래 값을 추가하고 앱을 재생성합니다. `$`가 들어간 값은 작은따옴표로 감쌉니다.
+
+```sh
+GEO_ADMIN_ID='admin@example.com'
+GEO_ADMIN_PASSWORD='8자 이상 비밀번호 또는 bcrypt 해시'
+GEO_SIGNUP_MODE=approval   # approval / auto / closed
+```
+
+- 관리자는 `/admin/accounts`에서 가입 신청을 승인·거절·중지하고, 회원별 가입 유형과 SEMForge 결제 여부를 확인합니다. 중지하면 기존 세션도 바로 무효가 됩니다.
+- 가입 회원은 `customer` 역할입니다. GEO 측정 기능과 SEMForge 구독 화면을 쓰며 설정·워크스페이스 백업/복원·회원 관리에는 접근할 수 없습니다. SEMForge Pro로 가입한 회원은 로그인 후 구독 화면으로 이동하고, 결제가 확인된 계정만 SEMForge API를 사용합니다.
+- 관리자·게스트·`GEO_HTTP_AUTH` 아이디는 가입으로 선점할 수 없습니다. 가입 계정은 SQLite `accounts` 테이블(마이그레이션 27)에 bcrypt 해시로 저장되며 워크스페이스 내보내기·복원 대상이 아닙니다.
+- 프로젝트·측정 데이터는 여전히 단일 워크스페이스를 공유합니다. 고객별 데이터 분리가 필요하면 별도 작업이 필요합니다.
+- 배포 후 `node scripts/verify-social-preview.mjs`로 공개 소개 화면과 인증 경계를 다시 확인합니다.

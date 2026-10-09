@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { BarChart3, Globe2, MapPin, SearchCheck, TrendingUp } from "lucide-react";
 
 export const SEMFORGE_HUB_PATH = "/semforge";
+export const SEMFORGE_SUBSCRIPTION_PATH = `${SEMFORGE_HUB_PATH}/subscription`;
 
 export interface SemforgeFeature {
   href: string;

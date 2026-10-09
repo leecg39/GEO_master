@@ -837,6 +837,30 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 27,
+    name: "self-service-signup-accounts",
+    up(sqlite) {
+      // 회원가입 계정. login_id는 다른 테이블의 account_id와 같은 값(소문자 이메일)이다.
+      // 비밀번호는 bcrypt 해시만 저장하며 워크스페이스 내보내기·복원 대상이 아니다.
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS accounts (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          login_id TEXT NOT NULL UNIQUE COLLATE NOCASE,
+          display_name TEXT NOT NULL,
+          password_hash TEXT NOT NULL,
+          plan TEXT NOT NULL CHECK(plan IN ('free','semforge')),
+          status TEXT NOT NULL CHECK(status IN ('pending','active','disabled')),
+          consented_at TEXT NOT NULL,
+          approved_at TEXT,
+          approved_by TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_accounts_status ON accounts(status, created_at DESC);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;
