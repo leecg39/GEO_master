@@ -98,6 +98,8 @@ export function removeAiVisibilityQuery(idInput: unknown) {
 
 export interface AiVisibilityOverview {
   domain: string;
+  /** 집계에 쓴 스냅샷 출처. 데모(mock-dev)와 실측(talordata)은 섞지 않는다 */
+  snapshotSource: string;
   subscriptionRequired: boolean;
   talordata: ProviderResult<{ configured: boolean }>;
   stats: {
@@ -128,6 +130,8 @@ export function getAiVisibilityOverview(domainInput: string): AiVisibilityOvervi
     : mode === "mock"
       ? providerLive("mock-dev", { configured: true, mode: "mock", reason: "SEMFORGE_MOCK_TALORDATA=1 데모 SERP" })
       : providerUnavailable("talordata", "TalorData API 토큰이 설정되지 않았습니다. 설정 화면에서 저장하거나 .env.local 에 TALORDATA_API_TOKEN 을 추가하세요. 로컬 데모는 SEMFORGE_MOCK_TALORDATA=1 을 사용할 수 있습니다.");
+  // 현재 모드의 출처만 집계한다: 실측·미설정이면 talordata, 데모 모드면 mock-dev (Qshop P12: mock 혼합 금지)
+  const snapshotSource = talordataSource();
   const { sqlite } = getDatabase();
   const queries = sqlite.prepare(`
     SELECT * FROM ai_visibility_queries WHERE project_id = ? AND domain = ? AND deleted_at IS NULL ORDER BY created_at DESC
@@ -135,8 +139,8 @@ export function getAiVisibilityOverview(domainInput: string): AiVisibilityOvervi
 
   const statuses = queries.map((query) => {
     const snapshot = sqlite.prepare(`
-      SELECT * FROM ai_visibility_snapshots WHERE query_id = ? ORDER BY captured_at DESC, id DESC LIMIT 1
-    `).get(query.id) as { aio_present: number; cited: number | null; organic_position: number | null; captured_at: string } | undefined;
+      SELECT * FROM ai_visibility_snapshots WHERE query_id = ? AND source = ? ORDER BY captured_at DESC, id DESC LIMIT 1
+    `).get(query.id, snapshotSource) as { aio_present: number; cited: number | null; organic_position: number | null; captured_at: string } | undefined;
     return {
       id: query.id,
       query: query.query,
@@ -155,6 +159,7 @@ export function getAiVisibilityOverview(domainInput: string): AiVisibilityOvervi
 
   return {
     domain,
+    snapshotSource,
     subscriptionRequired: false,
     talordata,
     stats: {
@@ -181,6 +186,7 @@ export function getAiVisibilityOverviewPublic(domainInput: string): Omit<AiVisib
     `).get(project.id, domain) as { count: number }).count;
     return {
       domain,
+      snapshotSource: talordataSource(),
       locked: true,
       message: "SEMForge Pro 구독(월 300,000원) 후 AI SEO 데이터를 수집할 수 있습니다.",
       talordata: providerUnavailable("talordata", "구독 필요"),
@@ -207,12 +213,13 @@ export function getAiVisibilityQueryReport(queryIdInput: unknown) {
     createdAt: string;
   } | undefined;
   if (!query) throw semforgeError("NOT_FOUND", "추적 쿼리를 찾을 수 없습니다.");
+  const snapshotSource = talordataSource();
 
   const rows = sqlite.prepare(`
     SELECT aio_present AS aioPresent, cited, cited_url AS citedUrl, cited_domains AS citedDomains,
            organic_position AS organicPosition, features, source, captured_at AS capturedAt
-    FROM ai_visibility_snapshots WHERE query_id = ? ORDER BY captured_at DESC, id DESC LIMIT 12
-  `).all(queryId) as Array<{
+    FROM ai_visibility_snapshots WHERE query_id = ? AND source = ? ORDER BY captured_at DESC, id DESC LIMIT 12
+  `).all(queryId, snapshotSource) as Array<{
     aioPresent: number;
     cited: number | null;
     citedUrl: string | null;
@@ -263,6 +270,8 @@ export function getAiVisibilityQueryReport(queryIdInput: unknown) {
       device: query.device,
       createdAt: query.createdAt,
     },
+    snapshotSource,
+    snapshotCount: rows.length,
     briefing,
   };
 }
