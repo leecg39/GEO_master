@@ -22,3 +22,8 @@ export function canAccessPath(role: AccountRole, pathname: string): boolean {
   catch { return false; }
   return role !== "guest" || !guestRestricted.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
 }
+
+/** 리포트 부록에도 각 원천 API와 동일한 권한을 적용한다. */
+export function canAccessReportObservations(role: AccountRole): boolean {
+  return ["/api/search-console", "/api/bot-logs", "/api/outcomes"].every((path) => canAccessPath(role, path));
+}

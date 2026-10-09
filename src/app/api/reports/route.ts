@@ -3,6 +3,7 @@ import { z } from "zod";
 import { errorResponse } from "@/lib/errors";
 import { PDF_MAX_RESULTS, reportToPdf } from "@/lib/report-pdf";
 import { buildAuditReport, buildShareReport, reportFilename, reportToCsv } from "@/lib/reports";
+import { withRequestAccount } from "@/lib/request-account";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,7 +17,11 @@ const querySchema = z.object({
 export function GET(request: NextRequest) {
   try {
     const query = querySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
-    const report = query.type === "audit" ? buildAuditReport(query.id) : buildShareReport(query.id, query.format === "pdf" ? PDF_MAX_RESULTS : undefined);
+    const report = withRequestAccount(request.headers, () => {
+      // CSV에는 부록이 없으며, JSON(미리보기 포함)·PDF의 원천 권한은 빌더가 검증한다.
+      const options = { includeObservations: query.format !== "csv" };
+      return query.type === "audit" ? buildAuditReport(query.id, options) : buildShareReport(query.id, query.format === "pdf" ? PDF_MAX_RESULTS : undefined, options);
+    });
     const id = report.kind === "audit" ? report.audit.id : report.run.id;
     const filename = reportFilename(query.type, id, query.format);
     if (query.format === "pdf") {

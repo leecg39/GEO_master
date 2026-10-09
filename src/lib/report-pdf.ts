@@ -1,3 +1,5 @@
+import type { ObservationAppendix } from "./observation-appendix";
+import { OUTCOME_KIND_LABELS, PURPOSE_LABELS } from "./observation-labels";
 import { AppError } from "./errors";
 import type { CitationSummary } from "./geo-core";
 import { formatRatio, parseMeasurementEvidence, type MeasurementEvidence } from "./measurement-evidence";
@@ -250,6 +252,9 @@ function auditTemplate(report: Extract<PortableReport, { kind: "audit" }>) {
   document.space(16);
   document.text(`${report.audit.score} / ${report.audit.total} · ${report.audit.grade}`, { size: 20, color: report.audit.grade === "우수" ? COLORS.cyan : COLORS.amber, lineHeight: 28 });
 
+  // 필수 부록을 가변 길이의 진단·근거보다 먼저 출력해 페이지 상한에서도 보존한다.
+  if (report.observations) printObservations(document, report.observations);
+
   document.section("카테고리 점수");
   for (const category of report.audit.categories) document.bar(category.category, category.passed, category.total);
 
@@ -334,6 +339,9 @@ function shareTemplate(report: Extract<PortableReport, { kind: "share" }>) {
   document.text(`응답 점유율 ${report.run.answerShare}%  ·  GenRank ${report.run.genrank}  ·  긍정 문맥 ${numeric(summary.positiveRate)}%`, { size: 15, color: COLORS.cyan, lineHeight: 23 });
   document.text(`퍼널 단계 ${report.run.funnelStage} · 총 ${report.run.totalQueries}회`, { size: 10, color: COLORS.ink });
 
+  // 질문 행렬과 인용 목록도 페이지 상한에 도달할 수 있으므로 모든 반복 섹션보다 앞에 둔다.
+  if (report.observations) printObservations(document, report.observations);
+
   document.section("모델별 점유율");
   const perModel = asRecord(summary.perModel);
   if (!Object.keys(perModel).length) document.text("모델별 집계가 없습니다.", { color: COLORS.muted });
@@ -371,6 +379,41 @@ function shareTemplate(report: Extract<PortableReport, { kind: "share" }>) {
     document.space(8);
   }
   return document.build();
+}
+
+function printObservations(document: PdfLayout, appendix: ObservationAppendix) {
+  document.section("관측 지표 부록");
+  document.text(appendix.note, { size: 8.5, color: COLORS.amber });
+  const header = (title: string, section: { status: string; source: string; definition: string }) => {
+    document.space(6);
+    document.text(`${title} · ${section.status === "connected" ? "연결됨" : "연결 안 됨(0이 아니라 관측 정보 없음)"}`, { size: 11, color: COLORS.ink, lineHeight: 16 });
+    document.text(`출처: ${section.source}`, { size: 8, color: COLORS.muted, indent: 10 });
+    document.text(`정의: ${section.definition}`, { size: 8, color: COLORS.muted, indent: 10 });
+  };
+  const { searchConsole, botLogs, outcomes } = appendix;
+  header("검색 성과", searchConsole);
+  for (const item of searchConsole.properties) {
+    const metrics = item.hasData
+      ? `클릭 ${item.clicks} · 노출 ${item.impressions} · CTR ${item.ctr === null ? "N/A" : `${(item.ctr * 100).toFixed(1)}%`} · 순위 ${item.position === null ? "N/A" : item.position.toFixed(1)}`
+      : "노출 0 · 데이터 없음";
+    document.text(`${item.propertyLabel} (${item.periodStart ?? "?"} ~ ${item.periodEnd ?? "?"}) — ${metrics}`, { size: 9, indent: 10, maxChars: 400 });
+  }
+  header("AI 봇 방문", botLogs);
+  if (botLogs.latest) {
+    const latest = botLogs.latest;
+    document.text(`${latest.fileName} (${latest.periodStart} ~ ${latest.periodEnd}, 로그 시간대 ${latest.offsets.join(", ")}) · DNS 확인 ${latest.dnsChecked ? "실행" : "안 함"} · 자체 진단 ${latest.self} · 그 밖의 요청 ${latest.other}`, { size: 9, indent: 10, maxChars: 500 });
+    for (const row of latest.purposes) {
+      document.text(`${PURPOSE_LABELS[row.purpose]} ${row.hits}회 — DNS 확인 ${row.verifiedHits} · 불일치 ${row.failedHits} · 미확인 ${row.uncheckedHits}`, { size: 9, indent: 20 });
+    }
+  }
+  header("사업 성과", outcomes);
+  for (const source of outcomes.sources) {
+    document.text(`${source.sourceLabel} (${source.periodStart} ~ ${source.periodEnd})${source.unmappedEvents ? ` · 미분류 이벤트 ${source.unmappedEvents}개 제외` : ""}`, { size: 9, indent: 10, maxChars: 300 });
+    if (!source.metrics.length) document.text("정의된 지표 없음", { size: 8.5, color: COLORS.muted, indent: 20 });
+    for (const metric of source.metrics) {
+      document.text(`${OUTCOME_KIND_LABELS[metric.kind]} ${metric.count}회 — ${metric.events.map((event) => `${event.eventName}: ${event.definition}`).join(" / ")}`, { size: 9, indent: 20, maxChars: 800 });
+    }
+  }
 }
 
 export function reportToPdf(report: PortableReport) {
