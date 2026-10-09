@@ -75,6 +75,7 @@ export function GscApiPanel() {
       </div>
       <p className="text-xs text-slate-500">사이트 속성(URL·도메인)의 검색 성과를 읽기 전용으로 가져옵니다. SNS 플랫폼 속성은 공개 API가 제공하지 않으므로 위의 콘솔 내보내기를 쓰세요. API 데이터는 콘솔 내보내기와 따로 보관합니다.</p>
 
+      {status.lastError === "GSC_REVOCATION_FAILED" && <p role="alert" className="text-sm text-amber-300">로컬 연결과 저장된 토큰은 삭제했지만 Google 승인 취소는 확인하지 못했습니다. <a className="underline" href="https://myaccount.google.com/connections" target="_blank" rel="noopener noreferrer">Google 계정의 서드 파티 연결</a>에서 GEO Master의 접근 권한을 직접 삭제하세요.</p>}
       {status.state === "not_configured" && <p className="text-sm text-slate-400">서버에 GOOGLE_CLIENT_ID · GOOGLE_CLIENT_SECRET · GSC_REDIRECT_URI 환경 변수가 있어야 연결할 수 있습니다.</p>}
       {(status.state === "not_connected" || status.state === "error") && (
         // Google 동의 화면으로 가는 최상위 이동(서버가 302로 보낸다)

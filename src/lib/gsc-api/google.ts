@@ -20,15 +20,35 @@ async function call(url: string, init: RequestInit): Promise<{ status: number; b
   } catch {
     throw new AppError("Google에 연결하지 못했습니다. 잠시 후 다시 시도하세요.", 502, "GSC_API_UNREACHABLE");
   }
-  const body = await response.json().catch(() => ({})) as Record<string, unknown>;
+  const parsed: unknown = await response.json().catch(() => ({}));
+  const body = asRecord(parsed);
   return { status: response.status, body };
 }
 
-function apiError(status: number): never {
+function asRecord(value: unknown): Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+const QUOTA_REASONS = new Set([
+  "quotaExceeded", "rateLimitExceeded", "userRateLimitExceeded", "dailyLimitExceeded",
+  "concurrentLimitExceeded", "servingLimitExceeded", "limitExceeded",
+  "dailyLimitExceededUnreg", "rateLimitExceededUnreg", "userRateLimitExceededUnreg",
+  "variableTermExpiredDailyExceeded", "variableTermLimitExceeded",
+  "RATE_LIMIT_EXCEEDED", "QUOTA_EXCEEDED",
+]);
+
+function apiError(status: number, body: Record<string, unknown>): never {
+  const error = asRecord(body.error);
+  const reasons = [error.reason,
+    ...(Array.isArray(error.errors) ? error.errors.map((item) => asRecord(item).reason) : []),
+    ...(Array.isArray(error.details) ? error.details.map((item) => asRecord(item).reason) : []),
+  ];
+  if (status === 429 || (status === 403 && (error.status === "RESOURCE_EXHAUSTED" || reasons.some((reason) => typeof reason === "string" && QUOTA_REASONS.has(reason))))) {
+    throw new AppError("Search Console API 요청 한도를 초과했습니다. 요청을 줄이고 한도가 회복된 후 다시 시도하세요.", 429, "GSC_RATE_LIMITED");
+  }
   if (status === 401) throw new AppError("Google 인증이 만료되었습니다. 다시 연결하세요.", 409, "GSC_TOKEN_INVALID");
   if (status === 403) throw new AppError("이 속성에 대한 권한이 없습니다. Search Console에서 계정 권한을 확인하세요.", 403, "GSC_PERMISSION_DENIED");
   if (status === 404) throw new AppError("Search Console 속성을 찾을 수 없습니다.", 404, "GSC_PROPERTY_NOT_FOUND");
-  if (status === 429) throw new AppError("Search Console API 요청 한도를 초과했습니다. 잠시 후 다시 시도하세요.", 429, "GSC_RATE_LIMITED");
   throw new AppError(`Search Console API 오류(HTTP ${status})`, 502, "GSC_API_ERROR");
 }
 
@@ -49,13 +69,13 @@ export async function refreshAccessToken(config: GscOAuthConfig, refreshToken: s
     body: new URLSearchParams({ client_id: config.clientId, client_secret: config.clientSecret, refresh_token: refreshToken, grant_type: "refresh_token" }).toString(),
   });
   if (status === 400 || status === 401) throw new AppError("Google 연결이 취소되었거나 만료되었습니다. 다시 연결하세요.", 409, "GSC_TOKEN_INVALID");
-  if (status !== 200 || typeof body.access_token !== "string") apiError(status === 200 ? 502 : status);
+  if (status !== 200 || typeof body.access_token !== "string") apiError(status === 200 ? 502 : status, body);
   return body.access_token as string;
 }
 
 export async function listSites(accessToken: string): Promise<SiteEntry[]> {
   const { status, body } = await call(`${API}/sites`, { headers: { authorization: `Bearer ${accessToken}` } });
-  if (status !== 200) apiError(status);
+  if (status !== 200) apiError(status, body);
   const entries = Array.isArray(body.siteEntry) ? body.siteEntry as Array<Record<string, unknown>> : [];
   return entries.filter((entry) => typeof entry.siteUrl === "string").map((entry) => ({ siteUrl: entry.siteUrl as string, permissionLevel: String(entry.permissionLevel ?? "") }));
 }
@@ -66,16 +86,22 @@ export async function querySearchAnalytics(accessToken: string, siteUrl: string,
     headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json" },
     body: JSON.stringify(query),
   });
-  if (status !== 200) apiError(status);
+  if (status !== 200) apiError(status, body);
   return {
     rows: (Array.isArray(body.rows) ? body.rows : []) as AnalyticsRow[],
     aggregation: typeof body.responseAggregationType === "string" ? body.responseAggregationType : null,
   };
 }
 
-/** 연결 해제 시 Google 쪽 승인도 취소한다. 실패해도 로컬 토큰은 지운다(호출부) */
+/** 성공은 HTTP 200만 인정한다. 원본 응답·토큰·네트워크 오류는 노출하지 않는다. */
 export async function revokeToken(token: string) {
   try {
-    await call(`${REVOKE_URL}?${new URLSearchParams({ token })}`, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" } });
-  } catch { /* 네트워크 실패는 무시 */ }
+    const { status } = await call(REVOKE_URL, {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ token }).toString(),
+    });
+    if (status === 200) return;
+  } catch { /* 아래의 고정된 오류로 변환한다. */ }
+  throw new AppError("Google 승인 취소를 확인하지 못했습니다.", 502, "GSC_REVOCATION_FAILED");
 }

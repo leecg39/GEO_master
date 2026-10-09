@@ -103,7 +103,7 @@ export async function completeGscOAuth(input: { code: string; state: string }) {
   const existing = connectionOf(pending.project_id);
   const now = new Date().toISOString();
   if (existing) {
-    updateConnection(existing.id, { status: "connected", refresh_token: encryptSecret(token.refreshToken), granted_scope: GSC_SCOPE, last_error: null });
+    updateConnection(existing.id, { site_url: "", last_synced_at: null, status: "connected", refresh_token: encryptSecret(token.refreshToken), granted_scope: GSC_SCOPE, last_error: null });
   } else {
     sqlite.prepare("INSERT INTO gsc_connections (project_id, site_url, status, refresh_token, granted_scope, created_at, updated_at) VALUES (?, '', 'connected', ?, ?, ?, ?)")
       .run(pending.project_id, encryptSecret(token.refreshToken), GSC_SCOPE, now, now);
@@ -198,6 +198,11 @@ export async function disconnectGsc() {
   const row = connectionOf(active.id);
   if (!row) return;
   const refresh = row.refresh_token ? decryptSecret(row.refresh_token) : null;
-  if (refresh) await revokeToken(refresh);
-  updateConnection(row.id, { status: "disconnected", refresh_token: null, granted_scope: null, site_url: "", last_error: null });
+  // 로컬 삭제 후에는 재시도할 토큰이 없으므로, 중복 DELETE도 실패 경고를 지우지 않는다.
+  let revocationFailed = row.last_error === "GSC_REVOCATION_FAILED";
+  try {
+    if (refresh) { await revokeToken(refresh); revocationFailed = false; }
+  } catch { revocationFailed = true; }
+  updateConnection(row.id, { status: "disconnected", refresh_token: null, granted_scope: null, site_url: "", last_synced_at: null, last_error: revocationFailed ? "GSC_REVOCATION_FAILED" : null });
+  if (revocationFailed) throw new AppError("로컬 연결과 저장된 토큰은 삭제했지만 Google 승인 취소는 확인하지 못했습니다. Google 계정의 서드 파티 연결에서 GEO Master의 접근 권한을 직접 삭제하세요.", 502, "GSC_REVOCATION_FAILED");
 }

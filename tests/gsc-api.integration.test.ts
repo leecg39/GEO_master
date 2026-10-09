@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { NextRequest } from "next/server";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { DELETE as disconnectRoute, GET as statusRoute } from "@/app/api/integrations/gsc/route";
 import { GET as callbackRoute } from "@/app/api/integrations/gsc/callback/route";
 import { GET as startRoute } from "@/app/api/integrations/gsc/start/route";
 import { canAccessPath } from "@/lib/account-policy";
@@ -198,5 +199,66 @@ describe("GSC OAuth routes", () => {
 
   it("is not available to guests", () => {
     for (const path of ["/api/integrations/gsc", "/api/integrations/gsc/start", "/api/integrations/gsc/callback"]) expect(canAccessPath("guest", path)).toBe(false);
+  });
+});
+
+
+describe("GSC review regressions", () => {
+  beforeEach(async () => {
+    const { state } = startAndGetState();
+    await completeGscOAuth({ code: "fake-code", state });
+    await selectGscSite("sc-domain:example.com");
+  });
+
+  it("persists quota failures with the correct sync and connection error codes", async () => {
+    handler = google({ query: () => json(403, { error: { errors: [{ reason: "quotaExceeded" }] } }) });
+    await expect(syncGscPerformance({ startDate: "2026-10-01", endDate: "2026-10-02" })).rejects.toMatchObject({ code: "GSC_RATE_LIMITED", status: 429 });
+    expect(getGscStatus()).toMatchObject({ state: "connected", lastError: "GSC_RATE_LIMITED", latestSync: { status: "error", errorCode: "GSC_RATE_LIMITED" } });
+  });
+
+  it.each([400, 503, "network"])("deletes local credentials but reports and preserves remote revocation failure: %s", async (failure) => {
+    handler = google({ revoke: () => {
+      if (failure === "network") throw new Error("fake-private-network-details");
+      return json(Number(failure), { error: "fake-private-response" });
+    } });
+    const response = await disconnectRoute();
+    expect(response.status).toBe(502);
+    const body = await response.json();
+    expect(body).toMatchObject({ code: "GSC_REVOCATION_FAILED" });
+    expect(body.error).toContain("로컬 연결과 저장된 토큰은 삭제");
+    expect(JSON.stringify(body).includes("fake-private")).toBe(false);
+    const row = getDatabase().sqlite.prepare("SELECT refresh_token, granted_scope, site_url, status FROM gsc_connections ORDER BY id DESC LIMIT 1").get();
+    expect(row).toEqual({ refresh_token: null, granted_scope: null, site_url: "", status: "disconnected" });
+    expect((await statusRoute().json()).status).toMatchObject({ state: "not_connected", siteUrl: null, lastError: "GSC_REVOCATION_FAILED" });
+    expect((await disconnectRoute()).status).toBe(502);
+    expect(getGscStatus().lastError).toBe("GSC_REVOCATION_FAILED");
+    await expect(listGscSites()).rejects.toMatchObject({ code: "GSC_NOT_CONNECTED" });
+  });
+
+  it("returns success only after confirmed remote revocation", async () => {
+    expect((await disconnectRoute()).status).toBe(204);
+    expect(getGscStatus()).toMatchObject({ state: "not_connected", lastError: null });
+  });
+
+  it.each([false, true])("requires property reselection after replacing the grant (shared old property: %s)", async (sharedOldProperty) => {
+    await syncGscPerformance({ startDate: "2026-10-01", endDate: "2026-10-02" });
+    const newSite = "sc-domain:new-account.example";
+    handler = google({
+      token: () => json(200, { access_token: "fake-new-access", refresh_token: "fake-new-refresh", scope: SCOPE }),
+      sites: () => json(200, { siteEntry: [
+        { siteUrl: newSite, permissionLevel: "siteOwner" },
+        ...(sharedOldProperty ? [{ siteUrl: "sc-domain:example.com", permissionLevel: "siteOwner" }] : []),
+      ] }),
+    });
+    const { state } = startAndGetState();
+    await completeGscOAuth({ code: "fake-new-account-code", state });
+    expect(getGscStatus()).toMatchObject({ state: "connected", siteUrl: null, lastSyncedAt: null, lastError: null });
+    calls.length = 0;
+    await expect(syncGscPerformance({ startDate: "2026-10-01", endDate: "2026-10-02" })).rejects.toMatchObject({ code: "GSC_PROPERTY_NOT_SELECTED" });
+    expect(calls.some((call) => call.url.pathname.endsWith("/searchAnalytics/query"))).toBe(false);
+    expect((await listGscSites()).sites.some((site) => site.siteUrl === newSite)).toBe(true);
+    if (!sharedOldProperty) await expect(selectGscSite("sc-domain:example.com")).rejects.toMatchObject({ code: "GSC_PROPERTY_NOT_ACCESSIBLE" });
+    await selectGscSite(newSite);
+    expect(await syncGscPerformance({ startDate: "2026-10-01", endDate: "2026-10-02" })).toMatchObject({ siteUrl: newSite, status: "ok" });
   });
 });
