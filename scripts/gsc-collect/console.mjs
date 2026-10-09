@@ -3,7 +3,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright-core";
-import { exportFileName, isGoogleLoginUrl, performanceUrl, propertyMismatch, validateDownload } from "./lib.ts";
+import { exportFileName, isGoogleLoginUrl, performanceUrl, propertyMismatch, validateDownload } from "./lib.mjs";
 
 export class CollectError extends Error {
   constructor(code, message) {
@@ -72,7 +72,7 @@ export async function exportProperty(page, property, { runDir, date, consoleBase
   if (failure) throw new CollectError("DOWNLOAD_FAILED", `내려받기에 실패했습니다: ${failure}`);
 
   await fs.mkdir(runDir, { recursive: true, mode: 0o700 });
-  const file = path.join(runDir, exportFileName(property.label, date));
+  const file = path.join(runDir, exportFileName(property.label, date, property.resourceId));
   await download.saveAs(file);
   await fs.chmod(file, 0o600);
   const bytes = new Uint8Array(await fs.readFile(file));

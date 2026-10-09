@@ -12,7 +12,7 @@ import os from "node:os";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { CollectError, exportProperty, openProfile } from "./gsc-collect/console.mjs";
-import { classifyUpload, launchdPlist, lockIsStale, parseCollectConfig, uploadBody } from "./gsc-collect/lib.ts";
+import { classifyUpload, launchdPlist, lockIsStale, parseCollectConfig, uploadBody } from "./gsc-collect/lib.mjs";
 
 const DEFAULT_CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
@@ -42,11 +42,14 @@ async function login(config) {
   const chrome = config.chromePath ?? DEFAULT_CHROME;
   console.log(`전용 Chrome 프로필(${config.profileDir})을 엽니다. 이 창에서 직접 Google에 로그인하고 Search Console 실적 화면이 보이면 창을 닫으세요.`);
   const child = spawn(chrome, [`--user-data-dir=${config.profileDir}`, "--no-first-run", "--no-default-browser-check", "https://search.google.com/search-console"], { stdio: "ignore" });
-  const code = await new Promise((resolve, reject) => {
+  const { code, signal } = await new Promise((resolve, reject) => {
     child.once("error", (error) => reject(new CollectError("BROWSER_LAUNCH_FAILED", `Chrome을 실행하지 못했습니다(${chrome}): ${error.message}`)));
-    child.once("exit", resolve);
+    child.once("exit", (code, signal) => resolve({ code, signal }));
   }).finally(release);
-  console.log(code === 0 ? "로그인 창을 닫았습니다. 이제 `npm run gsc:collect`로 수집할 수 있습니다." : `Chrome이 코드 ${code}로 종료되었습니다.`);
+  if (code !== 0) {
+    throw new CollectError("BROWSER_LOGIN_FAILED", `Chrome 로그인 창이 ${signal ? `신호 ${signal}` : `코드 ${code}`}로 종료되었습니다.`);
+  }
+  console.log("로그인 창을 닫았습니다. 이제 `npm run gsc:collect`로 수집할 수 있습니다.");
 }
 
 function processAlive(pid) {

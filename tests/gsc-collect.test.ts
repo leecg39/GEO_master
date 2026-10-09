@@ -10,7 +10,7 @@ import {
   propertyMismatch,
   uploadBody,
   validateDownload,
-} from "../scripts/gsc-collect/lib";
+} from "../scripts/gsc-collect/lib.mjs";
 
 const HOME = "/Users/tester";
 const property = { label: "TikTok @userv6z8w49gz5", resourceId: "sc-creator-profile:tiktok.com/user/userv6z8w49gz5" };
@@ -76,11 +76,14 @@ describe("console navigation helpers", () => {
 });
 
 describe("downloads and uploads", () => {
-  it("names files from the label and run date without path characters", () => {
-    expect(exportFileName("TikTok @userv6z8w49gz5", "2026-10-08")).toBe("tiktok-userv6z8w49gz5-2026-10-08.xlsx");
-    expect(exportFileName("../../etc/passwd", "2026-10-08")).toBe("etc-passwd-2026-10-08.xlsx");
-    expect(exportFileName("인스타그램 공식", "2026-10-08")).toBe("인스타그램-공식-2026-10-08.xlsx");
-    expect(exportFileName("@@@", "2026-10-08")).toBe("property-2026-10-08.xlsx");
+  it("names files safely with a stable resource identity and run date", () => {
+    const file = exportFileName("TikTok @userv6z8w49gz5", "2026-10-08", property.resourceId);
+    expect(file).toMatch(/^tiktok-userv6z8w49gz5-[a-f0-9]{64}-2026-10-08\.xlsx$/);
+    expect(exportFileName("../../etc/passwd", "2026-10-08", property.resourceId)).toMatch(/^etc-passwd-/);
+    expect(exportFileName("인스타그램 공식", "2026-10-08", property.resourceId)).toMatch(/^인스타그램-공식-/);
+    expect(exportFileName("@@@", "2026-10-08", property.resourceId)).toMatch(/^property-/);
+    expect(exportFileName("IG @foo", "2026-10-08", "sc-domain:a.com"))
+      .not.toBe(exportFileName("IG foo", "2026-10-08", "sc-domain:b.com"));
   });
 
   it("accepts only non-empty zip files within the import size limit", () => {
