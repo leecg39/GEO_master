@@ -34,6 +34,9 @@ interface Dependencies {
   facts: number;
   optimizationRuns: number;
   reportShares: number;
+  outcomeImports: number;
+  outcomeEvents: number;
+  outcomeDefinitions: number;
   botLogImports: number;
 }
 
@@ -76,6 +79,9 @@ const dependencyLabels: Record<keyof Dependencies, string> = {
   facts: "사실 메모",
   optimizationRuns: "최적화 실행",
   reportShares: "공개 리포트 링크",
+  outcomeImports: "사업 성과 가져오기",
+  outcomeEvents: "사업 성과 이벤트",
+  outcomeDefinitions: "사업 성과 지표 정의",
   botLogImports: "봇 로그 가져오기(방문·경로 집계 포함)",
 };
 
