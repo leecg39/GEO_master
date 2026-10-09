@@ -11,7 +11,7 @@ const guestRestricted = [
   "/settings", "/subscription", "/workspace", "/semforge", "/ai-seo", "/site-audit",
   "/position-tracking", "/analytics", "/local-business", "/search-console", "/bot-logs", "/outcomes",
   "/api/settings", "/api/workspace", "/api/semforge", "/api/ai-seo", "/api/site-audit",
-  "/api/position-tracking", "/api/analytics", "/api/local-business", "/api/search-console", "/api/bot-logs", "/api/outcomes",
+  "/api/position-tracking", "/api/analytics", "/api/local-business", "/api/search-console", "/api/bot-logs", "/api/outcomes", "/api/integrations",
   // 공개 링크는 데이터를 외부로 내보내므로 게스트가 만들 수 없다
   "/api/report-shares",
 ];
