@@ -10,10 +10,13 @@
     "start": "next start -H 127.0.0.1",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run && npm run test:gsc",
     "test:coverage": "vitest run --coverage",
     "seed:annatar": "npx --yes tsx scripts/seed-annatar-mock.ts",
-    "autoresearch:dashboard": "node autoresearch/eval/dashboard-score.mjs"
+    "autoresearch:dashboard": "node autoresearch/eval/dashboard-score.mjs",
+    "gsc:login": "node scripts/gsc-console-collect.mjs --login",
+    "gsc:collect": "node scripts/gsc-console-collect.mjs",
+    "test:gsc": "node --test scripts/gsc-collect/regression.mjs"
   },
   "engines": {
     "node": ">=22.0.0"
@@ -47,6 +50,7 @@
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.3",
     "jsdom": "30.0.1",
+    "playwright-core": "1.64.0",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
