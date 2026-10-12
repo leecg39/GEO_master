@@ -10,6 +10,7 @@ import { requireSemforgeSubscription } from "@/lib/semforge-subscription";
 import { requireActiveProject } from "@/lib/projects";
 import { providerUnavailable, providerLive } from "@/lib/semforge/providers/types";
 import { mapSite } from "@/lib/integrations/firecrawl";
+import { findReturnLinkGaps } from "@/lib/hreflang";
 import { analyzeObservation, countTechnicalIssues, recordPageSnapshot, type PageAnalysis } from "@/lib/page-snapshots";
 import type { RobotsPolicy } from "@/lib/robots-policy";
 import {
@@ -124,7 +125,26 @@ const SNAPSHOT_ISSUES: Record<string, { severity: string; title: string }> = {
   "jsonld-parse": { severity: "warning", title: "JSON-LD 구문 오류" },
   "canonical-host": { severity: "warning", title: "canonical이 다른 사이트를 가리킴" },
   "robots-noindex": { severity: "notice", title: "noindex 설정된 페이지" },
+  "https-final": { severity: "warning", title: "HTTPS가 아닌 페이지" },
+  "hreflang-valid": { severity: "warning", title: "hreflang 형식 오류" },
 };
+
+const MAX_HREFLANG_GAPS_LISTED = 5;
+
+/** 수집한 페이지끼리 hreflang 상호 참조가 빠진 쌍. 수집하지 않은 대상은 판정하지 않는다. */
+function hreflangGapIssue(results: PageFetchResult[], analyses: Array<PageAnalysis | null>) {
+  const pages = results.flatMap((page, index) => {
+    const facts = analyses[index]?.facts;
+    return facts?.hreflang ? [{ url: page.finalUrl ?? page.url, hreflang: facts.hreflang }] : [];
+  });
+  const gaps = findReturnLinkGaps(pages);
+  if (gaps.length === 0) return null;
+  const listed = gaps.slice(0, MAX_HREFLANG_GAPS_LISTED).map((gap) => `${gap.from} → ${gap.to}`).join(", ");
+  return {
+    url: gaps[0]!.from, severity: "warning", category: "page", title: "hreflang 상호 참조 누락",
+    detail: `${gaps.length}쌍에서 대상 페이지가 되돌아 가리키지 않아 Google이 이 hreflang을 무시할 수 있습니다: ${listed}${gaps.length > MAX_HREFLANG_GAPS_LISTED ? " 외" : ""}`,
+  };
+}
 
 function analyzeCollectedPages(collected: CollectResult | null, domain: string): Array<PageAnalysis | null> {
   return (collected?.pages ?? []).map((page) => page.state === "fetched" && page.body !== null && page.renderMode
@@ -230,6 +250,8 @@ function persistCrawlResults(sqlite: Database.Database, campaignId: number, proj
   for (const [code, urls] of snapshotFailures) {
     addIssue({ url: urls[0]!, category: "page", ...SNAPSHOT_ISSUES[code]!, detail: `${urls.length}개 페이지에서 확인했습니다. URL별 근거는 발견 URL 목록의 '근거'에서 볼 수 있습니다.` });
   }
+  const hreflangGap = hreflangGapIssue(results, outcome.analyses);
+  if (hreflangGap) addIssue(hreflangGap);
   if (halted) addIssue({ url: `https://${domain}`, category: "crawl", ...HALT_ISSUES[halted] });
   if (collected && collected.overLimit > 0) {
     addIssue({ url: `https://${domain}`, severity: "notice", category: "crawl", title: "렌더링 수집 한도", detail: `크레딧 보호를 위해 ${RENDER_PAGE_LIMIT}페이지만 렌더링했고 ${collected.overLimit}개는 요청하지 않았습니다.` });

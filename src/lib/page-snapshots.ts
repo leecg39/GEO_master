@@ -12,11 +12,13 @@ import * as cheerio from "cheerio";
 import { z } from "zod";
 import { AUDIT_RULES, extractJsonLdTypes, parseAuditHtml } from "@/lib/audit";
 import { getDatabase } from "@/lib/db";
+import type { HreflangLink } from "@/lib/hreflang";
+import { extractHreflang, seoFindings } from "@/lib/page-seo-rules";
 import { AppError } from "@/lib/errors";
 import { requireActiveProject } from "@/lib/projects";
 
-export const PAGE_PARSER_VERSION = "page-facts/1";
-export const PAGE_RULES_VERSION = "page-rules/1";
+export const PAGE_PARSER_VERSION = "page-facts/2";
+export const PAGE_RULES_VERSION = "page-rules/2";
 const MAX_STORED_HTML_BYTES = 256 * 1024;
 const MAX_VERSIONS_PER_URL = 3;
 
@@ -45,6 +47,9 @@ export interface PageFacts {
   jsonLdBlocks: number;
   jsonLdInvalid: number;
   wordCount: number;
+  /** page-facts/2부터. 이전 버전 스냅샷에는 없다 */
+  viewport: string | null;
+  hreflang: HreflangLink[];
 }
 
 export type FindingTier = "technical" | "recommendation" | "hypothesis";
@@ -102,6 +107,8 @@ export function extractPageFacts(html: string, pageUrl: string): PageFacts {
     jsonLdBlocks: blocks.length,
     jsonLdInvalid,
     wordCount: bodyText ? bodyText.split(" ").length : 0,
+    viewport: clean($("meta[name='viewport']").attr("content")),
+    hreflang: extractHreflang($, pageUrl),
   };
 }
 
@@ -148,7 +155,7 @@ function htmlFindings(facts: PageFacts, html: string, pageUrl: string, domain: s
     const checked = rule.check(snapshot, noFiles);
     findings.push(finding(rule.code, tier, "notice", rule.label, checked.passed, tier === "hypothesis" ? `${checked.detail} (GEO 가설 — 페이지 유형에 따라 필요 없을 수 있음)` : checked.detail, checked.detail));
   }
-  return findings;
+  return [...findings, ...seoFindings(facts, pageUrl)];
 }
 
 export function analyzeObservation(observation: PageObservation, domain: string): PageAnalysis {

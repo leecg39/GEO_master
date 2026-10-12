@@ -95,6 +95,24 @@ describe("Qshop P03: crawls store versioned page snapshots", () => {
     expect(briefing.issues.map((issue) => issue.title)).toEqual(expect.arrayContaining(["JSON-LD 구문 오류", "canonical이 다른 사이트를 가리킴"]));
   });
 
+  it("reports crawled hreflang targets that do not link back (RankSEO REA G6)", async () => {
+    homeHtml = `<html lang="ko"><head><title>홈</title>
+      <link rel="alternate" hreflang="ko" href="https://example.com"><link rel="alternate" hreflang="en" href="https://example.com/product">
+      <link rel="alternate" hreflang="ja" href="https://example.com/ja-not-crawled"></head><body><h1>홈</h1></body></html>`;
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    await runSiteAuditCampaign(campaign.id);
+    const issue = getSiteAuditOverview(campaign.id).briefing.issues.find((item) => item.title === "hreflang 상호 참조 누락");
+    expect(issue).toMatchObject({ severity: "warning", url: "https://example.com" });
+    expect(issue?.detail).toContain("https://example.com → https://example.com/product");
+    expect(issue?.detail).not.toContain("ja-not-crawled");
+  });
+
+  it("does not report hreflang return links when no page uses hreflang", async () => {
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    await runSiteAuditCampaign(campaign.id);
+    expect(getSiteAuditOverview(campaign.id).briefing.issues.map((item) => item.title)).not.toContain("hreflang 상호 참조 누락");
+  });
+
   it("reuses an unchanged version, adds a new one when content changes and keeps at most three", async () => {
     const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
     await runSiteAuditCampaign(campaign.id);

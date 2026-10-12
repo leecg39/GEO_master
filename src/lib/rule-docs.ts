@@ -84,6 +84,11 @@ export const RULE_DOCS: Readonly<Record<string, RuleDoc>> = Object.freeze({
   "robots-noindex": NOINDEX,
   "description-present": SNIPPET,
   "lang-present": { url: `${MDN}/Global_attributes/lang`, source: "MDN" },
+  "title-length": { ...TITLE, note: "Google은 제목 길이 한도를 정하지 않습니다. 잘림 가능성의 추정입니다." },
+  "description-length": { ...SNIPPET, note: "Google은 설명 길이 한도를 정하지 않습니다. 잘림 가능성의 추정입니다." },
+  viewport: { url: `${MDN}/Elements/meta/name/viewport`, source: "MDN" },
+  "https-final": { url: `${G}/appearance/page-experience`, source: GOOGLE },
+  "hreflang-valid": { url: `${G}/specialty/international/localized-versions`, source: GOOGLE },
 });
 
 export function ruleDocFor(code: string): RuleDoc | null {

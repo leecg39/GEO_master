@@ -39,8 +39,8 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 |---|---|---|
 | A0 기준선 | 완료 | 테스트 100개 파일·810개 통과, typecheck·lint 통과, build exit 0 |
 | A1 규칙 문서 링크·등급 척도 | 완료 | `src/lib/rule-docs.ts`, `src/lib/audit-grade.ts`, `src/components/RuleDocLink.tsx` |
-| A2 기술 SEO 규칙 보강 | 다음 | `page-snapshots.ts`에 추가, `page-rules/2`·`page-facts/2` |
-| A3 Schema 필드 검사 | 대기 | Google 문서를 다시 받아 표 작성. FAQ 리치 결과는 2026년 5월 이후 Google 검색에 표시되지 않음 |
+| A2 기술 SEO 규칙 보강 | 완료 | `src/lib/page-seo-rules.ts`, `src/lib/hreflang.ts`, 사이트 감사 상호 참조 이슈. 사이트맵·HTTP 헤더 hreflang은 미지원 |
+| A3 Schema 필드 검사 | 다음 | Google 문서를 다시 받아 표 작성. FAQ 리치 결과는 2026년 5월 이후 Google 검색에 표시되지 않음 |
 | R01~R05 보고서 | 대기 | `rankseo-gap-reports-plan.md` |
 | A4 JS 의존 콘텐츠 | 대기 | |
 | A5 답변 구조 지표 | 대기 | |
