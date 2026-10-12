@@ -5,6 +5,8 @@ import { FormEvent, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Check, LoaderCircle, SearchCheck, X } from "lucide-react";
 import { AuditHistoryPanel, notifyAuditChanged, type AuditResource } from "@/components/AuditHistoryPanel";
 import { Badge, Button, Card, PageHeader, Progress } from "@/components/ui";
+import { RuleDocLink } from "@/components/RuleDocLink";
+import { auditGradeScale, auditGradeTone } from "@/lib/audit-grade";
 
 const manualRules = [
   ["geo-search-intent", "검색 의도가 명확하다"], ["geo-journey", "구매 여정을 반영했다"],
@@ -67,7 +69,7 @@ export function AuditClient() {
         <Card className="flex flex-col justify-between text-center p-6 sm:p-7">
           <div>
             <div className="flex items-center justify-between gap-2 border-b border-white/5 pb-4">
-              <Badge tone={audit.score >= 25 ? "good" : audit.score < 20 ? "bad" : "warn"}>{audit.grade}</Badge>
+              <Badge tone={auditGradeTone(audit.score)}>{audit.grade}</Badge>
               <span className="text-xs text-slate-400">{engineMode === "ai-engine" ? "🤖 AI 엔진 정밀 분석" : "⚡ GEO 시맨틱 분석"}</span>
             </div>
             <h2 className="mt-4 truncate text-lg sm:text-xl font-bold text-white">{audit.title || "진단 결과"}</h2>
@@ -75,6 +77,7 @@ export function AuditClient() {
               <div><strong className="block text-5xl font-black text-white">{audit.score}</strong><span className="text-xs font-semibold text-slate-500">/ {audit.total}</span></div>
             </div>
             <Progress value={(audit.score / audit.total) * 100} className="h-2.5" />
+            <p className="mt-3 text-[11px] leading-relaxed text-slate-500">{auditGradeScale(audit.total)}</p>
           </div>
           <p className="mt-4 break-all text-xs font-mono text-slate-500">{audit.metadata.finalUrl ?? audit.url}</p>
         </Card>
@@ -148,6 +151,7 @@ export function AuditClient() {
                             💡 {item.recommendation}
                           </p>
                         )}
+                        {!item.passed && <RuleDocLink code={item.code} />}
                       </div>
                     </div>
                   </div>

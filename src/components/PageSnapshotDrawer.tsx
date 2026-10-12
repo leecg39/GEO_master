@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { DetailDrawer } from "@/components/CrudPrimitives";
 import { Badge, EmptyState } from "@/components/ui";
+import { RuleDocLink } from "@/components/RuleDocLink";
 
 interface Finding {
   code: string;
@@ -149,6 +150,7 @@ export function PageSnapshotDrawer({ snapshotId, onClose }: { snapshotId: number
                     </div>
                     <p className="mt-1 text-xs leading-5 text-slate-400">{item.detail}</p>
                     {item.evidence && <p className="mt-1 break-all text-[11px] text-slate-500">관측값: {item.evidence}</p>}
+                    {!item.passed && <RuleDocLink code={item.code} />}
                   </li>
                 ))}
               </ul>

@@ -5,6 +5,7 @@ import { ChevronRight, History, LoaderCircle, Pencil, Trash2 } from "lucide-reac
 import { ConfirmDialog, CrudListToolbar, CursorPagination, DetailDrawer } from "@/components/CrudPrimitives";
 import { Badge, Button, Card, EmptyState } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
+import { auditGradeTone } from "@/lib/audit-grade";
 
 export interface AuditItemResource {
   code: string;
@@ -191,7 +192,7 @@ export function AuditHistoryPanel({ onSelect }: { onSelect: (audit: AuditResourc
         <button type="button" disabled={busy} onClick={() => void openDetail(audit.id)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-800 text-sm font-bold text-white">{audit.score}</span>
           <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-slate-300">{audit.title || audit.url}</span><span className="mt-0.5 block truncate text-xs text-slate-600">{formatDate(audit.createdAt)} · {audit.url}</span></span>
-          <Badge tone={audit.score >= 25 ? "good" : audit.score < 20 ? "bad" : "warn"}>{audit.grade}</Badge><ChevronRight className="h-4 w-4 shrink-0 text-slate-700" />
+          <Badge tone={auditGradeTone(audit.score)}>{audit.grade}</Badge><ChevronRight className="h-4 w-4 shrink-0 text-slate-700" />
         </button>
         <button type="button" disabled={busy} onClick={() => beginEdit(audit)} className="rounded-lg p-2 text-slate-500 hover:bg-white/5 hover:text-cyan-300" aria-label={`${audit.title || audit.url} 메타데이터 수정`}><Pencil className="h-4 w-4" /></button>
         <button type="button" disabled={busy} onClick={() => setDeleteTarget(audit)} className="rounded-lg p-2 text-slate-600 hover:bg-rose-400/10 hover:text-rose-300" aria-label={`${audit.title || audit.url} 삭제`}><Trash2 className="h-4 w-4" /></button>
