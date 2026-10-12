@@ -170,6 +170,9 @@ describe("GET /api/change-items/report", () => {
     const md = await call(`url=${encodeURIComponent(URL_A)}&format=md`);
     expect(md.headers.get("content-type")).toBe("text/markdown; charset=utf-8");
     expect(md.headers.get("content-disposition")).toMatch(/^attachment; filename="geo-changes-\d{4}-\d{2}-\d{2}\.md"$/);
+    const pdf = await call(`url=${encodeURIComponent(URL_A)}&format=pdf`);
+    expect(pdf.headers.get("content-type")).toBe("application/pdf");
+    expect(Buffer.from(await pdf.arrayBuffer()).subarray(0, 5).toString("ascii")).toBe("%PDF-");
     const download = await call(`ids=${ids.verified},${ids.failed}&format=json&download=1`);
     expect(download.headers.get("content-disposition")).toMatch(/\.json"$/);
   });

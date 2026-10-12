@@ -12,7 +12,7 @@ export const PDF_MAX_RESULTS = 1_000;
 const MAX_PDF_BYTES = 12 * 1024 * 1024;
 
 type Color = readonly [number, number, number];
-const COLORS = {
+export const COLORS = {
   ink: [0.09, 0.12, 0.18] as Color,
   muted: [0.38, 0.43, 0.51] as Color,
   cyan: [0.03, 0.55, 0.66] as Color,
@@ -102,7 +102,7 @@ function rectCommand(x: number, y: number, width: number, height: number, color:
   return `${color.map(number).join(" ")} rg ${number(x)} ${number(y)} ${number(width)} ${number(height)} re f\n`;
 }
 
-class PdfLayout {
+export class PdfLayout {
   private readonly pages: string[][] = [];
   private y = PAGE_HEIGHT - 58;
   truncated = false;

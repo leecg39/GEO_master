@@ -60,6 +60,7 @@ function ReportBody({ report, url }: { report: ChangeReport; url: string }) {
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
         <a href={`${reportPath(url)}&format=md`} download className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-slate-200 hover:bg-white/10"><FileText className="h-4 w-4" />Markdown</a>
+        <a href={`${reportPath(url)}&format=pdf`} download className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-bold text-cyan-200 hover:bg-cyan-400/15"><FileText className="h-4 w-4" />PDF</a>
         <a href={`${reportPath(url)}&format=json&download=1`} download className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-slate-200 hover:bg-white/10"><FileJson2 className="h-4 w-4" />JSON</a>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">

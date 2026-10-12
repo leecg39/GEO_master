@@ -51,8 +51,8 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | R07 WordPress 연결·읽기 | 완료 | 마이그레이션 29, `src/lib/integrations/wordpress.ts`, `wordpress-connections.ts`, `/api/wordpress/connection`·`/lookup`, 수정안 화면의 연결 패널, `sendPublicRequest`(url-security) |
 | R08 WordPress 쓰기 전달 | 완료 | 마이그레이션 30 `change_deliveries`, `src/lib/wordpress-delivery.ts`, `/api/change-items/[id]/wordpress`(preview/execute), 수동 전달도 이력 기록 |
 | R09 보고서 WordPress 칸 | 완료 | `src/lib/wordpress-verify.ts`, 반영 확인 때 저장값을 동시에 기록, 보고서에 캐시 가능성 안내 |
-| R10 수정 결과 보고서 PDF | 다음 | 기존 `report-pdf.ts` 패턴 |
-| A7 PageSpeed | 대기 | |
+| R10 수정 결과 보고서 PDF | 완료 | `src/lib/change-report-pdf.ts`, `/api/change-items/report?format=pdf`, 화면 PDF 버튼 |
+| A7 PageSpeed | 다음 | 사용자 키만, 마이그레이션 31 |
 | A8 만점 테스트 | 대기 | |
 
 ## 알려진 사항

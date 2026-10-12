@@ -74,6 +74,7 @@ it("offers Markdown and JSON downloads for the same scope", async () => {
   const hrefs = [...container.querySelectorAll("a[download]")].map((link) => link.getAttribute("href"));
   expect(hrefs).toEqual([
     `/api/change-items/report?url=${encodeURIComponent(URL_A)}&format=md`,
+    `/api/change-items/report?url=${encodeURIComponent(URL_A)}&format=pdf`,
     `/api/change-items/report?url=${encodeURIComponent(URL_A)}&format=json&download=1`,
   ]);
 });
