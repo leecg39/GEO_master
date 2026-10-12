@@ -55,6 +55,17 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | A7 PageSpeed | 완료 | 마이그레이션 31 `integration_secrets`, `src/lib/pagespeed.ts`, `/api/pagespeed`(+`/key`), 진단 화면 패널. 키 없는 호출은 할당량 0(실측 429). CrUX 지표 키 이름은 실키 호출로 확인하지 못함 — 모르는 키는 원문 표시 |
 | A8 만점 테스트 | 완료 | `tests/max-score.test.ts` — 진단 32/32, 페이지 규칙 전부 통과, llms.txt 100. Red-Green 확인 |
 
+## 완료 (2026-10-13)
+
+계획의 모든 티켓(A0~A8, R01~R10)을 끝냈다. PR: https://github.com/leecg39/GEO_master/pull/29 (base `feat/signup-landing` = PR #28).
+최종 검증: 테스트 121개 파일·999개 통과, typecheck 통과, lint 경고 0, build exit 0.
+
+### 다음에 할 일 (승인 필요, 아직 계획 없음)
+
+1. PR #28 → #29 순서로 머지. 머지 후 운영 DB에 마이그레이션 28~31(테이블 추가만)이 적용된다.
+2. 수동 점검: 운영 WordPress(Yoast)에서 제목·설명 쓰기 → 반영 확인, PageSpeed 실제 키로 1회 측정해 CrUX 지표 이름 확인.
+3. 별도 결정이 필요한 기존 문제: 계정별 데이터 분리(`/api/reports` 등은 프로젝트 소유권만 본다), `db/index.ts` 분할(1,191줄), 375px 공통 레이아웃 잘림.
+
 ## 알려진 사항
 
 - 375px 헤드리스 Chrome 스크린샷에서 `/changes`, `/changes/report` 모두 오른쪽이 잘린다(기존 공통 레이아웃 현상). 이번 범위 밖.
