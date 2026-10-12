@@ -12,6 +12,7 @@ import { providerUnavailable, providerLive } from "@/lib/semforge/providers/type
 import { mapSite } from "@/lib/integrations/firecrawl";
 import { findReturnLinkGaps } from "@/lib/hreflang";
 import { analyzeObservation, countTechnicalIssues, recordPageSnapshot, type PageAnalysis } from "@/lib/page-snapshots";
+import { compareRenderedToNative } from "@/lib/render-compare";
 import type { RobotsPolicy } from "@/lib/robots-policy";
 import {
   collectDiscoveredPages, probeLlmsTxt, probeRobotsTxt, RENDER_PAGE_LIMIT, urlPathDepth,
@@ -128,6 +129,7 @@ const SNAPSHOT_ISSUES: Record<string, { severity: string; title: string }> = {
   "https-final": { severity: "warning", title: "HTTPS가 아닌 페이지" },
   "hreflang-valid": { severity: "warning", title: "hreflang 형식 오류" },
   "schema-required": { severity: "warning", title: "구조화 데이터 필수 속성 누락" },
+  "js-dependent-content": { severity: "warning", title: "JavaScript 실행 후에만 보이는 콘텐츠" },
 };
 
 const MAX_HREFLANG_GAPS_LISTED = 5;
@@ -148,9 +150,13 @@ function hreflangGapIssue(results: PageFetchResult[], analyses: Array<PageAnalys
 }
 
 function analyzeCollectedPages(collected: CollectResult | null, domain: string): Array<PageAnalysis | null> {
-  return (collected?.pages ?? []).map((page) => page.state === "fetched" && page.body !== null && page.renderMode
-    ? analyzeObservation({ url: page.url, finalUrl: page.finalUrl, statusCode: page.statusCode, contentType: page.contentType, renderMode: page.renderMode, body: page.body, bodyKind: page.bodyKind ?? "text" }, domain)
-    : null);
+  return (collected?.pages ?? []).map((page) => {
+    if (page.state !== "fetched" || page.body === null || !page.renderMode) return null;
+    const analysis = analyzeObservation({ url: page.url, finalUrl: page.finalUrl, statusCode: page.statusCode, contentType: page.contentType, renderMode: page.renderMode, body: page.body, bodyKind: page.bodyKind ?? "text" }, domain);
+    // A4: 렌더링한 HTML은 JavaScript 실행 전 HTML과 비교한 결과를 덧붙인다
+    if (page.renderMode === "native" || analysis.facts === null || page.nativeBaseline === undefined) return analysis;
+    return { ...analysis, findings: [...analysis.findings, compareRenderedToNative(page.body, page.nativeBaseline, page.finalUrl ?? page.url)] };
+  });
 }
 
 /**

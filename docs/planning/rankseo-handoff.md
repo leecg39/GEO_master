@@ -44,8 +44,8 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | R01~R02 진단 Markdown 보고서 | 완료 | `src/lib/report-markdown.ts`, `report-markdown-data.ts`, `/api/reports?format=md`, 리포트 화면 Markdown 버튼 |
 | R03 반영 확인 이력 | 완료 | 마이그레이션 28 `change_verifications`, `src/lib/change-verifications.ts` |
 | R04~R05 수정 결과 보고서 | 완료 | `src/lib/change-report.ts`, `change-report-markdown.ts`, `/api/change-items/report`, `/changes/report` 화면 |
-| A4 JS 의존 콘텐츠 | 다음 | |
-| A5 답변 구조 지표 | 대기 | |
+| A4 JS 의존 콘텐츠 | 완료 | `src/lib/render-compare.ts`, rendered 수집 시 페이지마다 직접 요청 1회 추가(크레딧 없음), `page-rules/4` |
+| A5 답변 구조 지표 | 다음 | |
 | A6 llms.txt 초안 | 대기 | |
 | R06~R10 WordPress | 대기 | R06은 로컬 WordPress가 필요. 없으면 스파이크 문서에 "미실측"으로 기록하고 쓰기 범위를 코어 REST `content`로만 제한 |
 | A7 PageSpeed | 대기 | |

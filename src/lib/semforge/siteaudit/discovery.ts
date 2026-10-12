@@ -9,6 +9,7 @@ import * as cheerio from "cheerio";
 import { AppError } from "@/lib/errors";
 import { isFirecrawlAccountError, parseRetryAfter, scrapePage } from "@/lib/integrations/firecrawl";
 import type { BodyKind } from "@/lib/page-snapshots";
+import type { NativeBaseline } from "@/lib/render-compare";
 import { robotsPolicyFromResponse, type RobotsPolicy } from "@/lib/robots-policy";
 import { fetchPublicText } from "@/lib/url-security";
 
@@ -85,6 +86,8 @@ export interface PageFetchResult {
   body: string | null;
   bodyKind: BodyKind | null;
   contentType: string | null;
+  /** 렌더링 수집 때 같은 URL을 직접 받은 HTML(JavaScript 미실행). 비교용으로만 쓰고 저장하지 않는다 (A4) */
+  nativeBaseline?: NativeBaseline | null;
 }
 
 export interface CollectOptions {
@@ -211,10 +214,22 @@ async function fetchRendered(url: string, domain: string, apiKey: string, signal
   }
 }
 
+/** 렌더링한 HTML 페이지의 비교 기준. 직접 요청이 실패하면 null(비교하지 않음) */
+async function nativeBaseline(page: PageFetchResult, signal?: AbortSignal): Promise<NativeBaseline | null> {
+  if (page.state !== "fetched" || page.bodyKind !== "html" || page.statusCode < 200 || page.statusCode >= 300) return null;
+  try {
+    const response = await fetchPublicText(page.url, PAGE_TIMEOUT_MS, { signal });
+    const html = /html/i.test(response.contentType) || /<html|<title/i.test(response.text);
+    return { statusCode: response.status, finalUrl: response.url, body: response.text, bodyKind: html ? "html" : "text" };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * 발견한 URL을 실제로 요청한다.
  * - native: SSRF 방어가 있는 직접 요청 (동시 4개, 크레딧 없음)
- * - rendered: Firecrawl Scrape (동시 2개, 최대 10페이지, 페이지당 크레딧)
+ * - rendered: Firecrawl Scrape (동시 2개, 최대 10페이지, 페이지당 크레딧). HTML 페이지는 JavaScript 실행 전과 비교하려고 한 번 더 직접 요청한다
  * 429·크레딧 부족·인증 오류·취소가 나오면 남은 URL은 요청하지 않고 discovered로 남긴다.
  * 실패는 실패로 남기고 성공 분모에 넣지 않는다.
  */
@@ -239,7 +254,9 @@ export async function collectDiscoveredPages(urls: readonly string[], domain: st
       const outcome = options.mode === "rendered"
         ? await fetchRendered(urls[index]!, domain, options.apiKey!, options.signal)
         : await fetchNative(urls[index]!, domain, options.signal);
-      pages[index] = outcome.page;
+      pages[index] = options.mode === "rendered" && !outcome.halt
+        ? { ...outcome.page, nativeBaseline: await nativeBaseline(outcome.page, options.signal) }
+        : outcome.page;
       if (outcome.halt && !halted) halted = outcome.halt;
     }
   };

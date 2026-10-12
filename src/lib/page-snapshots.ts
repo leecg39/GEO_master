@@ -19,7 +19,7 @@ import { AppError } from "@/lib/errors";
 import { requireActiveProject } from "@/lib/projects";
 
 export const PAGE_PARSER_VERSION = "page-facts/2";
-export const PAGE_RULES_VERSION = "page-rules/3";
+export const PAGE_RULES_VERSION = "page-rules/4";
 const MAX_STORED_HTML_BYTES = 256 * 1024;
 const MAX_VERSIONS_PER_URL = 3;
 

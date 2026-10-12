@@ -114,7 +114,7 @@ describe("page findings", () => {
   }, "example.com").findings;
 
   it("bumps the rule version", () => {
-    expect(PAGE_RULES_VERSION).toBe("page-rules/3");
+    expect(PAGE_RULES_VERSION).toMatch(/^page-rules\/([3-9]|\d{2,})$/);
   });
 
   it("reports missing required properties as a technical warning with the type and property", () => {

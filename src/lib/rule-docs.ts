@@ -90,6 +90,11 @@ export const RULE_DOCS: Readonly<Record<string, RuleDoc>> = Object.freeze({
   "https-final": { url: `${G}/appearance/page-experience`, source: GOOGLE },
   "schema-required": { url: "https://developers.google.com/search/docs/appearance/structured-data/search-gallery", source: GOOGLE, note: "필수 속성은 리치 결과 대상 자격일 뿐 노출이나 AI 인용을 보장하지 않습니다." },
   "schema-recommended": { url: "https://developers.google.com/search/docs/appearance/structured-data/search-gallery", source: GOOGLE },
+  "js-dependent-content": {
+    url: `${G}/crawling-indexing/javascript/javascript-seo-basics`,
+    source: GOOGLE,
+    note: "Google은 JavaScript를 렌더링하지만, 모든 AI 크롤러가 JavaScript를 실행한다고 보장할 수 없습니다.",
+  },
   "hreflang-valid": { url: `${G}/specialty/international/localized-versions`, source: GOOGLE },
 });
 
