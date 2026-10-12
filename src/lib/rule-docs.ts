@@ -95,6 +95,7 @@ export const RULE_DOCS: Readonly<Record<string, RuleDoc>> = Object.freeze({
     source: GOOGLE,
     note: "Google은 JavaScript를 렌더링하지만, 모든 AI 크롤러가 JavaScript를 실행한다고 보장할 수 없습니다.",
   },
+  "answer-structure": HELPFUL,
   "hreflang-valid": { url: `${G}/specialty/international/localized-versions`, source: GOOGLE },
 });
 

@@ -13,13 +13,14 @@ import { z } from "zod";
 import { AUDIT_RULES, extractJsonLdTypes, parseAuditHtml } from "@/lib/audit";
 import { getDatabase } from "@/lib/db";
 import type { HreflangLink } from "@/lib/hreflang";
+import { answerStructureFinding } from "@/lib/answer-structure";
 import { extractHreflang, seoFindings } from "@/lib/page-seo-rules";
 import { schemaFindings } from "@/lib/schema-fields";
 import { AppError } from "@/lib/errors";
 import { requireActiveProject } from "@/lib/projects";
 
 export const PAGE_PARSER_VERSION = "page-facts/2";
-export const PAGE_RULES_VERSION = "page-rules/4";
+export const PAGE_RULES_VERSION = "page-rules/5";
 const MAX_STORED_HTML_BYTES = 256 * 1024;
 const MAX_VERSIONS_PER_URL = 3;
 
@@ -158,7 +159,7 @@ function htmlFindings(facts: PageFacts, html: string, pageUrl: string, domain: s
   }
   const $ = cheerio.load(html);
   const jsonLdTexts = $("script[type='application/ld+json']").map((_, node) => $(node).text()).get();
-  return [...findings, ...seoFindings(facts, pageUrl), ...schemaFindings(jsonLdTexts)];
+  return [...findings, ...seoFindings(facts, pageUrl), ...schemaFindings(jsonLdTexts), answerStructureFinding(html)];
 }
 
 export function analyzeObservation(observation: PageObservation, domain: string): PageAnalysis {
