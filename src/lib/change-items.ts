@@ -6,6 +6,7 @@
  */
 import { createHash } from "node:crypto";
 import { z } from "zod";
+import { recordVerification } from "./change-verifications";
 import { assertExpectedUpdatedAt, expectFound, resourceIdSchema, transactionalMutation } from "./crud";
 import { getDatabase } from "./db";
 import { AppError } from "./errors";
@@ -156,6 +157,7 @@ const VERIFY_TIMEOUT_MS = 10_000;
  * 반영 확인 (Qshop P09) — 전달 처리된 수정안의 공개 URL을 다시 읽어 대상 필드가 수정안과 같을 때만 verified로 바꾼다.
  * - HTTP 200만으로는 확인하지 않는다. 값이 아직 다르면 verification_pending으로 남는다
  * - 4xx/5xx 응답은 failed. 네트워크 오류는 상태를 바꾸지 않고 오류를 돌려준다(일시적일 수 있음)
+ * - 모든 확인 시도는 change_verifications에 남긴다 (R03)
  */
 export async function verifyChangeItem(idInput: unknown) {
   const id = resourceIdSchema.parse(idInput);
@@ -163,20 +165,27 @@ export async function verifyChangeItem(idInput: unknown) {
   if (!["delivered", "verification_pending", "failed"].includes(row.status)) {
     throw new AppError("전달 처리된 수정안만 반영 확인할 수 있습니다.", 409, "CHANGE_NOT_DELIVERED");
   }
+  const started = performance.now();
+  const base = { source: "public" as const, checkedUrl: row.url };
   let page;
   try {
     page = await fetchPublicText(row.url, VERIFY_TIMEOUT_MS);
   } catch {
+    recordVerification(id, { ...base, result: "fetch_error", httpStatus: null, matched: null, actual: null, finalUrl: null,
+      durationMs: performance.now() - started, errorCode: "VERIFY_FETCH_FAILED", checkedAt: new Date().toISOString() });
     throw new AppError("공개 페이지를 가져오지 못했습니다. 잠시 후 다시 확인하세요.", 502, "VERIFY_FETCH_FAILED");
   }
   const checkedAt = new Date().toISOString();
+  const durationMs = performance.now() - started;
   if (page.status < 200 || page.status >= 400) {
+    recordVerification(id, { ...base, result: "http_error", httpStatus: page.status, matched: false, actual: null, finalUrl: page.url, durationMs, errorCode: null, checkedAt });
     const item = save(id, { status: "failed" }, owned(id).updated_at);
     return { item, check: { matched: false, httpStatus: page.status, actual: null, checkedAt } };
   }
   const actual = extractPageField(page.text, row.field);
   const matched = fieldMatches(row.field, actual, row.proposed_value);
   const shown = actual === null ? null : actual.slice(0, 500);
+  recordVerification(id, { ...base, result: matched ? "matched" : "pending", httpStatus: page.status, matched, actual: shown, finalUrl: page.url, durationMs, errorCode: null, checkedAt });
   const item = save(id, { status: matched ? "verified" : "verification_pending" }, owned(id).updated_at);
   return { item, check: { matched, httpStatus: page.status, actual: shown, checkedAt } };
 }

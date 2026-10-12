@@ -861,6 +861,30 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 28,
+    name: "change-verifications",
+    up(sqlite) {
+      // 반영 확인 이력 (rankseo-gap-reports-plan R03). 확인할 때마다 무엇을 보고 판정했는지 남긴다.
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS change_verifications (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          change_item_id INTEGER NOT NULL REFERENCES change_items(id) ON DELETE CASCADE,
+          source TEXT NOT NULL CHECK(source IN ('public','wordpress')),
+          result TEXT NOT NULL CHECK(result IN ('matched','pending','http_error','fetch_error')),
+          http_status INTEGER,
+          matched INTEGER,
+          actual_excerpt TEXT,
+          checked_url TEXT NOT NULL,
+          final_url TEXT,
+          duration_ms INTEGER NOT NULL,
+          error_code TEXT,
+          checked_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_change_verifications_item ON change_verifications(change_item_id, id DESC);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

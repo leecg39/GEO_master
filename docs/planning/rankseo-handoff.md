@@ -30,7 +30,7 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 - 파일 800줄 이하, 함수 50줄 이하. `src/lib/audit.ts`는 이미 740줄이라 새 로직은 별도 파일에 둔다.
 - 불변 객체 패턴, zod 입력 검증, 비밀값 하드코딩 금지, 외부 URL 요청은 `src/lib/url-security.ts`의 `assertPublicUrl`·`fetchPublicText`를 거친다.
 - 측정값과 추정값을 섞지 않는다. 가설 규칙은 점수에 넣지 않는다.
-- 운영 데이터(`data/geo.db`)를 지우거나 덮어쓰지 않는다. DB 변경은 `src/lib/db/index.ts`의 버전 마이그레이션(현재 27)으로 컬럼·테이블 추가만 한다.
+- 운영 데이터(`data/geo.db`)를 지우거나 덮어쓰지 않는다. DB 변경은 `src/lib/db/index.ts`의 버전 마이그레이션(현재 28)으로 컬럼·테이블 추가만 한다.
 - 브랜치: `feat/rankseo-track-a`(기반은 `feat/signup-landing`, PR #28 위에 쌓는다).
 
 ## 진행 상태
@@ -42,7 +42,8 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | A2 기술 SEO 규칙 보강 | 완료 | `src/lib/page-seo-rules.ts`, `src/lib/hreflang.ts`, 사이트 감사 상호 참조 이슈. 사이트맵·HTTP 헤더 hreflang은 미지원 |
 | A3 Schema 필드 검사 | 완료 | `src/lib/schema-fields.ts` (Google 문서 2026-09 기준 16개 스펙), `page-rules/3`. FAQPage·HowTo는 "표시 안 함" 안내 |
 | R01~R02 진단 Markdown 보고서 | 완료 | `src/lib/report-markdown.ts`, `report-markdown-data.ts`, `/api/reports?format=md`, 리포트 화면 Markdown 버튼 |
-| R03~R05 수정 결과 보고서 | 다음 | `rankseo-gap-reports-plan.md` (마이그레이션 28 확인 이력부터) |
+| R03 반영 확인 이력 | 완료 | 마이그레이션 28 `change_verifications`, `src/lib/change-verifications.ts` |
+| R04~R05 수정 결과 보고서 | 다음 | `src/lib/change-report.ts` + Markdown/JSON, `/changes/report` 화면 |
 | A4 JS 의존 콘텐츠 | 대기 | |
 | A5 답변 구조 지표 | 대기 | |
 | A6 llms.txt 초안 | 대기 | |
