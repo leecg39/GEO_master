@@ -4,34 +4,15 @@ import type { RequestAccount } from "@/lib/request-account";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarChart3, BookOpen, Bot, CalendarClock, ArrowLeft, ExternalLink, ClipboardCheck, GitCompare, Braces, FileSpreadsheet, FlaskConical, ListChecks, CreditCard, FileCode2, FileDown, FilePenLine, Gauge, Images, LoaderCircle, Menu, PackageOpen, SearchCheck, Settings, Sparkles, Target, Users, X } from "lucide-react";
+import { Bot, ArrowLeft, ExternalLink, CreditCard, Gauge, LoaderCircle, Menu, Settings, Sparkles, Users, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { Modal } from "@/components/Modal";
+import { CORE_NAV_GROUPS, isActiveHref, NavGroup, useNavGroupState } from "@/components/NavGroups";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { isSemforgePath, SEMFORGE_HUB_PATH, SEMFORGE_SUBSCRIPTION_PATH, semforgeFeatures } from "@/lib/semforge/navigation";
 import { cn } from "@/lib/utils";
 
-const coreNavigation = [
-  { href: "/", label: "대시보드", icon: Gauge },
-  { href: "/monitoring", label: "AI 언급 모니터링", icon: Target },
-  { href: "/audit", label: "GEO 진단", icon: SearchCheck },
-  { href: "/multimodal", label: "멀티모달 감사", icon: Images },
-  { href: "/llms", label: "llms.txt", icon: FileCode2 },
-  { href: "/share", label: "응답 점유율", icon: BarChart3 },
-  { href: "/automation", label: "예약 측정", icon: CalendarClock },
-  { href: "/reports", label: "리포트", icon: FileDown },
-  { href: "/review", label: "검수함", icon: ListChecks },
-  { href: "/facts", label: "사실 메모", icon: ClipboardCheck },
-  { href: "/changes", label: "수정안 작업대", icon: GitCompare },
-  { href: "/structured-data", label: "구조화 데이터", icon: Braces },
-  { href: "/search-console", label: "검색 성과 가져오기", icon: FileSpreadsheet },
-  { href: "/studio", label: "콘텐츠 스튜디오", icon: FilePenLine },
-  { href: "/optimizer", label: "최적화 랩", icon: FlaskConical },
-  { href: "/strategy", label: "전략 워크스페이스", icon: Target },
-  { href: "/learn", label: "학습 센터", icon: BookOpen },
-  { href: "/workspace", label: "팀 공유", icon: PackageOpen },
-];
 
 const subscriptionNavigation = { href: "/subscription", label: "SEMForge Pro", icon: CreditCard };
 
@@ -92,6 +73,7 @@ function Navigation({ close, semforgeActive, role }: { close?: () => void; semfo
   const pathname = usePathname();
   const guest = role === "guest";
   const hidden = hiddenCoreLinks(role);
+  const groups = useNavGroupState(pathname);
 
   if (!guest && isSemforgePath(pathname)) {
     return (
@@ -109,9 +91,19 @@ function Navigation({ close, semforgeActive, role }: { close?: () => void; semfo
 
   return (
     <nav className="mt-8 space-y-1.5" aria-label="주요 메뉴">
-      {coreNavigation.filter((item) => !hidden.includes(item.href)).map(({ href, label, icon }) => {
-        const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
-        return <NavLink key={href} href={href} label={label} icon={icon} active={active} close={close} />;
+      {CORE_NAV_GROUPS.map((group) => {
+        const items = group.items.filter((item) => !hidden.includes(item.href));
+        if (items.length === 0) return null;
+        const links = items.map(({ href, label, icon }) => (
+          <NavLink key={href} href={href} label={label} icon={icon} active={isActiveHref(href, pathname)} close={close} />
+        ));
+        if (!group.label) return links;
+        return (
+          <NavGroup key={group.id} id={group.id} label={group.label} icon={group.icon} expanded={groups.isExpanded(group.id)}
+            containsActive={groups.active === group.id} onToggle={() => groups.toggle(group.id)}>
+            {links}
+          </NavGroup>
+        );
       })}
 
       {!guest && (semforgeActive === null ? (
