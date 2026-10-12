@@ -12,7 +12,7 @@ const URL_A = "https://example.com/a";
 
 function fixture(): ChangeReport {
   const base = {
-    url: URL_A, wordpressValue: null, deliveryMethod: "manual", deliveredAt: "2026-10-12T00:00:00.000Z", updatedAt: "2026-10-12T00:00:00.000Z",
+    url: URL_A, wordpressValue: null, wordpressMatched: null, deliveryMethod: "manual", deliveredAt: "2026-10-12T00:00:00.000Z", updatedAt: "2026-10-12T00:00:00.000Z",
     lastFinalUrl: `${URL_A}/`, finalUrlMismatch: false,
   };
   return {
@@ -57,7 +57,7 @@ it("loads the report for the URL and shows the KPIs, values and actions", async 
   expect(text).toContain("옛 제목");
   expect(text).toContain("빈 값 또는 기록 없음");
   expect(text).toContain("확인 기록 없음");
-  expect(text).toContain("연결 안 됨");
+  expect(text).toContain("WordPress 확인 기록 없음");
   expect(text).toContain("공개 페이지에 아직 반영되지 않았습니다.");
   expect(text).toMatch(/수정 이후 진단이 없어/);
   expect(text).toMatch(/확인 주소가 수정안 주소와 다릅니다/);

@@ -18,7 +18,7 @@ function itemRow(item: ChangeReportItem) {
   return [
     String(item.id), mdInline(item.field),
     `${item.originalValue ? mdCell(item.originalValue) : EMPTY_ORIGINAL} → ${mdCell(item.proposedValue)}`,
-    item.wordpressValue === null ? "연결 안 됨" : mdCell(item.wordpressValue),
+    item.wordpressValue === null ? "WordPress 확인 기록 없음" : mdCell(item.wordpressValue),
     item.publicValue === null ? "확인 기록 없음" : mdCell(item.publicValue),
     status(item.status),
     item.lastCheckedAt ?? "-",

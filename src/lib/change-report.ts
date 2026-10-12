@@ -5,7 +5,7 @@
  * - 원래 값 = 수정안을 만들 때 저장한 값, 공개 페이지 값 = 가장 최근 반영 확인 이력(R03)
  * - 확인한 최종 주소가 수정안 주소와 다르면 표시한다
  * - 점수 변화는 마지막 전달 이후 실제로 다시 진단한 기록이 있을 때만 보여 준다
- * - WordPress 저장값 칸은 연동(R09) 전까지 비어 있다
+ * - WordPress 저장값 = 가장 최근 WordPress 확인 이력(R09). 저장됐는데 공개 값이 다르면 캐시 가능성으로 안내한다
  */
 import { z } from "zod";
 import { listChangeVerifications, type ChangeVerification } from "./change-verifications";
@@ -32,11 +32,13 @@ const clip = (text: string | null) => text === null ? null : text.length > VALUE
 
 function reportItem(row: ItemRow) {
   const history = listChangeVerifications(row.id);
-  const last: ChangeVerification | undefined = history.at(0);
+  const last: ChangeVerification | undefined = history.find((entry) => entry.source === "public");
+  const stored: ChangeVerification | undefined = history.find((entry) => entry.source === "wordpress");
   return {
     id: row.id, url: row.url, field: row.field, status: row.status,
     originalValue: clip(row.original_value), proposedValue: clip(row.proposed_value),
-    wordpressValue: null as string | null,
+    wordpressValue: stored?.actualExcerpt ?? null,
+    wordpressMatched: stored?.matched ?? null,
     publicValue: last?.actualExcerpt ?? null,
     lastCheckedAt: last?.checkedAt ?? null,
     lastHttpStatus: last?.httpStatus ?? null,
@@ -56,6 +58,7 @@ const ACTION_MESSAGES: Record<ActionKind, string> = {
   pending: "공개 페이지에 아직 반영되지 않았습니다. 캐시·CDN 때문일 수 있으니 시간을 두고 다시 확인하세요.",
   unchecked: "전달 후 반영 확인을 아직 하지 않았습니다. 반영 확인을 실행하세요.",
 };
+const CACHED_MESSAGE = "WordPress에는 저장됐지만 공개 페이지에는 아직 보이지 않습니다. 캐시·CDN을 비우거나 시간을 두고 다시 확인하세요.";
 const ACTION_STATUS: Record<string, ActionKind | undefined> = { conflict: "conflict", failed: "failed", verification_pending: "pending", delivered: "unchecked" };
 
 interface AuditPoint { id: number; score: number; createdAt: string }
@@ -106,7 +109,9 @@ export function buildChangeReport(input: unknown) {
     items,
     actions: items.flatMap((item) => {
       const kind = ACTION_STATUS[item.status];
-      return kind ? [{ id: item.id, url: item.url, field: item.field, kind, message: ACTION_MESSAGES[kind] }] : [];
+      if (!kind) return [];
+      const cached = kind === "pending" && item.wordpressMatched === true;
+      return [{ id: item.id, url: item.url, field: item.field, kind, message: cached ? CACHED_MESSAGE : ACTION_MESSAGES[kind] }];
     }),
     reaudits: reaudits(project.id, items),
   };

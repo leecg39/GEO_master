@@ -10,7 +10,9 @@ vi.mock("@/lib/url-security", async () => {
 });
 
 import { POST as wordpressAction } from "@/app/api/change-items/[id]/wordpress/route";
-import { approveChangeItem, createChangeItem, listChangeItems, markDelivered } from "@/lib/change-items";
+import { approveChangeItem, createChangeItem, listChangeItems, markDelivered, verifyChangeItem } from "@/lib/change-items";
+import { buildChangeReport } from "@/lib/change-report";
+import { listChangeVerifications } from "@/lib/change-verifications";
 import { listChangeDeliveries } from "@/lib/change-deliveries";
 import { closeDatabase, getDatabase, LATEST_SCHEMA_VERSION } from "@/lib/db";
 import { ensureActiveProject } from "@/lib/projects";
@@ -165,5 +167,44 @@ describe("WordPress delivery (R08)", () => {
     expect((await done.json() as { item: { status: string } }).item.status).toBe("delivered");
     expect((await action(item.id, { action: "execute-all" })).status).toBe(422);
     expect(fs.existsSync(path.join(process.cwd(), "src/app/api/change-items/wordpress"))).toBe(false);
+  });
+});
+
+describe("WordPress stored value in checks and the report (R09)", () => {
+  it("separates 'saved in WordPress' from 'visible on the public page' while a cache is stale", async () => {
+    const item = approved("title", "Original Title - GEO Spike", "캐시 테스트 제목");
+    const { previewToken } = await previewWordpressDelivery(item.id);
+    const stale = page();
+    await executeWordpressDelivery(item.id, { previewToken });
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => ({ url, status: 200, text: stale, contentType: "text/html", retryAfter: null }));
+    expect((await verifyChangeItem(item.id)).item.status).toBe("verification_pending");
+    expect(listChangeVerifications(item.id).map(({ source, result, actualExcerpt }) => ({ source, result, actualExcerpt }))).toEqual(expect.arrayContaining([
+      { source: "wordpress", result: "matched", actualExcerpt: "캐시 테스트 제목" },
+      { source: "public", result: "pending", actualExcerpt: "Original Title - GEO Spike" },
+    ]));
+    const report = buildChangeReport({ ids: [item.id] });
+    expect(report.items[0]).toMatchObject({ wordpressValue: "캐시 테스트 제목", publicValue: "Original Title - GEO Spike" });
+    expect(report.actions[0]?.message).toMatch(/WordPress에는 저장됐지만.*캐시/);
+
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => ({ url, status: 200, text: page(), contentType: "text/html", retryAfter: null }));
+    expect((await verifyChangeItem(item.id)).item.status).toBe("verified");
+  });
+
+  it("still checks the public page when reading WordPress fails", async () => {
+    const item = approved("description", "", "실패해도 계속");
+    const { previewToken } = await previewWordpressDelivery(item.id);
+    await executeWordpressDelivery(item.id, { previewToken });
+    vi.mocked(sendPublicRequest).mockImplementationOnce(async (url: string) => reply(url, 500, "oops"));
+    expect((await verifyChangeItem(item.id)).item.status).toBe("verified");
+    expect(listChangeVerifications(item.id).find((entry) => entry.source === "wordpress")).toMatchObject({ result: "fetch_error", errorCode: expect.any(String) });
+  });
+
+  it("does not read WordPress for fields it cannot map", async () => {
+    const item = approved("canonical", "", "https://wp.example/x");
+    markDelivered(item.id, { method: "manual" });
+    vi.mocked(sendPublicRequest).mockClear();
+    await verifyChangeItem(item.id);
+    expect(vi.mocked(sendPublicRequest)).not.toHaveBeenCalled();
+    expect(listChangeVerifications(item.id).every((entry) => entry.source === "public")).toBe(true);
   });
 });

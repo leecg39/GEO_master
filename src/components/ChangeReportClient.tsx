@@ -37,7 +37,7 @@ function ItemCard({ item }: { item: ChangeReportItem }) {
       <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Value label="원래 값" value={item.originalValue} empty="빈 값 또는 기록 없음" />
         <Value label="제안 값" value={item.proposedValue} empty="-" />
-        <Value label="WordPress 저장값" value={item.wordpressValue} empty="연결 안 됨" />
+        <Value label="WordPress 저장값" value={item.wordpressValue} empty="WordPress 확인 기록 없음" />
         <Value label="공개 페이지 값" value={item.publicValue} empty="확인 기록 없음" />
       </div>
       {item.finalUrlMismatch && (

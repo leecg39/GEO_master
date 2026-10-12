@@ -14,6 +14,7 @@ import { AppError } from "./errors";
 import { extractPageField, fieldMatches } from "./page-fields";
 import { requireActiveProject } from "./projects";
 import { fetchPublicText } from "./url-security";
+import { recordWordpressStoredValue } from "./wordpress-verify";
 
 export const CHANGE_FIELDS = ["title", "description", "canonical", "og_image", "robots_meta", "json_ld", "body"] as const;
 export const CHANGE_STATUSES = ["draft", "approved", "delivered", "verification_pending", "verified", "conflict", "failed"] as const;
@@ -195,18 +196,22 @@ export async function verifyChangeItem(idInput: unknown) {
   if (!["delivered", "verification_pending", "failed"].includes(row.status)) {
     throw new AppError("전달 처리된 수정안만 반영 확인할 수 있습니다.", 409, "CHANGE_NOT_DELIVERED");
   }
+  // R09: 연결된 WordPress의 저장값도 동시에 기록한다(절대 실패하지 않으며, 공개 페이지 확인과 시간을 나눠 쓰지 않는다)
+  const wordpress = recordWordpressStoredValue({ id, url: row.url, field: row.field, proposedValue: row.proposed_value });
   const started = performance.now();
   const base = { source: "public" as const, checkedUrl: row.url };
   let page;
   try {
     page = await fetchPublicText(row.url, VERIFY_TIMEOUT_MS);
   } catch {
+    await wordpress;
     recordVerification(id, { ...base, result: "fetch_error", httpStatus: null, matched: null, actual: null, finalUrl: null,
       durationMs: performance.now() - started, errorCode: "VERIFY_FETCH_FAILED", checkedAt: new Date().toISOString() });
     throw new AppError("공개 페이지를 가져오지 못했습니다. 잠시 후 다시 확인하세요.", 502, "VERIFY_FETCH_FAILED");
   }
-  const checkedAt = new Date().toISOString();
   const durationMs = performance.now() - started;
+  await wordpress;
+  const checkedAt = new Date().toISOString();
   if (page.status < 200 || page.status >= 400) {
     recordVerification(id, { ...base, result: "http_error", httpStatus: page.status, matched: false, actual: null, finalUrl: page.url, durationMs, errorCode: null, checkedAt });
     const item = save(id, { status: "failed" }, owned(id).updated_at);
