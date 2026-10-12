@@ -930,6 +930,20 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 31,
+    name: "integration-secrets",
+    up(sqlite) {
+      // 외부 API 키 (A7: PageSpeed Insights). 암호화한 값만 저장하며 API 응답으로 돌려주지 않는다.
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS integration_secrets (
+          name TEXT PRIMARY KEY CHECK(name IN ('pagespeed')),
+          value_encrypted TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

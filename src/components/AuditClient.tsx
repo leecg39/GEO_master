@@ -5,6 +5,7 @@ import { FormEvent, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Check, LoaderCircle, SearchCheck, X } from "lucide-react";
 import { AuditHistoryPanel, notifyAuditChanged, type AuditResource } from "@/components/AuditHistoryPanel";
 import { Badge, Button, Card, PageHeader, Progress } from "@/components/ui";
+import { PageSpeedPanel } from "@/components/PageSpeedPanel";
 import { RuleDocLink } from "@/components/RuleDocLink";
 import { auditGradeScale, auditGradeTone } from "@/lib/audit-grade";
 
@@ -117,6 +118,8 @@ export function AuditClient() {
       </div>
 
       <AuditChangePanel key={audit.id} auditId={audit.id} />
+
+      <PageSpeedPanel key={`speed-${audit.id}`} url={String(audit.metadata.finalUrl ?? audit.url)} />
 
       <div className="space-y-5">
         <h2 className="text-lg font-bold text-white">32개 GEO 세부 평가 항목</h2>

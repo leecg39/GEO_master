@@ -30,7 +30,7 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 - 파일 800줄 이하, 함수 50줄 이하. `src/lib/audit.ts`는 이미 740줄이라 새 로직은 별도 파일에 둔다.
 - 불변 객체 패턴, zod 입력 검증, 비밀값 하드코딩 금지, 외부 URL 요청은 `src/lib/url-security.ts`의 `assertPublicUrl`·`fetchPublicText`를 거친다.
 - 측정값과 추정값을 섞지 않는다. 가설 규칙은 점수에 넣지 않는다.
-- 운영 데이터(`data/geo.db`)를 지우거나 덮어쓰지 않는다. DB 변경은 `src/lib/db/index.ts`의 버전 마이그레이션(현재 30)으로 컬럼·테이블 추가만 한다.
+- 운영 데이터(`data/geo.db`)를 지우거나 덮어쓰지 않는다. DB 변경은 `src/lib/db/index.ts`의 버전 마이그레이션(현재 31)으로 컬럼·테이블 추가만 한다.
 - 브랜치: `feat/rankseo-track-a`(기반은 `feat/signup-landing`, PR #28 위에 쌓는다).
 
 ## 진행 상태
@@ -52,8 +52,8 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | R08 WordPress 쓰기 전달 | 완료 | 마이그레이션 30 `change_deliveries`, `src/lib/wordpress-delivery.ts`, `/api/change-items/[id]/wordpress`(preview/execute), 수동 전달도 이력 기록 |
 | R09 보고서 WordPress 칸 | 완료 | `src/lib/wordpress-verify.ts`, 반영 확인 때 저장값을 동시에 기록, 보고서에 캐시 가능성 안내 |
 | R10 수정 결과 보고서 PDF | 완료 | `src/lib/change-report-pdf.ts`, `/api/change-items/report?format=pdf`, 화면 PDF 버튼 |
-| A7 PageSpeed | 다음 | 사용자 키만, 마이그레이션 31 |
-| A8 만점 테스트 | 대기 | |
+| A7 PageSpeed | 완료 | 마이그레이션 31 `integration_secrets`, `src/lib/pagespeed.ts`, `/api/pagespeed`(+`/key`), 진단 화면 패널. 키 없는 호출은 할당량 0(실측 429). CrUX 지표 키 이름은 실키 호출로 확인하지 못함 — 모르는 키는 원문 표시 |
+| A8 만점 테스트 | 다음 | |
 
 ## 알려진 사항
 
