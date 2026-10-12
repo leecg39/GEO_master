@@ -53,7 +53,7 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | R09 보고서 WordPress 칸 | 완료 | `src/lib/wordpress-verify.ts`, 반영 확인 때 저장값을 동시에 기록, 보고서에 캐시 가능성 안내 |
 | R10 수정 결과 보고서 PDF | 완료 | `src/lib/change-report-pdf.ts`, `/api/change-items/report?format=pdf`, 화면 PDF 버튼 |
 | A7 PageSpeed | 완료 | 마이그레이션 31 `integration_secrets`, `src/lib/pagespeed.ts`, `/api/pagespeed`(+`/key`), 진단 화면 패널. 키 없는 호출은 할당량 0(실측 429). CrUX 지표 키 이름은 실키 호출로 확인하지 못함 — 모르는 키는 원문 표시 |
-| A8 만점 테스트 | 다음 | |
+| A8 만점 테스트 | 완료 | `tests/max-score.test.ts` — 진단 32/32, 페이지 규칙 전부 통과, llms.txt 100. Red-Green 확인 |
 
 ## 알려진 사항
 
