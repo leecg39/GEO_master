@@ -41,7 +41,8 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | A1 규칙 문서 링크·등급 척도 | 완료 | `src/lib/rule-docs.ts`, `src/lib/audit-grade.ts`, `src/components/RuleDocLink.tsx` |
 | A2 기술 SEO 규칙 보강 | 완료 | `src/lib/page-seo-rules.ts`, `src/lib/hreflang.ts`, 사이트 감사 상호 참조 이슈. 사이트맵·HTTP 헤더 hreflang은 미지원 |
 | A3 Schema 필드 검사 | 완료 | `src/lib/schema-fields.ts` (Google 문서 2026-09 기준 16개 스펙), `page-rules/3`. FAQPage·HowTo는 "표시 안 함" 안내 |
-| R01~R05 보고서 | 다음 | `rankseo-gap-reports-plan.md` |
+| R01~R02 진단 Markdown 보고서 | 완료 | `src/lib/report-markdown.ts`, `report-markdown-data.ts`, `/api/reports?format=md`, 리포트 화면 Markdown 버튼 |
+| R03~R05 수정 결과 보고서 | 다음 | `rankseo-gap-reports-plan.md` (마이그레이션 28 확인 이력부터) |
 | A4 JS 의존 콘텐츠 | 대기 | |
 | A5 답변 구조 지표 | 대기 | |
 | A6 llms.txt 초안 | 대기 | |
@@ -50,6 +51,9 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | A8 만점 테스트 | 대기 | |
 
 ## 알려진 사항
+
+- `/api/reports`(json·csv·pdf·md)는 진단 ID만으로 조회하고 활성 프로젝트를 검사하지 않는다. 계정별 데이터 분리가 없는 현재 구조(모든 계정이 같은 작업 공간)에서 비롯된 기존 동작이며 이번 범위에서 바꾸지 않았다. 다계정 운영 전에 별도 결정이 필요하다.
+- 진단 관련 기존 통합 테스트는 환경 변수의 LLM 키(GROK_API_KEY 등)가 있으면 실제 API를 호출한다. 새 테스트는 키를 비워 막았다.
 
 - `audit.ts`의 `extractJsonLdTypes`는 `https://schema.org/Product` 같은 IRI 타입을 줄이지 않는다(기존 동작, 이번 범위 밖). `schema-fields.ts`는 줄여서 판정한다.
 
