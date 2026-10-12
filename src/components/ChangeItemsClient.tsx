@@ -92,6 +92,7 @@ export function ChangeItemsClient() {
                 <Badge tone={STATUS[item.status].tone}>{STATUS[item.status].label}</Badge>
                 <Badge>{FIELDS[item.field] ?? item.field}</Badge>
                 <a className="truncate text-xs text-cyan-300 hover:underline" href={item.url} target="_blank" rel="noopener noreferrer nofollow">{item.url}</a>
+                <a className="ml-auto shrink-0 text-xs text-slate-400 hover:text-cyan-200 hover:underline print:hidden" href={`/changes/report?url=${encodeURIComponent(item.url)}`}>결과 보고서</a>
               </div>
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 <div><p className="text-xs text-slate-500">현재 값</p><pre className="mt-1 whitespace-pre-wrap rounded-xl bg-slate-950/40 p-3 text-sm text-slate-400">{item.originalValue || "(비어 있음)"}</pre></div>

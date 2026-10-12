@@ -43,8 +43,8 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | A3 Schema 필드 검사 | 완료 | `src/lib/schema-fields.ts` (Google 문서 2026-09 기준 16개 스펙), `page-rules/3`. FAQPage·HowTo는 "표시 안 함" 안내 |
 | R01~R02 진단 Markdown 보고서 | 완료 | `src/lib/report-markdown.ts`, `report-markdown-data.ts`, `/api/reports?format=md`, 리포트 화면 Markdown 버튼 |
 | R03 반영 확인 이력 | 완료 | 마이그레이션 28 `change_verifications`, `src/lib/change-verifications.ts` |
-| R04~R05 수정 결과 보고서 | 다음 | `src/lib/change-report.ts` + Markdown/JSON, `/changes/report` 화면 |
-| A4 JS 의존 콘텐츠 | 대기 | |
+| R04~R05 수정 결과 보고서 | 완료 | `src/lib/change-report.ts`, `change-report-markdown.ts`, `/api/change-items/report`, `/changes/report` 화면 |
+| A4 JS 의존 콘텐츠 | 다음 | |
 | A5 답변 구조 지표 | 대기 | |
 | A6 llms.txt 초안 | 대기 | |
 | R06~R10 WordPress | 대기 | R06은 로컬 WordPress가 필요. 없으면 스파이크 문서에 "미실측"으로 기록하고 쓰기 범위를 코어 REST `content`로만 제한 |
@@ -52,6 +52,9 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | A8 만점 테스트 | 대기 | |
 
 ## 알려진 사항
+
+- 375px 헤드리스 Chrome 스크린샷에서 `/changes`, `/changes/report` 모두 오른쪽이 잘린다(기존 공통 레이아웃 현상). 이번 범위 밖.
+- 개발 서버가 떠 있으면 새 마이그레이션(28~)이 `data/geo.db`에 바로 적용된다. 테이블 추가만 한다.
 
 - `/api/reports`(json·csv·pdf·md)는 진단 ID만으로 조회하고 활성 프로젝트를 검사하지 않는다. 계정별 데이터 분리가 없는 현재 구조(모든 계정이 같은 작업 공간)에서 비롯된 기존 동작이며 이번 범위에서 바꾸지 않았다. 다계정 운영 전에 별도 결정이 필요하다.
 - 진단 관련 기존 통합 테스트는 환경 변수의 LLM 키(GROK_API_KEY 등)가 있으면 실제 API를 호출한다. 새 테스트는 키를 비워 막았다.

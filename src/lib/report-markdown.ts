@@ -70,7 +70,7 @@ const docCell = (code: string) => {
 
 const TIER_LABEL = { technical: "기술 오류", recommendation: "페이지 권고", hypothesis: "GEO 가설" } as const;
 const SEVERITY_LABEL = { error: "오류", warning: "경고", notice: "참고" } as const;
-const CHANGE_STATUS_LABEL: Record<string, string> = {
+export const CHANGE_STATUS_LABEL: Readonly<Record<string, string>> = {
   draft: "초안", approved: "승인", delivered: "전달됨", verification_pending: "반영 확인 대기",
   verified: "반영 확인", conflict: "충돌(원본 변경)", failed: "실패",
 };
