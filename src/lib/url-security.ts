@@ -127,7 +127,20 @@ function cancelledError() {
   return new AppError("요청을 취소했습니다.", 409, "FETCH_CANCELLED");
 }
 
-function requestPinned(resolved: ResolvedPublicUrl, timeoutMs: number, signal?: AbortSignal): Promise<PinnedResponse> {
+interface PinnedInit {
+  method?: "GET" | "POST";
+  headers?: Record<string, string>;
+  body?: string;
+}
+
+const DEFAULT_HEADERS = {
+  "user-agent": "GEO-Master-Audit/1.0 (+local diagnostic tool)",
+  accept: "text/html,application/xhtml+xml,text/plain,application/xml;q=0.9,*/*;q=0.1",
+  "accept-encoding": "identity",
+  connection: "close",
+} as const;
+
+function requestPinned(resolved: ResolvedPublicUrl, timeoutMs: number, signal?: AbortSignal, init: PinnedInit = {}): Promise<PinnedResponse> {
   return new Promise((resolve, reject) => {
     if (signal?.aborted) {
       reject(cancelledError());
@@ -145,14 +158,15 @@ function requestPinned(resolved: ResolvedPublicUrl, timeoutMs: number, signal?: 
       fail(cancelledError());
     };
     const transport = resolved.url.protocol === "https:" ? https : http;
+    const body = init.body === undefined ? undefined : Buffer.from(init.body, "utf8");
     const request = transport.request(resolved.url, {
-      method: "GET",
+      method: init.method ?? "GET",
       lookup: createPinnedLookup(resolved.address),
       headers: {
-        "user-agent": "GEO-Master-Audit/1.0 (+local diagnostic tool)",
-        accept: "text/html,application/xhtml+xml,text/plain,application/xml;q=0.9,*/*;q=0.1",
+        ...DEFAULT_HEADERS,
+        ...init.headers,
         "accept-encoding": "identity",
-        connection: "close",
+        ...(body ? { "content-length": String(body.byteLength) } : {}),
       },
     }, (response) => {
       const declared = Number(headerText(response.headers, "content-length") || 0);
@@ -193,7 +207,7 @@ function requestPinned(resolved: ResolvedPublicUrl, timeoutMs: number, signal?: 
     request.setTimeout(timeoutMs, () => request.destroy(new Error("request timeout")));
     request.on("error", fail);
     signal?.addEventListener("abort", onAbort, { once: true });
-    request.end();
+    request.end(body);
   });
 }
 
@@ -226,4 +240,20 @@ export async function fetchPublicText(input: string, timeoutMs = 12_000, options
     };
   }
   throw new AppError("대상 사이트를 가져오지 못했습니다.", 502, "FETCH_FAILED");
+}
+
+/**
+ * 인증 헤더나 본문이 필요한 공개 API 요청 (WordPress REST 등).
+ * fetchPublicText와 같은 SSRF 방어(DNS 고정·사설 IP 차단·2MB 제한)를 쓰되, 인증 정보가 다른 주소로 새지 않도록 리다이렉트는 따라가지 않는다.
+ */
+export async function sendPublicRequest(input: string, init: PinnedInit & { timeoutMs?: number; signal?: AbortSignal } = {}): Promise<FetchedText> {
+  const resolved = await resolvePublicUrl(input);
+  const response = await requestPinned(resolved, init.timeoutMs ?? 12_000, init.signal, init);
+  return {
+    url: resolved.url.toString(),
+    status: response.status,
+    text: response.text,
+    contentType: headerText(response.headers, "content-type"),
+    retryAfter: headerText(response.headers, "retry-after") || null,
+  };
 }

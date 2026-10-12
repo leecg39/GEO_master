@@ -885,6 +885,27 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 29,
+    name: "wordpress-connections",
+    up(sqlite) {
+      // WordPress 코어 REST 연결 (R07). 애플리케이션 비밀번호는 암호화해서만 저장한다.
+      // SEO 플러그인 메타 쓰기는 사용자가 허용해야 한다(allow_seo_plugin_writes, 기본 0).
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS wordpress_connections (
+          project_id INTEGER PRIMARY KEY REFERENCES projects(id) ON DELETE CASCADE,
+          site_url TEXT NOT NULL,
+          username TEXT NOT NULL,
+          password_encrypted TEXT NOT NULL,
+          seo_plugin TEXT NOT NULL CHECK(seo_plugin IN ('none','yoast','rankmath','other')),
+          allow_seo_plugin_writes INTEGER NOT NULL DEFAULT 0,
+          verified_at TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

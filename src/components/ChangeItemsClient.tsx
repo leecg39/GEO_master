@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Check, LoaderCircle, Plus, SearchCheck, Send, Trash2 } from "lucide-react";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
+import { WordpressConnectionPanel } from "@/components/WordpressConnectionPanel";
 
 type Status = "draft" | "approved" | "delivered" | "verification_pending" | "verified" | "conflict" | "failed";
 interface Item {
@@ -70,6 +71,7 @@ export function ChangeItemsClient() {
     <div>
       <PageHeader eyebrow="Change workbench" title="수정안 작업대" description="페이지별 현재 값과 수정안, 근거를 나란히 두고 승인합니다. 자동 게시는 하지 않으며, 승인한 수정안을 직접 반영한 뒤 '전달 처리'로 기록합니다. 페이지의 현재 값이 달라지면 충돌로 표시됩니다."
         action={<div className="flex flex-wrap gap-2 print:hidden"><Button type="button" variant="secondary" disabled={busy} onClick={() => void downloadGuide("site-settings")}>큐샵 적용 안내(사이트 설정)</Button><Button type="button" variant="secondary" disabled={busy} onClick={() => void downloadGuide("blog")}>큐샵 적용 안내(블로그)</Button><Button type="button" onClick={() => setForm({ ...empty })}><Plus className="h-4 w-4" />수정안 추가</Button></div>} />
+      <WordpressConnectionPanel />
       {error && <p role="alert" className="mb-4 rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-sm text-rose-300">{error}</p>}
       {form && (
         <Card className="mb-5">
