@@ -46,8 +46,8 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | R04~R05 수정 결과 보고서 | 완료 | `src/lib/change-report.ts`, `change-report-markdown.ts`, `/api/change-items/report`, `/changes/report` 화면 |
 | A4 JS 의존 콘텐츠 | 완료 | `src/lib/render-compare.ts`, rendered 수집 시 페이지마다 직접 요청 1회 추가(크레딧 없음), `page-rules/4` |
 | A5 답변 구조 지표 | 완료 | `src/lib/answer-structure.ts`, GEO 가설(점수 미반영), `page-rules/5` |
-| A6 llms.txt 초안 | 다음 | |
-| R06~R10 WordPress | 대기 | R06은 로컬 WordPress가 필요. 없으면 스파이크 문서에 "미실측"으로 기록하고 쓰기 범위를 코어 REST `content`로만 제한 |
+| A6 llms.txt 초안 | 완료 | `src/lib/llms-suggest.ts`, `llms-resources.ts`, `/api/llms` action `suggest`, "사이트맵에서 채우기" 버튼 |
+| R06~R10 WordPress | 다음 | R06은 로컬 WordPress가 필요. 없으면 스파이크 문서에 "미실측"으로 기록하고 쓰기 범위를 코어 REST `content`로만 제한 |
 | A7 PageSpeed | 대기 | |
 | A8 만점 테스트 | 대기 | |
 
