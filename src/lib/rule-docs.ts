@@ -88,6 +88,8 @@ export const RULE_DOCS: Readonly<Record<string, RuleDoc>> = Object.freeze({
   "description-length": { ...SNIPPET, note: "Google은 설명 길이 한도를 정하지 않습니다. 잘림 가능성의 추정입니다." },
   viewport: { url: `${MDN}/Elements/meta/name/viewport`, source: "MDN" },
   "https-final": { url: `${G}/appearance/page-experience`, source: GOOGLE },
+  "schema-required": { url: "https://developers.google.com/search/docs/appearance/structured-data/search-gallery", source: GOOGLE, note: "필수 속성은 리치 결과 대상 자격일 뿐 노출이나 AI 인용을 보장하지 않습니다." },
+  "schema-recommended": { url: "https://developers.google.com/search/docs/appearance/structured-data/search-gallery", source: GOOGLE },
   "hreflang-valid": { url: `${G}/specialty/international/localized-versions`, source: GOOGLE },
 });
 

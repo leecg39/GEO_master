@@ -127,6 +127,7 @@ const SNAPSHOT_ISSUES: Record<string, { severity: string; title: string }> = {
   "robots-noindex": { severity: "notice", title: "noindex 설정된 페이지" },
   "https-final": { severity: "warning", title: "HTTPS가 아닌 페이지" },
   "hreflang-valid": { severity: "warning", title: "hreflang 형식 오류" },
+  "schema-required": { severity: "warning", title: "구조화 데이터 필수 속성 누락" },
 };
 
 const MAX_HREFLANG_GAPS_LISTED = 5;

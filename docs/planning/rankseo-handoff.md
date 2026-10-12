@@ -40,8 +40,8 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | A0 기준선 | 완료 | 테스트 100개 파일·810개 통과, typecheck·lint 통과, build exit 0 |
 | A1 규칙 문서 링크·등급 척도 | 완료 | `src/lib/rule-docs.ts`, `src/lib/audit-grade.ts`, `src/components/RuleDocLink.tsx` |
 | A2 기술 SEO 규칙 보강 | 완료 | `src/lib/page-seo-rules.ts`, `src/lib/hreflang.ts`, 사이트 감사 상호 참조 이슈. 사이트맵·HTTP 헤더 hreflang은 미지원 |
-| A3 Schema 필드 검사 | 다음 | Google 문서를 다시 받아 표 작성. FAQ 리치 결과는 2026년 5월 이후 Google 검색에 표시되지 않음 |
-| R01~R05 보고서 | 대기 | `rankseo-gap-reports-plan.md` |
+| A3 Schema 필드 검사 | 완료 | `src/lib/schema-fields.ts` (Google 문서 2026-09 기준 16개 스펙), `page-rules/3`. FAQPage·HowTo는 "표시 안 함" 안내 |
+| R01~R05 보고서 | 다음 | `rankseo-gap-reports-plan.md` |
 | A4 JS 의존 콘텐츠 | 대기 | |
 | A5 답변 구조 지표 | 대기 | |
 | A6 llms.txt 초안 | 대기 | |
@@ -50,6 +50,8 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | A8 만점 테스트 | 대기 | |
 
 ## 알려진 사항
+
+- `audit.ts`의 `extractJsonLdTypes`는 `https://schema.org/Product` 같은 IRI 타입을 줄이지 않는다(기존 동작, 이번 범위 밖). `schema-fields.ts`는 줄여서 판정한다.
 
 - 2026-10-13 전체 테스트 첫 실행에서 2건이 실패했고(실행 시간 46초, 평소의 2.5배), 이어진 두 번의 실행에서는 모두 통과했다. 부하 때문에 생긴 간헐적 타임아웃으로 보인다. 다시 실패하면 테스트 이름을 기록한다.
 - Google 공지(2026-06): Google 검색은 llms.txt를 쓰지 않는다. 다른 AI 서비스용으로 유지는 가능하다.

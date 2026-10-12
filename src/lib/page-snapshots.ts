@@ -14,11 +14,12 @@ import { AUDIT_RULES, extractJsonLdTypes, parseAuditHtml } from "@/lib/audit";
 import { getDatabase } from "@/lib/db";
 import type { HreflangLink } from "@/lib/hreflang";
 import { extractHreflang, seoFindings } from "@/lib/page-seo-rules";
+import { schemaFindings } from "@/lib/schema-fields";
 import { AppError } from "@/lib/errors";
 import { requireActiveProject } from "@/lib/projects";
 
 export const PAGE_PARSER_VERSION = "page-facts/2";
-export const PAGE_RULES_VERSION = "page-rules/2";
+export const PAGE_RULES_VERSION = "page-rules/3";
 const MAX_STORED_HTML_BYTES = 256 * 1024;
 const MAX_VERSIONS_PER_URL = 3;
 
@@ -155,7 +156,9 @@ function htmlFindings(facts: PageFacts, html: string, pageUrl: string, domain: s
     const checked = rule.check(snapshot, noFiles);
     findings.push(finding(rule.code, tier, "notice", rule.label, checked.passed, tier === "hypothesis" ? `${checked.detail} (GEO 가설 — 페이지 유형에 따라 필요 없을 수 있음)` : checked.detail, checked.detail));
   }
-  return [...findings, ...seoFindings(facts, pageUrl)];
+  const $ = cheerio.load(html);
+  const jsonLdTexts = $("script[type='application/ld+json']").map((_, node) => $(node).text()).get();
+  return [...findings, ...seoFindings(facts, pageUrl), ...schemaFindings(jsonLdTexts)];
 }
 
 export function analyzeObservation(observation: PageObservation, domain: string): PageAnalysis {
