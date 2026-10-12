@@ -30,7 +30,7 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 - 파일 800줄 이하, 함수 50줄 이하. `src/lib/audit.ts`는 이미 740줄이라 새 로직은 별도 파일에 둔다.
 - 불변 객체 패턴, zod 입력 검증, 비밀값 하드코딩 금지, 외부 URL 요청은 `src/lib/url-security.ts`의 `assertPublicUrl`·`fetchPublicText`를 거친다.
 - 측정값과 추정값을 섞지 않는다. 가설 규칙은 점수에 넣지 않는다.
-- 운영 데이터(`data/geo.db`)를 지우거나 덮어쓰지 않는다. DB 변경은 `src/lib/db/index.ts`의 버전 마이그레이션(현재 29)으로 컬럼·테이블 추가만 한다.
+- 운영 데이터(`data/geo.db`)를 지우거나 덮어쓰지 않는다. DB 변경은 `src/lib/db/index.ts`의 버전 마이그레이션(현재 30)으로 컬럼·테이블 추가만 한다.
 - 브랜치: `feat/rankseo-track-a`(기반은 `feat/signup-landing`, PR #28 위에 쌓는다).
 
 ## 진행 상태
@@ -49,8 +49,8 @@ devin --prompt-file docs/planning/rankseo-handoff.md
 | A6 llms.txt 초안 | 완료 | `src/lib/llms-suggest.ts`, `llms-resources.ts`, `/api/llms` action `suggest`, "사이트맵에서 채우기" 버튼 |
 | R06 WordPress 실측 | 완료 | `docs/planning/rankseo-wordpress-spike.md`, 실제 응답 fixture `tests/fixtures/wordpress/`. 쓰기 가능: Yoast 제목·설명 메타뿐(허용 시) |
 | R07 WordPress 연결·읽기 | 완료 | 마이그레이션 29, `src/lib/integrations/wordpress.ts`, `wordpress-connections.ts`, `/api/wordpress/connection`·`/lookup`, 수정안 화면의 연결 패널, `sendPublicRequest`(url-security) |
-| R08 WordPress 쓰기 전달 | 다음 | 마이그레이션 30 `change_deliveries`. 쓰기 대상은 Yoast 제목·설명 메타뿐, 허용 시에만 |
-| R09~R10 보고서 WordPress 칸·PDF | 대기 | |
+| R08 WordPress 쓰기 전달 | 완료 | 마이그레이션 30 `change_deliveries`, `src/lib/wordpress-delivery.ts`, `/api/change-items/[id]/wordpress`(preview/execute), 수동 전달도 이력 기록 |
+| R09~R10 보고서 WordPress 칸·PDF | 다음 | 반영 확인 때 WordPress 저장값도 읽어 `source='wordpress'` 이력으로 남기기 |
 | A7 PageSpeed | 대기 | |
 | A8 만점 테스트 | 대기 | |
 

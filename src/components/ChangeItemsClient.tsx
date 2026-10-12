@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Check, LoaderCircle, Plus, SearchCheck, Send, Trash2 } from "lucide-react";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
 import { WordpressConnectionPanel } from "@/components/WordpressConnectionPanel";
+import { WordpressDeliveryPanel } from "@/components/WordpressDeliveryPanel";
 
 type Status = "draft" | "approved" | "delivered" | "verification_pending" | "verified" | "conflict" | "failed";
 interface Item {
@@ -110,6 +111,7 @@ export function ChangeItemsClient() {
               <div className="mt-3 flex flex-wrap items-center gap-2 print:hidden">
                 {item.status === "draft" && <Button type="button" disabled={busy} onClick={() => void run(() => request(`/api/change-items/${item.id}`, send("PATCH", { action: "approve", expectedUpdatedAt: item.updatedAt })))}><Check className="h-4 w-4" />승인</Button>}
                 {item.status === "approved" && <Button type="button" disabled={busy} onClick={() => void run(() => request(`/api/change-items/${item.id}`, send("PATCH", { action: "deliver", method: "manual" })))}><Send className="h-4 w-4" />전달 처리(직접 반영함)</Button>}
+                {item.status === "approved" && ["title", "description"].includes(item.field) && <WordpressDeliveryPanel changeId={item.id} onDone={() => void load()} />}
                 {["delivered", "verification_pending", "failed"].includes(item.status) && (
                   <Button type="button" disabled={busy} onClick={() => void run(async () => {
                     const result = await request<{ check: { matched: boolean; httpStatus: number; actual: string | null } }>(`/api/change-items/${item.id}`, send("PATCH", { action: "verify" }));

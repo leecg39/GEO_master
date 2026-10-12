@@ -906,6 +906,30 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    version: 30,
+    name: "change-deliveries",
+    up(sqlite) {
+      // 전달 이력 (R08). 수동 전달과 WordPress 쓰기를 같은 표에 남긴다. 쓰기 전 값은 되돌리기 안내용이다.
+      sqlite.exec(`
+        CREATE TABLE IF NOT EXISTS change_deliveries (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          change_item_id INTEGER NOT NULL REFERENCES change_items(id) ON DELETE CASCADE,
+          method TEXT NOT NULL CHECK(method IN ('manual','wordpress')),
+          target_json TEXT,
+          result TEXT NOT NULL CHECK(result IN ('ok','conflict','error')),
+          http_status INTEGER,
+          error_code TEXT,
+          previous_value TEXT,
+          remote_modified_at TEXT,
+          started_at TEXT NOT NULL,
+          finished_at TEXT NOT NULL,
+          duration_ms INTEGER NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_change_deliveries_item ON change_deliveries(change_item_id, id DESC);
+      `);
+    },
+  },
 ] as const;
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

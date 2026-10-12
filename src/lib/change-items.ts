@@ -6,6 +6,7 @@
  */
 import { createHash } from "node:crypto";
 import { z } from "zod";
+import { recordDelivery } from "./change-deliveries";
 import { recordVerification } from "./change-verifications";
 import { assertExpectedUpdatedAt, expectFound, resourceIdSchema, transactionalMutation } from "./crud";
 import { getDatabase } from "./db";
@@ -127,7 +128,36 @@ export function markDelivered(idInput: unknown, input: unknown): ChangeItem {
   return transactionalMutation(getDatabase().sqlite, () => {
     const row = owned(id);
     if (row.status !== "approved") throw new AppError("승인된 수정안만 전달 처리할 수 있습니다.", 409, "CHANGE_NOT_APPROVED");
-    return save(id, { status: "delivered", delivery_method: method, delivered_at: new Date().toISOString() }, row.updated_at);
+    const now = new Date().toISOString();
+    recordDelivery(id, { method, target: null, result: "ok", httpStatus: null, errorCode: null, previousValue: null, remoteModifiedAt: null, startedAt: now, durationMs: 0 });
+    return save(id, { status: "delivered", delivery_method: method, delivered_at: now }, row.updated_at);
+  });
+}
+
+/** 승인된 수정안 원본 행 (WordPress 전달 모듈용) */
+export function approvedChangeRow(idInput: unknown) {
+  const id = resourceIdSchema.parse(idInput);
+  const row = owned(id);
+  if (row.status !== "approved") throw new AppError("승인된 수정안만 전달할 수 있습니다.", 409, "CHANGE_NOT_APPROVED");
+  return { id: row.id, url: row.url, field: row.field, originalHash: row.original_hash, proposedValue: row.proposed_value, updatedAt: row.updated_at };
+}
+
+/** 지금 공개 페이지 값이 처음 기록한 원래 값과 같은지 */
+export const matchesOriginal = (originalHash: string, current: string | null) => hash(current ?? "") === originalHash;
+
+/** WordPress에 실제로 쓴 뒤에만 부른다. 상태는 delivered이고 반영 확인은 공개 페이지 재수집이 한다 */
+export function markDeliveredByWordpress(id: number): ChangeItem {
+  return transactionalMutation(getDatabase().sqlite, () => {
+    const row = owned(id);
+    if (row.status !== "approved") throw new AppError("승인된 수정안만 전달 처리할 수 있습니다.", 409, "CHANGE_NOT_APPROVED");
+    return save(id, { status: "delivered", delivery_method: "wordpress", delivered_at: new Date().toISOString() }, row.updated_at);
+  });
+}
+
+export function markConflict(id: number): ChangeItem {
+  return transactionalMutation(getDatabase().sqlite, () => {
+    const row = owned(id);
+    return save(id, { status: "conflict", approved_at: null }, row.updated_at);
   });
 }
 
