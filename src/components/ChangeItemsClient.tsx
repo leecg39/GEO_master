@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Check, LoaderCircle, Plus, SearchCheck, Send, Trash2 } from "lucide-react";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
+import { WordpressConnectionPanel } from "@/components/WordpressConnectionPanel";
+import { WordpressDeliveryPanel } from "@/components/WordpressDeliveryPanel";
 
 type Status = "draft" | "approved" | "delivered" | "verification_pending" | "verified" | "conflict" | "failed";
 interface Item {
@@ -70,6 +72,7 @@ export function ChangeItemsClient() {
     <div>
       <PageHeader eyebrow="Change workbench" title="수정안 작업대" description="페이지별 현재 값과 수정안, 근거를 나란히 두고 승인합니다. 자동 게시는 하지 않으며, 승인한 수정안을 직접 반영한 뒤 '전달 처리'로 기록합니다. 페이지의 현재 값이 달라지면 충돌로 표시됩니다."
         action={<div className="flex flex-wrap gap-2 print:hidden"><Button type="button" variant="secondary" disabled={busy} onClick={() => void downloadGuide("site-settings")}>큐샵 적용 안내(사이트 설정)</Button><Button type="button" variant="secondary" disabled={busy} onClick={() => void downloadGuide("blog")}>큐샵 적용 안내(블로그)</Button><Button type="button" onClick={() => setForm({ ...empty })}><Plus className="h-4 w-4" />수정안 추가</Button></div>} />
+      <WordpressConnectionPanel />
       {error && <p role="alert" className="mb-4 rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-sm text-rose-300">{error}</p>}
       {form && (
         <Card className="mb-5">
@@ -92,6 +95,7 @@ export function ChangeItemsClient() {
                 <Badge tone={STATUS[item.status].tone}>{STATUS[item.status].label}</Badge>
                 <Badge>{FIELDS[item.field] ?? item.field}</Badge>
                 <a className="truncate text-xs text-cyan-300 hover:underline" href={item.url} target="_blank" rel="noopener noreferrer nofollow">{item.url}</a>
+                <a className="ml-auto shrink-0 text-xs text-slate-400 hover:text-cyan-200 hover:underline print:hidden" href={`/changes/report?url=${encodeURIComponent(item.url)}`}>결과 보고서</a>
               </div>
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 <div><p className="text-xs text-slate-500">현재 값</p><pre className="mt-1 whitespace-pre-wrap rounded-xl bg-slate-950/40 p-3 text-sm text-slate-400">{item.originalValue || "(비어 있음)"}</pre></div>
@@ -107,6 +111,7 @@ export function ChangeItemsClient() {
               <div className="mt-3 flex flex-wrap items-center gap-2 print:hidden">
                 {item.status === "draft" && <Button type="button" disabled={busy} onClick={() => void run(() => request(`/api/change-items/${item.id}`, send("PATCH", { action: "approve", expectedUpdatedAt: item.updatedAt })))}><Check className="h-4 w-4" />승인</Button>}
                 {item.status === "approved" && <Button type="button" disabled={busy} onClick={() => void run(() => request(`/api/change-items/${item.id}`, send("PATCH", { action: "deliver", method: "manual" })))}><Send className="h-4 w-4" />전달 처리(직접 반영함)</Button>}
+                {item.status === "approved" && ["title", "description"].includes(item.field) && <WordpressDeliveryPanel changeId={item.id} onDone={() => void load()} />}
                 {["delivered", "verification_pending", "failed"].includes(item.status) && (
                   <Button type="button" disabled={busy} onClick={() => void run(async () => {
                     const result = await request<{ check: { matched: boolean; httpStatus: number; actual: string | null } }>(`/api/change-items/${item.id}`, send("PATCH", { action: "verify" }));

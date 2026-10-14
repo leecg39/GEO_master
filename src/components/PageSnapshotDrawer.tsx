@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { DetailDrawer } from "@/components/CrudPrimitives";
 import { Badge, EmptyState } from "@/components/ui";
+import { RuleDocLink } from "@/components/RuleDocLink";
 
 interface Finding {
   code: string;
@@ -29,6 +30,8 @@ interface PageSnapshot {
     title: string | null; description: string | null; canonical: string | null; robotsMeta: string | null; lang: string | null;
     h1: string[]; og: { title: string | null; description: string | null; image: string | null };
     jsonLdTypes: string[]; jsonLdBlocks: number; jsonLdInvalid: number; wordCount: number;
+    /** page-facts/2부터 */
+    viewport?: string | null; hreflang?: Array<{ lang: string; href: string }>;
   } | null;
   findings: Finding[];
   skipped: string | null;
@@ -48,6 +51,8 @@ function tone(item: Finding): "good" | "bad" | "warn" | "default" {
   if (item.severity === "error") return "bad";
   return item.severity === "warning" ? "warn" : "default";
 }
+
+const NOT_MEASURED = "이 스냅샷 버전에서는 수집하지 않음";
 
 function FactRow({ label, value }: { label: string; value: string | null | undefined }) {
   return (
@@ -129,6 +134,8 @@ export function PageSnapshotDrawer({ snapshotId, onClose }: { snapshotId: number
                 <FactRow label="OG" value={[snapshot.facts.og.title, snapshot.facts.og.description, snapshot.facts.og.image].filter(Boolean).join(" · ")} />
                 <FactRow label="JSON-LD" value={snapshot.facts.jsonLdBlocks ? `${snapshot.facts.jsonLdTypes.join(", ") || "유형 없음"} (블록 ${snapshot.facts.jsonLdBlocks}개, 구문 오류 ${snapshot.facts.jsonLdInvalid}개)` : null} />
                 <FactRow label="본문 단어 수" value={String(snapshot.facts.wordCount)} />
+                <FactRow label="viewport" value={snapshot.facts.viewport === undefined ? NOT_MEASURED : snapshot.facts.viewport} />
+                <FactRow label="hreflang" value={snapshot.facts.hreflang === undefined ? NOT_MEASURED : snapshot.facts.hreflang.map((link) => `${link.lang} → ${link.href}`).join(", ") || null} />
               </dl>
             </section>
           )}
@@ -149,6 +156,7 @@ export function PageSnapshotDrawer({ snapshotId, onClose }: { snapshotId: number
                     </div>
                     <p className="mt-1 text-xs leading-5 text-slate-400">{item.detail}</p>
                     {item.evidence && <p className="mt-1 break-all text-[11px] text-slate-500">관측값: {item.evidence}</p>}
+                    {!item.passed && <RuleDocLink code={item.code} />}
                   </li>
                 ))}
               </ul>

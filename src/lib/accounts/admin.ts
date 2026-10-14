@@ -18,9 +18,19 @@ function withSemforge(account: AccountRecord): AdminAccountView {
   return { ...account, semforge: peekSemforgeAccess(account.loginId) };
 }
 
-export function listAdminAccounts(): AdminAccountView[] {
+export interface AccountFilters {
+  status?: AccountStatus;
+  /** 이메일 또는 이름에 포함된 문자열(대소문자 무시) */
+  q?: string;
+}
+
+export function listAdminAccounts(filters: AccountFilters = {}): AdminAccountView[] {
   requireAdminAccount();
-  return listAccounts().map(withSemforge);
+  const query = filters.q?.trim().toLowerCase();
+  return listAccounts()
+    .filter((account) => !filters.status || account.status === filters.status)
+    .filter((account) => !query || account.loginId.includes(query) || account.displayName.toLowerCase().includes(query))
+    .map(withSemforge);
 }
 
 export function setAccountStatus(id: number | string, status: AccountStatus): AdminAccountView {

@@ -320,11 +320,32 @@ describe("Qshop P02: rendered collection through Firecrawl Scrape", () => {
     const result = await runSiteAuditCampaign(campaign.id, { renderMode: "rendered" });
     expect(result).toMatchObject({ status: "completed", renderMode: "rendered", fetchedPages: 10, notRequested: 2, halted: null });
     expect(request.mock.calls.filter(([url]) => String(url).endsWith("/v2/scrape"))).toHaveLength(10);
-    expect(vi.mocked(fetchPublicText).mock.calls.map(([url]) => url).sort()).toEqual(["https://example.com/llms.txt", "https://example.com/robots.txt"]);
+    // A4: 렌더링한 HTML 페이지는 JavaScript 실행 전 HTML과 비교하려고 한 번씩 직접 요청한다 (크레딧 없음)
+    const direct = vi.mocked(fetchPublicText).mock.calls.map(([url]) => url);
+    expect(direct.filter((url) => url.endsWith("/llms.txt") || url.endsWith("/robots.txt")).sort()).toEqual(["https://example.com/llms.txt", "https://example.com/robots.txt"]);
+    expect(direct.filter((url) => !url.endsWith("/llms.txt") && !url.endsWith("/robots.txt")).sort()).toEqual(links.slice(1, 10).map((link) => link.url).sort());
     const gone = getDatabase().sqlite.prepare("SELECT status_code, fetch_state, title, render_mode, content_hash IS NOT NULL AS hashed FROM site_audit_pages WHERE campaign_id = ? AND url = 'https://example.com/gone'").get(campaign.id);
     expect(gone).toEqual({ status_code: 404, fetch_state: "fetched", title: "gone", render_mode: "rendered", hashed: 1 });
     const skipped = getDatabase().sqlite.prepare("SELECT fetch_error FROM site_audit_pages WHERE campaign_id = ? AND fetch_state = 'discovered'").all(campaign.id);
     expect(skipped).toEqual([{ fetch_error: expect.stringContaining("렌더링 수집 한도") }, { fetch_error: expect.stringContaining("렌더링 수집 한도") }]);
+  });
+
+  it("compares each rendered page with its HTML before JavaScript and reports JS-only content (A4)", async () => {
+    const words = Array.from({ length: 200 }, (_, index) => `단어${index}`).join(" ");
+    request.mockImplementation(firecrawl((url) => Response.json({
+      success: true,
+      data: { rawHtml: `<html><head><title>앱</title></head><body><h1>앱</h1><p>${words}</p></body></html>`, metadata: { statusCode: 200, url, sourceURL: url } },
+    })));
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => isSiteFile(url) ? llms404(url)
+      : url.endsWith("/r1") ? Promise.reject(new Error("blocked"))
+        : ({ url, status: 200, text: '<html><head></head><body><div id="root"></div></body></html>', contentType: "text/html" }));
+    const campaign = createSiteAuditCampaign({ name: "QA", domain: "example.com" });
+    await runSiteAuditCampaign(campaign.id, { renderMode: "rendered" });
+    const issue = getSiteAuditOverview(campaign.id).briefing.issues.find((item) => item.title === "JavaScript 실행 후에만 보이는 콘텐츠");
+    expect(issue).toMatchObject({ severity: "warning", detail: expect.stringMatching(/^9개 페이지/) });
+    const r1 = getDatabase().sqlite.prepare(`SELECT s.findings FROM site_audit_pages p JOIN page_snapshots s ON s.id = p.snapshot_id
+      WHERE p.campaign_id = ? AND p.url = 'https://example.com/r1'`).get(campaign.id) as { findings: string };
+    expect(JSON.parse(r1.findings).find((item: { code: string }) => item.code === "js-dependent-content")).toMatchObject({ passed: true, detail: expect.stringContaining("비교하지 않았습니다") });
   });
 
   it("stops rendering when Firecrawl credits run out and keeps a contract failure per page", async () => {

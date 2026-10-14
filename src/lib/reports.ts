@@ -120,7 +120,7 @@ export function reportToCsv(report: ReturnType<typeof buildAuditReport> | Return
   return `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
 }
 
-export function reportFilename(kind: ReportKind, id: number, format: "json" | "csv" | "pdf") {
+export function reportFilename(kind: ReportKind, id: number, format: "json" | "csv" | "pdf" | "md") {
   const date = new Date().toISOString().slice(0, 10);
   return `geo-${kind}-${id}-${date}.${format}`;
 }
