@@ -105,6 +105,14 @@ describe("parsing and scope", () => {
     const graph = Array.from({ length: 500 }, (_, index) => ({ "@type": "Product", name: `P${index}` }));
     expect(evaluate({ "@graph": graph }).nodes.length).toBeLessThanOrEqual(100);
   });
+
+  it("treats whitespace-only strings, empty objects, and arrays of empty strings as missing, and supports array @type on nested nodes", () => {
+    expect(only({ "@type": "Product", name: "   ", offers: { price: 10 } }).missingRequired).toEqual(["name"]);
+    expect(only({ "@type": "LocalBusiness", name: "가게", address: {} }).missingRequired).toEqual(["address"]);
+    expect(only({ "@type": "Recipe", name: "요리", image: ["", "   "] }).missingRequired).toEqual(["image"]);
+    expect(only({ "@type": "Event", name: "웨비나", startDate: "2026-11-01", location: { "@type": ["VirtualLocation"], url: "https://x" } }).missingRequired).toEqual([]);
+    expect(only({ "@type": "Product", name: "A", offers: { "@type": ["https://schema.org/AggregateOffer"], lowPrice: 100 } }).missingRequired).toEqual(["offers.priceCurrency"]);
+  });
 });
 
 describe("page findings", () => {

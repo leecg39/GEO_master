@@ -6,6 +6,7 @@
 import { recordVerification } from "./change-verifications";
 import { AppError } from "./errors";
 import { findWordpressPost, readWordpressMeta, WORDPRESS_WRITABLE_FIELDS } from "./integrations/wordpress";
+import { fieldMatches } from "./page-fields";
 import { getWordpressCredentials } from "./wordpress-connections";
 
 export async function recordWordpressStoredValue(change: { id: number; url: string; field: string; proposedValue: string }) {
@@ -24,7 +25,7 @@ export async function recordWordpressStoredValue(change: { id: number; url: stri
     }
     const stored = await readWordpressMeta(credentials, post.type, post.id);
     const value = typeof stored.meta[metaKey] === "string" ? stored.meta[metaKey] as string : null;
-    const matched = value !== null && value.trim() === change.proposedValue.trim();
+    const matched = fieldMatches(change.field, value, change.proposedValue);
     recordVerification(change.id, { ...base, result: matched ? "matched" : "pending", httpStatus: 200, matched, actual: value, durationMs: performance.now() - started, errorCode: null, checkedAt: new Date().toISOString() });
   } catch (error) {
     recordVerification(change.id, { ...base, result: "fetch_error", httpStatus: null, matched: null, actual: null, durationMs: performance.now() - started,

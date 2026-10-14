@@ -120,4 +120,17 @@ describe.sequential("API (A7)", () => {
     expect(await (await keyStatus()).json()).toEqual({ configured: true, source: "environment" });
     vi.stubEnv("PAGESPEED_API_KEY", "");
   });
+
+  it("blocks guest and customer roles from modifying or deleting the shared API key", async () => {
+    const secret = "s".repeat(64);
+    vi.stubEnv("GEO_AUTH_MODE", "proxy");
+    vi.stubEnv("GEO_AUTH_PROXY_SECRET", secret);
+    vi.stubEnv("GEO_GUEST_USERS", "guest");
+    const guestHeaders = { "content-type": "application/json", "x-geo-auth-secret": secret, "x-geo-auth-user": "guest" };
+    const putGuest = await putKey(new NextRequest("http://localhost/api/pagespeed/key", { method: "PUT", headers: guestHeaders, body: JSON.stringify({ apiKey: KEY }) }));
+    expect(putGuest.status).toBe(403);
+    const delGuest = await deleteKey(new NextRequest("http://localhost/api/pagespeed/key", { method: "DELETE", headers: guestHeaders }));
+    expect(delGuest.status).toBe(403);
+    vi.stubEnv("GEO_AUTH_MODE", "local");
+  });
 });

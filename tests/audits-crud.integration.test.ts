@@ -44,6 +44,7 @@ const request = (url: string, method: string, body: unknown) => new NextRequest(
 beforeAll(() => {
   process.env.GEO_DB_PATH = databasePath;
   process.env.GEO_MASTER_KEY = "audit-crud-integration-master-key-32-chars";
+  for (const key of ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GEMINI_API_KEY", "GROK_API_KEY"]) vi.stubEnv(key, "");
   projectId = ensureActiveProject().id;
   otherProjectId = createProject({
     name: "다른 진단 프로젝트", brandName: "다른 브랜드", category: "테스트", competitors: [], activate: false,
@@ -51,6 +52,7 @@ beforeAll(() => {
 });
 
 afterAll(() => {
+  vi.unstubAllEnvs();
   closeDatabase(databasePath);
   fs.rmSync(tempDir, { recursive: true, force: true });
   if (previousDb === undefined) delete process.env.GEO_DB_PATH; else process.env.GEO_DB_PATH = previousDb;

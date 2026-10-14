@@ -91,9 +91,12 @@ export type PostLookup =
 /** 공개 URL → 글 ID. 마지막 경로를 slug로 글·페이지를 찾고, link가 정확히 같은 후보가 하나일 때만 인정한다 */
 export async function findWordpressPost(credentials: WordpressCredentials, pageUrl: string): Promise<PostLookup> {
   const site = normalizeWordpressSite(credentials.siteUrl);
+  const siteUrl = new URL(site);
   const target = new URL(pageUrl);
-  if (target.origin !== new URL(site).origin) throw new AppError("연결된 WordPress 사이트의 주소가 아닙니다.", 422, "WORDPRESS_URL_OUTSIDE_SITE");
-  const slug = target.pathname.split("/").filter(Boolean).at(-1);
+  const basePath = siteUrl.pathname.replace(/\/+$/, "");
+  const inSitePath = !basePath || target.pathname === basePath || target.pathname.startsWith(`${basePath}/`);
+  if (target.origin !== siteUrl.origin || !inSitePath) throw new AppError("연결된 WordPress 사이트의 주소가 아닙니다.", 422, "WORDPRESS_URL_OUTSIDE_SITE");
+  const slug = target.pathname.slice(basePath.length).split("/").filter(Boolean).at(-1);
   if (!slug) return { status: "none" };
   let decoded = slug;
   try { decoded = decodeURIComponent(slug); } catch { /* 잘못된 % 인코딩은 원문 그대로 찾는다 */ }

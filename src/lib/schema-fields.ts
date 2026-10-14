@@ -47,8 +47,14 @@ export interface SchemaFieldReport {
 }
 
 const isObject = (value: unknown): value is JsonObject => typeof value === "object" && value !== null && !Array.isArray(value);
-const isPresent = (value: unknown) => value !== undefined && value !== null && value !== ""
-  && !(Array.isArray(value) && value.length === 0);
+
+function isPresent(value: unknown): boolean {
+  if (value === undefined || value === null) return false;
+  if (typeof value === "string") return value.trim().length > 0;
+  if (Array.isArray(value)) return value.some(isPresent);
+  if (isObject(value)) return Object.keys(value).length > 0;
+  return true;
+}
 
 /** 점 경로의 값. 중간에 배열이 있으면 항목 중 하나라도 있으면 있다고 본다. */
 function hasPath(node: unknown, path: string): boolean {
@@ -63,10 +69,11 @@ const SCHEMA_IRI = /^(?:https?:\/\/schema\.org\/|schema:)/i;
 /** "https://schema.org/Product", "schema:Product" → "Product" */
 const shortType = (type: string) => type.replace(SCHEMA_IRI, "");
 
-function typeOf(value: unknown): string | null {
-  if (!isObject(value)) return null;
+function hasType(value: unknown, target: string): boolean {
+  if (!isObject(value)) return false;
   const type = value["@type"];
-  return typeof type === "string" ? shortType(type) : null;
+  const list = typeof type === "string" ? [type] : Array.isArray(type) ? type.filter((entry): entry is string => typeof entry === "string") : [];
+  return list.map(shortType).includes(target);
 }
 
 function offersShape(node: JsonObject): string[] {
@@ -74,7 +81,7 @@ function offersShape(node: JsonObject): string[] {
   if (!isPresent(offers)) return [];
   const first = Array.isArray(offers) ? offers[0] : offers;
   if (!isObject(first)) return [];
-  if (typeOf(first) === "AggregateOffer") {
+  if (hasType(first, "AggregateOffer")) {
     return ["lowPrice", "priceCurrency"].filter((key) => !hasPath(first, key)).map((key) => `offers.${key}`);
   }
   return hasPath(first, "price") || hasPath(first, "priceSpecification.price") ? [] : ["offers.price"];
@@ -83,7 +90,7 @@ function offersShape(node: JsonObject): string[] {
 function eventVenue(node: JsonObject): string[] {
   const location = Array.isArray(node.location) ? node.location[0] : node.location;
   if (typeof location === "string") return ["location.address"];
-  if (!isObject(location) || typeOf(location) === "VirtualLocation") return [];
+  if (!isObject(location) || hasType(location, "VirtualLocation")) return [];
   return hasPath(location, "address") ? [] : ["location.address"];
 }
 

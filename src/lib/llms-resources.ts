@@ -8,6 +8,12 @@ export interface ResourceSection { heading: string; links: ResourceLink[] }
 
 export const DEFAULT_SECTION_HEADING = "핵심 문서";
 
+const cleanHeading = (value: string) =>
+  value.replace(/[\r\n]+/g, " ").replace(/^#+\s*/, "").replace(/\s+/g, " ").trim().slice(0, 120) || DEFAULT_SECTION_HEADING;
+
+const cleanTitle = (value: string) =>
+  value.replace(/[\r\n|]+/g, " ").replace(/^#+\s*/, "").replace(/\s+/g, " ").trim().slice(0, 200);
+
 export function parseResourceLines(text: string): ResourceSection[] {
   const sections: ResourceSection[] = [];
   let current: ResourceSection = { heading: DEFAULT_SECTION_HEADING, links: [] };
@@ -16,18 +22,26 @@ export function parseResourceLines(text: string): ResourceSection[] {
     if (!line) continue;
     if (line.startsWith("## ")) {
       sections.push(current);
-      current = { heading: line.slice(3).trim() || DEFAULT_SECTION_HEADING, links: [] };
+      current = { heading: cleanHeading(line.slice(3)), links: [] };
       continue;
     }
-    const [title = "", url = "", description = ""] = line.split("|").map((part) => part.trim());
+    const [title = "", url = "", ...rest] = line.split("|").map((part) => part.trim());
+    const description = rest.join(" | ").trim();
     current = { ...current, links: [...current.links, { title, url, description }] };
   }
   return [...sections, current].filter((section) => section.links.length > 0);
 }
 
 export function formatResourceLines(sections: readonly ResourceSection[]) {
-  return sections.map((section) => [
-    `## ${section.heading}`,
-    ...section.links.map((link) => [link.title, link.url, link.description].filter((part, index) => index < 2 || part).join(" | ")),
-  ].join("\n")).join("\n\n");
+  return sections.map((section) => {
+    const heading = cleanHeading(section.heading);
+    return [
+      `## ${heading}`,
+      ...section.links.map((link) => [
+        cleanTitle(link.title) || heading,
+        link.url.trim(),
+        link.description.replace(/[\r\n]+/g, " ").trim(),
+      ].filter((part, index) => index < 2 || part).join(" | ")),
+    ].join("\n");
+  }).join("\n\n");
 }

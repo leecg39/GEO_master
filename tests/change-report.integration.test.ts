@@ -79,16 +79,18 @@ afterAll(() => {
 });
 
 describe("change report model (R04)", () => {
-  it("counts every status for the URL scope and leaves other URLs out", () => {
+  it("counts every status for the URL scope (including trailing-slash variant) and leaves other URLs out", () => {
     const report = buildChangeReport({ url: URL_A });
     expect(report.kpi).toEqual({ total: 5, draft: 1, approved: 0, delivered: 0, pending: 1, verified: 1, conflict: 1, failed: 1 });
     expect(report.items.map((item) => item.id)).not.toContain(ids.otherUrl);
+    expect(buildChangeReport({ url: `${URL_A}/` }).items.map((item) => item.id)).toEqual(report.items.map((item) => item.id));
   });
 
-  it("shows original, proposed and the last public value with its check", () => {
+  it("shows original, proposed and the last public value with its check and delivery history", () => {
     const item = buildChangeReport({ url: URL_A }).items.find((entry) => entry.id === ids.verified)!;
     expect(item).toMatchObject({ originalValue: "옛 제목", proposedValue: "새 제목", publicValue: "새 제목", lastHttpStatus: 200, lastResult: "matched", wordpressValue: null });
     expect(item.history).toHaveLength(1);
+    expect(item.deliveries).toEqual([expect.objectContaining({ method: "manual", result: "ok" })]);
     expect(item.finalUrlMismatch).toBe(false);
   });
 

@@ -6,6 +6,7 @@ import { CHANGE_STATUS_LABEL, mdCell, mdInline } from "./report-markdown";
 
 const EMPTY_ORIGINAL = "빈 값 또는 기록 없음";
 const RESULT_LABEL: Record<string, string> = { matched: "일치", pending: "아직 다름", http_error: "HTTP 오류", fetch_error: "요청 실패" };
+const DELIVERY_RESULT_LABEL: Record<string, string> = { ok: "성공", conflict: "충돌", error: "오류" };
 
 const table = (header: readonly string[], rows: ReadonlyArray<readonly string[]>) => [
   `| ${header.join(" | ")} |`, `| ${header.map(() => "---").join(" | ")} |`, ...rows.map((row) => `| ${row.join(" | ")} |`),
@@ -41,7 +42,14 @@ function reauditSection(report: ChangeReport) {
 
 function historySection(report: ChangeReport) {
   const blocks = report.items.map((item) => {
-    const delivery = item.deliveredAt ? [`- ${item.deliveredAt} 전달 (${mdInline(item.deliveryMethod ?? "방식 미상")})`] : [];
+    const recordedDeliveries = (item.deliveries ?? []).map((entry) =>
+      `- ${entry.finishedAt} 전달 (${mdInline(entry.method)}): ${DELIVERY_RESULT_LABEL[entry.result] ?? entry.result}`
+      + `${entry.httpStatus === null ? "" : ` · HTTP ${entry.httpStatus}`} · ${entry.durationMs}ms`
+      + `${entry.errorCode ? ` · ${mdInline(entry.errorCode)}` : ""}`
+      + `${entry.previousValue ? ` · 이전 저장값: ${mdCell(entry.previousValue)}` : ""}`);
+    const delivery = recordedDeliveries.length
+      ? recordedDeliveries
+      : item.deliveredAt ? [`- ${item.deliveredAt} 전달 (${mdInline(item.deliveryMethod ?? "방식 미상")})`] : [];
     const checks = item.history.map((entry) => `- ${entry.checkedAt} ${entry.source === "public" ? "공개 페이지" : "WordPress"} 확인: ${RESULT_LABEL[entry.result] ?? entry.result}`
       + `${entry.httpStatus === null ? "" : ` · HTTP ${entry.httpStatus}`} · ${entry.durationMs}ms${entry.errorCode ? ` · ${mdInline(entry.errorCode)}` : ""}`
       + `${entry.finalUrl ? ` · ${mdInline(entry.finalUrl)}` : ""}`);

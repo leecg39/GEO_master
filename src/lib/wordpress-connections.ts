@@ -12,8 +12,8 @@ import { assertPublicUrl } from "./url-security";
 
 export const wordpressConnectionSchema = z.object({
   siteUrl: z.string().trim().min(1).max(2048),
-  username: z.string().trim().min(1).max(120),
-  applicationPassword: z.string().trim().min(8).max(200),
+  username: z.string().trim().min(1).max(120).refine((value) => !/[:\r\n]/.test(value), "사용자명에 콜론(:)이나 줄바꿈을 넣을 수 없습니다."),
+  applicationPassword: z.string().trim().min(8).max(200).refine((value) => !/[\r\n]/.test(value), "애플리케이션 비밀번호에 줄바꿈을 넣을 수 없습니다."),
   allowSeoPluginWrites: z.boolean().optional().default(false),
 }).strict();
 
@@ -82,7 +82,7 @@ export function requireWordpressCredentials() {
 
 /** URL의 글을 찾고, 쓰기 가능한 필드의 현재 저장값을 읽는다 */
 export async function lookupWordpressPage(urlInput: unknown) {
-  const url = z.string().trim().url().max(2048).parse(urlInput);
+  const url = z.string().trim().url().max(2048).refine((value) => /^https?:\/\//i.test(value), "http 또는 https URL만 허용합니다.").parse(urlInput);
   const credentials = requireWordpressCredentials();
   const post = await findWordpressPost(credentials, url);
   if (post.status !== "found") return post;

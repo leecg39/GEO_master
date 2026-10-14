@@ -7,6 +7,7 @@ import { getDatabase } from "./db";
 import { AppError } from "./errors";
 import { requireActiveProject } from "./projects";
 
+export const MAX_DELIVERIES_PER_ITEM = 20;
 const VALUE_MAX = 2_000;
 
 export interface DeliveryTarget { site: string; postId: number; postType: "post" | "page"; metaKey: string }
@@ -43,7 +44,8 @@ export type ChangeDelivery = ReturnType<typeof toDelivery>;
 
 /** 호출자가 소유권을 확인했다고 본다. 수정안이 사라졌으면 기록하지 않는다 */
 export function recordDelivery(changeItemId: number, record: DeliveryRecord) {
-  getDatabase().sqlite.prepare(`
+  const { sqlite } = getDatabase();
+  sqlite.prepare(`
     INSERT INTO change_deliveries (change_item_id, method, target_json, result, http_status, error_code, previous_value, remote_modified_at, started_at, finished_at, duration_ms)
     SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM change_items WHERE id = ?)
   `).run(
@@ -51,6 +53,11 @@ export function recordDelivery(changeItemId: number, record: DeliveryRecord) {
     record.previousValue === null ? null : record.previousValue.slice(0, VALUE_MAX), record.remoteModifiedAt, record.startedAt,
     new Date().toISOString(), Math.max(0, Math.round(record.durationMs)), changeItemId,
   );
+  sqlite.prepare(`
+    DELETE FROM change_deliveries WHERE change_item_id = ? AND id NOT IN (
+      SELECT id FROM change_deliveries WHERE change_item_id = ? ORDER BY id DESC LIMIT ?
+    )
+  `).run(changeItemId, changeItemId, MAX_DELIVERIES_PER_ITEM);
 }
 
 export function listChangeDeliveries(idInput: unknown): ChangeDelivery[] {

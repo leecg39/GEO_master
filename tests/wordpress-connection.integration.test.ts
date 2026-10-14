@@ -158,4 +158,33 @@ describe.sequential("WordPress connection (R07)", () => {
     expect(getWordpressCredentials()).toBeNull();
     expect((await (await getConnection()).json()).connection).toBeNull();
   });
+
+  it("rejects colons in usernames, non-http lookup URLs, and URLs outside a subdirectory install", async () => {
+    expect((await put({ ...valid, username: "admin:injected" })).status).toBe(422);
+    routes[`${SITE}/blog/wp-json/`] = json(200, fixture("index-yoast.json"));
+    routes[`${SITE}/blog/wp-json/wp/v2/users/me`] = json(200, fixture("users-me.json"));
+    expect((await put({ ...valid, siteUrl: `${SITE}/blog` })).status).toBe(200);
+
+    const outsideSubdir = await lookup(new NextRequest(`http://localhost/api/wordpress/lookup?url=${encodeURIComponent(`${SITE}/shop/item`)}`));
+    expect(outsideSubdir.status).toBe(422);
+    expect(await outsideSubdir.json()).toMatchObject({ code: "WORDPRESS_URL_OUTSIDE_SITE" });
+
+    const rootOfSubdir = await lookup(new NextRequest(`http://localhost/api/wordpress/lookup?url=${encodeURIComponent(`${SITE}/blog/`)}`));
+    expect(rootOfSubdir.status).toBe(200);
+    expect(await rootOfSubdir.json()).toMatchObject({ result: { status: "none" } });
+
+    const nonHttp = await lookup(new NextRequest(`http://localhost/api/wordpress/lookup?url=${encodeURIComponent("ftp://wp.example/blog/post")}`));
+    expect(nonHttp.status).toBe(422);
+  });
+
+  it("blocks guest accounts from saving or deleting connections", async () => {
+    const secret = "s".repeat(64);
+    vi.stubEnv("GEO_AUTH_MODE", "proxy");
+    vi.stubEnv("GEO_AUTH_PROXY_SECRET", secret);
+    vi.stubEnv("GEO_GUEST_USERS", "guest");
+    const guestHeaders = { "content-type": "application/json", "x-geo-auth-secret": secret, "x-geo-auth-user": "guest" };
+    expect((await putConnection(new NextRequest("http://localhost/api/wordpress/connection", { method: "PUT", headers: guestHeaders, body: JSON.stringify(valid) }))).status).toBe(403);
+    expect((await deleteConnection(new NextRequest("http://localhost/api/wordpress/connection", { method: "DELETE", headers: guestHeaders }))).status).toBe(403);
+    vi.stubEnv("GEO_AUTH_MODE", "local");
+  });
 });

@@ -20,6 +20,7 @@ function fixture(): ChangeReport {
     kpi: { total: 2, draft: 0, approved: 0, delivered: 0, pending: 1, verified: 1, conflict: 0, failed: 0 },
     items: [
       { ...base, id: 1, field: "title", status: "verified", originalValue: "옛 제목", proposedValue: "새 제목", publicValue: "새 제목", lastCheckedAt: "2026-10-12T01:00:00.000Z", lastHttpStatus: 200, lastResult: "matched",
+        deliveries: [{ id: 5, changeItemId: 1, method: "wordpress", target: { site: "https://example.com", postId: 4, postType: "post", metaKey: "_yoast_wpseo_title" }, result: "ok", httpStatus: 200, errorCode: null, previousValue: "옛 제목", remoteModifiedAt: "2026-10-12T00:00:00.000Z", startedAt: "2026-10-12T00:00:00.000Z", finishedAt: "2026-10-12T00:00:01.000Z", durationMs: 95 }],
         history: [{ id: 9, changeItemId: 1, source: "public", result: "matched", httpStatus: 200, matched: true, actualExcerpt: "새 제목", checkedUrl: URL_A, finalUrl: `${URL_A}/`, durationMs: 120, errorCode: null, checkedAt: "2026-10-12T01:00:00.000Z" }] },
       { ...base, id: 2, field: "description", status: "verification_pending", originalValue: "", proposedValue: "<img src=x onerror=alert(1)>", publicValue: null, lastCheckedAt: null, lastHttpStatus: null, lastResult: null,
         lastFinalUrl: "https://example.com/elsewhere", finalUrlMismatch: true, history: [] },
@@ -55,6 +56,7 @@ it("loads the report for the URL and shows the KPIs, values and actions", async 
   const text = container.textContent ?? "";
   expect(text).toContain("반영 확인1");
   expect(text).toContain("옛 제목");
+  expect(text).toContain("전달 이력 1건");
   expect(text).toContain("빈 값 또는 기록 없음");
   expect(text).toContain("확인 기록 없음");
   expect(text).toContain("WordPress 확인 기록 없음");

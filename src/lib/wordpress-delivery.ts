@@ -13,7 +13,7 @@ import { recordDelivery, type DeliveryTarget } from "./change-deliveries";
 import { approvedChangeRow, markConflict, markDeliveredByWordpress, matchesOriginal } from "./change-items";
 import { AppError } from "./errors";
 import { findWordpressPost, normalizeWordpressSite, readWordpressMeta, WORDPRESS_WRITABLE_FIELDS, wordpressRequest } from "./integrations/wordpress";
-import { extractPageField } from "./page-fields";
+import { extractPageField, fieldMatches } from "./page-fields";
 import { fetchPublicText } from "./url-security";
 import { requireWordpressCredentials } from "./wordpress-connections";
 
@@ -88,7 +88,8 @@ export async function executeWordpressDelivery(idInput: unknown, input: unknown)
     recordDelivery(change.id, { ...base, result: "error", httpStatus: null, errorCode: code, remoteModifiedAt: null, durationMs: performance.now() - started });
     throw error;
   }
-  if (written.meta?.[metaKey] !== change.proposedValue) {
+  const writtenValue = typeof written.meta?.[metaKey] === "string" ? written.meta[metaKey] as string : null;
+  if (!fieldMatches(change.field, writtenValue, change.proposedValue)) {
     recordDelivery(change.id, { ...base, result: "error", httpStatus: 200, errorCode: "WORDPRESS_WRITE_IGNORED", remoteModifiedAt: written.modified_gmt ?? null, durationMs: performance.now() - started });
     throw new AppError("WordPress가 요청을 받았지만 값을 저장하지 않았습니다. 플러그인 설정을 확인하고 수동으로 적용하세요.", 502, "WORDPRESS_WRITE_IGNORED");
   }

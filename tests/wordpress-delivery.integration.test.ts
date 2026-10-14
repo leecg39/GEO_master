@@ -168,6 +168,37 @@ describe("WordPress delivery (R08)", () => {
     expect((await action(item.id, { action: "execute-all" })).status).toBe(422);
     expect(fs.existsSync(path.join(process.cwd(), "src/app/api/change-items/wordpress"))).toBe(false);
   });
+
+  it("accepts WordPress whitespace normalization on write and blocks guest accounts", async () => {
+    const item = approved("title", "Original Title - GEO Spike", "새   SEO\n제목 ");
+    const { previewToken } = await previewWordpressDelivery(item.id);
+    vi.mocked(sendPublicRequest).mockImplementation(async (url: string, init) => {
+      const response = fakeWordpress(url, init);
+      if (init?.method === "POST") {
+        wp.meta._yoast_wpseo_title = "새 SEO 제목";
+        return reply(url, 200, { id: 4, modified_gmt: wp.modified, meta: { ...wp.meta } });
+      }
+      return response;
+    });
+    const delivered = await executeWordpressDelivery(item.id, { previewToken });
+    expect(delivered.item.status).toBe("delivered");
+    vi.mocked(sendPublicRequest).mockImplementation(async (url: string, init) => fakeWordpress(url, init));
+
+    const secret = "s".repeat(64);
+    vi.stubEnv("GEO_AUTH_MODE", "proxy");
+    vi.stubEnv("GEO_AUTH_PROXY_SECRET", secret);
+    vi.stubEnv("GEO_GUEST_USERS", "guest");
+    const guestRes = await wordpressAction(
+      new NextRequest(`http://localhost/api/change-items/${item.id}/wordpress`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-geo-auth-secret": secret, "x-geo-auth-user": "guest" },
+        body: JSON.stringify({ action: "preview" }),
+      }),
+      { params: Promise.resolve({ id: String(item.id) }) },
+    );
+    expect(guestRes.status).toBe(403);
+    vi.stubEnv("GEO_AUTH_MODE", "local");
+  });
 });
 
 describe("WordPress stored value in checks and the report (R09)", () => {

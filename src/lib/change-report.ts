@@ -8,6 +8,7 @@
  * - WordPress 저장값 = 가장 최근 WordPress 확인 이력(R09). 저장됐는데 공개 값이 다르면 캐시 가능성으로 안내한다
  */
 import { z } from "zod";
+import { listChangeDeliveries, type ChangeDelivery } from "./change-deliveries";
 import { listChangeVerifications, type ChangeVerification } from "./change-verifications";
 import { getDatabase } from "./db";
 import { sameDocumentUrl } from "./hreflang";
@@ -32,6 +33,7 @@ const clip = (text: string | null) => text === null ? null : text.length > VALUE
 
 function reportItem(row: ItemRow) {
   const history = listChangeVerifications(row.id);
+  const deliveries: ChangeDelivery[] | undefined = listChangeDeliveries(row.id);
   const last: ChangeVerification | undefined = history.find((entry) => entry.source === "public");
   const stored: ChangeVerification | undefined = history.find((entry) => entry.source === "wordpress");
   return {
@@ -47,9 +49,10 @@ function reportItem(row: ItemRow) {
     finalUrlMismatch: Boolean(last?.finalUrl && !sameDocumentUrl(last.finalUrl, row.url)),
     deliveryMethod: row.delivery_method, deliveredAt: row.delivered_at, updatedAt: row.updated_at,
     history,
+    deliveries,
   };
 }
-export type ChangeReportItem = ReturnType<typeof reportItem>;
+export type ChangeReportItem = Omit<ReturnType<typeof reportItem>, "deliveries"> & { deliveries?: ChangeDelivery[] };
 
 type ActionKind = "conflict" | "failed" | "pending" | "unchecked";
 const ACTION_MESSAGES: Record<ActionKind, string> = {
@@ -85,7 +88,8 @@ function selectRows(projectId: number, scope: z.infer<typeof changeReportQuerySc
   const { sqlite } = getDatabase();
   const columns = "id, url, field, original_value, proposed_value, status, delivery_method, delivered_at, updated_at";
   if (scope.url !== undefined) {
-    return sqlite.prepare(`SELECT ${columns} FROM change_items WHERE project_id = ? AND url = ? ORDER BY id`).all(projectId, scope.url) as ItemRow[];
+    const alt = scope.url.endsWith("/") ? scope.url.slice(0, -1) : `${scope.url}/`;
+    return sqlite.prepare(`SELECT ${columns} FROM change_items WHERE project_id = ? AND (url = ? OR url = ?) ORDER BY id`).all(projectId, scope.url, alt) as ItemRow[];
   }
   const ids = [...new Set(scope.ids)];
   return sqlite.prepare(`SELECT ${columns} FROM change_items WHERE project_id = ? AND id IN (${ids.map(() => "?").join(", ")}) ORDER BY id`)
@@ -95,7 +99,7 @@ function selectRows(projectId: number, scope: z.infer<typeof changeReportQuerySc
 export function buildChangeReport(input: unknown) {
   const scope = changeReportQuerySchema.parse(input);
   const project = requireActiveProject();
-  const items = selectRows(project.id, scope).map(reportItem);
+  const items: ChangeReportItem[] = selectRows(project.id, scope).map(reportItem);
   const count = (status: string) => items.filter((item) => item.status === status).length;
   return {
     schemaVersion: 1,

@@ -52,15 +52,29 @@ function activeGroupId(pathname: string) {
 }
 
 const listeners = new Set<() => void>();
-/** 브라우저 저장소를 못 쓸 때(사생활 보호 모드 등) 쓰는 메모리 값 */
-let memoryValue = "{}";
+/** 브라우저 저장소에 쓸 수 없을 때(사생활 보호 모드·할당량 초과 등) 쓰는 메모리 값 */
+let memoryFallback: string | null = null;
 
 function readRaw() {
-  try { return window.localStorage.getItem(NAV_GROUPS_STORAGE_KEY) ?? "{}"; } catch { return memoryValue; }
+  try {
+    const stored = window.localStorage.getItem(NAV_GROUPS_STORAGE_KEY);
+    if (stored !== null) {
+      memoryFallback = null;
+      return stored;
+    }
+    return memoryFallback ?? "{}";
+  } catch {
+    return memoryFallback ?? "{}";
+  }
 }
 
 function writeRaw(value: string) {
-  try { window.localStorage.setItem(NAV_GROUPS_STORAGE_KEY, value); } catch { memoryValue = value; }
+  try {
+    window.localStorage.setItem(NAV_GROUPS_STORAGE_KEY, value);
+    memoryFallback = null;
+  } catch {
+    memoryFallback = value;
+  }
   listeners.forEach((listener) => listener());
 }
 

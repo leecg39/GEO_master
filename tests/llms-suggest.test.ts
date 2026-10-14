@@ -66,16 +66,44 @@ describe("llms.txt suggestions from the sitemap (A6)", () => {
     await expect(suggestLlmsSections("https://none.example")).rejects.toMatchObject({ code: "LLMS_SUGGEST_EMPTY", status: 422 });
   });
 
-  it("rejects non-http websites", async () => {
+  it("rejects non-http and private/local websites before fetching", async () => {
     await expect(suggestLlmsSections("ftp://a.example")).rejects.toThrow();
+    await expect(suggestLlmsSections("http://127.0.0.1")).rejects.toMatchObject({ code: "PRIVATE_IP_BLOCKED", status: 403 });
+    await expect(suggestLlmsSections("http://localhost")).rejects.toMatchObject({ code: "PRIVATE_HOST_BLOCKED", status: 403 });
+    await expect(suggestLlmsSections("https://a.example:3000")).rejects.toMatchObject({ code: "PORT_BLOCKED", status: 422 });
     expect(fetchPublicText).not.toHaveBeenCalled();
+  });
+
+  it("ignores sitemaps that redirect off-site, deduplicates sitemaps, and sanitizes pipe/credential URLs", async () => {
+    vi.mocked(fetchPublicText).mockImplementation(async (url: string) => {
+      if (url === "https://shop.example/robots.txt") {
+        return { url, status: 200, text: "Sitemap: https://shop.example/s.xml\nSitemap: https://shop.example/s.xml\nSitemap: https://shop.example/redirect.xml", contentType: "text/plain", retryAfter: null };
+      }
+      if (url === "https://shop.example/redirect.xml") {
+        return { url: "https://evil.example/sitemap.xml", status: 200, text: urlset(["https://shop.example/evil"]), contentType: "application/xml", retryAfter: null };
+      }
+      if (url === "https://shop.example/s.xml") {
+        return { url, status: 200, text: urlset([
+          "https://user:pass@shop.example/secret",
+          "https://shop.example/docs%7Cv2/%23%23%20intro%7Cguide#top",
+          "https://shop.example/docs%7Cv2/%23%23%20intro%7Cguide#bottom",
+        ]), contentType: "application/xml", retryAfter: null };
+      }
+      return { url, status: 404, text: "", contentType: "text/plain", retryAfter: null };
+    });
+    const result = await suggestLlmsSections("https://shop.example");
+    expect(vi.mocked(fetchPublicText).mock.calls.filter(([url]) => url === "https://shop.example/s.xml")).toHaveLength(1);
+    expect(result.sections).toEqual([
+      { heading: "docs v2", links: [{ title: "intro guide", url: "https://shop.example/docs%7Cv2/%23%23%20intro%7Cguide", description: "" }] },
+    ]);
+    expect(parseResourceLines(formatResourceLines(result.sections))).toEqual(result.sections);
   });
 });
 
 describe("resource lines", () => {
-  it("parses '## heading' lines into sections and keeps the old flat format", () => {
-    expect(parseResourceLines("홈 | https://a.example/ | 소개\n서비스 | https://a.example/s")).toEqual([
-      { heading: "핵심 문서", links: [{ title: "홈", url: "https://a.example/", description: "소개" }, { title: "서비스", url: "https://a.example/s", description: "" }] },
+  it("parses '## heading' lines into sections, preserves pipes in descriptions, and keeps the old flat format", () => {
+    expect(parseResourceLines("홈 | https://a.example/ | 소개 | 공식 안내\n서비스 | https://a.example/s")).toEqual([
+      { heading: "핵심 문서", links: [{ title: "홈", url: "https://a.example/", description: "소개 | 공식 안내" }, { title: "서비스", url: "https://a.example/s", description: "" }] },
     ]);
     expect(parseResourceLines("## 블로그\n글 | https://a.example/b\n\n## 상품\n상품 | https://a.example/p | 설명")).toEqual([
       { heading: "블로그", links: [{ title: "글", url: "https://a.example/b", description: "" }] },
@@ -83,10 +111,14 @@ describe("resource lines", () => {
     ]);
   });
 
-  it("drops empty sections and round-trips formatted lines", () => {
+  it("drops empty sections and round-trips formatted lines even when titles contain pipes", () => {
     const sections = [{ heading: "블로그", links: [{ title: "글", url: "https://a.example/b", description: "" }] }];
     expect(parseResourceLines("## 빈 섹션\n## 블로그\n글 | https://a.example/b")).toEqual(sections);
     expect(parseResourceLines(formatResourceLines(sections))).toEqual(sections);
+    const dirty = [{ heading: "## 섹션\n줄바꿈", links: [{ title: "제목 | 파이프", url: "https://a.example/b", description: "설명 | A" }] }];
+    expect(parseResourceLines(formatResourceLines(dirty))).toEqual([
+      { heading: "섹션 줄바꿈", links: [{ title: "제목 파이프", url: "https://a.example/b", description: "설명 | A" }] },
+    ]);
   });
 });
 

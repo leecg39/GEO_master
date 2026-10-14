@@ -43,6 +43,14 @@ function ItemCard({ item }: { item: ChangeReportItem }) {
       {item.finalUrlMismatch && (
         <p className="mt-2 flex items-start gap-1.5 text-xs text-amber-300"><TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />확인 주소가 수정안 주소와 다릅니다: <span className="break-all">{item.lastFinalUrl}</span></p>
       )}
+      {(item.deliveries?.length ?? 0) > 0 && (
+        <details className="mt-3 text-xs text-slate-400">
+          <summary className="cursor-pointer">전달 이력 {item.deliveries!.length}건</summary>
+          <ul className="mt-2 space-y-1">
+            {item.deliveries!.map((entry) => <li key={entry.id}>{entry.finishedAt} · {entry.method} · {entry.result}{entry.httpStatus === null ? "" : ` · HTTP ${entry.httpStatus}`} · {entry.durationMs}ms{entry.errorCode ? ` · ${entry.errorCode}` : ""}{entry.previousValue ? ` · 이전 값: ${entry.previousValue}` : ""}</li>)}
+          </ul>
+        </details>
+      )}
       {item.history.length > 0 && (
         <details className="mt-3 text-xs text-slate-400">
           <summary className="cursor-pointer">확인 이력 {item.history.length}건</summary>

@@ -68,6 +68,9 @@ export function normalizePublicUrl(input: string) {
   if (hostname === "localhost" || BLOCKED_HOST_SUFFIXES.some((suffix) => hostname.endsWith(suffix))) {
     throw new AppError("내부 네트워크 주소는 진단할 수 없습니다.", 403, "PRIVATE_HOST_BLOCKED");
   }
+  if (net.isIP(hostname) && isPrivateAddress(hostname)) {
+    throw new AppError("사설 또는 예약 IP 주소는 진단할 수 없습니다.", 403, "PRIVATE_IP_BLOCKED");
+  }
   url.hash = "";
   return url;
 }

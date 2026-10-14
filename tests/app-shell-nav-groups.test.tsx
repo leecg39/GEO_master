@@ -79,13 +79,23 @@ describe("grouped sidebar navigation", () => {
     expect(improve.querySelector("[data-active-dot]")).not.toBeNull();
   });
 
-  it("still works when browser storage is unavailable", async () => {
+  it("still works when browser storage is unavailable or write-only blocked", async () => {
     vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => { throw new Error("blocked"); });
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("blocked"); });
     const nav = await shell();
     const measure = groupButton(nav, "AI 노출 측정");
     await act(async () => { measure.click(); });
     expect(measure.getAttribute("aria-expanded")).toBe("true");
+    await act(async () => { measure.click(); });
+    expect(measure.getAttribute("aria-expanded")).toBe("false");
+    vi.restoreAllMocks();
+
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("QuotaExceededError"); });
+    const quotaNav = await shell();
+    const strategy = groupButton(quotaNav, "전략·학습");
+    await act(async () => { strategy.click(); });
+    expect(strategy.getAttribute("aria-expanded")).toBe("true");
+    await act(async () => { strategy.click(); });
     vi.restoreAllMocks();
   });
 
