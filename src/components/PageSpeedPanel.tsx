@@ -22,7 +22,7 @@ function Lab({ lab }: { lab: NonNullable<Result["lab"]> }) {
     ["성능 점수", lab.performanceScore === null ? "-" : `${lab.performanceScore}`], ["LCP", lab.lcpMs === null ? "-" : `${lab.lcpMs}ms`],
     ["CLS", lab.cls === null ? "-" : lab.cls.toFixed(3)], ["TBT", lab.tbtMs === null ? "-" : `${lab.tbtMs}ms`], ["FCP", lab.fcpMs === null ? "-" : `${lab.fcpMs}ms`],
   ];
-  return <dl className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">{rows.map(([label, value]) => <div key={label} className="rounded-lg bg-slate-950/40 p-2"><dt className="text-[11px] text-slate-500">{label}</dt><dd className="text-sm font-semibold text-white">{value}</dd></div>)}</dl>;
+  return <dl className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">{rows.map(([label, value]) => <div key={label} className="rounded-lg bg-slate-950/40 p-2"><dt className="text-xs text-slate-500">{label}</dt><dd className="text-sm font-semibold text-white">{value}</dd></div>)}</dl>;
 }
 
 export function PageSpeedPanel({ url }: { url: string }) {

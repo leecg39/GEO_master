@@ -18,7 +18,7 @@ const reportPath = (url: string) => `/api/change-items/report?url=${encodeURICom
 function Value({ label, value, empty }: { label: string; value: string | null; empty: string }) {
   return (
     <div className="min-w-0">
-      <p className="text-[11px] text-slate-500">{label}</p>
+      <p className="text-xs text-slate-500">{label}</p>
       <p className="mt-1 whitespace-pre-wrap break-all rounded-lg bg-slate-950/40 p-2 text-xs text-slate-300">{value || <span className="text-slate-600">{empty}</span>}</p>
     </div>
   );
@@ -32,7 +32,7 @@ function ItemCard({ item }: { item: ChangeReportItem }) {
         <Badge tone={status.tone}>{status.label}</Badge>
         <Badge>{FIELDS[item.field] ?? item.field}</Badge>
         <span className="text-xs text-slate-500">#{item.id}</span>
-        <span className="ml-auto text-[11px] text-slate-500">{item.lastCheckedAt ? `마지막 확인 ${item.lastCheckedAt}${item.lastHttpStatus === null ? "" : ` · HTTP ${item.lastHttpStatus}`}` : "확인 기록 없음"}</span>
+        <span className="ml-auto text-xs text-slate-500">{item.lastCheckedAt ? `마지막 확인 ${item.lastCheckedAt}${item.lastHttpStatus === null ? "" : ` · HTTP ${item.lastHttpStatus}`}` : "확인 기록 없음"}</span>
       </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Value label="원래 값" value={item.originalValue} empty="빈 값 또는 기록 없음" />

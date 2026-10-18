@@ -392,7 +392,7 @@ export function SiteAuditBriefing({
                     <span className="text-sm font-medium text-white">{issue.title}</span>
                   </div>
                   <p className="mt-1 text-xs leading-5 text-slate-400">{issue.detail}</p>
-                  <p className="mt-1 truncate text-[11px] text-slate-600">{issue.url}</p>
+                  <p className="mt-1 truncate text-xs text-slate-600">{issue.url}</p>
                 </li>
               ))}
             </ul>
@@ -407,13 +407,13 @@ export function SiteAuditBriefing({
               <li key={page.url} className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-white/5">
                 <Badge tone="default">d{page.depth}</Badge>
                 <span className="truncate text-slate-400">{page.url}</span>
-                <span className="ml-auto shrink-0 text-[10px] text-slate-500" title={page.fetchError ?? undefined}>{pageStateLabel(page)}</span>
+                <span className="ml-auto shrink-0 text-xs text-slate-500" title={page.fetchError ?? undefined}>{pageStateLabel(page)}</span>
                 {page.snapshotId ? (
                   <button
                     type="button"
                     onClick={() => setSnapshotId(page.snapshotId ?? null)}
                     aria-label={`${page.url} 근거 보기${page.technicalIssues ? ` (기술 오류 ${page.technicalIssues}건)` : ""}`}
-                    className="shrink-0 rounded-md border border-cyan-400/20 px-2 py-0.5 text-[10px] font-semibold text-cyan-300 hover:bg-cyan-400/10"
+                    className="shrink-0 rounded-md border border-cyan-400/20 px-2 py-0.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-400/10"
                   >
                     근거{page.technicalIssues ? <span className="ml-1 text-rose-300">{page.technicalIssues}</span> : null}
                   </button>

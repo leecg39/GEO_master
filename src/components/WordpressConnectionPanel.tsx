@@ -72,7 +72,7 @@ export function WordpressConnectionPanel() {
             <input type="checkbox" checked={form.allowSeoPluginWrites} onChange={(e) => setForm({ ...form, allowSeoPluginWrites: e.target.checked })} />
             <span>Yoast SEO의 제목·설명 메타를 승인된 수정안에 한해 직접 쓰도록 허용합니다. 다른 필드와 플러그인은 수동 적용 안내만 합니다.</span>
           </label>
-          <p className="text-[11px] text-slate-500 sm:col-span-2">WordPress 사용자 프로필의 &quot;애플리케이션 비밀번호&quot;를 쓰세요. 로그인 비밀번호가 아닙니다. 저장 전에 연결과 글 편집 권한을 확인하며, 비밀번호는 암호화해 저장하고 다시 표시하지 않습니다.</p>
+          <p className="text-xs text-slate-500 sm:col-span-2">WordPress 사용자 프로필의 &quot;애플리케이션 비밀번호&quot;를 쓰세요. 로그인 비밀번호가 아닙니다. 저장 전에 연결과 글 편집 권한을 확인하며, 비밀번호는 암호화해 저장하고 다시 표시하지 않습니다.</p>
           <div className="flex justify-end"><Button type="submit" disabled={busy}>{busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}연결 확인 후 저장</Button></div>
         </form>
       )}

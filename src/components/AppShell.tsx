@@ -150,7 +150,7 @@ function Brand({ close, semforge }: { close?: () => void; semforge: boolean }) {
       </span>
       <span>
         <strong className="font-display block text-base font-semibold tracking-tight text-white">{semforge ? "SEMForge Pro" : "GEO Master"}</strong>
-        <small className="text-[10px] font-semibold uppercase tracking-[0.25px] text-[color:var(--color-on-dark-muted)]">{semforge ? "SEO workspace" : "Answer workspace"}</small>
+        <small className="text-xs font-semibold uppercase tracking-[0.25px] text-[color:var(--color-on-dark-muted)]">{semforge ? "SEO workspace" : "Answer workspace"}</small>
       </span>
     </Link>
   );

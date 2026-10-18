@@ -76,7 +76,7 @@ function clamp(value: number) {
 
 function Delta({ value, suffix = "%p" }: { value: number | null; suffix?: string }) {
   if (value === null) {
-    return <span className="text-[11px] text-slate-500">비교 데이터 없음</span>;
+    return <span className="text-xs text-slate-500">비교 데이터 없음</span>;
   }
   if (value === 0) {
     return (
@@ -118,7 +118,7 @@ function PanelHeader({
         {Icon && <Icon className="h-4 w-4 shrink-0 text-[color:var(--color-accent-lime)]" />}
         <h2 className="truncate text-sm font-bold tracking-tight text-white">{title}</h2>
       </div>
-      {meta && <div className="shrink-0 text-[10px] font-medium text-[color:var(--color-on-dark-muted)] sm:text-xs">{meta}</div>}
+      {meta && <div className="shrink-0 text-xs font-medium text-[color:var(--color-on-dark-muted)] sm:text-xs">{meta}</div>}
     </header>
   );
 }
@@ -138,7 +138,7 @@ function SplitPanelHeader({
           {SideIcon && <SideIcon className="h-4 w-4 shrink-0 text-[color:var(--color-accent-lime)]" />}
           <h2 className="truncate text-sm font-bold tracking-tight text-white">{side.title}</h2>
         </div>
-        {side.meta && <div className="shrink-0 text-[10px] font-medium text-[color:var(--color-on-dark-muted)] sm:text-xs">{side.meta}</div>}
+        {side.meta && <div className="shrink-0 text-xs font-medium text-[color:var(--color-on-dark-muted)] sm:text-xs">{side.meta}</div>}
       </>
     );
   };
@@ -201,7 +201,7 @@ function HalfGauge({
             {available ? safeValue.toFixed(1) : "—"}
             {available && <span className="ml-0.5 text-xs font-bold text-slate-400">%</span>}
           </strong>
-          <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</span>
+          <span className="mt-0.5 block text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{label}</span>
         </div>
       </div>
       <div className="mt-2 flex items-center justify-between border-t border-dash-line/25 pt-3 text-xs">
@@ -247,7 +247,7 @@ function DonutMetric({
         </div>
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{label}</p>
         <div className="mt-2 text-xs leading-5 text-slate-300">{footnote}</div>
       </div>
     </div>
@@ -269,7 +269,7 @@ function BigMetric({
 }) {
   return (
     <div className="flex min-h-44 flex-col justify-center px-5 py-4 text-center">
-      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</p>
+      <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{label}</p>
       <strong className={`mt-4 text-5xl font-black tracking-[-0.07em] ${color}`}>
         {value}
         {suffix && <span className="ml-1 text-xs tracking-normal text-slate-400">{suffix}</span>}
@@ -463,7 +463,7 @@ function ModelComparisonSection({
         >
           <table className="w-full min-w-[300px] text-left text-xs sm:text-sm">
             <thead>
-              <tr className="border-b border-dash-line text-[10px] uppercase tracking-[0.16em] text-slate-500">
+              <tr className="border-b border-dash-line text-xs uppercase tracking-[0.16em] text-slate-500">
                 <th className="pb-3 font-semibold">모델</th>
                 <th className="pb-3 text-right font-semibold">기존</th>
                 <th className="pb-3 text-right font-semibold">현재</th>
@@ -544,7 +544,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
       <header className="mb-4 rounded-xl border border-dash-line/45 bg-dash-header/95 px-4 py-4 shadow-[0_16px_50px_rgba(0,4,18,0.3)] sm:px-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--color-accent-lime)]">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[color:var(--color-accent-lime)]">
               <CircleDot className="h-3.5 w-3.5" />
               GEO intelligence control room
               <span className={`ml-1 inline-flex items-center gap-1.5 rounded-full border px-2 py-1 tracking-[0.12em] ${hasRuns ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" : "border-slate-600/50 bg-slate-800/50 text-slate-400"}`}>
@@ -560,9 +560,9 @@ export function DashboardView({ data }: { data: DashboardData }) {
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="grid grid-cols-3 divide-x divide-dash-line/35 rounded-lg border border-dash-line/35 bg-dash-inset text-center">
-              <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.questionCount}</strong><span className="text-[9px] uppercase tracking-wider text-slate-500">queries</span></div>
-              <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.modelCount}</strong><span className="text-[9px] uppercase tracking-wider text-slate-500">models</span></div>
-              <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.recentRunCount}</strong><span className="text-[9px] uppercase tracking-wider text-slate-500">runs</span></div>
+              <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.questionCount}</strong><span className="text-xs uppercase tracking-wider text-slate-500">queries</span></div>
+              <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.modelCount}</strong><span className="text-xs uppercase tracking-wider text-slate-500">models</span></div>
+              <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.recentRunCount}</strong><span className="text-xs uppercase tracking-wider text-slate-500">runs</span></div>
             </div>
             <div className="flex gap-2">
               <Link href="/share" className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-[color:var(--app-cta-bg)] px-4 py-2 text-xs font-black uppercase tracking-[0.2px] text-[color:var(--app-cta-text)] transition hover:opacity-95 sm:flex-none">
@@ -726,7 +726,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
             <div className="space-y-4 px-4 py-5" role="img" aria-label="브랜드와 경쟁사별 Answer Share 비교">
               {competitorData.slice(0, 5).map((item) => (
                 <div key={item.name}>
-                  <div className="mb-2 flex items-center justify-between gap-2 text-[11px]">
+                  <div className="mb-2 flex items-center justify-between gap-2 text-xs">
                     <span className="flex min-w-0 items-center gap-2 text-slate-400">
                       <i className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
                       <span className="truncate">{item.name}</span>
@@ -748,13 +748,13 @@ export function DashboardView({ data }: { data: DashboardData }) {
             <div className="grid grid-cols-4 gap-1.5">
               {data.funnel.stages.map((stage, index) => (
                 <div key={stage} className={`rounded-lg border px-1 py-3 text-center ${index <= activeIndex ? "border-[color:var(--color-accent-lime)]/35 bg-[color:var(--color-accent-lime)]/10" : "border-dash-line/25 bg-dash-inset"}`}>
-                  <span className={`block text-[9px] font-bold ${index <= activeIndex ? "text-[color:var(--color-accent-lime)]" : "text-slate-600"}`}>0{index + 1}</span>
-                  <strong className={`mt-1 block text-[11px] ${index <= activeIndex ? "text-white" : "text-slate-500"}`}>{stage}</strong>
+                  <span className={`block text-xs font-bold ${index <= activeIndex ? "text-[color:var(--color-accent-lime)]" : "text-slate-600"}`}>0{index + 1}</span>
+                  <strong className={`mt-1 block text-xs ${index <= activeIndex ? "text-white" : "text-slate-500"}`}>{stage}</strong>
                 </div>
               ))}
             </div>
             <div className="mt-4 rounded-lg border border-dash-line/25 bg-dash-inset p-3">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-accent-lime)]">현재 단계 · {data.funnel.stage}</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-[color:var(--color-accent-lime)]">현재 단계 · {data.funnel.stage}</p>
               <p className="mt-2 text-xs leading-5 text-slate-400">{stageDescriptions[data.funnel.stage]}</p>
             </div>
           </div>
@@ -764,7 +764,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
           <PanelHeader title="실행 준비도" icon={ListFilter} meta={`${data.checklist.completed}/${data.checklist.total}`} />
           <div className="px-4 py-5">
             <div className="flex items-end justify-between">
-              <div><span className="text-[10px] uppercase tracking-wider text-slate-500">체크리스트 완료율</span><strong className="mt-1 block text-4xl font-black tracking-tight text-amber-300">{data.checklist.percent}%</strong></div>
+              <div><span className="text-xs uppercase tracking-wider text-slate-500">체크리스트 완료율</span><strong className="mt-1 block text-4xl font-black tracking-tight text-amber-300">{data.checklist.percent}%</strong></div>
               <span className="text-xs text-slate-500">{data.checklist.total - data.checklist.completed}개 남음</span>
             </div>
             <div className="mt-5"><ShareBar label="체크리스트 완료율" value={data.checklist.percent} color="#fbbf24" /></div>
@@ -823,7 +823,7 @@ function QuestionMonitor({
             aria-pressed={!selectedQuestionText}
             className={`mb-2 flex w-full items-center justify-between rounded-lg border px-3 py-3 text-left transition ${!selectedQuestionText ? "border-[color:var(--color-accent-lime)]/35 bg-[color:var(--color-accent-lime)]/10" : "border-dash-line/25 bg-dash-inset hover:bg-dash-icon"}`}
           >
-            <span><strong className="block text-xs text-white">전체 관제 현황</strong><small className="mt-1 block text-[10px] text-slate-500">통합 KPI와 실행 상태</small></span>
+            <span><strong className="block text-xs text-white">전체 관제 현황</strong><small className="mt-1 block text-xs text-slate-500">통합 KPI와 실행 상태</small></span>
             <ChevronRight className={`h-4 w-4 ${!selectedQuestionText ? "text-[color:var(--color-accent-lime)]" : "text-slate-600"}`} />
           </button>
           <div className="max-h-[500px] space-y-2 overflow-y-auto pr-1">
@@ -838,10 +838,10 @@ function QuestionMonitor({
                   className={`w-full rounded-lg border p-3 text-left transition ${selected ? "border-emerald-400/35 bg-emerald-400/10" : "border-dash-line/25 bg-dash-inset hover:border-dash-line-hover/60 hover:bg-dash-icon"}`}
                 >
                   <div className="flex items-start gap-2.5">
-                    <span className="mt-0.5 text-[10px] font-black text-slate-600">Q{String(index + 1).padStart(2, "0")}</span>
+                    <span className="mt-0.5 text-xs font-black text-slate-600">Q{String(index + 1).padStart(2, "0")}</span>
                     <p className="line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200">{question.text}</p>
                   </div>
-                  <div className="mt-2.5 grid grid-cols-3 border-t border-dash-line/20 pt-2 text-[10px]">
+                  <div className="mt-2.5 grid grid-cols-3 border-t border-dash-line/20 pt-2 text-xs">
                     <span className="text-slate-500">점유율 <strong className="ml-1 text-emerald-300">{question.share}%</strong></span>
                     <span className="text-center text-slate-500">순위 <strong className="ml-1 text-[color:var(--color-accent-lime)]">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></span>
                     <span className="text-right text-slate-500">긍정 <strong className="ml-1 text-amber-300">{question.positiveRate}%</strong></span>
@@ -867,9 +867,9 @@ function QuestionMonitor({
                 <h3 className="mt-4 text-base font-bold text-white">질문별 상세 신호를 확인하세요</h3>
                 <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-slate-500">왼쪽 질문을 선택하면 모델별 언급률, 평균 순위, 긍정 문맥과 실행별 추이를 드릴다운합니다.</p>
                 <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 divide-x divide-dash-line/30 rounded-lg border border-dash-line/30 bg-dash-inset">
-                  <div className="px-3 py-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">질문</span><strong className="mt-1 block text-xl text-white">{data.questions.length}</strong></div>
-                  <div className="px-3 py-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">응답</span><strong className="mt-1 block text-xl text-[color:var(--color-accent-lime)]">{data.overview.totalResponses}</strong></div>
-                  <div className="px-3 py-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">긍정</span><strong className="mt-1 block text-xl text-amber-300">{data.recentRuns.length ? `${data.overview.positiveRate}%` : "—"}</strong></div>
+                  <div className="px-3 py-4"><span className="text-xs uppercase tracking-wider text-slate-500">질문</span><strong className="mt-1 block text-xl text-white">{data.questions.length}</strong></div>
+                  <div className="px-3 py-4"><span className="text-xs uppercase tracking-wider text-slate-500">응답</span><strong className="mt-1 block text-xl text-[color:var(--color-accent-lime)]">{data.overview.totalResponses}</strong></div>
+                  <div className="px-3 py-4"><span className="text-xs uppercase tracking-wider text-slate-500">긍정</span><strong className="mt-1 block text-xl text-amber-300">{data.recentRuns.length ? `${data.overview.positiveRate}%` : "—"}</strong></div>
                 </div>
               </div>
             </div>
@@ -886,15 +886,15 @@ function QuestionDetail({ question }: { question: DashboardData["questions"][num
   return (
     <div>
       <div className="border-b border-dash-line/30 px-4 py-4 sm:px-5">
-        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">selected query analysis</p>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-300">selected query analysis</p>
         <h3 className="mt-2 max-w-5xl text-sm font-bold leading-6 text-white sm:text-base">{question.text}</h3>
       </div>
 
       <div className="grid grid-cols-2 divide-x divide-y divide-dash-line/25 border-b border-dash-line/30 sm:grid-cols-4 sm:divide-y-0">
-        <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">Answer Share</span><strong className="mt-1.5 block text-2xl text-emerald-300">{question.share}%</strong></div>
-        <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">이전 대비</span><div className="mt-2.5"><Delta value={question.delta} /></div></div>
-        <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">평균 순위</span><strong className="mt-1.5 block text-2xl text-[color:var(--color-accent-lime)]">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></div>
-        <div className="p-4"><span className="text-[9px] uppercase tracking-wider text-slate-500">긍정 문맥</span><strong className="mt-1.5 block text-2xl text-amber-300">{question.positiveRate}%</strong></div>
+        <div className="p-4"><span className="text-xs uppercase tracking-wider text-slate-500">Answer Share</span><strong className="mt-1.5 block text-2xl text-emerald-300">{question.share}%</strong></div>
+        <div className="p-4"><span className="text-xs uppercase tracking-wider text-slate-500">이전 대비</span><div className="mt-2.5"><Delta value={question.delta} /></div></div>
+        <div className="p-4"><span className="text-xs uppercase tracking-wider text-slate-500">평균 순위</span><strong className="mt-1.5 block text-2xl text-[color:var(--color-accent-lime)]">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></div>
+        <div className="p-4"><span className="text-xs uppercase tracking-wider text-slate-500">긍정 문맥</span><strong className="mt-1.5 block text-2xl text-amber-300">{question.positiveRate}%</strong></div>
       </div>
 
       <div className="grid 2xl:grid-cols-[0.8fr_1.2fr]">
@@ -905,7 +905,7 @@ function QuestionDetail({ question }: { question: DashboardData["questions"][num
               <div key={model.provider}>
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <ProviderDot provider={model.provider} />
-                  <span className="text-[10px] text-slate-500">{model.averageRank ? `평균 ${model.averageRank}위` : "순위 없음"} · <strong className="text-white">{model.share}%</strong></span>
+                  <span className="text-xs text-slate-500">{model.averageRank ? `평균 ${model.averageRank}위` : "순위 없음"} · <strong className="text-white">{model.share}%</strong></span>
                 </div>
                 <ShareBar label={`${modelMeta[model.provider]?.label ?? model.provider} 질문 점유율`} value={model.share} color={modelMeta[model.provider]?.color} />
               </div>

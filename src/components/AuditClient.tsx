@@ -78,7 +78,7 @@ export function AuditClient() {
               <div><strong className="block text-5xl font-black text-white">{audit.score}</strong><span className="text-xs font-semibold text-slate-500">/ {audit.total}</span></div>
             </div>
             <Progress value={(audit.score / audit.total) * 100} className="h-2.5" />
-            <p className="mt-3 text-[11px] leading-relaxed text-slate-500">{auditGradeScale(audit.total)}</p>
+            <p className="mt-3 text-xs leading-relaxed text-slate-500">{auditGradeScale(audit.total)}</p>
           </div>
           <p className="mt-4 break-all text-xs font-mono text-slate-500">{audit.metadata.finalUrl ?? audit.url}</p>
         </Card>
@@ -145,7 +145,7 @@ export function AuditClient() {
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="text-sm font-semibold text-slate-200">{item.label}</p>
                           {item.manual ? (
-                            <span className="rounded bg-violet-400/10 px-1.5 py-0.5 text-[10px] font-medium text-violet-300">GEO 엔진 분석</span>
+                            <span className="rounded bg-violet-400/10 px-1.5 py-0.5 text-xs font-medium text-violet-300">GEO 엔진 분석</span>
                           ) : null}
                         </div>
                         <p className="mt-1 text-xs leading-relaxed text-slate-400">{item.detail}</p>

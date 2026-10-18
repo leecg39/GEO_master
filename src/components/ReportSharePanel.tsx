@@ -86,7 +86,7 @@ export function ReportSharePanel({ runId }: { runId: number }) {
         <div className="mt-3 flex flex-col gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/5 p-3 sm:flex-row sm:items-center">
           <code className="min-w-0 flex-1 truncate text-xs text-cyan-200">{createdUrl}</code>
           <Button type="button" variant="secondary" onClick={() => void copy()}>{copied ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}{copied ? "복사됨" : "복사"}</Button>
-          <p className="text-[11px] text-amber-300 sm:basis-full">이 주소는 지금만 표시됩니다. 서버에는 링크를 알아낼 수 없는 해시만 저장됩니다.</p>
+          <p className="text-xs text-amber-300 sm:basis-full">이 주소는 지금만 표시됩니다. 서버에는 링크를 알아낼 수 없는 해시만 저장됩니다.</p>
         </div>
       )}
       {shares.length > 0 && (

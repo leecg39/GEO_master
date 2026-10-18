@@ -37,7 +37,7 @@ export function Badge({ children, tone = "default", className }: { children: Rea
     cyan: "border-[color:var(--color-accent-violet)]/30 bg-[color:var(--color-accent-violet)]/15 text-[color:var(--app-status-violet)]",
   };
   return (
-    <span className={cn("inline-flex rounded-[4px] border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.25px]", tones[tone], className)}>
+    <span className={cn("inline-flex rounded-[4px] border px-2 py-1 text-xs font-semibold uppercase tracking-[0.25px]", tones[tone], className)}>
       {children}
     </span>
   );

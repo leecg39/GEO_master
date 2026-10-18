@@ -42,7 +42,7 @@ export function WordpressDeliveryPanel({ changeId, onDone }: { changeId: number;
             <Button type="button" disabled={busy} onClick={() => void run(async () => { await post(changeId, { action: "execute", previewToken: preview.previewToken }); setPreview(null); onDone(); })}>쓰기 실행</Button>
             <Button type="button" variant="secondary" disabled={busy} onClick={() => setPreview(null)}>취소</Button>
           </div>
-          <p className="mt-2 text-[11px] text-slate-500">쓴 뒤에는 &apos;반영 확인&apos;으로 공개 페이지를 다시 읽어야 반영으로 표시됩니다. 이전 저장값은 전달 이력에 남습니다.</p>
+          <p className="mt-2 text-xs text-slate-500">쓴 뒤에는 &apos;반영 확인&apos;으로 공개 페이지를 다시 읽어야 반영으로 표시됩니다. 이전 저장값은 전달 이력에 남습니다.</p>
         </div>
       )}
       {error && <p role="alert" className="mt-2 text-xs text-rose-300">{error}</p>}

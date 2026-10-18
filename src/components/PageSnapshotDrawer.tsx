@@ -109,7 +109,7 @@ export function PageSnapshotDrawer({ snapshotId, onClose }: { snapshotId: number
               <Badge tone={snapshot.statusCode >= 200 && snapshot.statusCode < 300 ? "good" : "bad"}>HTTP {snapshot.statusCode}</Badge>
               <Badge>{renderLabels[snapshot.renderMode]}</Badge>
             </div>
-            <p className="mt-2 text-[11px] text-slate-500">규칙 버전 <code className="text-cyan-300">{snapshot.rulesVersion}</code> · 파서 버전 <code className="text-slate-300">{snapshot.parserVersion}</code></p>
+            <p className="mt-2 text-xs text-slate-500">규칙 버전 <code className="text-cyan-300">{snapshot.rulesVersion}</code> · 파서 버전 <code className="text-slate-300">{snapshot.parserVersion}</code></p>
             <dl className="mt-3">
               <FactRow label="최종 URL" value={snapshot.finalUrl} />
               <FactRow label="수집 시각" value={`${when(snapshot.capturedAt)}${snapshot.lastSeenAt !== snapshot.capturedAt ? ` (같은 내용 마지막 확인 ${when(snapshot.lastSeenAt)})` : ""}`} />
@@ -152,10 +152,10 @@ export function PageSnapshotDrawer({ snapshotId, onClose }: { snapshotId: number
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone={tone(item)}>{item.passed ? "충족" : item.severity === "error" ? "오류" : item.severity === "warning" ? "경고" : "참고"}</Badge>
                       <span className="text-sm text-white">{item.label}</span>
-                      <code className="ml-auto text-[10px] text-slate-600">{item.code}</code>
+                      <code className="ml-auto text-xs text-slate-600">{item.code}</code>
                     </div>
                     <p className="mt-1 text-xs leading-5 text-slate-400">{item.detail}</p>
-                    {item.evidence && <p className="mt-1 break-all text-[11px] text-slate-500">관측값: {item.evidence}</p>}
+                    {item.evidence && <p className="mt-1 break-all text-xs text-slate-500">관측값: {item.evidence}</p>}
                     {!item.passed && <RuleDocLink code={item.code} />}
                   </li>
                 ))}
@@ -177,7 +177,7 @@ export function PageSnapshotDrawer({ snapshotId, onClose }: { snapshotId: number
                     >
                       <span>{when(version.capturedAt)}</span>
                       <span className="text-slate-600">HTTP {version.statusCode}</span>
-                      <code className="ml-auto text-[10px] text-slate-600">{version.contentHash.slice(0, 10)}</code>
+                      <code className="ml-auto text-xs text-slate-600">{version.contentHash.slice(0, 10)}</code>
                     </button>
                   </li>
                 ))}
