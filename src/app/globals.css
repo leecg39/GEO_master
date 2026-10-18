@@ -38,11 +38,12 @@
   --color-dash-line-hover: #79628c;
 
   --radius-xs: 4px;
-  --radius-sm: 6px;
+  --radius-sm: 4px;
   --radius-md: 8px;
-  --radius-lg: 10px;
+  --radius-lg: 12px;
   --radius-xl: 12px;
   --radius-xxl: 18px;
+  --radius-2xl: 18px;
 }
 
 :root {
@@ -233,7 +234,7 @@ html[data-theme="light"] main {
   input:not(.sr-only), textarea, select {
     width: 100%;
     border: 1px solid var(--app-input-border);
-    border-radius: 6px;
+    border-radius: 8px;
     background: var(--app-input-bg);
     color: var(--app-input-text);
     padding: 8px 12px;
