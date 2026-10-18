@@ -1,1 +1,5 @@
 timestamp	experiment	hypothesis	decision	evidence	commit
+2026-10-18T13:03:49Z	01	전역 요소 기본값을 @layer base로 옮겨 유틸리티 클래스 적용	REVERT	91.68→91.65; 입력 아이콘 겹침 20→0이지만 버튼의 text-[11px] 등 작은 글자가 노출되어 typography/targets 하락. 최소 글자 크기 정리 후 재시도	e4ae2c3
+2026-10-18T13:08:24Z	02	9~11px 라벨을 최소 12px(text-xs)로 상향	KEEP	91.68→92.74 (+1.06); typography 84.41→88.99; /reports 모바일 대비 1노드는 비활성→활성 전환 중 버튼(재검사 0/1 변동)	7814dd1
+2026-10-18T13:14:20Z	03	전역 요소 기본값을 @layer base로 재시도 (12px 하한 이후)	KEEP	92.74→93.04 (+0.30); integrity 97.37→100, 검색 입력 아이콘 겹침 20→0; 스크린샷 확인	528f0e5
+2026-10-18T13:21:30Z	04	한 줄 입력 40px, 체크/라디오 라벨 24px(모바일 40px) 터치 영역	KEEP	93.04→94.29 (+1.25); targets 86.52→94.31; guard visual 94.74 복귀	94394e1
