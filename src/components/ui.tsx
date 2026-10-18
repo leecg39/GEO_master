@@ -46,9 +46,9 @@ export function Badge({ children, tone = "default", className }: { children: Rea
 export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "danger" }>(function Button({ className, variant = "primary", ...props }, ref) {
   const variants = {
     primary:
-      "bg-[color:var(--app-cta-bg)] text-[color:var(--app-cta-text)] shadow-[rgba(0,0,0,0.08)_0_2px_8px_0] hover:opacity-95 active:bg-[color:var(--app-cta-pressed-bg)] active:text-[color:var(--app-cta-pressed-text)] disabled:bg-[color:var(--color-hairline-cloud)] disabled:text-[color:var(--color-on-dark-muted)] disabled:shadow-none",
+      "bg-[color:var(--app-cta-bg)] text-[color:var(--app-cta-text)] shadow-[rgba(0,0,0,0.08)_0_2px_8px_0] hover:opacity-95 active:bg-[color:var(--app-cta-pressed-bg)] active:text-[color:var(--app-cta-pressed-text)] disabled:opacity-50 disabled:shadow-none",
     secondary:
-      "border border-[color:var(--color-hairline-violet)] bg-[color:var(--app-secondary-bg)] text-[color:var(--app-secondary-text)] hover:bg-[color:var(--app-secondary-hover)] disabled:text-[color:var(--color-on-dark-muted)]",
+      "border border-[color:var(--color-hairline-violet)] bg-[color:var(--app-secondary-bg)] text-[color:var(--app-secondary-text)] hover:bg-[color:var(--app-secondary-hover)] disabled:opacity-50",
     danger:
       "border border-[color:var(--color-accent-pink)]/25 bg-[color:var(--color-accent-pink)]/10 text-[color:var(--app-status-danger)] hover:bg-[color:var(--color-accent-pink)]/20",
   };
