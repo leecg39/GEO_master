@@ -187,7 +187,7 @@ export function StrategyClient() {
   if (loading) return <div className="grid min-h-96 place-items-center"><LoaderCircle className="h-7 w-7 animate-spin text-cyan-400" /></div>;
   return <div>
     <PageHeader eyebrow="Strategy system" title="전략 워크스페이스" description="질문을 의도·고객·여정으로 분류하고, 토픽 생태계와 월별 계획, 반복 개선 루프까지 연결합니다." />
-    <div className="mb-5 flex gap-2 overflow-x-auto pb-1">{tabInfo.map(({ id, label, icon: Icon }) => <button type="button" key={id} onClick={() => setTab(id)} className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold ${tab === id ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-300" : "border-white/8 bg-slate-900/50 text-slate-500"}`}><Icon className="h-4 w-4" />{label}</button>)}</div>
+    <div className="mb-5 flex gap-2 overflow-x-auto pb-1">{tabInfo.map(({ id, label, icon: Icon }) => <button type="button" key={id} onClick={() => setTab(id)} className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold ${tab === id ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-300" : "border-white/8 bg-slate-900/50 text-slate-500"}`}><Icon className="h-4 w-4" />{label}</button>)}</div>
     <Card>
       <form onSubmit={create}>
         <div className="grid gap-3 lg:grid-cols-6">

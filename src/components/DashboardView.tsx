@@ -476,19 +476,19 @@ function ModelComparisonSection({
                   key={model.provider}
                   className="border-b border-dash-line/30 transition hover:bg-white/[0.02] last:border-0"
                 >
-                  <td className="py-3.5 text-slate-200">
+                  <td className="py-3 text-slate-200">
                     <ProviderDot provider={model.provider} />
                   </td>
-                  <td className="py-3.5 text-right tabular-nums text-slate-400">
+                  <td className="py-3 text-right tabular-nums text-slate-400">
                     {model.previousShare === null ? "—" : `${model.previousShare.toFixed(1)}%`}
                   </td>
                   <td
-                    className="py-3.5 text-right font-bold tabular-nums"
+                    className="py-3 text-right font-bold tabular-nums"
                     style={{ color: modelMeta[model.provider]?.color ?? "#ffffff" }}
                   >
                     {model.share.toFixed(1)}%
                   </td>
-                  <td className="py-3.5 text-right">
+                  <td className="py-3 text-right">
                     <Delta value={model.delta} />
                   </td>
                 </tr>
@@ -837,11 +837,11 @@ function QuestionMonitor({
                   aria-pressed={selected}
                   className={`w-full rounded-lg border p-3 text-left transition ${selected ? "border-emerald-400/35 bg-emerald-400/10" : "border-dash-line/30 bg-dash-inset hover:border-dash-line-hover/60 hover:bg-dash-icon"}`}
                 >
-                  <div className="flex items-start gap-2.5">
+                  <div className="flex items-start gap-3">
                     <span className="mt-0.5 text-xs font-black text-slate-600">Q{String(index + 1).padStart(2, "0")}</span>
                     <p className="line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200">{question.text}</p>
                   </div>
-                  <div className="mt-2.5 grid grid-cols-3 border-t border-dash-line/30 pt-2 text-xs">
+                  <div className="mt-3 grid grid-cols-3 border-t border-dash-line/30 pt-2 text-xs">
                     <span className="text-slate-500">점유율 <strong className="ml-1 text-emerald-300">{question.share}%</strong></span>
                     <span className="text-center text-slate-500">순위 <strong className="ml-1 text-[color:var(--color-accent-lime)]">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></span>
                     <span className="text-right text-slate-500">긍정 <strong className="ml-1 text-amber-300">{question.positiveRate}%</strong></span>
@@ -892,7 +892,7 @@ function QuestionDetail({ question }: { question: DashboardData["questions"][num
 
       <div className="grid grid-cols-2 divide-x divide-y divide-dash-line/30 border-b border-dash-line/30 sm:grid-cols-4 sm:divide-y-0">
         <div className="p-4"><span className="text-xs uppercase tracking-wider text-slate-500">Answer Share</span><strong className="mt-1.5 block text-2xl text-emerald-300">{question.share}%</strong></div>
-        <div className="p-4"><span className="text-xs uppercase tracking-wider text-slate-500">이전 대비</span><div className="mt-2.5"><Delta value={question.delta} /></div></div>
+        <div className="p-4"><span className="text-xs uppercase tracking-wider text-slate-500">이전 대비</span><div className="mt-3"><Delta value={question.delta} /></div></div>
         <div className="p-4"><span className="text-xs uppercase tracking-wider text-slate-500">평균 순위</span><strong className="mt-1.5 block text-2xl text-[color:var(--color-accent-lime)]">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></div>
         <div className="p-4"><span className="text-xs uppercase tracking-wider text-slate-500">긍정 문맥</span><strong className="mt-1.5 block text-2xl text-amber-300">{question.positiveRate}%</strong></div>
       </div>

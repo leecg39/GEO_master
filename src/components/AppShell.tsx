@@ -40,7 +40,7 @@ function NavLink({
       aria-current={active ? "page" : undefined}
       onClick={close}
       className={cn(
-        "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+        "group flex items-center gap-3 rounded-xl px-3 min-h-10 py-2 text-sm font-medium transition",
         active
           ? "bg-[color:var(--color-accent-lime)]/12 text-[color:var(--color-accent-lime)]"
           : "text-[color:var(--color-on-dark-muted)] hover:bg-white/5 hover:text-white",
@@ -107,7 +107,7 @@ function Navigation({ close, semforgeActive, role }: { close?: () => void; semfo
       })}
 
       {!guest && (semforgeActive === null ? (
-        <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-500">
+        <div className="flex items-center gap-3 rounded-xl px-3 min-h-10 py-2 text-sm text-slate-500">
           <LoaderCircle className="h-4.5 w-4.5 animate-spin" />
           SEMForge 확인 중
         </div>
@@ -209,7 +209,7 @@ export function AppShell({ children, account }: { children: ReactNode; account?:
           {semforge && <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2 py-2 text-xs text-[color:var(--color-on-dark-muted)] hover:text-white"><ArrowLeft className="h-4 w-4" />GEO Master로 돌아가기</Link>}
           <ThemeToggle />
           {account && account.id !== "local" && <form action="/api/auth/logout" method="post" className="text-xs text-[color:var(--color-on-dark-muted)]"><span>{account.id}{accountLabel(account.role, semforgeActive)}</span><button type="submit" className="ml-3 underline">로그아웃</button></form>}
-          <div className="rounded-[12px] border border-[color:var(--color-hairline-violet)] bg-[color:var(--color-ink-deep)] p-3.5">
+          <div className="rounded-[12px] border border-[color:var(--color-hairline-violet)] bg-[color:var(--color-ink-deep)] p-4">
             <div className="flex items-center gap-2 text-xs font-semibold text-[color:var(--color-accent-lime)]">
               <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent-lime)]" />
               전용 저장소

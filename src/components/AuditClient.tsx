@@ -53,14 +53,14 @@ export function AuditClient() {
   return <div className="space-y-6">
     <PageHeader eyebrow="Site intelligence" title="GEO 진단" description="사이트의 SEO 기반, AI 친화 구조, 신뢰 신호와 크롤러 접근성을 32개 통합 항목과 AI 엔진으로 정밀 분석합니다." />
     <Card className="border-cyan-400/20 bg-slate-900/80 p-6 sm:p-7">
-      <form onSubmit={submit} className="grid gap-3.5 md:grid-cols-[0.8fr_1.4fr_auto]">
+      <form onSubmit={submit} className="grid gap-4 md:grid-cols-[0.8fr_1.4fr_auto]">
         <label className="sr-only" htmlFor="audit-title">진단 제목</label>
         <input id="audit-title" maxLength={120} value={title} onChange={(event) => { setTitle(event.target.value); requestId.current = null; }} placeholder="진단 제목 (선택, 미입력 시 페이지 제목 자동 적용)" className="min-h-12 rounded-xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none" />
         <label className="sr-only" htmlFor="audit-url">진단 URL</label>
         <input id="audit-url" type="url" required value={url} onChange={(event) => { setUrl(event.target.value); requestId.current = null; }} placeholder="https://example.com/article" className="min-h-12 rounded-xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none" />
         <Button disabled={loading} className="min-h-12 px-6 text-sm font-bold md:min-w-40">{loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <SearchCheck className="h-4 w-4" />}{loading ? "GEO 엔진 분석 중…" : "진단 시작"}</Button>
       </form>
-      <details className="mt-4"><summary className="cursor-pointer text-xs font-semibold text-slate-400 hover:text-slate-200">수동 사전 체크 (선택 사항 · 미체크 시 GEO 엔진이 본문 기반으로 자동 분석합니다)</summary><div className="mt-3.5 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">{manualRules.map(([code, label]) => <label key={code} className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-white/8 bg-slate-950/50 p-3 text-xs text-slate-300 transition hover:bg-slate-950/80"><input type="checkbox" checked={Boolean(manual[code])} onChange={(e) => { setManual((state) => ({ ...state, [code]: e.target.checked })); requestId.current = null; }} className="rounded" />{label}</label>)}</div></details>
+      <details className="mt-4"><summary className="cursor-pointer text-xs font-semibold text-slate-400 hover:text-slate-200">수동 사전 체크 (선택 사항 · 미체크 시 GEO 엔진이 본문 기반으로 자동 분석합니다)</summary><div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{manualRules.map(([code, label]) => <label key={code} className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/8 bg-slate-950/50 p-3 text-xs text-slate-300 transition hover:bg-slate-950/80"><input type="checkbox" checked={Boolean(manual[code])} onChange={(e) => { setManual((state) => ({ ...state, [code]: e.target.checked })); requestId.current = null; }} className="rounded" />{label}</label>)}</div></details>
       <p className="mt-4 flex items-center gap-2 text-xs text-slate-500"><AlertTriangle className="h-3.5 w-3.5 text-amber-400" />외부 사이트에 실시간 진단 요청을 보냅니다. 사설망·로컬 주소와 2MB 초과 문서는 차단됩니다.</p>
       {error && <p role="alert" className="mt-4 rounded-xl border border-rose-400/20 bg-rose-400/10 p-4 text-sm text-rose-300">{error}</p>}
     </Card>
@@ -85,7 +85,7 @@ export function AuditClient() {
 
         <Card className="flex flex-col justify-between p-6 sm:p-7">
           <div>
-            <div className="flex items-center justify-between gap-2 border-b border-white/8 pb-3.5">
+            <div className="flex items-center justify-between gap-2 border-b border-white/8 pb-3">
               <h2 className="text-base sm:text-lg font-bold text-white">AI GEO 종합 진단 & 인사이트</h2>
               <Badge tone="cyan">Executive Summary</Badge>
             </div>
@@ -96,7 +96,7 @@ export function AuditClient() {
             ) : null}
             <div className="mt-5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">맞춤형 우선 개선 권고</h3>
-              <ol className="mt-3 space-y-2.5">
+              <ol className="mt-3 space-y-3">
                 {(audit.metadata.recommendations ?? []).map((text, index) => (
                   <li key={text} className="flex items-start gap-3 text-xs sm:text-sm leading-relaxed text-slate-300">
                     <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-violet-400/20 text-xs font-bold text-violet-300">{index + 1}</span>
@@ -107,7 +107,7 @@ export function AuditClient() {
             </div>
           </div>
           {Array.isArray(audit.metadata.schemas) && audit.metadata.schemas.length > 0 && (
-            <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-white/8 pt-3.5">
+            <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-white/8 pt-3">
               <span className="text-xs text-slate-500">감지된 스키마:</span>
               {audit.metadata.schemas.map((s) => (
                 <span key={String(s)} className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-cyan-300 font-mono">{String(s)}</span>
@@ -134,7 +134,7 @@ export function AuditClient() {
               </div>
               <div className="divide-y divide-white/8">
                 {items?.map((item) => (
-                  <div key={item.code} className="py-3.5">
+                  <div key={item.code} className="py-3">
                     <div className="flex items-start gap-3">
                       {item.passed ? (
                         <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />

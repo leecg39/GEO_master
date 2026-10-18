@@ -356,7 +356,7 @@ export function SiteAuditBriefing({
           <div className="mb-4 flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-300" /><h4 className="text-sm font-semibold text-white">왜 이 점수인가 — 핵심 근거</h4></div>
           <ul className="space-y-3">
             {briefing.narratives.map((line, index) => (
-              <li key={index} className="rounded-lg border border-white/8 bg-slate-950/35 px-3 py-2.5 text-sm leading-6 text-slate-300">{line}</li>
+              <li key={index} className="rounded-lg border border-white/8 bg-slate-950/35 px-3 py-3 text-sm leading-6 text-slate-300">{line}</li>
             ))}
           </ul>
         </Card>
@@ -368,7 +368,7 @@ export function SiteAuditBriefing({
           ) : (
             <ol className="space-y-2">
               {briefing.recommendations.map((item, index) => (
-                <li key={item} className="flex gap-3 rounded-lg border border-cyan-400/10 bg-cyan-400/5 px-3 py-2.5 text-sm text-slate-300">
+                <li key={item} className="flex gap-3 rounded-lg border border-cyan-400/10 bg-cyan-400/5 px-3 py-3 text-sm text-slate-300">
                   <span className="font-bold text-cyan-300">{index + 1}.</span>
                   <span>{item}</span>
                 </li>
