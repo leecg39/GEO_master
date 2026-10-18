@@ -47,7 +47,7 @@ export function MeasurementEvidencePanel({ evidence, className }: { evidence: Me
                 {providers.map((provider) => <th scope="col" key={provider} className="px-2 py-2 text-center font-medium">{providerLabels[provider] ?? provider}</th>)}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-white/8">
               {questions.map((question) => (
                 <tr key={question}>
                   <th scope="row" className="py-2 pr-3 font-normal text-slate-300">{question}</th>

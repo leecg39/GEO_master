@@ -90,7 +90,7 @@ export function OptimizerResult({ result }: { result: OptimizationResult }) {
       </div>
       <Card>
         <h3 className="font-semibold text-white">후보 문안</h3>
-        <ul className="mt-3 divide-y divide-white/5">
+        <ul className="mt-3 divide-y divide-white/8">
           {[...result.candidates].sort((a, b) => (b.visibility ?? -1) - (a.visibility ?? -1)).map((candidate) => (
             <li key={candidate.id} className="py-3">
               <button type="button" className="flex w-full flex-wrap items-center gap-2 text-left text-sm" aria-expanded={openId === candidate.id} onClick={() => setOpenId(openId === candidate.id ? null : candidate.id)}>

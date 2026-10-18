@@ -106,7 +106,7 @@ export function RunDiagnosticsPanel({ runId, providers, className }: { runId: nu
             ))}
           </div>
           {data.claims.length > 0 && (
-            <ul className="mt-4 divide-y divide-white/5 text-sm">
+            <ul className="mt-4 divide-y divide-white/8 text-sm">
               {data.claims.map((claim) => (
                 <li key={claim.id} className="flex flex-col gap-1 py-2 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">

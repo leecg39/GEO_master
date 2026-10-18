@@ -104,7 +104,7 @@ const robotsRows = [
 
 function RobotsPolicySummary({ robots }: { robots: NonNullable<SiteAuditBriefingData["robots"]> }) {
   return (
-    <div className="rounded-lg border border-white/6 bg-slate-950/40 p-3">
+    <div className="rounded-lg border border-white/8 bg-slate-950/40 p-3">
       <p className="mb-2 text-xs font-semibold text-slate-300">AI 크롤러 정책 (robots.txt 실제 요청)</p>
       {robots.state === "unknown" ? (
         <p className="text-xs text-slate-400">확인 불가 — {robots.detail}</p>
@@ -230,7 +230,7 @@ export function SiteAuditBriefing({
         <Card className="xl:col-span-2">
           <h4 className="mb-4 text-sm font-semibold text-white">점수 산출 근거</h4>
           {briefing.scoreFactors.length === 0 ? (
-            <p className="rounded-lg border border-white/6 bg-slate-950/40 p-4 text-sm leading-6 text-slate-400">
+            <p className="rounded-lg border border-white/8 bg-slate-950/40 p-4 text-sm leading-6 text-slate-400">
               {briefing.dataState === "legacy_estimate"
                 ? "이전 버전 결과는 페이지를 실제로 요청하지 않고 계산한 추정치라 산출 근거를 표시하지 않습니다. 다시 크롤하세요."
                 : briefing.dataState === "measured"
@@ -260,7 +260,7 @@ export function SiteAuditBriefing({
             </div>
             <ul className="space-y-2 text-sm">
               {briefing.scoreFactors.map((factor) => (
-                <li key={factor.key} className="flex items-center justify-between rounded-lg border border-white/6 bg-slate-950/40 px-3 py-2">
+                <li key={factor.key} className="flex items-center justify-between rounded-lg border border-white/8 bg-slate-950/40 px-3 py-2">
                   <span className="text-slate-400">{factor.label}</span>
                   <span className={cn("font-semibold", factor.points >= 0 ? "text-cyan-300" : "text-rose-300")}>
                     {factor.kind === "total" ? `${factor.points}점` : `${factor.points > 0 ? "+" : ""}${factor.points}`}
@@ -356,7 +356,7 @@ export function SiteAuditBriefing({
           <div className="mb-4 flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-300" /><h4 className="text-sm font-semibold text-white">왜 이 점수인가 — 핵심 근거</h4></div>
           <ul className="space-y-3">
             {briefing.narratives.map((line, index) => (
-              <li key={index} className="rounded-lg border border-white/6 bg-slate-950/35 px-3 py-2.5 text-sm leading-6 text-slate-300">{line}</li>
+              <li key={index} className="rounded-lg border border-white/8 bg-slate-950/35 px-3 py-2.5 text-sm leading-6 text-slate-300">{line}</li>
             ))}
           </ul>
         </Card>
@@ -386,7 +386,7 @@ export function SiteAuditBriefing({
           ) : (
             <ul className="space-y-2">
               {briefing.issues.map((issue) => (
-                <li key={issue.id} className="rounded-lg border border-white/6 bg-slate-950/35 p-3">
+                <li key={issue.id} className="rounded-lg border border-white/8 bg-slate-950/35 p-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge tone={severityTone[issue.severity] ?? "default"}>{severityLabel[issue.severity] ?? issue.severity}</Badge>
                     <span className="text-sm font-medium text-white">{issue.title}</span>

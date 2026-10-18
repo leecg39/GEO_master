@@ -210,7 +210,7 @@ export function LocalBusinessBriefing({
           ) : (
             <ul className="space-y-2 text-sm leading-6 text-slate-300">
               {briefing.recommendations.map((item) => (
-                <li key={item} className="rounded-lg border border-white/6 bg-slate-950/40 px-3 py-2">{item}</li>
+                <li key={item} className="rounded-lg border border-white/8 bg-slate-950/40 px-3 py-2">{item}</li>
               ))}
             </ul>
           )}
@@ -232,7 +232,7 @@ export function LocalBusinessBriefing({
             </thead>
             <tbody>
               {briefing.keywords.map((item) => (
-                <tr key={item.id} className="border-b border-white/5 text-slate-300">
+                <tr key={item.id} className="border-b border-white/8 text-slate-300">
                   <td className="py-3 pr-4 text-white">{item.keyword}</td>
                   <td className="py-3 pr-4 font-semibold text-violet-300">{item.mapPosition ?? "—"}</td>
                   <td className="py-3 pr-4">{item.inLocalPack ? <Badge tone="good">노출</Badge> : <Badge>없음</Badge>}</td>

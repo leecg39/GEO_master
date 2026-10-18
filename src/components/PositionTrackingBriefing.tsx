@@ -210,7 +210,7 @@ export function PositionTrackingBriefing({
           ) : (
             <ul className="space-y-2 text-sm leading-6 text-slate-300">
               {briefing.recommendations.map((item) => (
-                <li key={item} className="rounded-lg border border-white/6 bg-slate-950/40 px-3 py-2">{item}</li>
+                <li key={item} className="rounded-lg border border-white/8 bg-slate-950/40 px-3 py-2">{item}</li>
               ))}
             </ul>
           )}
@@ -231,7 +231,7 @@ export function PositionTrackingBriefing({
             </thead>
             <tbody>
               {briefing.keywords.map((item) => (
-                <tr key={item.id} className="border-b border-white/5 text-slate-300">
+                <tr key={item.id} className="border-b border-white/8 text-slate-300">
                   <td className="py-3 pr-4 text-white">{item.keyword}</td>
                   <td className="py-3 pr-4 font-semibold text-cyan-300">{item.position ?? "—"}</td>
                   <td className="py-3 pr-4 text-slate-500">{item.previousPosition ?? "—"}</td>

@@ -90,7 +90,7 @@ export function ReportSharePanel({ runId }: { runId: number }) {
         </div>
       )}
       {shares.length > 0 && (
-        <ul className="mt-3 divide-y divide-white/5 text-xs">
+        <ul className="mt-3 divide-y divide-white/8 text-xs">
           {shares.map((share) => (
             <li key={share.id} className="flex items-center justify-between gap-2 py-2">
               <span className="text-slate-400">{formatDate(share.createdAt)} 생성 · 만료 {formatDate(share.expiresAt)} · 열람 {share.viewCount}회</span>

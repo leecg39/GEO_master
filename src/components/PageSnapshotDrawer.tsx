@@ -56,7 +56,7 @@ const NOT_MEASURED = "이 스냅샷 버전에서는 수집하지 않음";
 
 function FactRow({ label, value }: { label: string; value: string | null | undefined }) {
   return (
-    <div className="grid grid-cols-[7rem_1fr] gap-3 border-b border-white/5 py-2 text-xs last:border-0">
+    <div className="grid grid-cols-[7rem_1fr] gap-3 border-b border-white/8 py-2 text-xs last:border-0">
       <dt className="text-slate-500">{label}</dt>
       <dd className="break-all text-slate-200">{value || <span className="text-slate-600">없음</span>}</dd>
     </div>
@@ -148,7 +148,7 @@ export function PageSnapshotDrawer({ snapshotId, onClose }: { snapshotId: number
               {group.tier === "hypothesis" && <p className="mb-2 text-xs text-slate-500">GEO 가설은 페이지 유형에 따라 필요 없을 수 있어 오류로 세지 않습니다.</p>}
               <ul className="space-y-2">
                 {group.items.map((item) => (
-                  <li key={item.code} className="rounded-lg border border-white/6 bg-slate-950/40 p-3">
+                  <li key={item.code} className="rounded-lg border border-white/8 bg-slate-950/40 p-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone={tone(item)}>{item.passed ? "충족" : item.severity === "error" ? "오류" : item.severity === "warning" ? "경고" : "참고"}</Badge>
                       <span className="text-sm text-white">{item.label}</span>

@@ -204,7 +204,7 @@ function HalfGauge({
           <span className="mt-0.5 block text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{label}</span>
         </div>
       </div>
-      <div className="mt-2 flex items-center justify-between border-t border-dash-line/25 pt-3 text-xs">
+      <div className="mt-2 flex items-center justify-between border-t border-dash-line/30 pt-3 text-xs">
         <span className="text-slate-500">이전 측정 대비</span>
         {detail}
       </div>
@@ -444,7 +444,7 @@ function ModelComparisonSection({
               </RadarChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-auto flex items-center justify-center gap-8 border-t border-dash-line/40 px-4 py-3 text-xs text-slate-400">
+          <div className="mt-auto flex items-center justify-center gap-8 border-t border-dash-line/30 px-4 py-3 text-xs text-slate-400">
             <span className="inline-flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-[color:var(--app-chart-previous)]" aria-hidden="true" />
               기존
@@ -474,7 +474,7 @@ function ModelComparisonSection({
               {sortedModels.map((model) => (
                 <tr
                   key={model.provider}
-                  className="border-b border-dash-line/40 transition hover:bg-white/[0.02] last:border-0"
+                  className="border-b border-dash-line/30 transition hover:bg-white/[0.02] last:border-0"
                 >
                   <td className="py-3.5 text-slate-200">
                     <ProviderDot provider={model.provider} />
@@ -541,7 +541,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
 
   return (
     <div className="text-slate-300">
-      <header className="mb-4 rounded-xl border border-dash-line/45 bg-dash-header/95 px-4 py-4 shadow-[0_16px_50px_rgba(0,4,18,0.3)] sm:px-5">
+      <header className="mb-4 rounded-xl border border-dash-line/30 bg-dash-header/95 px-4 py-4 shadow-[0_16px_50px_rgba(0,4,18,0.3)] sm:px-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[color:var(--color-accent-lime)]">
@@ -559,7 +559,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="grid grid-cols-3 divide-x divide-dash-line/35 rounded-lg border border-dash-line/35 bg-dash-inset text-center">
+            <div className="grid grid-cols-3 divide-x divide-dash-line/30 rounded-lg border border-dash-line/30 bg-dash-inset text-center">
               <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.questionCount}</strong><span className="text-xs uppercase tracking-wider text-slate-500">queries</span></div>
               <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.modelCount}</strong><span className="text-xs uppercase tracking-wider text-slate-500">models</span></div>
               <div className="px-4 py-2"><strong className="block text-sm text-white">{data.project.recentRunCount}</strong><span className="text-xs uppercase tracking-wider text-slate-500">runs</span></div>
@@ -568,7 +568,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
               <Link href="/share" className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-[color:var(--app-cta-bg)] px-4 py-2 text-xs font-black uppercase tracking-[0.2px] text-[color:var(--app-cta-text)] transition hover:opacity-95 sm:flex-none">
                 새 측정 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
-              <Link href="/reports" aria-label="리포트 열기" className="grid min-h-10 min-w-10 place-items-center rounded-lg border border-dash-line/45 bg-dash-icon text-slate-300 transition hover:bg-dash-icon-hover">
+              <Link href="/reports" aria-label="리포트 열기" className="grid min-h-10 min-w-10 place-items-center rounded-lg border border-dash-line/30 bg-dash-icon text-slate-300 transition hover:bg-dash-icon-hover">
                 <FileSearch className="h-4 w-4" />
               </Link>
             </div>
@@ -637,7 +637,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
 
         <Panel className="sm:col-span-2 xl:col-span-4 2xl:col-span-1">
           <PanelHeader title="관제 상태" icon={Radio} meta={hasRuns ? "정상" : "측정 필요"} />
-          <div className="divide-y divide-dash-line/25 px-4 py-2 text-xs">
+          <div className="divide-y divide-dash-line/30 px-4 py-2 text-xs">
             <div className="flex items-center justify-between py-3"><span className="text-slate-500">현재 퍼널</span><strong className="text-[color:var(--color-accent-lime)]">{data.funnel.stage}</strong></div>
             <div className="flex items-center justify-between py-3"><span className="text-slate-500">최신 응답</span><strong className="text-white">{hasRuns ? `${data.overview.totalResponses}건` : "—"}</strong></div>
             <div className="flex items-center justify-between py-3"><span className="text-slate-500">실행 준비도</span><strong className="text-amber-300">{data.checklist.percent}%</strong></div>
@@ -747,13 +747,13 @@ export function DashboardView({ data }: { data: DashboardData }) {
           <div className="px-4 py-4">
             <div className="grid grid-cols-4 gap-1.5">
               {data.funnel.stages.map((stage, index) => (
-                <div key={stage} className={`rounded-lg border px-1 py-3 text-center ${index <= activeIndex ? "border-[color:var(--color-accent-lime)]/35 bg-[color:var(--color-accent-lime)]/10" : "border-dash-line/25 bg-dash-inset"}`}>
+                <div key={stage} className={`rounded-lg border px-1 py-3 text-center ${index <= activeIndex ? "border-[color:var(--color-accent-lime)]/35 bg-[color:var(--color-accent-lime)]/10" : "border-dash-line/30 bg-dash-inset"}`}>
                   <span className={`block text-xs font-bold ${index <= activeIndex ? "text-[color:var(--color-accent-lime)]" : "text-slate-600"}`}>0{index + 1}</span>
                   <strong className={`mt-1 block text-xs ${index <= activeIndex ? "text-white" : "text-slate-500"}`}>{stage}</strong>
                 </div>
               ))}
             </div>
-            <div className="mt-4 rounded-lg border border-dash-line/25 bg-dash-inset p-3">
+            <div className="mt-4 rounded-lg border border-dash-line/30 bg-dash-inset p-3">
               <p className="text-xs font-bold uppercase tracking-wider text-[color:var(--color-accent-lime)]">현재 단계 · {data.funnel.stage}</p>
               <p className="mt-2 text-xs leading-5 text-slate-400">{stageDescriptions[data.funnel.stage]}</p>
             </div>
@@ -779,7 +779,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
 
         <Panel>
           <PanelHeader title="4주 개선 사이클" icon={CalendarCheck} meta={`${cycleComplete}/4 완료`} />
-          <div className="divide-y divide-dash-line/20 px-4 py-2">
+          <div className="divide-y divide-dash-line/30 px-4 py-2">
             {data.cycle.map((item) => (
               <div key={item.week} className="flex items-center gap-3 py-3 text-xs">
                 {item.done ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" /> : <Circle className="h-4 w-4 shrink-0 text-slate-600" />}
@@ -821,7 +821,7 @@ function QuestionMonitor({
             type="button"
             onClick={() => onSelect(null)}
             aria-pressed={!selectedQuestionText}
-            className={`mb-2 flex w-full items-center justify-between rounded-lg border px-3 py-3 text-left transition ${!selectedQuestionText ? "border-[color:var(--color-accent-lime)]/35 bg-[color:var(--color-accent-lime)]/10" : "border-dash-line/25 bg-dash-inset hover:bg-dash-icon"}`}
+            className={`mb-2 flex w-full items-center justify-between rounded-lg border px-3 py-3 text-left transition ${!selectedQuestionText ? "border-[color:var(--color-accent-lime)]/35 bg-[color:var(--color-accent-lime)]/10" : "border-dash-line/30 bg-dash-inset hover:bg-dash-icon"}`}
           >
             <span><strong className="block text-xs text-white">전체 관제 현황</strong><small className="mt-1 block text-xs text-slate-500">통합 KPI와 실행 상태</small></span>
             <ChevronRight className={`h-4 w-4 ${!selectedQuestionText ? "text-[color:var(--color-accent-lime)]" : "text-slate-600"}`} />
@@ -835,13 +835,13 @@ function QuestionMonitor({
                   type="button"
                   onClick={() => onSelect(question.text)}
                   aria-pressed={selected}
-                  className={`w-full rounded-lg border p-3 text-left transition ${selected ? "border-emerald-400/35 bg-emerald-400/10" : "border-dash-line/25 bg-dash-inset hover:border-dash-line-hover/60 hover:bg-dash-icon"}`}
+                  className={`w-full rounded-lg border p-3 text-left transition ${selected ? "border-emerald-400/35 bg-emerald-400/10" : "border-dash-line/30 bg-dash-inset hover:border-dash-line-hover/60 hover:bg-dash-icon"}`}
                 >
                   <div className="flex items-start gap-2.5">
                     <span className="mt-0.5 text-xs font-black text-slate-600">Q{String(index + 1).padStart(2, "0")}</span>
                     <p className="line-clamp-2 flex-1 text-xs font-semibold leading-5 text-slate-200">{question.text}</p>
                   </div>
-                  <div className="mt-2.5 grid grid-cols-3 border-t border-dash-line/20 pt-2 text-xs">
+                  <div className="mt-2.5 grid grid-cols-3 border-t border-dash-line/30 pt-2 text-xs">
                     <span className="text-slate-500">점유율 <strong className="ml-1 text-emerald-300">{question.share}%</strong></span>
                     <span className="text-center text-slate-500">순위 <strong className="ml-1 text-[color:var(--color-accent-lime)]">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></span>
                     <span className="text-right text-slate-500">긍정 <strong className="ml-1 text-amber-300">{question.positiveRate}%</strong></span>
@@ -850,7 +850,7 @@ function QuestionMonitor({
               );
             })}
             {!data.questions.length && (
-              <div className="rounded-lg border border-dashed border-dash-line/35 px-4 py-8 text-center text-xs leading-5 text-slate-500">
+              <div className="rounded-lg border border-dashed border-dash-line/30 px-4 py-8 text-center text-xs leading-5 text-slate-500">
                 측정을 실행하면 질문별 GEO 성과가 표시됩니다.
               </div>
             )}
@@ -890,7 +890,7 @@ function QuestionDetail({ question }: { question: DashboardData["questions"][num
         <h3 className="mt-2 max-w-5xl text-sm font-bold leading-6 text-white sm:text-base">{question.text}</h3>
       </div>
 
-      <div className="grid grid-cols-2 divide-x divide-y divide-dash-line/25 border-b border-dash-line/30 sm:grid-cols-4 sm:divide-y-0">
+      <div className="grid grid-cols-2 divide-x divide-y divide-dash-line/30 border-b border-dash-line/30 sm:grid-cols-4 sm:divide-y-0">
         <div className="p-4"><span className="text-xs uppercase tracking-wider text-slate-500">Answer Share</span><strong className="mt-1.5 block text-2xl text-emerald-300">{question.share}%</strong></div>
         <div className="p-4"><span className="text-xs uppercase tracking-wider text-slate-500">이전 대비</span><div className="mt-2.5"><Delta value={question.delta} /></div></div>
         <div className="p-4"><span className="text-xs uppercase tracking-wider text-slate-500">평균 순위</span><strong className="mt-1.5 block text-2xl text-[color:var(--color-accent-lime)]">{question.averageRank ? `${question.averageRank}위` : "—"}</strong></div>

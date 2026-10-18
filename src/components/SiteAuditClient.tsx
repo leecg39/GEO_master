@@ -291,7 +291,7 @@ export function SiteAuditClient() {
           </Card>
           <Card>
             {firecrawl?.status === "live" && (
-              <fieldset className="mb-4 flex flex-col gap-2 rounded-xl border border-white/7 bg-slate-950/35 p-3 text-sm sm:flex-row sm:items-center sm:gap-5">
+              <fieldset className="mb-4 flex flex-col gap-2 rounded-xl border border-white/8 bg-slate-950/35 p-3 text-sm sm:flex-row sm:items-center sm:gap-5">
                 <legend className="sr-only">페이지 수집 방식</legend>
                 <span className="text-xs font-semibold text-slate-400">수집 방식</span>
                 <label className="flex items-center gap-2 text-slate-300">
@@ -314,7 +314,7 @@ export function SiteAuditClient() {
                       key={campaign.id}
                       className={cn(
                         "flex flex-col gap-3 rounded-xl border p-4 transition sm:flex-row sm:items-center sm:justify-between",
-                        isSelected ? "border-cyan-400/30 bg-cyan-400/5" : "border-white/7 bg-slate-950/35",
+                        isSelected ? "border-cyan-400/30 bg-cyan-400/5" : "border-white/8 bg-slate-950/35",
                       )}
                     >
                       <button

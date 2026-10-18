@@ -33,7 +33,7 @@ export function AiFileBundlePanel({ website }: { website: string }) {
       {error && <p role="alert" className="mt-3 text-sm text-rose-300">{error}</p>}
       {files && (
         <>
-          <ul className="mt-3 divide-y divide-white/5 text-sm">
+          <ul className="mt-3 divide-y divide-white/8 text-sm">
             {files.map((file) => (
               <li key={file.path} className="flex flex-wrap items-center gap-2 py-2">
                 <code className="text-slate-200">{file.path}</code>
