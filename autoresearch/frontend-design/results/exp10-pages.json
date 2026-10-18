@@ -1,0 +1,8140 @@
+[
+  {
+    "route": "/",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 98.83720930232558,
+        "hierarchy": 0,
+        "distinctSizes": 76
+      },
+      "spacing": {
+        "grid": 88.83248730964468,
+        "distinct": 100
+      },
+      "color": {
+        "text": 68,
+        "background": 68,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 193,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        24,
+        30,
+        36,
+        48
+      ],
+      "textColors": 12,
+      "bgColors": 14,
+      "borderColors": 5,
+      "radii": [
+        8,
+        12
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 27
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [
+        "p \"audit score\""
+      ],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"설정\" 10",
+        "a \"설정\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/audit",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 85.47297297297297,
+        "distinct": 84
+      },
+      "color": {
+        "text": 100,
+        "background": 76,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 97.43589743589743
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 46,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 8,
+      "bgColors": 13,
+      "borderColors": 6,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        48,
+        288
+      ],
+      "targets": 39
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"GEO 진단\" 10",
+        "a \"GEO 진단\" 10",
+        "a \"멀티모달 감사\" 10",
+        "a \"멀티모달 감사\" 10"
+      ],
+      "smallTargets": [
+        "summary \"수동 사전 체크 (선택 사항 · 미체크 시 GEO 엔진이 본문 기반으로 \" 998x18"
+      ],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/multimodal",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 89.42731277533039,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 37,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 7,
+      "bgColors": 8,
+      "borderColors": 2,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        36,
+        40,
+        48,
+        288
+      ],
+      "targets": 26
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"GEO 진단\" 10",
+        "a \"GEO 진단\" 10",
+        "a \"멀티모달 감사\" 10",
+        "a \"멀티모달 감사\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/llms",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 92.35668789808918,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 59,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 8,
+      "bgColors": 8,
+      "borderColors": 3,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 37
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"GEO 진단\" 10",
+        "a \"GEO 진단\" 10",
+        "a \"멀티모달 감사\" 10",
+        "a \"멀티모달 감사\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/share",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": false
+      },
+      "contrastNodes": 1
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 84.99413833528722,
+        "distinct": 92
+      },
+      "color": {
+        "text": 84,
+        "background": 44,
+        "border": 84
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 166,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 10,
+      "bgColors": 17,
+      "borderColors": 8,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        36,
+        40,
+        48,
+        288
+      ],
+      "targets": 129
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"설정\" 10",
+        "a \"설정\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/automation",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 98.4375,
+        "minSize": 98.4375,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 90.3903903903904,
+        "distinct": 100
+      },
+      "color": {
+        "text": 92,
+        "background": 92,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 64,
+      "fontSizes": [
+        11,
+        12,
+        14,
+        16,
+        20,
+        36
+      ],
+      "textColors": 9,
+      "bgColors": 11,
+      "borderColors": 4,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 38
+    },
+    "samples": {
+      "offScale": [
+        "small \"서버가 실행 중이고 비용 한도·API 키 조건을 만족하면 사용자 입력 없\" 11"
+      ],
+      "tooSmall": [
+        "small \"서버가 실행 중이고 비용 한도·API 키 조건을 만족하면 사용자 입력 없\""
+      ],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"설정\" 10",
+        "a \"설정\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 33.333333333333336,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 92
+      },
+      "spacing": {
+        "grid": 94.5679012345679,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 136,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        20,
+        24,
+        36,
+        48
+      ],
+      "textColors": 10,
+      "bgColors": 10,
+      "borderColors": 5,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 45
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [
+        "p \"상품 목록과 장바구니 기능은 제공되지만 제품 비교, 피부·건강 고민별 추\"",
+        "p \"외부 출처 링크가 0개이고 정량 수치 표현도 없으며 JSON-LD가 제공\"",
+        "p \"수집 정보가 사실상 한국어 콘텐츠로 구성되어 있고 다국어 페이지, 언어별\"",
+        "p \"내부 링크는 15개이나 외부 출처 링크가 0개여서 공식몰 자체 정보에 의\""
+      ],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"리포트\" 10",
+        "a \"리포트\" 10",
+        "a \"검색 성과 가져오기\" 10",
+        "a \"검색 성과 가져오기\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/studio",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 91.06529209621993,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 92,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 54,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 8,
+      "bgColors": 11,
+      "borderColors": 4,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        36,
+        40,
+        48,
+        288
+      ],
+      "targets": 32
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"수정안 작업대\" 10",
+        "a \"수정안 작업대\" 10",
+        "a \"콘텐츠 스튜디오\" 10",
+        "a \"콘텐츠 스튜디오\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/strategy",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 88.13559322033899,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 40,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 6,
+      "bgColors": 9,
+      "borderColors": 4,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 27
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"전략 워크스페이스\" 10",
+        "a \"전략 워크스페이스\" 10",
+        "a \"학습 센터\" 10",
+        "a \"학습 센터\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 84
+      },
+      "spacing": {
+        "grid": 81.5845824411135,
+        "distinct": 92
+      },
+      "color": {
+        "text": 84,
+        "background": 76,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 165,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        24,
+        36,
+        48
+      ],
+      "textColors": 10,
+      "bgColors": 13,
+      "borderColors": 5,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        28,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 100
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"전략 워크스페이스\" 10",
+        "a \"전략 워크스페이스\" 10",
+        "a \"학습 센터\" 10",
+        "a \"학습 센터\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 91.94139194139194,
+        "distinct": 100
+      },
+      "color": {
+        "text": 92,
+        "background": 68,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 63,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 9,
+      "bgColors": 14,
+      "borderColors": 6,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 24
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"리포트\" 10",
+        "a \"리포트\" 10",
+        "a \"검색 성과 가져오기\" 10",
+        "a \"검색 성과 가져오기\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/settings",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 95.59228650137742,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 84,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 74,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 10,
+      "bgColors": 12,
+      "borderColors": 5,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 40
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"설정\" 10",
+        "a \"설정\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/subscription",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": false,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 90.2439024390244,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 35,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        24,
+        36
+      ],
+      "textColors": 6,
+      "bgColors": 7,
+      "borderColors": 3,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 15
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"설정\" 10",
+        "a \"설정\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/semforge",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 50,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 90.625,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 40,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        36
+      ],
+      "textColors": 8,
+      "bgColors": 9,
+      "borderColors": 5,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 22
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [
+        "p \"TalorData·Firecrawl 계정의 이용권과 잔여 크레딧으로 측정\""
+      ],
+      "wrapped": [],
+      "offGrid": [
+        "a \"워크스페이스\" 10",
+        "a \"워크스페이스\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"지역 SEO\" 10",
+        "a \"지역 SEO\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/ai-seo",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 93.38235294117646,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 76.19047619047619
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 60,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        24,
+        36
+      ],
+      "textColors": 8,
+      "bgColors": 8,
+      "borderColors": 4,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 21
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"워크스페이스\" 10",
+        "a \"워크스페이스\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"지역 SEO\" 10",
+        "a \"지역 SEO\" 10"
+      ],
+      "smallTargets": [
+        "button \"르몽 공식 사이트 삭제\" 16x16",
+        "button \"르몽 후기 삭제\" 16x16",
+        "button \"르몽 추천 삭제\" 16x16",
+        "button \"르몽 화장품 · 비건 스킨케어 삭제\" 16x16",
+        "button \"르몽 삭제\" 16x16"
+      ],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/site-audit",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 92.27467811158799,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 92,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 44,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 8,
+      "bgColors": 11,
+      "borderColors": 5,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 26
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"워크스페이스\" 10",
+        "a \"워크스페이스\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"지역 SEO\" 10",
+        "a \"지역 SEO\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/position-tracking",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 88.88888888888889,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 30,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 7,
+      "bgColors": 8,
+      "borderColors": 4,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 17
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"워크스페이스\" 10",
+        "a \"워크스페이스\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"지역 SEO\" 10",
+        "a \"지역 SEO\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/local-business",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 90.95477386934674,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 95.23809523809524
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 36,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 8,
+      "bgColors": 9,
+      "borderColors": 4,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 21
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"워크스페이스\" 10",
+        "a \"워크스페이스\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"지역 SEO\" 10",
+        "a \"지역 SEO\" 10"
+      ],
+      "smallTargets": [
+        "button \"르몽 삭제\" 16x16"
+      ],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "desktop-dark",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 85.71428571428571,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 26,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        24,
+        36
+      ],
+      "textColors": 6,
+      "bgColors": 6,
+      "borderColors": 2,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 12
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"워크스페이스\" 10",
+        "a \"워크스페이스\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"지역 SEO\" 10",
+        "a \"지역 SEO\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": false
+      },
+      "contrastNodes": 34
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 98.83720930232558,
+        "hierarchy": 0,
+        "distinctSizes": 76
+      },
+      "spacing": {
+        "grid": 88.83248730964468,
+        "distinct": 100
+      },
+      "color": {
+        "text": 44,
+        "background": 36,
+        "border": 92
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 193,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        24,
+        30,
+        36,
+        48
+      ],
+      "textColors": 15,
+      "bgColors": 18,
+      "borderColors": 7,
+      "radii": [
+        8,
+        12
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 27
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [
+        "p \"audit score\""
+      ],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"설정\" 10",
+        "a \"설정\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/audit",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 85.47297297297297,
+        "distinct": 84
+      },
+      "color": {
+        "text": 84,
+        "background": 68,
+        "border": 76
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 97.43589743589743
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 46,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 10,
+      "bgColors": 14,
+      "borderColors": 9,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        48,
+        288
+      ],
+      "targets": 39
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"GEO 진단\" 10",
+        "a \"GEO 진단\" 10",
+        "a \"멀티모달 감사\" 10",
+        "a \"멀티모달 감사\" 10"
+      ],
+      "smallTargets": [
+        "summary \"수동 사전 체크 (선택 사항 · 미체크 시 GEO 엔진이 본문 기반으로 \" 998x18"
+      ],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/multimodal",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 89.42731277533039,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 37,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 8,
+      "bgColors": 8,
+      "borderColors": 4,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        36,
+        40,
+        48,
+        288
+      ],
+      "targets": 26
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"GEO 진단\" 10",
+        "a \"GEO 진단\" 10",
+        "a \"멀티모달 감사\" 10",
+        "a \"멀티모달 감사\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/llms",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 92.35668789808918,
+        "distinct": 100
+      },
+      "color": {
+        "text": 92,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 59,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 9,
+      "bgColors": 9,
+      "borderColors": 5,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 37
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"GEO 진단\" 10",
+        "a \"GEO 진단\" 10",
+        "a \"멀티모달 감사\" 10",
+        "a \"멀티모달 감사\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/share",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": false
+      },
+      "contrastNodes": 51
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 84.95887191539366,
+        "distinct": 92
+      },
+      "color": {
+        "text": 52,
+        "background": 44,
+        "border": 60
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 165,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 14,
+      "bgColors": 17,
+      "borderColors": 11,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        36,
+        40,
+        48,
+        288
+      ],
+      "targets": 129
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"설정\" 10",
+        "a \"설정\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/automation",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": false
+      },
+      "contrastNodes": 1
+    },
+    "axes": {
+      "typography": {
+        "scale": 98.4375,
+        "minSize": 98.4375,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 90.3903903903904,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 84,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 64,
+      "fontSizes": [
+        11,
+        12,
+        14,
+        16,
+        20,
+        36
+      ],
+      "textColors": 10,
+      "bgColors": 12,
+      "borderColors": 6,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 38
+    },
+    "samples": {
+      "offScale": [
+        "small \"서버가 실행 중이고 비용 한도·API 키 조건을 만족하면 사용자 입력 없\" 11"
+      ],
+      "tooSmall": [
+        "small \"서버가 실행 중이고 비용 한도·API 키 조건을 만족하면 사용자 입력 없\""
+      ],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"설정\" 10",
+        "a \"설정\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 33.333333333333336,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 92
+      },
+      "spacing": {
+        "grid": 94.5679012345679,
+        "distinct": 100
+      },
+      "color": {
+        "text": 68,
+        "background": 84,
+        "border": 84
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 136,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        20,
+        24,
+        36,
+        48
+      ],
+      "textColors": 12,
+      "bgColors": 12,
+      "borderColors": 8,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 45
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [
+        "p \"상품 목록과 장바구니 기능은 제공되지만 제품 비교, 피부·건강 고민별 추\"",
+        "p \"외부 출처 링크가 0개이고 정량 수치 표현도 없으며 JSON-LD가 제공\"",
+        "p \"수집 정보가 사실상 한국어 콘텐츠로 구성되어 있고 다국어 페이지, 언어별\"",
+        "p \"내부 링크는 15개이나 외부 출처 링크가 0개여서 공식몰 자체 정보에 의\""
+      ],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"리포트\" 10",
+        "a \"리포트\" 10",
+        "a \"검색 성과 가져오기\" 10",
+        "a \"검색 성과 가져오기\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/studio",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": false
+      },
+      "contrastNodes": 1
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 91.06529209621993,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 84,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 54,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 10,
+      "bgColors": 12,
+      "borderColors": 6,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        36,
+        40,
+        48,
+        288
+      ],
+      "targets": 32
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"수정안 작업대\" 10",
+        "a \"수정안 작업대\" 10",
+        "a \"콘텐츠 스튜디오\" 10",
+        "a \"콘텐츠 스튜디오\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/strategy",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 88.13559322033899,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 40,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 8,
+      "bgColors": 10,
+      "borderColors": 6,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 27
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"전략 워크스페이스\" 10",
+        "a \"전략 워크스페이스\" 10",
+        "a \"학습 센터\" 10",
+        "a \"학습 센터\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 84
+      },
+      "spacing": {
+        "grid": 81.5845824411135,
+        "distinct": 92
+      },
+      "color": {
+        "text": 52,
+        "background": 68,
+        "border": 92
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 165,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        24,
+        36,
+        48
+      ],
+      "textColors": 14,
+      "bgColors": 14,
+      "borderColors": 7,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        28,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 100
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"전략 워크스페이스\" 10",
+        "a \"전략 워크스페이스\" 10",
+        "a \"학습 센터\" 10",
+        "a \"학습 센터\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 91.94139194139194,
+        "distinct": 100
+      },
+      "color": {
+        "text": 76,
+        "background": 52,
+        "border": 76
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 63,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 11,
+      "bgColors": 16,
+      "borderColors": 9,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 24
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"리포트\" 10",
+        "a \"리포트\" 10",
+        "a \"검색 성과 가져오기\" 10",
+        "a \"검색 성과 가져오기\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/settings",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 95.59228650137742,
+        "distinct": 100
+      },
+      "color": {
+        "text": 60,
+        "background": 76,
+        "border": 92
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 74,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 13,
+      "bgColors": 13,
+      "borderColors": 7,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 40
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"설정\" 10",
+        "a \"설정\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/subscription",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": false,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 90.2439024390244,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 35,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        24,
+        36
+      ],
+      "textColors": 10,
+      "bgColors": 8,
+      "borderColors": 5,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 15
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"대시보드\" 10",
+        "a \"대시보드\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"AI 언급 모니터링\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"응답 점유율\" 10",
+        "a \"예약 측정\" 10",
+        "a \"예약 측정\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"SEMForge Pro (새 탭에서 열기)\" 10",
+        "a \"설정\" 10",
+        "a \"설정\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/semforge",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 50,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 90.625,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 92,
+        "border": 92
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 40,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        36
+      ],
+      "textColors": 10,
+      "bgColors": 11,
+      "borderColors": 7,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 22
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [
+        "p \"TalorData·Firecrawl 계정의 이용권과 잔여 크레딧으로 측정\""
+      ],
+      "wrapped": [],
+      "offGrid": [
+        "a \"워크스페이스\" 10",
+        "a \"워크스페이스\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"지역 SEO\" 10",
+        "a \"지역 SEO\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/ai-seo",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": false
+      },
+      "contrastNodes": 5
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 93.38235294117646,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 76.19047619047619
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 60,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        24,
+        36
+      ],
+      "textColors": 10,
+      "bgColors": 9,
+      "borderColors": 6,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 21
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"워크스페이스\" 10",
+        "a \"워크스페이스\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"지역 SEO\" 10",
+        "a \"지역 SEO\" 10"
+      ],
+      "smallTargets": [
+        "button \"르몽 공식 사이트 삭제\" 16x16",
+        "button \"르몽 후기 삭제\" 16x16",
+        "button \"르몽 추천 삭제\" 16x16",
+        "button \"르몽 화장품 · 비건 스킨케어 삭제\" 16x16",
+        "button \"르몽 삭제\" 16x16"
+      ],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/site-audit",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": false
+      },
+      "contrastNodes": 9
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 92.27467811158799,
+        "distinct": 100
+      },
+      "color": {
+        "text": 76,
+        "background": 92,
+        "border": 92
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 44,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 11,
+      "bgColors": 11,
+      "borderColors": 7,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 26
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"워크스페이스\" 10",
+        "a \"워크스페이스\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"지역 SEO\" 10",
+        "a \"지역 SEO\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/position-tracking",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 88.88888888888889,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 30,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 8,
+      "bgColors": 9,
+      "borderColors": 6,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 17
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"워크스페이스\" 10",
+        "a \"워크스페이스\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"지역 SEO\" 10",
+        "a \"지역 SEO\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/local-business",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 90.95477386934674,
+        "distinct": 100
+      },
+      "color": {
+        "text": 92,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 95.23809523809524
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 36,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        36
+      ],
+      "textColors": 9,
+      "bgColors": 10,
+      "borderColors": 6,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 21
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"워크스페이스\" 10",
+        "a \"워크스페이스\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"지역 SEO\" 10",
+        "a \"지역 SEO\" 10"
+      ],
+      "smallTargets": [
+        "button \"르몽 삭제\" 16x16"
+      ],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "desktop-light",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 85.71428571428571,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 26,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        24,
+        36
+      ],
+      "textColors": 8,
+      "bgColors": 7,
+      "borderColors": 4,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        288
+      ],
+      "targets": 12
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "a \"워크스페이스\" 10",
+        "a \"워크스페이스\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"AI SEO (SERP)\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"사이트 진단\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"포지션 추적\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"도메인 개요\" 10",
+        "a \"지역 SEO\" 10",
+        "a \"지역 SEO\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 0,
+        "distinctSizes": 84
+      },
+      "spacing": {
+        "grid": 89.60498960498961,
+        "distinct": 100
+      },
+      "color": {
+        "text": 68,
+        "background": 76,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 177,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        30,
+        36,
+        48
+      ],
+      "textColors": 12,
+      "bgColors": 13,
+      "borderColors": 4,
+      "radii": [
+        12
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40
+      ],
+      "targets": 15
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "td \"ChatGPT\" 14",
+        "td \"ChatGPT\" 14",
+        "td \"72.2%\" 14",
+        "td \"72.2%\" 14",
+        "td \"77.8%\" 14",
+        "td \"77.8%\" 14",
+        "td \"+5.6%p\" 14",
+        "td \"+5.6%p\" 14",
+        "td \"Claude\" 14",
+        "td \"Claude\" 14",
+        "td \"66.7%\" 14",
+        "td \"66.7%\" 14"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/audit",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 87.89808917197452,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 92,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 86.95652173913044
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 26,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 8,
+      "bgColors": 11,
+      "borderColors": 6,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        2,
+        4,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        36
+      ],
+      "targets": 23
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "form \"진단 제목진단 URL진단 시작\" 14",
+        "form \"진단 제목진단 URL진단 시작\" 14",
+        "div \"검색 의도가 명확하다구매 여정을 반영했다채널별 브랜드 정의가 일치한다권위\" 14",
+        "div \"검색 의도가 명확하다구매 여정을 반영했다채널별 브랜드 정의가 일치한다권위\" 10",
+        "div \"검색 의도가 명확하다구매 여정을 반영했다채널별 브랜드 정의가 일치한다권위\" 10",
+        "label \"검색 의도가 명확하다\" 10",
+        "label \"검색 의도가 명확하다\" 10",
+        "label \"구매 여정을 반영했다\" 10",
+        "label \"구매 여정을 반영했다\" 10",
+        "label \"채널별 브랜드 정의가 일치한다\" 10",
+        "label \"채널별 브랜드 정의가 일치한다\" 10",
+        "label \"권위 엔티티 연결 근거가 있다\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [
+        "summary \"수동 사전 체크 (선택 사항 · 미체크 시 GEO 엔진이 본문 기반으로 \" 283x36",
+        "button \"리만코리아 공식몰 | ICD 인셀덤·보타랩·라이프닝 K뷰티 메타데이터 수\" 32x32",
+        "button \"안나타르 공식몰 GEO 진단 (Mock) 메타데이터 수정\" 32x32"
+      ],
+      "issues": []
+    }
+  },
+  {
+    "route": "/multimodal",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 17,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 6,
+      "bgColors": 6,
+      "borderColors": 1,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32,
+        36
+      ],
+      "targets": 10
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/llms",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 80.95238095238095
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 39,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 7,
+      "bgColors": 6,
+      "borderColors": 2,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 21
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [
+        "a \"제안 형식 참고\" 333x28",
+        "button \"공식 llms.txtvalidated\" 78x38",
+        "button \"공식 llms.txt 복제\" 32x32",
+        "button \"공식 llms.txt 삭제\" 32x32"
+      ],
+      "issues": []
+    }
+  },
+  {
+    "route": "/share",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": false
+      },
+      "contrastNodes": 1
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 84.92597577388963,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 60,
+        "border": 92
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 24.786324786324787
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 150,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 10,
+      "bgColors": 15,
+      "borderColors": 7,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        16,
+        20,
+        24,
+        32,
+        36
+      ],
+      "targets": 117
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "button \"GEO 분석 도구\" 10",
+        "button \"GEO 분석 도구\" 10",
+        "button \"SEO 도구\" 10",
+        "button \"SEO 도구\" 10",
+        "button \"콘텐츠 마케팅\" 10",
+        "button \"콘텐츠 마케팅\" 10",
+        "button \"마케팅 자동화\" 10",
+        "button \"마케팅 자동화\" 10",
+        "button \"데이터 분석\" 10",
+        "button \"데이터 분석\" 10",
+        "button \"AI 챗봇\" 10",
+        "button \"AI 챗봇\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [
+        "button \"GEO 분석 도구\" 93x32",
+        "button \"SEO 도구\" 69x32",
+        "button \"콘텐츠 마케팅\" 87x32",
+        "button \"마케팅 자동화\" 87x32",
+        "button \"데이터 분석\" 77x32",
+        "button \"AI 챗봇\" 57x32",
+        "button \"전자상거래\" 74x32",
+        "button \"소셜 커머스\" 77x32",
+        "button \"중고 거래\" 66x32",
+        "button \"구독 서비스\" 77x32",
+        "button \"결제 서비스\" 77x32",
+        "button \"핀테크\" 53x32"
+      ],
+      "issues": []
+    }
+  },
+  {
+    "route": "/automation",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 97.91666666666667,
+        "minSize": 97.91666666666667,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 92.82511210762331,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 96.15384615384616
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 48,
+      "fontSizes": [
+        11,
+        12,
+        14,
+        16,
+        20,
+        30
+      ],
+      "textColors": 8,
+      "bgColors": 9,
+      "borderColors": 3,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 26
+    },
+    "samples": {
+      "offScale": [
+        "small \"서버가 실행 중이고 비용 한도·API 키 조건을 만족하면 사용자 입력 없\" 11"
+      ],
+      "tooSmall": [
+        "small \"서버가 실행 중이고 비용 한도·API 키 조건을 만족하면 사용자 입력 없\""
+      ],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "label \"GPT\" 10",
+        "label \"GPT\" 10",
+        "label \"GPT\" 10",
+        "label \"GPT\" 10",
+        "label \"Claude\" 10",
+        "label \"Claude\" 10",
+        "label \"Claude\" 10",
+        "label \"Claude\" 10",
+        "label \"Gemini\" 10",
+        "label \"Gemini\" 10",
+        "label \"Gemini\" 10",
+        "label \"Gemini\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [
+        "input \"\" 291x34"
+      ],
+      "issues": []
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 92
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 117,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        20,
+        24,
+        30,
+        48
+      ],
+      "textColors": 10,
+      "bgColors": 9,
+      "borderColors": 5,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 30
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/studio",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 33,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 8,
+      "bgColors": 9,
+      "borderColors": 3,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32,
+        36
+      ],
+      "targets": 15
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/strategy",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 93.54838709677419,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 18,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 5,
+      "bgColors": 7,
+      "borderColors": 3,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 12
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "button \"질문 매핑\" 10",
+        "button \"질문 매핑\" 10",
+        "button \"토픽 클러스터\" 10",
+        "button \"토픽 클러스터\" 10",
+        "button \"콘텐츠 캘린더\" 10",
+        "button \"콘텐츠 캘린더\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 84
+      },
+      "spacing": {
+        "grid": 81.21137206427689,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 92,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 147,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        24,
+        30,
+        48
+      ],
+      "textColors": 10,
+      "bgColors": 11,
+      "borderColors": 4,
+      "radii": [
+        4,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32
+      ],
+      "targets": 86
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "div \"검색 의도에 맞는 고유 title을 작성했다\" 10",
+        "div \"검색 의도에 맞는 고유 title을 작성했다\" 10",
+        "div \"검색 의도에 맞는 고유 title을 작성했다\" 10",
+        "div \"검색 의도에 맞는 고유 title을 작성했다\" 10",
+        "div \"meta description에 핵심 답변을 요약했다\" 10",
+        "div \"meta description에 핵심 답변을 요약했다\" 10",
+        "div \"meta description에 핵심 답변을 요약했다\" 10",
+        "div \"meta description에 핵심 답변을 요약했다\" 10",
+        "div \"H1 하나와 논리적인 H2·H3 계층을 사용했다\" 10",
+        "div \"H1 하나와 논리적인 H2·H3 계층을 사용했다\" 10",
+        "div \"H1 하나와 논리적인 H2·H3 계층을 사용했다\" 10",
+        "div \"H1 하나와 논리적인 H2·H3 계층을 사용했다\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 92,
+        "background": 84,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 44,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 9,
+      "bgColors": 12,
+      "borderColors": 6,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 9
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/settings",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 92,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 85.71428571428571
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 58,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 9,
+      "bgColors": 10,
+      "borderColors": 4,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 28
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [
+        "input \"\" 291x34",
+        "input \"\" 291x34",
+        "input \"\" 291x34",
+        "input \"\" 291x34"
+      ],
+      "issues": []
+    }
+  },
+  {
+    "route": "/subscription",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 19,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        24,
+        30
+      ],
+      "textColors": 5,
+      "bgColors": 6,
+      "borderColors": 2,
+      "radii": [
+        4,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 3
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/semforge",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 27,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        30
+      ],
+      "textColors": 7,
+      "bgColors": 8,
+      "borderColors": 5,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 13
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/ai-seo",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 29,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        24,
+        30
+      ],
+      "textColors": 5,
+      "bgColors": 4,
+      "borderColors": 2,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 7
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/site-audit",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 31,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 7,
+      "bgColors": 9,
+      "borderColors": 4,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 17
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/position-tracking",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 17,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 5,
+      "bgColors": 6,
+      "borderColors": 3,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 8
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/local-business",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 91.66666666666667,
+        "mobile40": 91.66666666666667
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 23,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 6,
+      "bgColors": 7,
+      "borderColors": 3,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 12
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [
+        "button \"르몽 삭제\" 16x16"
+      ],
+      "smallMobileTargets": [
+        "button \"르몽 삭제\" 16x16"
+      ],
+      "issues": []
+    }
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 13,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        24,
+        30
+      ],
+      "textColors": 4,
+      "bgColors": 4,
+      "borderColors": 1,
+      "radii": [
+        4,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 3
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 0,
+        "distinctSizes": 84
+      },
+      "spacing": {
+        "grid": 89.60498960498961,
+        "distinct": 100
+      },
+      "color": {
+        "text": 68,
+        "background": 76,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 176,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        30,
+        36,
+        48
+      ],
+      "textColors": 12,
+      "bgColors": 13,
+      "borderColors": 4,
+      "radii": [
+        12
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        40
+      ],
+      "targets": 15
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "td \"ChatGPT\" 14",
+        "td \"ChatGPT\" 14",
+        "td \"72.2%\" 14",
+        "td \"72.2%\" 14",
+        "td \"77.8%\" 14",
+        "td \"77.8%\" 14",
+        "td \"+5.6%p\" 14",
+        "td \"+5.6%p\" 14",
+        "td \"Claude\" 14",
+        "td \"Claude\" 14",
+        "td \"66.7%\" 14",
+        "td \"66.7%\" 14"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/audit",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 85.71428571428571,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 87.82051282051282,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 92,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 86.95652173913044
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 24,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 8,
+      "bgColors": 11,
+      "borderColors": 6,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        2,
+        4,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24,
+        32,
+        36
+      ],
+      "targets": 23
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [
+        "span \"개선 필요\""
+      ],
+      "offGrid": [
+        "form \"진단 제목진단 URL진단 시작\" 14",
+        "form \"진단 제목진단 URL진단 시작\" 14",
+        "div \"검색 의도가 명확하다구매 여정을 반영했다채널별 브랜드 정의가 일치한다권위\" 14",
+        "div \"검색 의도가 명확하다구매 여정을 반영했다채널별 브랜드 정의가 일치한다권위\" 10",
+        "div \"검색 의도가 명확하다구매 여정을 반영했다채널별 브랜드 정의가 일치한다권위\" 10",
+        "label \"검색 의도가 명확하다\" 10",
+        "label \"검색 의도가 명확하다\" 10",
+        "label \"구매 여정을 반영했다\" 10",
+        "label \"구매 여정을 반영했다\" 10",
+        "label \"채널별 브랜드 정의가 일치한다\" 10",
+        "label \"채널별 브랜드 정의가 일치한다\" 10",
+        "label \"권위 엔티티 연결 근거가 있다\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [
+        "summary \"수동 사전 체크 (선택 사항 · 미체크 시 GEO 엔진이 본문 기반으로 \" 228x36",
+        "button \"리만코리아 공식몰 | ICD 인셀덤·보타랩·라이프닝 K뷰티 메타데이터 수\" 32x32",
+        "button \"안나타르 공식몰 GEO 진단 (Mock) 메타데이터 수정\" 32x32"
+      ],
+      "issues": []
+    }
+  },
+  {
+    "route": "/multimodal",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 17,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 6,
+      "bgColors": 6,
+      "borderColors": 1,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32,
+        36
+      ],
+      "targets": 10
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/llms",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 80.95238095238095
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 39,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 7,
+      "bgColors": 6,
+      "borderColors": 2,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 21
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [
+        "a \"제안 형식 참고\" 278x28",
+        "button \"공식 llms.txtvalidated\" 78x38",
+        "button \"공식 llms.txt 복제\" 32x32",
+        "button \"공식 llms.txt 삭제\" 32x32"
+      ],
+      "issues": []
+    }
+  },
+  {
+    "route": "/share",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": false
+      },
+      "contrastNodes": 1
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 84.92597577388963,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 60,
+        "border": 92
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 25.641025641025642
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 150,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 10,
+      "bgColors": 15,
+      "borderColors": 7,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        16,
+        20,
+        24,
+        32,
+        36
+      ],
+      "targets": 117
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "button \"GEO 분석 도구\" 10",
+        "button \"GEO 분석 도구\" 10",
+        "button \"SEO 도구\" 10",
+        "button \"SEO 도구\" 10",
+        "button \"콘텐츠 마케팅\" 10",
+        "button \"콘텐츠 마케팅\" 10",
+        "button \"마케팅 자동화\" 10",
+        "button \"마케팅 자동화\" 10",
+        "button \"데이터 분석\" 10",
+        "button \"데이터 분석\" 10",
+        "button \"AI 챗봇\" 10",
+        "button \"AI 챗봇\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [
+        "button \"GEO 분석 도구\" 93x32",
+        "button \"SEO 도구\" 69x32",
+        "button \"콘텐츠 마케팅\" 87x32",
+        "button \"마케팅 자동화\" 87x32",
+        "button \"데이터 분석\" 77x32",
+        "button \"AI 챗봇\" 57x32",
+        "button \"전자상거래\" 74x32",
+        "button \"소셜 커머스\" 77x32",
+        "button \"중고 거래\" 66x32",
+        "button \"구독 서비스\" 77x32",
+        "button \"결제 서비스\" 77x32",
+        "button \"핀테크\" 53x32"
+      ],
+      "issues": []
+    }
+  },
+  {
+    "route": "/automation",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 97.91666666666667,
+        "minSize": 97.91666666666667,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 92.82511210762331,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 96.15384615384616
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 48,
+      "fontSizes": [
+        11,
+        12,
+        14,
+        16,
+        20,
+        30
+      ],
+      "textColors": 8,
+      "bgColors": 9,
+      "borderColors": 3,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 26
+    },
+    "samples": {
+      "offScale": [
+        "small \"서버가 실행 중이고 비용 한도·API 키 조건을 만족하면 사용자 입력 없\" 11"
+      ],
+      "tooSmall": [
+        "small \"서버가 실행 중이고 비용 한도·API 키 조건을 만족하면 사용자 입력 없\""
+      ],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "label \"GPT\" 10",
+        "label \"GPT\" 10",
+        "label \"GPT\" 10",
+        "label \"GPT\" 10",
+        "label \"Claude\" 10",
+        "label \"Claude\" 10",
+        "label \"Claude\" 10",
+        "label \"Claude\" 10",
+        "label \"Gemini\" 10",
+        "label \"Gemini\" 10",
+        "label \"Gemini\" 10",
+        "label \"Gemini\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [
+        "input \"\" 236x34"
+      ],
+      "issues": []
+    }
+  },
+  {
+    "route": "/reports",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 92
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 117,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        20,
+        24,
+        30,
+        48
+      ],
+      "textColors": 10,
+      "bgColors": 9,
+      "borderColors": 5,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 30
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/studio",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 86.66666666666667,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 33,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 8,
+      "bgColors": 9,
+      "borderColors": 3,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32,
+        36
+      ],
+      "targets": 15
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [
+        "small \"+ JSON-LD\"",
+        "small \"+ Organization\""
+      ],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/strategy",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 93.54838709677419,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 18,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 5,
+      "bgColors": 7,
+      "borderColors": 3,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        6,
+        8,
+        10,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 12
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [
+        "button \"질문 매핑\" 10",
+        "button \"질문 매핑\" 10",
+        "button \"토픽 클러스터\" 10",
+        "button \"토픽 클러스터\" 10",
+        "button \"콘텐츠 캘린더\" 10",
+        "button \"콘텐츠 캘린더\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/learn",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 93.54838709677419,
+        "hierarchy": 100,
+        "distinctSizes": 84
+      },
+      "spacing": {
+        "grid": 81.21137206427689,
+        "distinct": 100
+      },
+      "color": {
+        "text": 84,
+        "background": 92,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 147,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        24,
+        30,
+        48
+      ],
+      "textColors": 10,
+      "bgColors": 11,
+      "borderColors": 4,
+      "radii": [
+        4,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32
+      ],
+      "targets": 86
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [
+        "h3 \"GEO 콘텐츠 구조\"",
+        "h3 \"신뢰도·E-E-A-T\"",
+        "h3 \"기술적 GEO\"",
+        "h3 \"브랜드 노출\""
+      ],
+      "offGrid": [
+        "div \"검색 의도에 맞는 고유 title을 작성했다\" 10",
+        "div \"검색 의도에 맞는 고유 title을 작성했다\" 10",
+        "div \"검색 의도에 맞는 고유 title을 작성했다\" 10",
+        "div \"검색 의도에 맞는 고유 title을 작성했다\" 10",
+        "div \"meta description에 핵심 답변을 요약했다\" 10",
+        "div \"meta description에 핵심 답변을 요약했다\" 10",
+        "div \"meta description에 핵심 답변을 요약했다\" 10",
+        "div \"meta description에 핵심 답변을 요약했다\" 10",
+        "div \"H1 하나와 논리적인 H2·H3 계층을 사용했다\" 10",
+        "div \"H1 하나와 논리적인 H2·H3 계층을 사용했다\" 10",
+        "div \"H1 하나와 논리적인 H2·H3 계층을 사용했다\" 10",
+        "div \"H1 하나와 논리적인 H2·H3 계층을 사용했다\" 10"
+      ],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/workspace",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 92,
+        "background": 84,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 44,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 9,
+      "bgColors": 12,
+      "borderColors": 6,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 1,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 9
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/settings",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 92,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 85.71428571428571
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 58,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 9,
+      "bgColors": 10,
+      "borderColors": 4,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 28
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [
+        "input \"\" 236x34",
+        "input \"\" 236x34",
+        "input \"\" 236x34",
+        "input \"\" 236x34"
+      ],
+      "issues": []
+    }
+  },
+  {
+    "route": "/subscription",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 19,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        24,
+        30
+      ],
+      "textColors": 5,
+      "bgColors": 6,
+      "borderColors": 2,
+      "radii": [
+        4,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 3
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/semforge",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 27,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        30
+      ],
+      "textColors": 7,
+      "bgColors": 8,
+      "borderColors": 5,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 13
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/ai-seo",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 29,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        24,
+        30
+      ],
+      "textColors": 5,
+      "bgColors": 4,
+      "borderColors": 2,
+      "radii": [
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 7
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/site-audit",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 31,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 7,
+      "bgColors": 9,
+      "borderColors": 4,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 17
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/position-tracking",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 17,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 5,
+      "bgColors": 6,
+      "borderColors": 3,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 8
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  },
+  {
+    "route": "/local-business",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 91.66666666666667,
+        "mobile40": 91.66666666666667
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 23,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        30
+      ],
+      "textColors": 6,
+      "bgColors": 7,
+      "borderColors": 3,
+      "radii": [
+        4,
+        8,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 12
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [
+        "button \"르몽 삭제\" 16x16"
+      ],
+      "smallMobileTargets": [
+        "button \"르몽 삭제\" 16x16"
+      ],
+      "issues": []
+    }
+  },
+  {
+    "route": "/analytics/overview",
+    "config": "small-mobile",
+    "a11y": {
+      "logs": [],
+      "domChecks": {
+        "main": true,
+        "heading": true,
+        "title": true,
+        "fields": true,
+        "buttons": true,
+        "skip": true,
+        "current": true,
+        "axe": true
+      },
+      "visualChecks": {
+        "overflow": true,
+        "contrast": true
+      },
+      "contrastNodes": 0
+    },
+    "axes": {
+      "typography": {
+        "scale": 100,
+        "minSize": 100,
+        "leading": 100,
+        "measure": 100,
+        "wrap": 100,
+        "hierarchy": 100,
+        "distinctSizes": 100
+      },
+      "spacing": {
+        "grid": 100,
+        "distinct": 100
+      },
+      "color": {
+        "text": 100,
+        "background": 100,
+        "border": 100
+      },
+      "shape": {
+        "radii": 100,
+        "shadows": 100
+      },
+      "targets": {
+        "min24": 100,
+        "mobile40": 100
+      },
+      "integrity": {
+        "issues": 100
+      }
+    },
+    "counts": {
+      "textEls": 13,
+      "fontSizes": [
+        12,
+        14,
+        16,
+        18,
+        24,
+        30
+      ],
+      "textColors": 4,
+      "bgColors": 4,
+      "borderColors": 1,
+      "radii": [
+        4,
+        12,
+        18
+      ],
+      "shadows": 0,
+      "spacingValues": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32
+      ],
+      "targets": 3
+    },
+    "samples": {
+      "offScale": [],
+      "tooSmall": [],
+      "badLeading": [],
+      "tooWide": [],
+      "wrapped": [],
+      "offGrid": [],
+      "smallTargets": [],
+      "smallMobileTargets": [],
+      "issues": []
+    }
+  }
+]
