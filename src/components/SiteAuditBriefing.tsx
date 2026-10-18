@@ -215,7 +215,7 @@ export function SiteAuditBriefing({
               <Badge tone={briefing.grade.tone}>{briefing.grade.label}</Badge>
             </div>
             <p className="mt-2 text-sm text-slate-400">{domain} · {lastRunAt ? new Date(lastRunAt).toLocaleString("ko-KR") : "—"} 수집</p>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{briefing.narratives[0]}</p>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">{briefing.narratives[0]}</p>
           </div>
           <div className="w-full max-w-xs shrink-0 rounded-xl border border-white/8 bg-slate-950/50 p-3">
             <HealthGauge score={briefing.score} label={briefing.dataState === "legacy_estimate" ? "이전 방식 추정 점수" : "사이트 건강 점수"} />

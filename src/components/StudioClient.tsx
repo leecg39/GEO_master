@@ -170,7 +170,7 @@ export function StudioClient() {
         {result ? <div className="space-y-4">
           {"before" in result && <div className="rounded-xl border border-white/8 bg-slate-950/40 p-4"><Badge>Before</Badge><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-500">{String(result.before)}</p></div>}
           {"after" in result && <div className="rounded-xl border border-cyan-400/15 bg-cyan-400/[0.04] p-4"><Badge tone="cyan">After</Badge><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-200">{String(result.after)}</p></div>}
-          {"intro" in result && <p className="whitespace-pre-wrap rounded-xl bg-slate-950/40 p-4 text-sm leading-7 text-slate-200">{String(result.intro)}</p>}
+          {"intro" in result && <p className="whitespace-pre-wrap rounded-xl bg-slate-950/40 p-4 text-sm leading-6 text-slate-200">{String(result.intro)}</p>}
           {"definition" in result && <p className="rounded-xl border border-cyan-400/15 bg-cyan-400/5 p-4 text-base leading-7 text-cyan-100">{String(result.definition)}</p>}
           {"faqs" in result && <div className="space-y-3">{(result.faqs as { question: string; answer: string }[]).map((faq) => <details key={faq.question} className="rounded-xl border border-white/8 bg-slate-950/40 p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-200">{faq.question}</summary><p className="mt-3 text-sm leading-6 text-slate-400">{faq.answer}</p></details>)}</div>}
           {"evidence" in result && <DraftEvidenceNotice evidence={result.evidence} />}

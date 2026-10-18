@@ -116,7 +116,7 @@ export function PositionTrackingBriefing({
             <p className="mt-2 text-sm text-slate-400">
               {domain} · {updatedAt ? new Date(updatedAt).toLocaleString("ko-KR") : "—"} 수집
             </p>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{briefing.narratives[0]}</p>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">{briefing.narratives[0]}</p>
           </div>
           <div className="w-full max-w-xs shrink-0 rounded-xl border border-white/8 bg-slate-950/50 p-3">
             <VisibilityGauge value={briefing.visibility} label="SERP 가시성" />
