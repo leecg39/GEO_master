@@ -179,13 +179,18 @@ html[data-theme="light"] {
   --color-slate-950: #f8f7fb;
 
   --color-cyan-200: #422082;
-  --color-cyan-300: #6a5fc1;
+  --color-cyan-300: #594caf;
   --color-cyan-400: #422082;
   --color-cyan-900: #c2ef4e;
   --color-emerald-300: #3f7a1f;
   --color-violet-300: #6a5fc1;
   --color-amber-300: #a16207;
   --color-rose-300: #be123c;
+  /* Pale tints used on tinted notice surfaces need dark counterparts on light backgrounds. */
+  --color-cyan-100: #2e1a5c;
+  --color-amber-100: #78350f;
+  --color-amber-200: #854d0e;
+  --color-rose-200: #9f1239;
 
   --color-dash-line: #e5e7eb;
   --color-dash-panel: #ffffff;
