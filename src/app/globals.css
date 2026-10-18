@@ -231,6 +231,8 @@ html[data-theme="light"] main {
     font-size: 16px;
     font-weight: 500;
     line-height: 1.5;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
   }
   button, input, textarea, select { font: inherit; }
   input:not(.sr-only), textarea, select {
