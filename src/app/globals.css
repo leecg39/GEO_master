@@ -246,6 +246,12 @@ html[data-theme="light"] main {
   }
   input::placeholder, textarea::placeholder { color: var(--app-input-placeholder); }
   input[type="checkbox"], input[type="radio"] { width: 1rem; height: 1rem; accent-color: var(--color-accent-lime); padding: 0; }
+  /* Tap targets: single-line controls 40px; option labels 24px (40px on phones). */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.sr-only), select { min-height: 2.5rem; }
+  label:has(> input[type="checkbox"]), label:has(> input[type="radio"]) { min-height: 1.5rem; }
+  @media (max-width: 639px) {
+    label:has(> input[type="checkbox"]), label:has(> input[type="radio"]) { min-height: 2.5rem; }
+  }
   label { color: var(--app-label); }
   code, pre { font-family: Monaco, Menlo, "Ubuntu Mono", monospace; }
   pre { overflow: auto; }
