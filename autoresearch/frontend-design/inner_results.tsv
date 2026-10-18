@@ -11,3 +11,4 @@ timestamp	experiment	hypothesis	decision	evidence	commit
 2026-10-18T13:50:37Z	10	12px 텍스트 행간 1.333→1.5 토큰, 14px 본문 leading-7→leading-6	KEEP	96.97→97.57 (+0.60); typography 96.00→98.38. 1차 실행은 CSS 재컴파일 중 페이지 로드 타임아웃으로 재실행	4d99b43
 2026-10-18T13:55:08Z	11	10px/14px 간격(2.5/3.5)을 4px 그리드로, 내비 항목 min-h-10 py-2	KEEP	97.57→98.20 (+0.63); spacing 96.11→100	da663f1
 2026-10-18T14:00:20Z	12	규칙 근거 문서 링크를 80% 투명 대신 원색 토큰으로	KEEP	98.20→98.21 (+0.01); 대비 위반 노드 129→99 (라이트 #887fcd 3.52:1 링크 제거)	4f1a6bd
+2026-10-18T14:08:43Z	13	한국어 단어 단위 줄바꿈 (word-break: keep-all + overflow-wrap: anywhere)	REVERT	98.21→98.16 (-0.05); 짧은 라벨 줄바꿈 증가로 typography 하락. 3b572a0을 git revert	3b572a0
