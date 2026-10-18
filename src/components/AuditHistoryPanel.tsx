@@ -195,7 +195,7 @@ export function AuditHistoryPanel({ onSelect }: { onSelect: (audit: AuditResourc
           <Badge tone={auditGradeTone(audit.score)}>{audit.grade}</Badge><ChevronRight className="h-4 w-4 shrink-0 text-slate-700" />
         </button>
         <button type="button" disabled={busy} onClick={() => beginEdit(audit)} className="rounded-lg p-2 text-slate-500 hover:bg-white/5 hover:text-cyan-300" aria-label={`${audit.title || audit.url} 메타데이터 수정`}><Pencil className="h-4 w-4" /></button>
-        <button type="button" disabled={busy} onClick={() => setDeleteTarget(audit)} className="rounded-lg p-2 text-slate-600 hover:bg-rose-400/10 hover:text-rose-300" aria-label={`${audit.title || audit.url} 삭제`}><Trash2 className="h-4 w-4" /></button>
+        <button type="button" disabled={busy} onClick={() => setDeleteTarget(audit)} className="rounded-lg p-2 text-slate-600 hover:bg-rose-400/10 hover:text-rose-300 max-sm:p-3" aria-label={`${audit.title || audit.url} 삭제`}><Trash2 className="h-4 w-4" /></button>
       </article>)}</div> : <div className="mt-4"><EmptyState>{appliedQuery ? "검색된 진단 이력이 없습니다." : "아직 저장된 진단이 없습니다."}</EmptyState></div>}
       <div className="mt-4"><CursorPagination canPrevious={backStack.length > 0} hasMore={page.hasMore} busy={loading || busy} onPrevious={() => { const stack = [...backStack]; const previous = stack.pop() ?? null; setBackStack(stack); setCursor(previous); }} onNext={() => { if (!page.nextCursor) return; setBackStack((stack) => [...stack, cursor]); setCursor(page.nextCursor); }} /></div>
     </Card>

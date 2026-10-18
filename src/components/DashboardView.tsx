@@ -773,7 +773,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
                 <span key={index} className={`h-3 rounded-sm ${index < Math.round(data.checklist.percent / 10) ? "bg-amber-300" : "bg-dash-track"}`} />
               ))}
             </div>
-            <Link href="/learn" className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-amber-300">체크 계속 <ArrowRight className="h-3.5 w-3.5" /></Link>
+            <Link href="/learn" className="mt-5 inline-flex min-h-6 items-center gap-1.5 text-xs font-bold text-amber-300 max-sm:min-h-10">체크 계속 <ArrowRight className="h-3.5 w-3.5" /></Link>
           </div>
         </Panel>
 

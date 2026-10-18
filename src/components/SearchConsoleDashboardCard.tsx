@@ -12,7 +12,7 @@ export function SearchConsoleDashboardCard({ summary }: { summary: ConsoleImport
           <FileSpreadsheet className="h-4 w-4 shrink-0 text-[color:var(--color-accent-lime)]" />
           <h2 id="sc-dashboard-title" className="truncate text-sm font-bold tracking-tight text-white">Search Console 검색 성과 · 콘솔 내보내기</h2>
         </div>
-        <Link href="/search-console" className="inline-flex shrink-0 items-center gap-1 text-xs text-slate-400 hover:text-white">
+        <Link href="/search-console" className="inline-flex min-h-6 shrink-0 items-center gap-1 text-xs text-slate-400 hover:text-white max-sm:min-h-10">
           가져오기 관리 <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </header>
