@@ -12,3 +12,5 @@ timestamp	experiment	hypothesis	decision	evidence	commit
 2026-10-18T13:55:08Z	11	10px/14px 간격(2.5/3.5)을 4px 그리드로, 내비 항목 min-h-10 py-2	KEEP	97.57→98.20 (+0.63); spacing 96.11→100	da663f1
 2026-10-18T14:00:20Z	12	규칙 근거 문서 링크를 80% 투명 대신 원색 토큰으로	KEEP	98.20→98.21 (+0.01); 대비 위반 노드 129→99 (라이트 #887fcd 3.52:1 링크 제거)	4f1a6bd
 2026-10-18T14:08:43Z	13	한국어 단어 단위 줄바꿈 (word-break: keep-all + overflow-wrap: anywhere)	REVERT	98.21→98.16 (-0.05); 짧은 라벨 줄바꿈 증가로 typography 하락. 3b572a0을 git revert	3b572a0
+2026-10-18T14:14:01Z	FIX-14	실험 03 이후 라벨 색 유틸리티가 적용되며 드러난 라이트 테마 옅은 색조(amber-100/200, cyan-100/300, rose-200) 대응	FIX	1.5초 정지 재검사에서 /automation 1.08:1, /studio 4.35:1 재현 → 수정 후 0	0d32898
+2026-10-18T14:14:01Z	final	최종 코드 전체 재측정	FINAL	91.68→98.16; guard error 100 / dom 99.67 / visual 94.74 (베이스라인과 동일); lint·typecheck·vitest 1011 통과	-
