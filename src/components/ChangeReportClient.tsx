@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FileJson2, FileText, LoaderCircle, TriangleAlert } from "lucide-react";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
 import type { ChangeReport, ChangeReportItem } from "@/lib/change-report";
@@ -41,7 +41,7 @@ function ItemCard({ item }: { item: ChangeReportItem }) {
         <Value label="공개 페이지 값" value={item.publicValue} empty="확인 기록 없음" />
       </div>
       {item.finalUrlMismatch && (
-        <p className="mt-2 flex items-start gap-1.5 text-xs text-amber-300"><TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />확인 주소가 수정안 주소와 다릅니다: <span className="break-all">{item.lastFinalUrl}</span></p>
+        <p className="mt-2 flex items-start gap-1.5 text-xs text-amber-300"><TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" /><span className="min-w-0">확인 주소가 수정안 주소와 다릅니다: <span className="break-all">{item.lastFinalUrl}</span></span></p>
       )}
       {(item.deliveries?.length ?? 0) > 0 && (
         <details className="mt-3 text-xs text-slate-400">
@@ -94,46 +94,60 @@ function ReportBody({ report, url }: { report: ChangeReport; url: string }) {
   );
 }
 
-export function ChangeReportClient({ initialUrl }: { initialUrl: string | null }) {
+function useChangeReport(initialUrl: string | null) {
   const [url, setUrl] = useState(initialUrl ?? "");
   const [target, setTarget] = useState(initialUrl);
   const [report, setReport] = useState<ChangeReport | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(Boolean(initialUrl));
   const [revision, setRevision] = useState(0);
+  const generation = useRef(0);
+  const restart = useCallback((pending: boolean) => {
+    generation.current += 1; // Invalidate before React runs the previous effect's cleanup.
+    setReport(null); setError(""); setLoading(pending);
+    setRevision((value) => value + 1);
+  }, []);
 
   useEffect(() => {
-    const reload = () => setRevision((value) => value + 1);
+    const reload = () => restart(Boolean(target));
     window.addEventListener("geo-master:project-changed", reload);
     return () => window.removeEventListener("geo-master:project-changed", reload);
-  }, []);
+  }, [target, restart]);
 
   useEffect(() => {
     if (!target) return;
     let active = true;
-    fetch(reportPath(target), { cache: "no-store" })
+    const startedGeneration = generation.current;
+    const current = () => active && generation.current === startedGeneration;
+    const controller = new AbortController();
+    fetch(reportPath(target), { cache: "no-store", signal: controller.signal })
       .then(async (response) => {
         const body = await response.json() as ChangeReport & { error?: string };
         if (!response.ok) throw new Error(body.error ?? "보고서를 만들지 못했습니다.");
-        if (active) { setReport(body); setError(""); }
+        if (current()) { setReport(body); setError(""); }
       })
-      .catch((cause: unknown) => { if (active) setError(cause instanceof Error ? cause.message : "보고서를 만들지 못했습니다."); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+      .catch((cause: unknown) => { if (current()) setError(cause instanceof Error ? cause.message : "보고서를 만들지 못했습니다."); })
+      .finally(() => { if (current()) setLoading(false); });
+    return () => { active = false; controller.abort(); };
   }, [target, revision]);
 
   function submit() {
-    setLoading(true);
-    setReport(null);
+    restart(Boolean(url.trim()));
     setTarget(url.trim());
   }
 
+  return { url, setUrl, target, report, error, loading, submit };
+}
+
+export function ChangeReportClient({ initialUrl }: { initialUrl: string | null }) {
+  const { url, setUrl, target, report, error, loading, submit } = useChangeReport(initialUrl);
+
   return (
-    <div>
+    <div className="min-w-0 [overflow-wrap:anywhere]">
       <PageHeader eyebrow="Change report" title="수정 결과 보고서" description="수정안별로 원래 값, 제안 값, 공개 페이지에서 실제로 읽은 값을 나란히 보여 줍니다. 점수 변화는 실제로 다시 진단한 경우에만 표시합니다." />
       <Card className="mb-4 p-4">
         <form className="flex flex-col gap-2 sm:flex-row" onSubmit={(event) => { event.preventDefault(); submit(); }}>
-          <input aria-label="보고서 URL" type="url" required className="flex-1" placeholder="https://" value={url} onChange={(event) => setUrl(event.target.value)} />
+          <input aria-label="보고서 URL" type="url" required className="min-w-0 flex-1" placeholder="https://" value={url} onChange={(event) => setUrl(event.target.value)} />
           <Button type="submit" disabled={loading || !url.trim()}>보고서 보기</Button>
         </form>
       </Card>

@@ -167,7 +167,7 @@ describe("GET /api/change-items/report", () => {
   it("returns JSON for the screen and Markdown as a download", async () => {
     const json = await call(`url=${encodeURIComponent(URL_A)}`);
     expect(json.status).toBe(200);
-    expect(json.headers.get("cache-control")).toBe("no-store");
+    expect(json.headers.get("cache-control")).toBe("private, no-store");
     expect((await json.json() as { kind: string }).kind).toBe("changes");
     const md = await call(`url=${encodeURIComponent(URL_A)}&format=md`);
     expect(md.headers.get("content-type")).toBe("text/markdown; charset=utf-8");

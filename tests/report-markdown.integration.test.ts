@@ -58,7 +58,7 @@ describe.sequential("GET /api/reports?format=md", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toBe("text/markdown; charset=utf-8");
     expect(response.headers.get("content-disposition")).toMatch(new RegExp(`^attachment; filename="geo-audit-${auditId}-\\d{4}-\\d{2}-\\d{2}\\.md"$`));
-    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(response.headers.get("x-content-type-options")).toBe("nosniff");
     const bytes = new Uint8Array(await response.clone().arrayBuffer());
     expect([...bytes.slice(0, 3)]).not.toEqual([0xef, 0xbb, 0xbf]);

@@ -93,6 +93,65 @@ it("reloads when the active project changes", async () => {
   expect(fetch).toHaveBeenCalledTimes(2);
 });
 
+it("can submit the same URL again after success or failure", async () => {
+  const container = await mount(URL_A);
+  vi.mocked(fetch).mockResolvedValueOnce(Response.json({ error: "일시 오류" }, { status: 500 }));
+  await act(async () => { container.querySelector("form")!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })); });
+  expect(fetch).toHaveBeenCalledTimes(2);
+  expect(container.querySelector('[role="alert"]')?.textContent).toBe("일시 오류");
+  expect(container.querySelectorAll("a[download]")).toHaveLength(0);
+  await act(async () => { container.querySelector("form")!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })); });
+  expect(fetch).toHaveBeenCalledTimes(3);
+  expect(container.querySelectorAll("a[download]")).toHaveLength(3);
+});
+
+it("clears old values and downloads immediately when changing projects, including on failure", async () => {
+  const container = await mount(URL_A);
+  let finish!: (response: Response) => void;
+  vi.mocked(fetch).mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
+  await act(async () => { window.dispatchEvent(new Event("geo-master:project-changed")); });
+  expect(container.textContent).not.toContain("옛 제목");
+  expect(container.querySelectorAll("a[download]")).toHaveLength(0);
+  await act(async () => { finish(Response.json({ error: "조회 실패" }, { status: 500 })); });
+  expect(container.textContent).toContain("조회 실패");
+  expect(container.querySelectorAll("a[download]")).toHaveLength(0);
+});
+
+it("ignores a previous project's response even if it arrives after the new response", async () => {
+  let finishOld!: (response: Response) => void;
+  vi.mocked(fetch).mockImplementationOnce(() => new Promise((resolve) => { finishOld = resolve; }));
+  const container = await mount(URL_A);
+  const next = fixture();
+  next.items[0].originalValue = "새 프로젝트 원본";
+  vi.mocked(fetch).mockResolvedValueOnce(Response.json(next));
+  await act(async () => { window.dispatchEvent(new Event("geo-master:project-changed")); });
+  const old = fixture();
+  old.items[0].originalValue = "이전 요청의 늦은 원본";
+  await act(async () => { finishOld(Response.json(old)); });
+  expect(container.textContent).toContain("새 프로젝트 원본");
+  expect(container.textContent).not.toContain("이전 요청의 늦은 원본");
+});
+
+it("invalidates an old JSON body synchronously before the project-change effect cleans up", async () => {
+  let finishBody!: (body: ChangeReport) => void;
+  const oldResponse = Response.json(fixture());
+  vi.spyOn(oldResponse, "json").mockReturnValue(new Promise((resolve) => { finishBody = resolve; }));
+  vi.mocked(fetch).mockResolvedValueOnce(oldResponse);
+  const container = await mount(URL_A);
+  let finishNext!: (response: Response) => void;
+  vi.mocked(fetch).mockImplementationOnce(() => new Promise((resolve) => { finishNext = resolve; }));
+  await act(async () => {
+    window.dispatchEvent(new Event("geo-master:project-changed"));
+    finishBody(fixture());
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+  });
+  expect(container.textContent).not.toContain("옛 제목");
+  expect(container.querySelectorAll("a[download]")).toHaveLength(0);
+  await act(async () => { finishNext(Response.json({ error: "새 프로젝트 조회 실패" }, { status: 500 })); });
+  expect(container.textContent).toContain("새 프로젝트 조회 실패");
+  expect(container.querySelectorAll("a[download]")).toHaveLength(0);
+});
+
 it("asks for a URL instead of fetching when none is given", async () => {
   const container = await mount(null);
   expect(fetch).not.toHaveBeenCalled();

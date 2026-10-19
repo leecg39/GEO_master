@@ -69,7 +69,7 @@ export function ChangeItemsClient() {
 
   if (!items) return <div className="grid min-h-96 place-items-center"><LoaderCircle className="h-7 w-7 animate-spin text-cyan-400" /></div>;
   return (
-    <div>
+    <div className="min-w-0 [overflow-wrap:anywhere]">
       <PageHeader eyebrow="Change workbench" title="수정안 작업대" description="페이지별 현재 값과 수정안, 근거를 나란히 두고 승인합니다. 자동 게시는 하지 않으며, 승인한 수정안을 직접 반영한 뒤 '전달 처리'로 기록합니다. 페이지의 현재 값이 달라지면 충돌로 표시됩니다."
         action={<div className="flex flex-wrap gap-2 print:hidden"><Button type="button" variant="secondary" disabled={busy} onClick={() => void downloadGuide("site-settings")}>큐샵 적용 안내(사이트 설정)</Button><Button type="button" variant="secondary" disabled={busy} onClick={() => void downloadGuide("blog")}>큐샵 적용 안내(블로그)</Button><Button type="button" onClick={() => setForm({ ...empty })}><Plus className="h-4 w-4" />수정안 추가</Button></div>} />
       <WordpressConnectionPanel />
@@ -98,8 +98,8 @@ export function ChangeItemsClient() {
                 <a className="ml-auto shrink-0 text-xs text-slate-400 hover:text-cyan-200 hover:underline print:hidden" href={`/changes/report?url=${encodeURIComponent(item.url)}`}>결과 보고서</a>
               </div>
               <div className="mt-3 grid gap-3 md:grid-cols-2">
-                <div><p className="text-xs text-slate-500">현재 값</p><pre className="mt-1 whitespace-pre-wrap rounded-xl bg-slate-950/40 p-3 text-sm text-slate-400">{item.originalValue || "(비어 있음)"}</pre></div>
-                <div><p className="text-xs text-slate-500">수정안</p><pre className="mt-1 whitespace-pre-wrap rounded-xl border border-cyan-400/15 bg-cyan-400/5 p-3 text-sm text-slate-200">{item.proposedValue}</pre></div>
+                <div className="min-w-0"><p className="text-xs text-slate-500">현재 값</p><pre className="mt-1 whitespace-pre-wrap rounded-xl bg-slate-950/40 p-3 text-sm text-slate-400">{item.originalValue || "(비어 있음)"}</pre></div>
+                <div className="min-w-0"><p className="text-xs text-slate-500">수정안</p><pre className="mt-1 whitespace-pre-wrap rounded-xl border border-cyan-400/15 bg-cyan-400/5 p-3 text-sm text-slate-200">{item.proposedValue}</pre></div>
               </div>
               {item.rationale && <p className="mt-2 text-xs text-slate-500">근거: {item.rationale}</p>}
               {checks[item.id] && (
@@ -119,8 +119,8 @@ export function ChangeItemsClient() {
                   })}><SearchCheck className="h-4 w-4" />반영 확인(공개 페이지 다시 읽기)</Button>
                 )}
                 {["draft", "approved"].includes(item.status) && (
-                  <span className="flex items-center gap-2">
-                    <input aria-label="페이지의 현재 값 붙여넣기" className="w-56" placeholder="페이지의 지금 값으로 충돌 확인" value={current[item.id] ?? ""} onChange={(e) => setCurrent({ ...current, [item.id]: e.target.value })} />
+                  <span className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                    <input aria-label="페이지의 현재 값 붙여넣기" className="min-w-0 sm:w-56" placeholder="페이지의 지금 값으로 충돌 확인" value={current[item.id] ?? ""} onChange={(e) => setCurrent({ ...current, [item.id]: e.target.value })} />
                     <Button type="button" className="shrink-0 whitespace-nowrap" variant="secondary" disabled={busy || !(current[item.id] ?? "").length} onClick={() => void run(() => request(`/api/change-items/${item.id}`, send("PATCH", { action: "report-current", currentValue: current[item.id] })))}>충돌 확인</Button>
                   </span>
                 )}
