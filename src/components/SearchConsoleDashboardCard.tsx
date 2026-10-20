@@ -12,7 +12,7 @@ export function SearchConsoleDashboardCard({ summary }: { summary: ConsoleImport
           <FileSpreadsheet className="h-4 w-4 shrink-0 text-[color:var(--color-accent-lime)]" />
           <h2 id="sc-dashboard-title" className="truncate text-sm font-bold tracking-tight text-white">Search Console 검색 성과 · 콘솔 내보내기</h2>
         </div>
-        <Link href="/search-console" className="inline-flex shrink-0 items-center gap-1 text-xs text-slate-400 hover:text-white">
+        <Link href="/search-console" className="inline-flex min-h-6 shrink-0 items-center gap-1 text-xs text-slate-400 hover:text-white max-sm:min-h-10">
           가져오기 관리 <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </header>
@@ -27,7 +27,7 @@ export function SearchConsoleDashboardCard({ summary }: { summary: ConsoleImport
               <li key={propertyLabel} className="grid gap-2 px-4 py-3 sm:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))] sm:items-center">
                 <div className="min-w-0">
                   <strong className="block truncate text-sm text-white">{propertyLabel}</strong>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-xs text-slate-500">
                     {latest.periodStart ?? "기간 미상"} ~ {latest.periodEnd ?? "기간 미상"} · 가져오기 {importCount}회
                   </span>
                 </div>
@@ -44,7 +44,7 @@ export function SearchConsoleDashboardCard({ summary }: { summary: ConsoleImport
               </li>
             ))}
           </ul>
-          <p className="border-t border-dash-line/30 px-4 py-2 text-[11px] text-slate-500">
+          <p className="border-t border-dash-line/30 px-4 py-2 text-xs text-slate-500">
             속성마다 기간·필터가 다를 수 있어 속성 간 합계는 표시하지 않습니다. API 연결 데이터와 섞지 않은 콘솔 내보내기 값입니다.
           </p>
         </>
@@ -56,7 +56,7 @@ export function SearchConsoleDashboardCard({ summary }: { summary: ConsoleImport
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span className="block text-[10px] text-slate-500">{label}</span>
+      <span className="block text-xs text-slate-500">{label}</span>
       <strong className="text-sm text-white">{value}</strong>
     </div>
   );

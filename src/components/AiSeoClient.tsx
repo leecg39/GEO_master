@@ -181,7 +181,7 @@ export function AiSeoClient() {
                         <tr
                           key={row.id}
                           className={cn(
-                            "border-t border-white/5 transition",
+                            "border-t border-white/8 transition",
                             collected && "cursor-pointer hover:bg-white/3",
                             isSelected && "bg-cyan-400/5",
                           )}

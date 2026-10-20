@@ -116,7 +116,7 @@ export function PositionTrackingBriefing({
             <p className="mt-2 text-sm text-slate-400">
               {domain} · {updatedAt ? new Date(updatedAt).toLocaleString("ko-KR") : "—"} 수집
             </p>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{briefing.narratives[0]}</p>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">{briefing.narratives[0]}</p>
           </div>
           <div className="w-full max-w-xs shrink-0 rounded-xl border border-white/8 bg-slate-950/50 p-3">
             <VisibilityGauge value={briefing.visibility} label="SERP 가시성" />
@@ -210,7 +210,7 @@ export function PositionTrackingBriefing({
           ) : (
             <ul className="space-y-2 text-sm leading-6 text-slate-300">
               {briefing.recommendations.map((item) => (
-                <li key={item} className="rounded-lg border border-white/6 bg-slate-950/40 px-3 py-2">{item}</li>
+                <li key={item} className="rounded-lg border border-white/8 bg-slate-950/40 px-3 py-2">{item}</li>
               ))}
             </ul>
           )}
@@ -231,7 +231,7 @@ export function PositionTrackingBriefing({
             </thead>
             <tbody>
               {briefing.keywords.map((item) => (
-                <tr key={item.id} className="border-b border-white/5 text-slate-300">
+                <tr key={item.id} className="border-b border-white/8 text-slate-300">
                   <td className="py-3 pr-4 text-white">{item.keyword}</td>
                   <td className="py-3 pr-4 font-semibold text-cyan-300">{item.position ?? "—"}</td>
                   <td className="py-3 pr-4 text-slate-500">{item.previousPosition ?? "—"}</td>

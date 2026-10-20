@@ -73,12 +73,27 @@ describe("settings and CRUD schema migration", () => {
 
     const migrationVersions = (sqlite.prepare("SELECT version FROM schema_migrations ORDER BY version").all() as { version: number }[])
       .map((row) => row.version);
-    expect(migrationVersions).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]);
+    expect(migrationVersions).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]);
     const tables = (sqlite.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as { name: string }[]).map((row) => row.name);
     expect(tables).toEqual(expect.arrayContaining([
       "content_revisions", "llms_documents", "report_presets", "workspace_backups",
       "semforge_subscriptions", "ai_visibility_queries", "site_audit_campaigns", "accounts",
     ]));
     expect(sqlite.pragma("foreign_key_check")).toEqual([]);
+  });
+
+  it("reuses an open connection and preserves data and the migration ledger after reopening", () => {
+    const first = getDatabase();
+    expect(getDatabase()).toBe(first);
+    const ledger = first.sqlite.prepare("SELECT * FROM schema_migrations ORDER BY version").all();
+    const rows = first.sqlite.prepare("SELECT * FROM audits ORDER BY id").all();
+    closeDatabase(databasePath);
+    expect(first.sqlite.open).toBe(false);
+    const reopened = getDatabase();
+    expect(reopened).not.toBe(first);
+    expect(reopened.sqlite.prepare("SELECT * FROM schema_migrations ORDER BY version").all()).toEqual(ledger);
+    expect(reopened.sqlite.prepare("SELECT * FROM audits ORDER BY id").all()).toEqual(rows);
+    expect(reopened.sqlite.pragma("foreign_key_check")).toEqual([]);
+    expect(reopened.sqlite.pragma("integrity_check")).toEqual([{ integrity_check: "ok" }]);
   });
 });

@@ -1,0 +1,9 @@
+iteration	commit	metric	delta	guard	status	description
+0	99fd924	3.7	0	pass	baseline	초기 27개 행동 시나리오 중 1개 통과
+1	d9f62ef	29.6	25.9	pass	keep	가입 오류를 입력란별로 연결(aria-invalid·describedby·요약 링크·첫 오류 autofocus·제목 접두어)
+2	75ec1fa	40.7	11.1	pass	keep	추측하기 쉬운 비밀번호·이메일 아이디 포함 비밀번호·보이지 않는 이름 문자 차단(BOM은 trim 전 검사로 같은 회차에 수정)
+3	08f2e54	59.3	18.6	pass	keep	소개 화면 FAQPage·SoftwareApplication·KRW Offer microdata와 히어로 이미지 fetchpriority
+4	560c458	74.1	14.8	pass	keep	로그인 상태 방문자 리다이렉트와 next 전달(로그인→가입→가입 후 이동), 열린 리다이렉트 차단
+5	335cd4a	88.9	14.8	pass	keep	관리자 회원 목록 API(상태 필터·검색·권한 우선 검사·no-store)
+6	5517f66	96.3	7.4	pass	keep	403 화면·로그인 화면에 공개 페이지와 같은 CSP·nosniff·Referrer-Policy
+7	39ceda3	100	3.7	pass	keep	화면 밖 honeypot 입력으로 봇 가입을 계정 생성 없이 정상 접수처럼 응답

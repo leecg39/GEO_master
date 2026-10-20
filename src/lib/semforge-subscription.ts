@@ -94,6 +94,7 @@ export const SEMFORGE_FEATURES = [
   "Firecrawl 사이트 진단",
   "포지션 추적 · 도메인 개요",
   "GSC · GBP · Map Rank 지역 SEO",
+  "Naeo 네이버 블로그 진단 · AI 인용 확인",
 ] as const;
 
 function subscriberRole(account: RequestAccount): "member" | "customer" {

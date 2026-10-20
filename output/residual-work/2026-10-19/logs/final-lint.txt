@@ -1,0 +1,2 @@
+npx eslint src/components/ChangeReportClient.tsx src/lib/db/migrations/reports.ts
+exit code: 0

@@ -6,12 +6,15 @@
  */
 import { createHash } from "node:crypto";
 import { z } from "zod";
+import { recordDelivery } from "./change-deliveries";
+import { recordVerification } from "./change-verifications";
 import { assertExpectedUpdatedAt, expectFound, resourceIdSchema, transactionalMutation } from "./crud";
 import { getDatabase } from "./db";
 import { AppError } from "./errors";
 import { extractPageField, fieldMatches } from "./page-fields";
 import { requireActiveProject } from "./projects";
 import { fetchPublicText } from "./url-security";
+import { recordWordpressStoredValue } from "./wordpress-verify";
 
 export const CHANGE_FIELDS = ["title", "description", "canonical", "og_image", "robots_meta", "json_ld", "body"] as const;
 export const CHANGE_STATUSES = ["draft", "approved", "delivered", "verification_pending", "verified", "conflict", "failed"] as const;
@@ -126,7 +129,36 @@ export function markDelivered(idInput: unknown, input: unknown): ChangeItem {
   return transactionalMutation(getDatabase().sqlite, () => {
     const row = owned(id);
     if (row.status !== "approved") throw new AppError("승인된 수정안만 전달 처리할 수 있습니다.", 409, "CHANGE_NOT_APPROVED");
-    return save(id, { status: "delivered", delivery_method: method, delivered_at: new Date().toISOString() }, row.updated_at);
+    const now = new Date().toISOString();
+    recordDelivery(id, { method, target: null, result: "ok", httpStatus: null, errorCode: null, previousValue: null, remoteModifiedAt: null, startedAt: now, durationMs: 0 });
+    return save(id, { status: "delivered", delivery_method: method, delivered_at: now }, row.updated_at);
+  });
+}
+
+/** 승인된 수정안 원본 행 (WordPress 전달 모듈용) */
+export function approvedChangeRow(idInput: unknown) {
+  const id = resourceIdSchema.parse(idInput);
+  const row = owned(id);
+  if (row.status !== "approved") throw new AppError("승인된 수정안만 전달할 수 있습니다.", 409, "CHANGE_NOT_APPROVED");
+  return { id: row.id, url: row.url, field: row.field, originalHash: row.original_hash, proposedValue: row.proposed_value, updatedAt: row.updated_at };
+}
+
+/** 지금 공개 페이지 값이 처음 기록한 원래 값과 같은지 */
+export const matchesOriginal = (originalHash: string, current: string | null) => hash(current ?? "") === originalHash;
+
+/** WordPress에 실제로 쓴 뒤에만 부른다. 상태는 delivered이고 반영 확인은 공개 페이지 재수집이 한다 */
+export function markDeliveredByWordpress(id: number): ChangeItem {
+  return transactionalMutation(getDatabase().sqlite, () => {
+    const row = owned(id);
+    if (row.status !== "approved") throw new AppError("승인된 수정안만 전달 처리할 수 있습니다.", 409, "CHANGE_NOT_APPROVED");
+    return save(id, { status: "delivered", delivery_method: "wordpress", delivered_at: new Date().toISOString() }, row.updated_at);
+  });
+}
+
+export function markConflict(id: number): ChangeItem {
+  return transactionalMutation(getDatabase().sqlite, () => {
+    const row = owned(id);
+    return save(id, { status: "conflict", approved_at: null }, row.updated_at);
   });
 }
 
@@ -156,6 +188,7 @@ const VERIFY_TIMEOUT_MS = 10_000;
  * 반영 확인 (Qshop P09) — 전달 처리된 수정안의 공개 URL을 다시 읽어 대상 필드가 수정안과 같을 때만 verified로 바꾼다.
  * - HTTP 200만으로는 확인하지 않는다. 값이 아직 다르면 verification_pending으로 남는다
  * - 4xx/5xx 응답은 failed. 네트워크 오류는 상태를 바꾸지 않고 오류를 돌려준다(일시적일 수 있음)
+ * - 모든 확인 시도는 change_verifications에 남긴다 (R03)
  */
 export async function verifyChangeItem(idInput: unknown) {
   const id = resourceIdSchema.parse(idInput);
@@ -163,20 +196,31 @@ export async function verifyChangeItem(idInput: unknown) {
   if (!["delivered", "verification_pending", "failed"].includes(row.status)) {
     throw new AppError("전달 처리된 수정안만 반영 확인할 수 있습니다.", 409, "CHANGE_NOT_DELIVERED");
   }
+  // R09: 연결된 WordPress의 저장값도 동시에 기록한다(절대 실패하지 않으며, 공개 페이지 확인과 시간을 나눠 쓰지 않는다)
+  const wordpress = recordWordpressStoredValue({ id, url: row.url, field: row.field, proposedValue: row.proposed_value });
+  const started = performance.now();
+  const base = { source: "public" as const, checkedUrl: row.url };
   let page;
   try {
     page = await fetchPublicText(row.url, VERIFY_TIMEOUT_MS);
   } catch {
+    await wordpress;
+    recordVerification(id, { ...base, result: "fetch_error", httpStatus: null, matched: null, actual: null, finalUrl: null,
+      durationMs: performance.now() - started, errorCode: "VERIFY_FETCH_FAILED", checkedAt: new Date().toISOString() });
     throw new AppError("공개 페이지를 가져오지 못했습니다. 잠시 후 다시 확인하세요.", 502, "VERIFY_FETCH_FAILED");
   }
+  const durationMs = performance.now() - started;
+  await wordpress;
   const checkedAt = new Date().toISOString();
   if (page.status < 200 || page.status >= 400) {
+    recordVerification(id, { ...base, result: "http_error", httpStatus: page.status, matched: false, actual: null, finalUrl: page.url, durationMs, errorCode: null, checkedAt });
     const item = save(id, { status: "failed" }, owned(id).updated_at);
     return { item, check: { matched: false, httpStatus: page.status, actual: null, checkedAt } };
   }
   const actual = extractPageField(page.text, row.field);
   const matched = fieldMatches(row.field, actual, row.proposed_value);
   const shown = actual === null ? null : actual.slice(0, 500);
+  recordVerification(id, { ...base, result: matched ? "matched" : "pending", httpStatus: page.status, matched, actual: shown, finalUrl: page.url, durationMs, errorCode: null, checkedAt });
   const item = save(id, { status: matched ? "verified" : "verification_pending" }, owned(id).updated_at);
   return { item, check: { matched, httpStatus: page.status, actual: shown, checkedAt } };
 }

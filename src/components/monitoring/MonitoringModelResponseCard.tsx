@@ -26,7 +26,7 @@ export function HighlightedResponse({ item }: { item: MonitoringResponseItem }) 
     offset = mention.end;
   }
   content.push(item.response.slice(offset));
-  return <p className="whitespace-pre-wrap break-words text-sm leading-7 [overflow-wrap:anywhere]">{content}</p>;
+  return <p className="whitespace-pre-wrap break-words text-sm leading-6 [overflow-wrap:anywhere]">{content}</p>;
 }
 function ResponseBody({ query, provider, requested }: { query: string; provider: MonitoringResponseProvider; requested: "off" | "web" | null }) {
   const [cursor, setCursor] = useState<string | null>(null);

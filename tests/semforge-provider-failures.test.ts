@@ -2,6 +2,13 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+// Provider-envelope tests must not depend on example.com's live robots/llms probes.
+vi.mock("@/lib/url-security", async () => ({
+  ...await vi.importActual<typeof import("@/lib/url-security")>("@/lib/url-security"),
+  fetchPublicText: vi.fn(async (url: string) => ({ url, status: 404, text: "", contentType: "text/plain" })),
+}));
+
 import { closeDatabase, getDatabase } from "@/lib/db";
 import { createProject, ensureActiveProject } from "@/lib/projects";
 import { confirmSemforgePayment, createSemforgeCheckout } from "@/lib/semforge-subscription";

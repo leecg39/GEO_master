@@ -108,7 +108,7 @@ export function AiSeoBriefing({
             <p className="mt-2 text-sm text-slate-400">
               {briefing.domain} · {briefing.countryCode} · {briefing.device} · {new Date(briefing.capturedAt).toLocaleString("ko-KR")} 수집
             </p>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{briefing.narratives[0]}</p>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">{briefing.narratives[0]}</p>
           </div>
           <div className="w-full max-w-xs shrink-0 rounded-xl border border-white/8 bg-slate-950/50 p-3">
             <VisibilityGauge score={briefing.visibilityScore} label="SERP 가시성" />
@@ -168,7 +168,7 @@ export function AiSeoBriefing({
             </div>
             <ul className="space-y-2 text-sm">
               {briefing.scoreFactors.map((factor) => (
-                <li key={factor.key} className="flex items-center justify-between rounded-lg border border-white/6 bg-slate-950/40 px-3 py-2">
+                <li key={factor.key} className="flex items-center justify-between rounded-lg border border-white/8 bg-slate-950/40 px-3 py-2">
                   <span className="text-slate-400">{factor.label}</span>
                   <span className={cn("font-semibold", factor.points >= 0 ? "text-cyan-300" : "text-rose-300")}>
                     {factor.kind === "total" ? `${factor.points}점` : `${factor.points > 0 ? "+" : ""}${factor.points}`}
@@ -229,7 +229,7 @@ export function AiSeoBriefing({
           ) : (
             <ul className="space-y-2 text-sm leading-6 text-slate-300">
               {briefing.recommendations.map((item) => (
-                <li key={item} className="rounded-lg border border-white/6 bg-slate-950/40 px-3 py-2">{item}</li>
+                <li key={item} className="rounded-lg border border-white/8 bg-slate-950/40 px-3 py-2">{item}</li>
               ))}
             </ul>
           )}
@@ -257,7 +257,7 @@ export function AiSeoBriefing({
           ) : (
             <ul className="space-y-2 text-sm text-slate-300">
               {briefing.citedDomains.map((item) => (
-                <li key={item} className="rounded-lg border border-white/6 bg-slate-950/40 px-3 py-2">{item}</li>
+                <li key={item} className="rounded-lg border border-white/8 bg-slate-950/40 px-3 py-2">{item}</li>
               ))}
             </ul>
           )}

@@ -116,9 +116,9 @@ export function StudioClient() {
   return <div>
     <PageHeader eyebrow="Content lab" title="콘텐츠 스튜디오" description="AI가 인용하기 쉬운 구조로 고치고, 도입부·FAQ·엔티티와 구조화 데이터를 한 번에 만듭니다." />
     <div className="mb-5 grid grid-cols-2 gap-2 lg:grid-cols-4">{tabs.map(({ id, label, description, icon: Icon }) => (
-      <button type="button" key={id} onClick={() => { setAction(id); setResult(null); setError(""); resetRequest(); }} className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${action === id ? "border-cyan-400/30 bg-cyan-400/10" : "border-white/7 bg-slate-900/50 hover:bg-white/5"}`}>
+      <button type="button" key={id} onClick={() => { setAction(id); setResult(null); setError(""); resetRequest(); }} className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${action === id ? "border-cyan-400/30 bg-cyan-400/10" : "border-white/8 bg-slate-900/50 hover:bg-white/5"}`}>
         <span className={`grid h-9 w-9 place-items-center rounded-lg ${action === id ? "bg-cyan-400/15 text-cyan-300" : "bg-slate-800 text-slate-500"}`}><Icon className="h-4 w-4" /></span>
-        <span><strong className="block text-sm text-slate-200">{label}</strong><small className="text-[11px] text-slate-500">{description}</small></span>
+        <span><strong className="block text-sm text-slate-200">{label}</strong><small className="text-xs text-slate-500">{description}</small></span>
       </button>
     ))}</div>
     <div className="grid gap-5 xl:grid-cols-2">
@@ -146,7 +146,7 @@ export function StudioClient() {
           </>}
           {(action === "intro" || action === "faq") && <>
             <label className="block text-sm">{action === "intro" ? "글의 주제" : "FAQ 주제 또는 자료"}<textarea className="mt-2" rows={12} required value={topic} onChange={(e) => { setTopic(e.target.value); resetRequest(); }} placeholder={action === "intro" ? "독자와 핵심 주제를 설명하세요." : "고객 질문의 기반이 될 자료를 입력하세요."} /></label>
-            {action === "intro" && <div className="grid grid-cols-3 gap-2">{["문제 제시", "핵심 답변", "글의 가치"].map((step, index) => <div key={step} className="rounded-lg bg-slate-950/50 p-2 text-center text-[11px] text-slate-500"><strong className="mr-1 text-cyan-400">{index + 1}</strong>{step}</div>)}</div>}
+            {action === "intro" && <div className="grid grid-cols-3 gap-2">{["문제 제시", "핵심 답변", "글의 가치"].map((step, index) => <div key={step} className="rounded-lg bg-slate-950/50 p-2 text-center text-xs text-slate-500"><strong className="mr-1 text-cyan-400">{index + 1}</strong>{step}</div>)}</div>}
           </>}
           {action === "entity" && <div className="grid gap-4 sm:grid-cols-2">
             <label className="text-sm">회사명<input className="mt-2" required value={entity.company} onChange={(e) => { setEntity((v) => ({ ...v, company: e.target.value })); resetRequest(); }} /></label>
@@ -168,11 +168,11 @@ export function StudioClient() {
           {result && <Button type="button" variant="secondary" onClick={() => void copy()}>{copied ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}{copied ? "복사됨" : "JSON 복사"}</Button>}
         </div>
         {result ? <div className="space-y-4">
-          {"before" in result && <div className="rounded-xl border border-white/7 bg-slate-950/40 p-4"><Badge>Before</Badge><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-500">{String(result.before)}</p></div>}
+          {"before" in result && <div className="rounded-xl border border-white/8 bg-slate-950/40 p-4"><Badge>Before</Badge><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-500">{String(result.before)}</p></div>}
           {"after" in result && <div className="rounded-xl border border-cyan-400/15 bg-cyan-400/[0.04] p-4"><Badge tone="cyan">After</Badge><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-200">{String(result.after)}</p></div>}
-          {"intro" in result && <p className="whitespace-pre-wrap rounded-xl bg-slate-950/40 p-4 text-sm leading-7 text-slate-200">{String(result.intro)}</p>}
+          {"intro" in result && <p className="whitespace-pre-wrap rounded-xl bg-slate-950/40 p-4 text-sm leading-6 text-slate-200">{String(result.intro)}</p>}
           {"definition" in result && <p className="rounded-xl border border-cyan-400/15 bg-cyan-400/5 p-4 text-base leading-7 text-cyan-100">{String(result.definition)}</p>}
-          {"faqs" in result && <div className="space-y-3">{(result.faqs as { question: string; answer: string }[]).map((faq) => <details key={faq.question} className="rounded-xl border border-white/7 bg-slate-950/40 p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-200">{faq.question}</summary><p className="mt-3 text-sm leading-6 text-slate-400">{faq.answer}</p></details>)}</div>}
+          {"faqs" in result && <div className="space-y-3">{(result.faqs as { question: string; answer: string }[]).map((faq) => <details key={faq.question} className="rounded-xl border border-white/8 bg-slate-950/40 p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-200">{faq.question}</summary><p className="mt-3 text-sm leading-6 text-slate-400">{faq.answer}</p></details>)}</div>}
           {"evidence" in result && <DraftEvidenceNotice evidence={result.evidence} />}
           {"jsonLd" in result && <pre className="max-h-96 rounded-xl bg-slate-950 p-4 text-xs leading-5 text-emerald-300">{JSON.stringify(result.jsonLd, null, 2)}</pre>}
         </div> : <div className="grid min-h-96 place-items-center text-center"><div><WandSparkles className="mx-auto h-8 w-8 text-slate-700" /><p className="mt-3 text-sm text-slate-600">도구를 실행하면 전·후 비교와<br />구조화 데이터가 여기에 표시됩니다.</p></div></div>}

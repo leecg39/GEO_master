@@ -1,0 +1,92 @@
+{
+  "pageConfigurations": 76,
+  "score": 96.0845,
+  "axes": {
+    "typography": 96.13,
+    "spacing": 96.11,
+    "color": 91.89,
+    "shape": 96.68,
+    "targets": 94.56,
+    "integrity": 100
+  },
+  "sub": {
+    "typography": {
+      "scale": 99.9,
+      "minSize": 99.9,
+      "leading": 84.21,
+      "measure": 96.93,
+      "wrap": 99.41,
+      "hierarchy": 94.74,
+      "distinctSizes": 97.79
+    },
+    "spacing": {
+      "grid": 93.06,
+      "distinct": 99.16
+    },
+    "color": {
+      "text": 91.16,
+      "background": 89.79,
+      "border": 94.74
+    },
+    "shape": {
+      "radii": 93.37,
+      "shadows": 100
+    },
+    "targets": {
+      "min24": 96.35,
+      "mobile40": 89.9
+    },
+    "integrity": {
+      "issues": 100
+    }
+  },
+  "guard": {
+    "error": 100,
+    "dom": 99.67105263157895,
+    "visual": 94.07894736842105,
+    "contrastNodes": 115
+  },
+  "integrityIssues": 0,
+  "worst": [
+    {
+      "page": "/ desktop-light",
+      "score": 81.61,
+      "issues": 0
+    },
+    {
+      "page": "/share mobile",
+      "score": 84.46,
+      "issues": 0
+    },
+    {
+      "page": "/share small-mobile",
+      "score": 84.52,
+      "issues": 0
+    },
+    {
+      "page": "/ desktop-dark",
+      "score": 85.21,
+      "issues": 0
+    },
+    {
+      "page": "/reports desktop-light",
+      "score": 85.28,
+      "issues": 0
+    },
+    {
+      "page": "/share desktop-light",
+      "score": 85.5,
+      "issues": 0
+    },
+    {
+      "page": "/ mobile",
+      "score": 85.51,
+      "issues": 0
+    },
+    {
+      "page": "/ small-mobile",
+      "score": 85.51,
+      "issues": 0
+    }
+  ]
+}

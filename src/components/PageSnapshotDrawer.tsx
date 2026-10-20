@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { DetailDrawer } from "@/components/CrudPrimitives";
 import { Badge, EmptyState } from "@/components/ui";
+import { RuleDocLink } from "@/components/RuleDocLink";
 
 interface Finding {
   code: string;
@@ -29,6 +30,8 @@ interface PageSnapshot {
     title: string | null; description: string | null; canonical: string | null; robotsMeta: string | null; lang: string | null;
     h1: string[]; og: { title: string | null; description: string | null; image: string | null };
     jsonLdTypes: string[]; jsonLdBlocks: number; jsonLdInvalid: number; wordCount: number;
+    /** page-facts/2부터 */
+    viewport?: string | null; hreflang?: Array<{ lang: string; href: string }>;
   } | null;
   findings: Finding[];
   skipped: string | null;
@@ -49,9 +52,11 @@ function tone(item: Finding): "good" | "bad" | "warn" | "default" {
   return item.severity === "warning" ? "warn" : "default";
 }
 
+const NOT_MEASURED = "이 스냅샷 버전에서는 수집하지 않음";
+
 function FactRow({ label, value }: { label: string; value: string | null | undefined }) {
   return (
-    <div className="grid grid-cols-[7rem_1fr] gap-3 border-b border-white/5 py-2 text-xs last:border-0">
+    <div className="grid grid-cols-[7rem_1fr] gap-3 border-b border-white/8 py-2 text-xs last:border-0">
       <dt className="text-slate-500">{label}</dt>
       <dd className="break-all text-slate-200">{value || <span className="text-slate-600">없음</span>}</dd>
     </div>
@@ -104,7 +109,7 @@ export function PageSnapshotDrawer({ snapshotId, onClose }: { snapshotId: number
               <Badge tone={snapshot.statusCode >= 200 && snapshot.statusCode < 300 ? "good" : "bad"}>HTTP {snapshot.statusCode}</Badge>
               <Badge>{renderLabels[snapshot.renderMode]}</Badge>
             </div>
-            <p className="mt-2 text-[11px] text-slate-500">규칙 버전 <code className="text-cyan-300">{snapshot.rulesVersion}</code> · 파서 버전 <code className="text-slate-300">{snapshot.parserVersion}</code></p>
+            <p className="mt-2 text-xs text-slate-500">규칙 버전 <code className="text-cyan-300">{snapshot.rulesVersion}</code> · 파서 버전 <code className="text-slate-300">{snapshot.parserVersion}</code></p>
             <dl className="mt-3">
               <FactRow label="최종 URL" value={snapshot.finalUrl} />
               <FactRow label="수집 시각" value={`${when(snapshot.capturedAt)}${snapshot.lastSeenAt !== snapshot.capturedAt ? ` (같은 내용 마지막 확인 ${when(snapshot.lastSeenAt)})` : ""}`} />
@@ -129,6 +134,8 @@ export function PageSnapshotDrawer({ snapshotId, onClose }: { snapshotId: number
                 <FactRow label="OG" value={[snapshot.facts.og.title, snapshot.facts.og.description, snapshot.facts.og.image].filter(Boolean).join(" · ")} />
                 <FactRow label="JSON-LD" value={snapshot.facts.jsonLdBlocks ? `${snapshot.facts.jsonLdTypes.join(", ") || "유형 없음"} (블록 ${snapshot.facts.jsonLdBlocks}개, 구문 오류 ${snapshot.facts.jsonLdInvalid}개)` : null} />
                 <FactRow label="본문 단어 수" value={String(snapshot.facts.wordCount)} />
+                <FactRow label="viewport" value={snapshot.facts.viewport === undefined ? NOT_MEASURED : snapshot.facts.viewport} />
+                <FactRow label="hreflang" value={snapshot.facts.hreflang === undefined ? NOT_MEASURED : snapshot.facts.hreflang.map((link) => `${link.lang} → ${link.href}`).join(", ") || null} />
               </dl>
             </section>
           )}
@@ -141,14 +148,15 @@ export function PageSnapshotDrawer({ snapshotId, onClose }: { snapshotId: number
               {group.tier === "hypothesis" && <p className="mb-2 text-xs text-slate-500">GEO 가설은 페이지 유형에 따라 필요 없을 수 있어 오류로 세지 않습니다.</p>}
               <ul className="space-y-2">
                 {group.items.map((item) => (
-                  <li key={item.code} className="rounded-lg border border-white/6 bg-slate-950/40 p-3">
+                  <li key={item.code} className="rounded-lg border border-white/8 bg-slate-950/40 p-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone={tone(item)}>{item.passed ? "충족" : item.severity === "error" ? "오류" : item.severity === "warning" ? "경고" : "참고"}</Badge>
                       <span className="text-sm text-white">{item.label}</span>
-                      <code className="ml-auto text-[10px] text-slate-600">{item.code}</code>
+                      <code className="ml-auto text-xs text-slate-600">{item.code}</code>
                     </div>
                     <p className="mt-1 text-xs leading-5 text-slate-400">{item.detail}</p>
-                    {item.evidence && <p className="mt-1 break-all text-[11px] text-slate-500">관측값: {item.evidence}</p>}
+                    {item.evidence && <p className="mt-1 break-all text-xs text-slate-500">관측값: {item.evidence}</p>}
+                    {!item.passed && <RuleDocLink code={item.code} />}
                   </li>
                 ))}
               </ul>
@@ -169,7 +177,7 @@ export function PageSnapshotDrawer({ snapshotId, onClose }: { snapshotId: number
                     >
                       <span>{when(version.capturedAt)}</span>
                       <span className="text-slate-600">HTTP {version.statusCode}</span>
-                      <code className="ml-auto text-[10px] text-slate-600">{version.contentHash.slice(0, 10)}</code>
+                      <code className="ml-auto text-xs text-slate-600">{version.contentHash.slice(0, 10)}</code>
                     </button>
                   </li>
                 ))}

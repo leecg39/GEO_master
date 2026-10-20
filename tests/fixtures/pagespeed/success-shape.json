@@ -1,0 +1,31 @@
+{
+  "loadingExperience": {
+    "id": "https://shop.example/p",
+    "metrics": {
+      "LARGEST_CONTENTFUL_PAINT_MS": { "percentile": 2900, "distributions": [], "category": "AVERAGE" },
+      "INTERACTION_TO_NEXT_PAINT": { "percentile": 180, "distributions": [], "category": "FAST" },
+      "CUMULATIVE_LAYOUT_SHIFT_SCORE": { "percentile": 12, "distributions": [], "category": "AVERAGE" },
+      "NEW_METRIC_FROM_CRUX": { "percentile": 7, "distributions": [], "category": "FAST" }
+    },
+    "overall_category": "AVERAGE",
+    "initial_url": "https://shop.example/p"
+  },
+  "originLoadingExperience": {
+    "id": "https://shop.example",
+    "metrics": { "LARGEST_CONTENTFUL_PAINT_MS": { "percentile": 2500, "distributions": [], "category": "FAST" } },
+    "overall_category": "FAST"
+  },
+  "lighthouseResult": {
+    "finalUrl": "https://shop.example/p",
+    "fetchTime": "2026-10-13T00:00:00.000Z",
+    "lighthouseVersion": "12.0.0",
+    "categories": { "performance": { "score": 0.73 } },
+    "audits": {
+      "largest-contentful-paint": { "numericValue": 3120.4 },
+      "cumulative-layout-shift": { "numericValue": 0.081 },
+      "total-blocking-time": { "numericValue": 240.2 },
+      "first-contentful-paint": { "numericValue": 1500.9 },
+      "speed-index": { "numericValue": 4100 }
+    }
+  }
+}

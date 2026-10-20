@@ -1,7 +1,8 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { getDatabase } from "./db";
 import { audits, measureResults, measureRuns } from "./db/schema";
 import { AppError } from "./errors";
+import { requireActiveProject } from "./projects";
 import type { AuditItemResult } from "./audit";
 import { getRunDiagnostics } from "./claims";
 
@@ -16,9 +17,11 @@ function parseJson<T>(value: string, fallback: T): T {
 
 export function buildAuditReport(id?: number) {
   const { orm } = getDatabase();
+  const project = requireActiveProject();
+  const scope = eq(audits.projectId, project.id);
   const row = id
-    ? orm.select().from(audits).where(eq(audits.id, id)).get()
-    : orm.select().from(audits).orderBy(desc(audits.createdAt)).limit(1).get();
+    ? orm.select().from(audits).where(and(scope, eq(audits.id, id))).get()
+    : orm.select().from(audits).where(scope).orderBy(desc(audits.createdAt), desc(audits.id)).limit(1).get();
   if (!row) throw new AppError("내보낼 진단 결과가 없습니다.", 404, "REPORT_NOT_FOUND");
   const items = parseJson<AuditItemResult[]>(row.items, []);
   const categoryMap = new Map<string, { passed: number; total: number }>();
@@ -58,9 +61,11 @@ function shareDiagnostics(runId: number) {
 
 export function buildShareReport(id?: number, resultLimit?: number) {
   const { orm } = getDatabase();
+  const project = requireActiveProject();
+  const scope = eq(measureRuns.projectId, project.id);
   const run = id
-    ? orm.select().from(measureRuns).where(eq(measureRuns.id, id)).get()
-    : orm.select().from(measureRuns).where(eq(measureRuns.status, "completed")).orderBy(desc(measureRuns.createdAt)).limit(1).get();
+    ? orm.select().from(measureRuns).where(and(scope, eq(measureRuns.id, id))).get()
+    : orm.select().from(measureRuns).where(and(scope, eq(measureRuns.status, "completed"))).orderBy(desc(measureRuns.createdAt), desc(measureRuns.id)).limit(1).get();
   if (!run) throw new AppError("내보낼 응답 점유율 결과가 없습니다.", 404, "REPORT_NOT_FOUND");
   if (run.status !== "completed") throw new AppError("완료된 응답 점유율 측정만 내보낼 수 있습니다.", 409, "REPORT_NOT_READY");
   const resultQuery = orm.select().from(measureResults).where(eq(measureResults.runId, run.id));
@@ -120,7 +125,7 @@ export function reportToCsv(report: ReturnType<typeof buildAuditReport> | Return
   return `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
 }
 
-export function reportFilename(kind: ReportKind, id: number, format: "json" | "csv" | "pdf") {
+export function reportFilename(kind: ReportKind, id: number, format: "json" | "csv" | "pdf" | "md") {
   const date = new Date().toISOString().slice(0, 10);
   return `geo-${kind}-${id}-${date}.${format}`;
 }
