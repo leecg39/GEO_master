@@ -39,9 +39,10 @@ describe("subscription navigation refresh", () => {
     const fetcher = vi.fn();
     vi.stubGlobal("fetch", fetcher);
     const container = await renderShell(true);
-    for (const href of ["/settings", "/subscription", "/workspace", "/semforge"]) {
+    for (const href of ["/settings", "/subscription", "/workspace", "/semforge", "/naeo"]) {
       expect(container.querySelector(`a[href="${href}"]`)).toBeNull();
     }
+    expect(container.textContent).not.toContain("유료 서비스");
     expect(container.querySelector('a[href="/audit"]')).not.toBeNull();
     expect(container.textContent).toContain("guest · 게스트");
     expect(fetcher).not.toHaveBeenCalled();
@@ -58,6 +59,35 @@ describe("subscription navigation refresh", () => {
     await act(async () => resolveInitial(Response.json({ subscription: { active: false } })));
     expect(container.querySelector('a[href="/subscription"]')).toBeNull();
     expect(container.querySelector('nav a[href="/semforge"]')?.getAttribute("target")).toBe("_blank");
+  });
+
+  it("shows Naeo in the paid services category for an inactive account", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ subscription: { active: false } })));
+    const container = await renderShell();
+    expect(container.textContent).toContain("유료 서비스");
+    const naeo = container.querySelector('nav a[href="/naeo"]');
+    expect(naeo?.textContent).toContain("Naeo");
+    expect(naeo?.hasAttribute("target")).toBe(false);
+    expect(container.querySelector('a[href="/subscription"]')).not.toBeNull();
+  });
+
+  it("keeps the Naeo hub link in the same tab for an active account", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ subscription: { active: true } })));
+    const container = await renderShell();
+    const naeo = container.querySelector('nav a[href="/naeo"]');
+    expect(naeo?.textContent).toContain("Naeo");
+    expect(naeo?.hasAttribute("target")).toBe(false);
+    expect(container.querySelector('nav a[href="/semforge"]')?.getAttribute("target")).toBe("_blank");
+  });
+
+  it("marks Naeo as the current page inside the paid services category", async () => {
+    route.pathname = "/naeo";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ subscription: { active: true } })));
+    const container = await renderShell();
+    const naeo = container.querySelector('nav a[href="/naeo"]');
+    expect(naeo?.getAttribute("aria-current")).toBe("page");
+    expect(container.querySelector('nav[aria-label="주요 메뉴"]')).not.toBeNull();
+    expect(container.querySelector('nav[aria-label="SEMForge 메뉴"]')).toBeNull();
   });
 
   it("shows the subscription link when the status endpoint fails", async () => {

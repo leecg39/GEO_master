@@ -4,13 +4,14 @@ import type { RequestAccount } from "@/lib/request-account";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Bot, ArrowLeft, ExternalLink, CreditCard, Gauge, LoaderCircle, Menu, Settings, Sparkles, Users, X } from "lucide-react";
+import { Bot, ArrowLeft, ExternalLink, CreditCard, FilePenLine, Gauge, LoaderCircle, Menu, Settings, Sparkles, Users, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { Modal } from "@/components/Modal";
 import { CORE_NAV_GROUPS, isActiveHref, NavGroup, useNavGroupState } from "@/components/NavGroups";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { isSemforgePath, SEMFORGE_HUB_PATH, SEMFORGE_SUBSCRIPTION_PATH, semforgeFeatures } from "@/lib/semforge/navigation";
+import { NAEO_HUB_PATH } from "@/lib/naeo/navigation";
 import { cn } from "@/lib/utils";
 
 
@@ -106,23 +107,38 @@ function Navigation({ close, semforgeActive, role }: { close?: () => void; semfo
         );
       })}
 
-      {!guest && (semforgeActive === null ? (
-        <div className="flex items-center gap-3 rounded-xl px-3 min-h-10 py-2 text-sm text-slate-500">
-          <LoaderCircle className="h-4.5 w-4.5 animate-spin" />
-          SEMForge 확인 중
+      {!guest && (
+        <div className="pt-3">
+          <p className="flex items-center gap-3 px-3 py-1 text-xs font-semibold uppercase tracking-[0.04em] text-[color:var(--color-on-dark-muted)]">
+            <CreditCard aria-hidden="true" className="h-4 w-4 shrink-0 text-[color:var(--color-accent-violet-mid)]" />
+            유료 서비스
+          </p>
+          <div className="mt-1 space-y-1.5">
+            {semforgeActive === null ? (
+              <div className="flex items-center gap-3 rounded-xl px-3 min-h-10 py-2 text-sm text-slate-500">
+                <LoaderCircle className="h-4.5 w-4.5 animate-spin" />
+                SEMForge 확인 중
+              </div>
+            ) : (
+              <NavLink
+                href={semforgeActive ? SEMFORGE_HUB_PATH : subscriptionNavigation.href}
+                label={subscriptionNavigation.label}
+                icon={subscriptionNavigation.icon}
+                active={!semforgeActive && pathname === subscriptionNavigation.href}
+                newTab={semforgeActive}
+                close={close}
+              />
+            )}
+            <NavLink
+              href={NAEO_HUB_PATH}
+              label="Naeo"
+              icon={FilePenLine}
+              active={isActiveHref(NAEO_HUB_PATH, pathname)}
+              close={close}
+            />
+          </div>
         </div>
-      ) : (
-        <div className="pt-2">
-          <NavLink
-            href={semforgeActive ? SEMFORGE_HUB_PATH : subscriptionNavigation.href}
-            label={subscriptionNavigation.label}
-            icon={subscriptionNavigation.icon}
-            active={!semforgeActive && pathname === subscriptionNavigation.href}
-            newTab={semforgeActive}
-            close={close}
-          />
-        </div>
-      ))}
+      )}
 
       {!guest && role !== "customer" && <div className="pt-2">
         <NavLink

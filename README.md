@@ -18,6 +18,7 @@
 | 학습 센터 | 핵심 개념, 7가지 도구, 6원칙, 패러다임 시프트, 용어 대조, 사례, 프로젝트별 38항목 체크리스트와 확인형 초기화 |
 | 팀 공유 | 비밀을 제외한 schema v2 JSON 스냅샷, ID 재매핑 병합, 확인형 교체, 로컬 백업 이름 변경·복원·삭제 |
 | 설정 | 활성 프로젝트 프로필, 모델·가중치·반복 수 기본값 되돌리기, 암호화된 4사 API 키 관리 |
+| Naeo (유료) | 왼쪽 패널 "유료 서비스"에서 진입하는 별도 페이지(`/naeo`). SEMForge Pro 구독에 포함되며, 블로그 진단·키워드·AI 인용 확인·AI 글쓰기를 다루는 별도 실행 Naeo 앱으로 새 탭 연결 |
 
 ## 시작하기
 
@@ -47,6 +48,7 @@ npm start
 - `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `GROK_API_KEY`: 설정 화면의 암호화 키 대신 사용할 선택적 환경 키입니다. Grok은 표준 `XAI_API_KEY`도 fallback으로 인식합니다.
 - `GUDOKPIN_API_KEY`: `csk_`로 시작하는 구독핀 키입니다. 설정하면 OpenAI·Anthropic 직접 키보다 우선하며 `gpt-5.6-luna`·`claude-sonnet-5`를 기본 사용합니다.
 - 구독핀 Base URL은 OpenAI/Responses용 `https://api.gudokpin.com/v1`, Anthropic/Messages용 `https://api.gudokpin.com`으로 검증하며 잘못된 `/v1` 조합은 실행 전에 차단합니다.
+- `NAEO_SERVICE_URL`: 별도로 실행 중인 Naeo 앱 주소(예: `http://127.0.0.1:3100`). `/naeo` 허브의 "Naeo 실행하기"가 이 주소로 새 탭을 엽니다. 비워 두면 실행 버튼이 비활성화되고 설정 안내가 표시됩니다. Naeo의 로그인·데이터는 GEO Master와 공유되지 않습니다.
 
 `.env*`, SQLite DB/WAL, 자동 마스터 키는 Git에서 제외됩니다.
 
