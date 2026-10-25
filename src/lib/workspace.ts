@@ -6,10 +6,11 @@ import {
   projects, questionSets, questions, reportPresets, settings as settingsTable, strategyItems,
 } from "./db/schema";
 import { AppError } from "./errors";
+import { haloSnapshotFields, haloStatsFields, haloStats, exportHaloSnapshot, importHaloSnapshot } from "./halo-workspace";
 import { getPublicSettings } from "./settings";
 
-export const WORKSPACE_SCHEMA_VERSION = 2 as const;
-export const WORKSPACE_SCHEMA_VERSIONS = [1, 2] as const;
+export const WORKSPACE_SCHEMA_VERSION = 3 as const;
+export const WORKSPACE_SCHEMA_VERSIONS = [1, 2, 3] as const;
 export const MAX_WORKSPACE_BYTES = 25 * 1024 * 1024;
 const id = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
 const optionalId = id.nullable();
@@ -36,6 +37,7 @@ const providerWeightsSchema = z.object({
 }).strict();
 
 const snapshotDataSchema = z.object({
+  ...haloSnapshotFields,
   settings: z.object({
     brandName: z.string().max(120), category: z.string().max(120),
     competitors: z.array(z.string().min(1).max(120)).max(20), models: providerModelsSchema,
@@ -146,6 +148,7 @@ const snapshotDataSchema = z.object({
 }).strict();
 
 const statsSchema = z.object({
+  ...haloStatsFields,
   projects: z.number().int().nonnegative(), questionSets: z.number().int().nonnegative(),
   questions: z.number().int().nonnegative(), measureRuns: z.number().int().nonnegative(),
   measureResults: z.number().int().nonnegative(), audits: z.number().int().nonnegative(),
@@ -162,7 +165,7 @@ const statsSchema = z.object({
 }).strict();
 
 export const workspaceSnapshotSchema = z.object({
-  kind: z.literal("geo-master-workspace"), schemaVersion: z.union([z.literal(1), z.literal(2)]),
+  kind: z.literal("geo-master-workspace"), schemaVersion: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   exportedAt: z.string().datetime(), workspaceName: z.string().max(200), stats: statsSchema,
   data: snapshotDataSchema,
 }).strict().superRefine((snapshot, context) => {
@@ -174,7 +177,7 @@ export const workspaceSnapshotSchema = z.object({
       context.addIssue({ code: "custom", path: ["stats", key], message: `${key} 개수와 실제 데이터가 일치하지 않습니다.` });
     }
   }
-  const idGroups = ["projects", "questionSets", "questions", "measureRuns", "measureResults", "audits", "auditItems", "contents", "checklistStates", "strategyItems", "contentRevisions", "llmsDocuments", "reportPresets", "measureCitations", "facts", "measureClaims", "optimizationRuns"] as const;
+  const idGroups = ["knowledgeDocuments", "writingProfiles", "opportunities", "opportunityDecisions", "projects", "questionSets", "questions", "measureRuns", "measureResults", "audits", "auditItems", "contents", "checklistStates", "strategyItems", "contentRevisions", "llmsDocuments", "reportPresets", "measureCitations", "facts", "measureClaims", "optimizationRuns"] as const;
   for (const key of idGroups) {
     const rows = snapshot.data[key] ?? [];
     const ids = rows.map((row) => row.id);
@@ -200,6 +203,7 @@ export type WorkspaceStats = z.infer<typeof statsSchema>;
 
 function statsFromData(data: z.infer<typeof snapshotDataSchema>): WorkspaceStats {
   return {
+    ...haloStats({ knowledgeDocuments: data.knowledgeDocuments, writingProfiles: data.writingProfiles, opportunities: data.opportunities, opportunityDecisions: data.opportunityDecisions, opportunityContents: data.opportunityContents }),
     projects: data.projects.length, questionSets: data.questionSets.length, questions: data.questions.length,
     measureRuns: data.measureRuns.length, measureResults: data.measureResults.length,
     audits: data.audits.length, auditItems: data.auditItems.length, contents: data.contents.length,
@@ -215,6 +219,7 @@ export function getWorkspaceStats(): WorkspaceStats {
   const { sqlite } = getDatabase();
   const count = (table: string) => (sqlite.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get() as { count: number }).count;
   return {
+    ...haloStats(),
     projects: count("projects"), questionSets: count("question_sets"), questions: count("questions"),
     measureRuns: count("measure_runs"), measureResults: count("measure_results"), measureCitations: count("measure_citations"),
     facts: count("facts"), measureClaims: count("measure_claims"),
@@ -229,6 +234,7 @@ export function buildWorkspaceSnapshot(): WorkspaceSnapshot {
   const { orm } = getDatabase();
   const publicSettings = getPublicSettings();
   const data = {
+    ...exportHaloSnapshot(),
     settings: {
       brandName: publicSettings.brandName, category: publicSettings.category,
       competitors: publicSettings.competitors, models: publicSettings.models,
@@ -326,6 +332,8 @@ export function importWorkspace(input: unknown) {
   const execute = sqlite.transaction(() => {
     if (parsed.mode === "replace") {
       sqlite.exec(`
+        DELETE FROM studio_requests; DELETE FROM opportunity_contents; DELETE FROM opportunity_decisions;
+        DELETE FROM opportunities; DELETE FROM knowledge_documents; DELETE FROM writing_profiles;
         DELETE FROM audit_items; DELETE FROM measure_claims; DELETE FROM measure_citations; DELETE FROM measure_results;
         DELETE FROM facts; DELETE FROM optimization_runs; DELETE FROM questions;
         DELETE FROM question_sets; DELETE FROM measure_runs; DELETE FROM audits;
@@ -357,13 +365,15 @@ export function importWorkspace(input: unknown) {
       }).returning({ id: questionSets.id }).get();
       questionSetMap.set(row.id, inserted.id);
     }
+    const questionMap = new Map<number, number>();
     for (const row of data.questions) {
-      orm.insert(questions).values({
+      const inserted = orm.insert(questions).values({
         ...(parsed.mode === "replace" ? { id: row.id } : {}), questionSetId: mapped(questionSetMap, row.questionSetId, "질문/질문 세트"),
         text: row.text, source: row.source, intent: row.intent, segment: row.segment,
         journeyStage: row.journeyStage, position: row.position ?? 0,
         createdAt: row.createdAt, updatedAt: row.updatedAt ?? row.createdAt,
-      }).run();
+      }).returning({ id: questions.id }).get();
+      questionMap.set(row.id, inserted.id);
     }
     const runMap = new Map<number, number>();
     for (const row of data.measureRuns) {
@@ -524,6 +534,7 @@ export function importWorkspace(input: unknown) {
         config: row.config, defaultFormat: row.defaultFormat, createdAt: row.createdAt, updatedAt: row.updatedAt,
       }).run();
     }
+    importHaloSnapshot(data, { projectMap, questionMap, runMap, resultMap, contentMap, strategyMap, factMap }, parsed.mode === "replace");
   });
   execute();
   return {

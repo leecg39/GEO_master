@@ -20,14 +20,14 @@ afterEach(async () => {
   vi.unstubAllGlobals();
 });
 
-async function shell(account: RequestAccount = { id: "local", role: "member" }) {
+async function shell(account: RequestAccount = { id: "local", role: "member" }, haloEnabled = true) {
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ subscription: { active: false } })));
   const container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
-  await act(async () => root?.render(<AppShell account={account}>QA</AppShell>));
+  await act(async () => root?.render(<AppShell account={account} haloEnabled={haloEnabled}>QA</AppShell>));
   return container.querySelector<HTMLElement>("aside nav")!;
 }
 
@@ -36,6 +36,12 @@ const groupButton = (nav: HTMLElement, label: string) =>
 const panelOf = (nav: HTMLElement, button: HTMLButtonElement) => nav.querySelector<HTMLElement>(`#${CSS.escape(button.getAttribute("aria-controls")!)}`)!;
 
 describe("grouped sidebar navigation", () => {
+  it("hides the new routes when the rollout flag is off", async () => {
+    const nav = await shell(undefined, false);
+    expect(nav.querySelector('a[href="/opportunities"]')).toBeNull();
+    expect(nav.querySelector('a[href="/library"]')).toBeNull();
+    expect(nav.querySelector('a[href="/studio"]')).not.toBeNull();
+  });
   it("keeps every core page reachable exactly once, with the dashboard outside any group", async () => {
     const nav = await shell();
     for (const href of CORE_NAV_GROUPS.flatMap((group) => group.items.map((item) => item.href))) {

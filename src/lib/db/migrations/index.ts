@@ -6,6 +6,7 @@ import { semforgeMigrations } from "./semforge";
 import { measurementMigrations } from "./measurement";
 import { workbenchMigrations } from "./workbench";
 import { reportMigrations } from "./reports";
+import { haloMigrations } from "./halo";
 
 export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
   ...coreMigrations,
@@ -13,6 +14,7 @@ export const DATABASE_MIGRATIONS: readonly DatabaseMigration[] = [
   ...measurementMigrations,
   ...workbenchMigrations,
   ...reportMigrations,
+  ...haloMigrations,
 ];
 
 export const LATEST_SCHEMA_VERSION = DATABASE_MIGRATIONS.at(-1)?.version ?? 0;

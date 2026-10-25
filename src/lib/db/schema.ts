@@ -1,4 +1,4 @@
-import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, real, sqliteTable, text, primaryKey, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const projects = sqliteTable("projects", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -530,4 +530,45 @@ export const workspaceBackups = sqliteTable("workspace_backups", {
   bytes: integer("bytes").notNull(),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
+});
+
+
+// haloX-inspired capabilities use the existing relational database and project boundary.
+export const knowledgeDocuments = sqliteTable("knowledge_documents", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  data: text("data").notNull(), createdAt: text("created_at").notNull(), updatedAt: text("updated_at").notNull(),
+});
+export const writingProfiles = sqliteTable("writing_profiles", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  data: text("data").notNull(), createdAt: text("created_at").notNull(), updatedAt: text("updated_at").notNull(),
+});
+export const opportunities = sqliteTable("opportunities", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  question: text("question").notNull(), questionKey: text("question_key").notNull(), kind: text("kind").notNull(),
+  status: text("status").notNull().default("pending"), notes: text("notes").notNull().default(""), evidence: text("evidence").notNull(),
+  questionId: integer("question_id").references(() => questions.id, { onDelete: "set null" }),
+  strategyId: integer("strategy_id").references(() => strategyItems.id, { onDelete: "set null" }),
+  baselineRunId: integer("baseline_run_id").references(() => measureRuns.id, { onDelete: "set null" }),
+  followupRunId: integer("followup_run_id").references(() => measureRuns.id, { onDelete: "set null" }),
+  followupEvidence: text("followup_evidence").notNull().default("null"),
+  appliedUrl: text("applied_url").notNull().default(""), appliedAt: text("applied_at").notNull().default(""),
+  createdAt: text("created_at").notNull(), updatedAt: text("updated_at").notNull(),
+}, table => [uniqueIndex("opportunities_project_question_kind").on(table.projectId, table.questionKey, table.kind)]);
+export const opportunityDecisions = sqliteTable("opportunity_decisions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  opportunityId: integer("opportunity_id").notNull().references(() => opportunities.id, { onDelete: "cascade" }),
+  action: text("action").notNull(), notes: text("notes").notNull().default(""), createdAt: text("created_at").notNull(),
+});
+export const opportunityContents = sqliteTable("opportunity_contents", {
+  opportunityId: integer("opportunity_id").notNull().references(() => opportunities.id, { onDelete: "cascade" }),
+  contentId: integer("content_id").notNull().references(() => contents.id, { onDelete: "cascade" }),
+}, table => [primaryKey({ columns: [table.opportunityId, table.contentId] })]);
+export const studioRequests = sqliteTable("studio_requests", {
+  requestId: text("request_id").primaryKey(),
+  executionToken: text("execution_token").notNull().default(""),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  requestHash: text("request_hash").notNull(), status: text("status").notNull(), createdAt: text("created_at").notNull(),
 });

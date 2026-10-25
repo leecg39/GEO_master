@@ -21,6 +21,7 @@ interface Project {
 }
 
 interface Dependencies {
+  opportunities: number; knowledgeDocuments: number; writingProfiles: number;
   questionSets: number;
   measurementRuns: number;
   measurementSchedules: number;
@@ -75,6 +76,7 @@ const dependencyLabels: Record<keyof Dependencies, string> = {
   facts: "사실 메모",
   optimizationRuns: "최적화 실행",
   reportShares: "공개 리포트 링크",
+  opportunities: "기회 후보", knowledgeDocuments: "지식 자료", writingProfiles: "작성 페르소나",
 };
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {

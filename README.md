@@ -14,9 +14,11 @@
 | 예약 측정 | SQLite 영속 일정·작업 큐, 원자 claim, 취소·재시도, 월·건별 비용 한도와 호출 시도 기반 정산 |
 | 리포트 | 진단·점유율 근거 미리보기, 저장 프리셋 CRUD·복제, JSON/UTF-8 CSV, 전용 서버 PDF 1.7 다운로드와 보조 브라우저 인쇄 |
 | 콘텐츠 스튜디오 | 4개 LLM의 리라이팅 5패턴, 도입부 3단 공식, FAQ+FAQPage, 엔티티 정의+Organization JSON-LD |
+| 기회 발굴 (선택 활성화) | 저장된 정상 측정의 경쟁사 언급·자사 인용 기회, 측정 필요 질문, 채택·전략 연결, 수동 반영·전후 비교 |
+| 지식 자료·문체 (선택 활성화) | 브랜드 자료·작성 페르소나 CRUD, 스튜디오 문맥 선택과 생성 당시 내용·버전 보존 |
 | 전략 | 질문 매핑, Pillar–Cluster–Supporting 보드, 콘텐츠 캘린더, 4주 모니터링 사이클 CRUD |
 | 학습 센터 | 핵심 개념, 7가지 도구, 6원칙, 패러다임 시프트, 용어 대조, 사례, 프로젝트별 38항목 체크리스트와 확인형 초기화 |
-| 팀 공유 | 비밀을 제외한 schema v2 JSON 스냅샷, ID 재매핑 병합, 확인형 교체, 로컬 백업 이름 변경·복원·삭제 |
+| 팀 공유 | 비밀을 제외한 schema v3 JSON 스냅샷, ID 재매핑 병합, 확인형 교체, 로컬 백업 이름 변경·복원·삭제 |
 | 설정 | 활성 프로젝트 프로필, 모델·가중치·반복 수 기본값 되돌리기, 암호화된 4사 API 키 관리 |
 | Naeo (유료) | 왼쪽 패널 "유료 서비스"에서 진입하는 별도 페이지(`/naeo`). SEMForge Pro 구독에 포함되며, 블로그 진단·키워드·AI 인용 확인·AI 글쓰기를 다루는 별도 실행 Naeo 앱으로 새 탭 연결 |
 
@@ -40,6 +42,7 @@ npm start
 ### 환경 변수
 
 - `GEO_MASTER_KEY`: API 키 암호화에 사용할 32바이트 이상의 임의 문자열. 비워 두면 `data/.master-key`를 권한 `0600`으로 자동 생성합니다.
+- `GEO_ENABLE_HALOX=1`: 기회 발굴(`/opportunities`)·라이브러리(`/library`)·스튜디오 작성 문맥을 활성화합니다. 기본값은 비활성입니다. [운영·검증 가이드](docs/halo-integration.md)를 참고하세요.
 - `GEO_DB_PATH`: SQLite 파일 경로. 기본값은 `data/geo.db`입니다.
 - `GEO_DISABLE_AUTOMATION_WORKER=1`: 유지보수·격리 검증 중 예약 worker 자동 기동을 막습니다. 수동 큐 처리 API는 별도입니다.
 - `GEO_AUTH_MODE`: `local`(기본, 로그인 없음) · `app`(앱 자체 로그인·회원가입) · `proxy`(Traefik 운영 배포). `app`·`proxy`에서는 비로그인 첫 화면이 서비스 소개(`/welcome`)이며 `/signup`에서 **무료(GEO 측정)** 또는 **SEMForge Pro(유료, 결제 후 이용)** 계정으로 가입합니다.
@@ -81,11 +84,11 @@ npm start
 - Grok은 xAI 공식 `https://api.x.ai/v1` 고정 Base URL과 Responses API만 사용하며 Bearer 키·업스트림 오류 세부정보를 노출하지 않습니다.
 - 전용 PDF는 외부 문자열을 NFC 정규화·제어문자 제거 후 UTF-16BE hex text로만 기록해 PDF 연산자 주입을 차단합니다. A4 200페이지, 12MB, PDF당 측정 근거 1,000건 상한과 생략 고지를 적용하며 JSON/CSV 원본은 전량 유지합니다.
 - 한국어 PDF는 `HYSMyeongJo-Medium`·`UniKS-UTF16-H` Type0 CID font를 사용합니다. 비임베드 글꼴의 CJK viewer 의존성을 명시하고, 지원 범위 밖 보조평면 문자는 `?`로 결정적으로 치환합니다.
-- 워크스페이스 스냅샷은 API 키·암호문·마스터 키와 로컬 백업 페이로드를 구조적으로 제외하고 25MB 상한, strict Zod 검증, ID 재매핑과 트랜잭션 롤백을 적용합니다. 자동 실행 오작동을 막기 위해 일정·큐·비용 정책은 스냅샷에서 제외합니다. schema v2는 콘텐츠 revision, llms.txt 문서, 리포트 프리셋을 포함하며 v1 파일도 가져올 수 있습니다.
+- 워크스페이스 스냅샷은 API 키·암호문·마스터 키와 로컬 백업 페이로드를 구조적으로 제외하고 25MB 상한, strict Zod 검증, ID 재매핑과 트랜잭션 롤백을 적용합니다. 자동 실행 오작동을 막기 위해 일정·큐·비용 정책은 스냅샷에서 제외합니다. schema v3는 콘텐츠 revision·llms.txt·리포트 프리셋과 기회·자료·페르소나·관계·생성 문맥을 포함하며 v1·v2 파일도 가져올 수 있습니다. 스튜디오 실행 잠금은 복원하지 않습니다.
 
 ## 데이터 구조
 
-앱 최초 요청 때 SQLite 디렉터리와 18개 업무 테이블을 자동 생성합니다.
+앱 최초 요청 때 SQLite 디렉터리와 업무 테이블을 자동 생성하고 추가 마이그레이션을 적용합니다.
 
 - 설정/프로젝트: `settings`, `projects`
 - 질문: `question_sets`, `questions`
@@ -94,6 +97,8 @@ npm start
 - 진단: `audits`, `audit_items`
 - 콘텐츠/실행: `contents`, `content_revisions`, `checklist_states`, `strategy_items`
 - 저장 문서: `llms_documents`, `report_presets`, `workspace_backups`
+- 기회·라이브러리: `opportunities`, `opportunity_decisions`, `opportunity_contents`, `knowledge_documents`, `writing_profiles`
+- 스튜디오 중복 실행 방지: `studio_requests`
 
 Next.js HMR에서도 DB 연결과 자동화 worker는 `globalThis` 캐시를 사용해 프로세스 내 중복을 피합니다. DB의 원자 claim이 여러 서버 프로세스 간 최종 안전망이며, 이 앱의 지원 운영 범위는 로컬 단일 서버입니다. `better-sqlite3`는 서버 외부 패키지로 번들링합니다.
 

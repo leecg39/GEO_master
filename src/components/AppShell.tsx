@@ -70,7 +70,7 @@ function accountLabel(role: Role, semforgeActive: boolean | null) {
   return semforgeActive ? " · SEMForge Pro" : " · 무료 · GEO 측정";
 }
 
-function Navigation({ close, semforgeActive, role }: { close?: () => void; semforgeActive: boolean | null; role?: Role }) {
+function Navigation({ close, semforgeActive, role, haloEnabled = false }: { haloEnabled?: boolean; close?: () => void; semforgeActive: boolean | null; role?: Role }) {
   const pathname = usePathname();
   const guest = role === "guest";
   const hidden = hiddenCoreLinks(role);
@@ -93,7 +93,7 @@ function Navigation({ close, semforgeActive, role }: { close?: () => void; semfo
   return (
     <nav className="mt-8 space-y-1.5" aria-label="주요 메뉴">
       {CORE_NAV_GROUPS.map((group) => {
-        const items = group.items.filter((item) => !hidden.includes(item.href));
+        const items = group.items.filter((item) => !hidden.includes(item.href) && (haloEnabled || !["/opportunities", "/library"].includes(item.href)));
         if (items.length === 0) return null;
         const links = items.map(({ href, label, icon }) => (
           <NavLink key={href} href={href} label={label} icon={icon} active={isActiveHref(href, pathname)} close={close} />
@@ -172,7 +172,7 @@ function Brand({ close, semforge }: { close?: () => void; semforge: boolean }) {
   );
 }
 
-export function AppShell({ children, account }: { children: ReactNode; account?: RequestAccount }) {
+export function AppShell({ children, account, haloEnabled = false }: { haloEnabled?: boolean; children: ReactNode; account?: RequestAccount }) {
   const guest = account?.role === "guest";
   const pathname = usePathname();
   const semforge = !guest && isSemforgePath(pathname);
@@ -219,7 +219,7 @@ export function AppShell({ children, account }: { children: ReactNode; account?:
         <Brand semforge={semforge} />
         <ProjectSwitcher />
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <Navigation semforgeActive={semforgeActive} role={account?.role} />
+          <Navigation haloEnabled={haloEnabled} semforgeActive={semforgeActive} role={account?.role} />
         </div>
         <div className="mt-4 shrink-0 space-y-3">
           {semforge && <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2 py-2 text-xs text-[color:var(--color-on-dark-muted)] hover:text-white"><ArrowLeft className="h-4 w-4" />GEO Master로 돌아가기</Link>}
@@ -247,7 +247,7 @@ export function AppShell({ children, account }: { children: ReactNode; account?:
           <div className="flex items-center justify-between"><Brand semforge={semforge} close={() => setOpen(false)} /><button ref={menuCloseRef} type="button" onClick={() => setOpen(false)} aria-label="메뉴 닫기" className="p-2 text-[color:var(--color-on-dark-muted)]"><X /></button></div>
           <ProjectSwitcher />
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <Navigation close={() => setOpen(false)} semforgeActive={semforgeActive} role={account?.role} />
+            <Navigation haloEnabled={haloEnabled} close={() => setOpen(false)} semforgeActive={semforgeActive} role={account?.role} />
           </div>
           <div className="mt-4 shrink-0">
             {semforge && <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2 py-2 text-xs text-[color:var(--color-on-dark-muted)] hover:text-white"><ArrowLeft className="h-4 w-4" />GEO Master로 돌아가기</Link>}

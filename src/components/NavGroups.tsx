@@ -15,6 +15,7 @@ export interface NavGroupConfig { id: string; label: string | null; icon: typeof
 export const CORE_NAV_GROUPS: readonly NavGroupConfig[] = [
   { id: "home", label: null, icon: Gauge, items: [{ href: "/", label: "대시보드", icon: Gauge }] },
   { id: "measure", label: "AI 노출 측정", icon: Target, items: [
+    { href: "/opportunities", label: "기회 발굴", icon: Target },
     { href: "/monitoring", label: "AI 언급 모니터링", icon: Target },
     { href: "/share", label: "응답 점유율", icon: BarChart3 },
     { href: "/automation", label: "예약 측정", icon: CalendarClock },
@@ -27,6 +28,7 @@ export const CORE_NAV_GROUPS: readonly NavGroupConfig[] = [
   ] },
   { id: "improve", label: "콘텐츠 개선", icon: Wrench, items: [
     { href: "/changes", label: "수정안 작업대", icon: GitCompare },
+    { href: "/library", label: "지식 자료·페르소나", icon: BookOpen },
     { href: "/studio", label: "콘텐츠 스튜디오", icon: FilePenLine },
     { href: "/optimizer", label: "최적화 랩", icon: FlaskConical },
     { href: "/facts", label: "사실 메모", icon: ClipboardCheck },

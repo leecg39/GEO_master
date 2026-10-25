@@ -79,19 +79,19 @@ function pretty(value: unknown) {
   try { return JSON.stringify(value, null, 2); } catch { return "null"; }
 }
 
-export function StudioHistoryPanel({ tool, onSelect }: { tool: StudioTool; onSelect: (content: StudioContentResource | null) => void }) {
+export function StudioHistoryPanel({ tool, onSelect, initialContent }: { initialContent?: StudioContentResource; tool: StudioTool; onSelect: (content: StudioContentResource | null) => void }) {
   const [items, setItems] = useState<StudioContentSummary[]>([]);
   const [page, setPage] = useState<CursorPage<StudioContentSummary>["page"]>({ nextCursor: null, hasMore: false });
   const [query, setQuery] = useState("");
   const [appliedQuery, setAppliedQuery] = useState("");
   const [cursor, setCursor] = useState<string | null>(null);
   const [backStack, setBackStack] = useState<Array<string | null>>([]);
-  const [detail, setDetail] = useState<StudioContentResource | null>(null);
+  const [detail, setDetail] = useState<StudioContentResource | null>(initialContent ?? null);
   const [revisions, setRevisions] = useState<ContentRevision[]>([]);
   const [revisionPage, setRevisionPage] = useState<CursorPage<ContentRevision>["page"]>({ nextCursor: null, hasMore: false });
   const [revisionCursor, setRevisionCursor] = useState<string | null>(null);
   const [revisionBackStack, setRevisionBackStack] = useState<Array<string | null>>([]);
-  const [revisionOutput, setRevisionOutput] = useState("");
+  const [revisionOutput, setRevisionOutput] = useState(initialContent ? pretty(initialContent.output) : "");
   const [editing, setEditing] = useState<StudioContentSummary | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editNotes, setEditNotes] = useState("");

@@ -40,6 +40,20 @@ function differences(a: MonitoringCondition | null, b: MonitoringCondition | nul
   if (a.known && b.known && a.signature !== b.signature && !result.length) result.push("질문별 모델·검색·반복 조합이 다릅니다.");
   return result;
 }
+
+/** Explicit run comparison for opportunity follow-ups; never substitutes a newer run. */
+export function compareMonitoringRuns(sqlite: Database.Database, projectId: number, baselineId: number, currentId: number) {
+  const read = (id: number) => {
+    const run = sqlite.prepare("SELECT id, summary, COALESCE(completed_at, created_at) AS at FROM measure_runs WHERE id = ? AND project_id = ? AND status = 'completed'").get(id, projectId) as RunRow | undefined;
+    if (!run) return null;
+    const rows = sqlite.prepare(`SELECT run_id AS runId, question_text AS question, provider, model, returned_model AS returnedModel,
+      repetition, search_mode AS searchMode, metric_version AS metricVersion FROM measure_results WHERE run_id = ? AND provider IN (${monitoringProviderSql}) ORDER BY id`).all(id, ...monitoringProviderIds) as ConditionRow[];
+    return conditions(run, rows);
+  };
+  const baseline = read(baselineId), current = read(currentId);
+  const changes = baseline && current ? differences(baseline, current) : ["기준 또는 후속 실행 원본이 삭제되었습니다."];
+  return { comparable: !!baseline?.known && !!current?.known && baseline.signature === current.signature, differences: changes };
+}
 /** Condition filtering is shared by aggregate, CSV and response evidence queries. */
 export function monitoringRuns(sqlite: Database.Database, projectId: number, range: MonitoringData["range"], mode: "all" | "same") {
   const params = [projectId, `${range.start}T00:00:00+09:00`, `${range.end}T00:00:00+09:00`];
