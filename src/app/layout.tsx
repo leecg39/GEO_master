@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Rubik, Space_Grotesk } from "next/font/google";
 import { Agentation } from "agentation";
+import { haloEnabled } from "@/lib/halo-feature";
 import { AppShell } from "@/components/AppShell";
 import { ThemeInitScript } from "@/components/ThemeInitScript";
 import { DEFAULT_THEME } from "@/lib/theme";
@@ -59,7 +60,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <ThemeInitScript />
       </head>
       <body>
-        <AppShell account={account}>{children}</AppShell>
+        <AppShell account={account} haloEnabled={haloEnabled()}>{children}</AppShell>
         {process.env.NODE_ENV === "development" && <Agentation />}
       </body>
     </html>

@@ -6,7 +6,7 @@ import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui";
 import type { MonitoringData, MonitoringQuestion } from "@/lib/monitoring-types";
 
-export const fieldClass = "w-full min-w-0 rounded-lg border border-[color:var(--app-input-border)] bg-[color:var(--app-input-bg)] px-3 py-2.5 text-sm text-[color:var(--app-input-text)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring-focus)]";
+export const fieldClass = "w-full min-w-0 rounded-lg border border-[color:var(--app-input-border)] bg-[color:var(--app-input-bg)] px-3 py-3 text-sm text-[color:var(--app-input-text)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring-focus)]";
 
 async function write<T>(url: string, method: string, body: unknown, signal: AbortSignal): Promise<T> {
   const response = await fetch(url, { method, headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal });

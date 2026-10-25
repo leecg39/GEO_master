@@ -331,13 +331,13 @@ export function QuestionPoolManager({ onUseQuestions }: { onUseQuestions: (quest
 
       <CrudListToolbar query={query} onQueryChange={setQuery} placeholder="질문 세트 검색" />
       <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
-        {visibleSets.map((set) => <button key={set.id} type="button" onClick={() => setSelectedId(set.id)} className={`shrink-0 rounded-xl border px-3 py-2 text-left text-xs transition ${set.id === selectedId ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200" : "border-white/8 bg-slate-950/30 text-slate-500 hover:text-slate-300"}`}><span className="block max-w-48 truncate font-semibold">{set.name}</span><span className="mt-0.5 block text-[10px] opacity-70">{set.questionCount}개 질문</span></button>)}
+        {visibleSets.map((set) => <button key={set.id} type="button" onClick={() => setSelectedId(set.id)} className={`shrink-0 rounded-xl border px-3 py-2 text-left text-xs transition ${set.id === selectedId ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200" : "border-white/8 bg-slate-950/30 text-slate-500 hover:text-slate-300"}`}><span className="block max-w-48 truncate font-semibold">{set.name}</span><span className="mt-0.5 block text-xs opacity-70">{set.questionCount}개 질문</span></button>)}
         {!loading && !visibleSets.length && <span className="py-3 text-xs text-slate-600">검색 결과가 없습니다.</span>}
       </div>
 
       {error && <p role="alert" className="mt-3 rounded-xl border border-rose-400/20 bg-rose-400/8 px-3 py-2 text-sm text-rose-300">{error}</p>}
 
-      {selectedSet ? <div className="mt-4 border-t border-white/7 pt-4">
+      {selectedSet ? <div className="mt-4 border-t border-white/8 pt-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           {renaming ? <form className="flex min-w-0 flex-1 flex-wrap gap-2" onSubmit={renameSet}><input aria-label="질문 세트 이름 변경" className="min-w-0 flex-1 basis-full sm:basis-0" autoFocus maxLength={120} value={renameValue} onChange={(event) => setRenameValue(event.target.value)} /><Button disabled={busy || !renameValue.trim()}>이름 저장</Button><Button type="button" variant="secondary" onClick={() => setRenaming(false)}>취소</Button></form> : <div><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold text-white">{selectedSet.name}</h3><Badge>{questions.length}개</Badge></div><p className="mt-1 text-xs text-slate-600">위·아래 버튼으로 실행 순서를 정렬할 수 있습니다.</p></div>}
           {!renaming && <div className="flex flex-wrap gap-2"><Button type="button" variant="secondary" disabled={!questions.length} onClick={() => onUseQuestions(questions.map((question) => question.text).join("\n"))}><Upload className="h-4 w-4" />측정 입력에 사용</Button><Button type="button" variant="secondary" onClick={() => { setRenameValue(selectedSet.name); setRenaming(true); }}><Pencil className="h-4 w-4" />이름 변경</Button><Button type="button" variant="danger" onClick={() => setDeleteSetTarget(selectedSet)}><Trash2 className="h-4 w-4" />세트 삭제</Button><Button type="button" onClick={() => setDraft(newQuestion(selectedSet.id))}><Plus className="h-4 w-4" />질문 추가</Button></div>}
@@ -345,9 +345,9 @@ export function QuestionPoolManager({ onUseQuestions }: { onUseQuestions: (quest
 
         <div className="mt-4 space-y-2">
           {questionLoading && <div className="grid min-h-24 place-items-center"><LoaderCircle className="h-5 w-5 animate-spin text-cyan-400" /></div>}
-          {!questionLoading && questions.map((question, index) => <article key={question.id} className="rounded-xl border border-white/7 bg-slate-950/35 p-3">
+          {!questionLoading && questions.map((question, index) => <article key={question.id} className="rounded-xl border border-white/8 bg-slate-950/35 p-3">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-slate-800 text-[10px] font-bold text-slate-500">{index + 1}</span>
+              <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-slate-800 text-xs font-bold text-slate-500">{index + 1}</span>
               <div className="min-w-0 flex-1"><p className="text-sm leading-6 text-slate-200">{question.text}</p><div className="mt-2 flex flex-wrap gap-1.5"><Badge>{question.source}</Badge><Badge tone="cyan">{question.intent}</Badge><Badge>{question.segment}</Badge><Badge>{question.journeyStage}</Badge></div></div>
               <div className="flex shrink-0 gap-1"><button type="button" disabled={busy || index === 0} onClick={() => void moveQuestion(index, -1)} className="rounded-lg p-1.5 text-slate-500 hover:bg-white/5 hover:text-white disabled:opacity-25" aria-label={`${index + 1}번 질문 위로`}><ArrowUp className="h-4 w-4" /></button><button type="button" disabled={busy || index === questions.length - 1} onClick={() => void moveQuestion(index, 1)} className="rounded-lg p-1.5 text-slate-500 hover:bg-white/5 hover:text-white disabled:opacity-25" aria-label={`${index + 1}번 질문 아래로`}><ArrowDown className="h-4 w-4" /></button><button type="button" disabled={busy} onClick={() => setDraft(editQuestion(question))} className="rounded-lg p-1.5 text-slate-500 hover:bg-white/5 hover:text-cyan-300" aria-label={`${index + 1}번 질문 수정`}><Pencil className="h-4 w-4" /></button><button type="button" disabled={busy} onClick={() => setDeleteQuestionTarget(question)} className="rounded-lg p-1.5 text-slate-600 hover:bg-rose-400/10 hover:text-rose-300" aria-label={`${index + 1}번 질문 삭제`}><Trash2 className="h-4 w-4" /></button></div>
             </div>

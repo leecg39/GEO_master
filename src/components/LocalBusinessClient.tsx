@@ -244,7 +244,7 @@ export function LocalBusinessClient() {
             ) : (
               <ul className="space-y-2">
                 {overview.connections.map((connection) => (
-                  <li key={connection.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/7 bg-slate-950/35 px-4 py-3">
+                  <li key={connection.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-slate-950/35 px-4 py-3">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <strong className="text-white">{connection.locationName}</strong>
@@ -280,7 +280,7 @@ export function LocalBusinessClient() {
                       <button
                         type="button"
                         onClick={() => void loadKeywords(campaign)}
-                        className={`w-full rounded-xl border px-4 py-3 text-left ${selectedCampaign?.id === campaign.id ? "border-violet-400/30 bg-violet-400/10" : "border-white/7 bg-slate-950/35"}`}
+                        className={`w-full rounded-xl border px-4 py-3 text-left ${selectedCampaign?.id === campaign.id ? "border-violet-400/30 bg-violet-400/10" : "border-white/8 bg-slate-950/35"}`}
                       >
                         <div className="flex items-center justify-between gap-2">
                           <strong className="text-white">{campaign.name}</strong>

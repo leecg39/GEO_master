@@ -4,34 +4,16 @@ import type { RequestAccount } from "@/lib/request-account";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarChart3, BookOpen, Bot, CalendarClock, ArrowLeft, ExternalLink, ClipboardCheck, GitCompare, Braces, FileSpreadsheet, FlaskConical, ListChecks, CreditCard, FileCode2, FileDown, FilePenLine, Gauge, Images, LoaderCircle, Menu, PackageOpen, SearchCheck, Settings, Sparkles, Target, Users, X } from "lucide-react";
+import { Bot, ArrowLeft, ExternalLink, CreditCard, FilePenLine, Gauge, LoaderCircle, Menu, Settings, Sparkles, Users, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { Modal } from "@/components/Modal";
+import { CORE_NAV_GROUPS, isActiveHref, NavGroup, useNavGroupState } from "@/components/NavGroups";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { isSemforgePath, SEMFORGE_HUB_PATH, SEMFORGE_SUBSCRIPTION_PATH, semforgeFeatures } from "@/lib/semforge/navigation";
+import { NAEO_HUB_PATH } from "@/lib/naeo/navigation";
 import { cn } from "@/lib/utils";
 
-const coreNavigation = [
-  { href: "/", label: "대시보드", icon: Gauge },
-  { href: "/monitoring", label: "AI 언급 모니터링", icon: Target },
-  { href: "/audit", label: "GEO 진단", icon: SearchCheck },
-  { href: "/multimodal", label: "멀티모달 감사", icon: Images },
-  { href: "/llms", label: "llms.txt", icon: FileCode2 },
-  { href: "/share", label: "응답 점유율", icon: BarChart3 },
-  { href: "/automation", label: "예약 측정", icon: CalendarClock },
-  { href: "/reports", label: "리포트", icon: FileDown },
-  { href: "/review", label: "검수함", icon: ListChecks },
-  { href: "/facts", label: "사실 메모", icon: ClipboardCheck },
-  { href: "/changes", label: "수정안 작업대", icon: GitCompare },
-  { href: "/structured-data", label: "구조화 데이터", icon: Braces },
-  { href: "/search-console", label: "검색 성과 가져오기", icon: FileSpreadsheet },
-  { href: "/studio", label: "콘텐츠 스튜디오", icon: FilePenLine },
-  { href: "/optimizer", label: "최적화 랩", icon: FlaskConical },
-  { href: "/strategy", label: "전략 워크스페이스", icon: Target },
-  { href: "/learn", label: "학습 센터", icon: BookOpen },
-  { href: "/workspace", label: "팀 공유", icon: PackageOpen },
-];
 
 const subscriptionNavigation = { href: "/subscription", label: "SEMForge Pro", icon: CreditCard };
 
@@ -59,7 +41,7 @@ function NavLink({
       aria-current={active ? "page" : undefined}
       onClick={close}
       className={cn(
-        "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+        "group flex items-center gap-3 rounded-xl px-3 min-h-10 py-2 text-sm font-medium transition",
         active
           ? "bg-[color:var(--color-accent-lime)]/12 text-[color:var(--color-accent-lime)]"
           : "text-[color:var(--color-on-dark-muted)] hover:bg-white/5 hover:text-white",
@@ -88,10 +70,11 @@ function accountLabel(role: Role, semforgeActive: boolean | null) {
   return semforgeActive ? " · SEMForge Pro" : " · 무료 · GEO 측정";
 }
 
-function Navigation({ close, semforgeActive, role }: { close?: () => void; semforgeActive: boolean | null; role?: Role }) {
+function Navigation({ close, semforgeActive, role, haloEnabled = false }: { haloEnabled?: boolean; close?: () => void; semforgeActive: boolean | null; role?: Role }) {
   const pathname = usePathname();
   const guest = role === "guest";
   const hidden = hiddenCoreLinks(role);
+  const groups = useNavGroupState(pathname);
 
   if (!guest && isSemforgePath(pathname)) {
     return (
@@ -109,28 +92,53 @@ function Navigation({ close, semforgeActive, role }: { close?: () => void; semfo
 
   return (
     <nav className="mt-8 space-y-1.5" aria-label="주요 메뉴">
-      {coreNavigation.filter((item) => !hidden.includes(item.href)).map(({ href, label, icon }) => {
-        const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
-        return <NavLink key={href} href={href} label={label} icon={icon} active={active} close={close} />;
+      {CORE_NAV_GROUPS.map((group) => {
+        const items = group.items.filter((item) => !hidden.includes(item.href) && (haloEnabled || !["/opportunities", "/library"].includes(item.href)));
+        if (items.length === 0) return null;
+        const links = items.map(({ href, label, icon }) => (
+          <NavLink key={href} href={href} label={label} icon={icon} active={isActiveHref(href, pathname)} close={close} />
+        ));
+        if (!group.label) return links;
+        return (
+          <NavGroup key={group.id} id={group.id} label={group.label} icon={group.icon} expanded={groups.isExpanded(group.id)}
+            containsActive={groups.active === group.id} onToggle={() => groups.toggle(group.id)}>
+            {links}
+          </NavGroup>
+        );
       })}
 
-      {!guest && (semforgeActive === null ? (
-        <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-500">
-          <LoaderCircle className="h-4.5 w-4.5 animate-spin" />
-          SEMForge 확인 중
+      {!guest && (
+        <div className="pt-3">
+          <p className="flex items-center gap-3 px-3 py-1 text-xs font-semibold uppercase tracking-[0.04em] text-[color:var(--color-on-dark-muted)]">
+            <CreditCard aria-hidden="true" className="h-4 w-4 shrink-0 text-[color:var(--color-accent-violet-mid)]" />
+            유료 서비스
+          </p>
+          <div className="mt-1 space-y-1.5">
+            {semforgeActive === null ? (
+              <div className="flex items-center gap-3 rounded-xl px-3 min-h-10 py-2 text-sm text-slate-500">
+                <LoaderCircle className="h-4.5 w-4.5 animate-spin" />
+                SEMForge 확인 중
+              </div>
+            ) : (
+              <NavLink
+                href={semforgeActive ? SEMFORGE_HUB_PATH : subscriptionNavigation.href}
+                label={subscriptionNavigation.label}
+                icon={subscriptionNavigation.icon}
+                active={!semforgeActive && pathname === subscriptionNavigation.href}
+                newTab={semforgeActive}
+                close={close}
+              />
+            )}
+            <NavLink
+              href={NAEO_HUB_PATH}
+              label="Naeo"
+              icon={FilePenLine}
+              active={isActiveHref(NAEO_HUB_PATH, pathname)}
+              close={close}
+            />
+          </div>
         </div>
-      ) : (
-        <div className="pt-2">
-          <NavLink
-            href={semforgeActive ? SEMFORGE_HUB_PATH : subscriptionNavigation.href}
-            label={subscriptionNavigation.label}
-            icon={subscriptionNavigation.icon}
-            active={!semforgeActive && pathname === subscriptionNavigation.href}
-            newTab={semforgeActive}
-            close={close}
-          />
-        </div>
-      ))}
+      )}
 
       {!guest && role !== "customer" && <div className="pt-2">
         <NavLink
@@ -158,13 +166,13 @@ function Brand({ close, semforge }: { close?: () => void; semforge: boolean }) {
       </span>
       <span>
         <strong className="font-display block text-base font-semibold tracking-tight text-white">{semforge ? "SEMForge Pro" : "GEO Master"}</strong>
-        <small className="text-[10px] font-semibold uppercase tracking-[0.25px] text-[color:var(--color-on-dark-muted)]">{semforge ? "SEO workspace" : "Answer workspace"}</small>
+        <small className="text-xs font-semibold uppercase tracking-[0.25px] text-[color:var(--color-on-dark-muted)]">{semforge ? "SEO workspace" : "Answer workspace"}</small>
       </span>
     </Link>
   );
 }
 
-export function AppShell({ children, account }: { children: ReactNode; account?: RequestAccount }) {
+export function AppShell({ children, account, haloEnabled = false }: { haloEnabled?: boolean; children: ReactNode; account?: RequestAccount }) {
   const guest = account?.role === "guest";
   const pathname = usePathname();
   const semforge = !guest && isSemforgePath(pathname);
@@ -211,13 +219,13 @@ export function AppShell({ children, account }: { children: ReactNode; account?:
         <Brand semforge={semforge} />
         <ProjectSwitcher />
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <Navigation semforgeActive={semforgeActive} role={account?.role} />
+          <Navigation haloEnabled={haloEnabled} semforgeActive={semforgeActive} role={account?.role} />
         </div>
         <div className="mt-4 shrink-0 space-y-3">
           {semforge && <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2 py-2 text-xs text-[color:var(--color-on-dark-muted)] hover:text-white"><ArrowLeft className="h-4 w-4" />GEO Master로 돌아가기</Link>}
           <ThemeToggle />
           {account && account.id !== "local" && <form action="/api/auth/logout" method="post" className="text-xs text-[color:var(--color-on-dark-muted)]"><span>{account.id}{accountLabel(account.role, semforgeActive)}</span><button type="submit" className="ml-3 underline">로그아웃</button></form>}
-          <div className="rounded-[12px] border border-[color:var(--color-hairline-violet)] bg-[color:var(--color-ink-deep)] p-3.5">
+          <div className="rounded-[12px] border border-[color:var(--color-hairline-violet)] bg-[color:var(--color-ink-deep)] p-4">
             <div className="flex items-center gap-2 text-xs font-semibold text-[color:var(--color-accent-lime)]">
               <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent-lime)]" />
               전용 저장소
@@ -239,7 +247,7 @@ export function AppShell({ children, account }: { children: ReactNode; account?:
           <div className="flex items-center justify-between"><Brand semforge={semforge} close={() => setOpen(false)} /><button ref={menuCloseRef} type="button" onClick={() => setOpen(false)} aria-label="메뉴 닫기" className="p-2 text-[color:var(--color-on-dark-muted)]"><X /></button></div>
           <ProjectSwitcher />
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <Navigation close={() => setOpen(false)} semforgeActive={semforgeActive} role={account?.role} />
+            <Navigation haloEnabled={haloEnabled} close={() => setOpen(false)} semforgeActive={semforgeActive} role={account?.role} />
           </div>
           <div className="mt-4 shrink-0">
             {semforge && <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2 py-2 text-xs text-[color:var(--color-on-dark-muted)] hover:text-white"><ArrowLeft className="h-4 w-4" />GEO Master로 돌아가기</Link>}

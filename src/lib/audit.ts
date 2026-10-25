@@ -12,6 +12,7 @@ import {
   resourceIdSchema,
   transactionalMutation,
 } from "./crud";
+import { auditGrade } from "./audit-grade";
 import { getDatabase } from "./db";
 import { AppError } from "./errors";
 import { generateText } from "./llm";
@@ -252,9 +253,7 @@ export function blockedAiBots(robotsText: string) {
   return analyzeRobotsTxt(robotsText).bots.filter((bot) => bot.access === "blocked").map((bot) => bot.token);
 }
 
-export function auditGrade(score: number) {
-  return score >= 25 ? "우수" : score < 20 ? "개선 필요" : "보통";
-}
+export { auditGrade } from "./audit-grade";
 
 export interface GeoEngineAnalysis {
   executiveSummary: string;

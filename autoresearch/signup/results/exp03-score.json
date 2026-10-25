@@ -1,0 +1,41 @@
+{
+  "passed": 16,
+  "total": 27,
+  "metric": 59.3,
+  "outerScore": 0,
+  "groups": {
+    "security": {
+      "passed": 3,
+      "total": 6
+    },
+    "a11y": {
+      "passed": 7,
+      "total": 7
+    },
+    "flow": {
+      "passed": 1,
+      "total": 5
+    },
+    "structured": {
+      "passed": 5,
+      "total": 5
+    },
+    "admin": {
+      "passed": 0,
+      "total": 4
+    }
+  },
+  "failed": [
+    "security silently drops honeypot sign-ups and renders the trap field for bots only",
+    "security hardens the access-denied page like the public pages",
+    "security sends a referrer policy with the login page",
+    "flow sends signed-in visitors from the sign-up page to their workspace",
+    "flow sends signed-in visitors from the login page to the requested page",
+    "flow carries the requested page from login into sign-up",
+    "flow returns auto-approved members to the page they asked for",
+    "admin lists members for administrators only",
+    "admin filters members by status",
+    "admin searches members by e-mail or name",
+    "admin rejects unknown filters"
+  ]
+}

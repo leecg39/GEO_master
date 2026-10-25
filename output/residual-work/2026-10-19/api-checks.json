@@ -1,0 +1,38 @@
+[
+  {
+    "format": "json",
+    "status": 200,
+    "cacheControl": "private, no-store",
+    "nosniff": "nosniff",
+    "bytes": 598
+  },
+  {
+    "format": "csv",
+    "status": 200,
+    "cacheControl": "private, no-store",
+    "nosniff": "nosniff",
+    "bytes": 128
+  },
+  {
+    "format": "pdf",
+    "status": 200,
+    "cacheControl": "private, no-store",
+    "nosniff": "nosniff",
+    "bytes": 4215
+  },
+  {
+    "format": "md",
+    "status": 200,
+    "cacheControl": "private, no-store",
+    "nosniff": "nosniff",
+    "bytes": 2509
+  },
+  {
+    "name": "foreign-project",
+    "status": 404,
+    "body": {
+      "error": "내보낼 진단 결과가 없습니다.",
+      "code": "REPORT_NOT_FOUND"
+    }
+  }
+]

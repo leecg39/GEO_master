@@ -112,7 +112,7 @@ function heroSection(links: LandingLinks): SafeHtml {
       <p class="cta-note">${links.note}</p>
       <div class="chips" aria-label="응답을 측정하는 AI 모델"><span>측정 모델</span><span class="chip">GPT</span><span class="chip">Claude</span><span class="chip">Gemini</span><span class="chip">Grok</span></div>
     </div>
-    <figure class="hero-art"><img src="/og/geo-master-20261007.jpg" width="1200" height="630" alt="GEO Master 워크스페이스 — AI 검색 속, 브랜드의 존재감을 높이다"></figure>
+    <figure class="hero-art"><img src="/og/geo-master-20261007.jpg" width="1200" height="630" fetchpriority="high" alt="GEO Master 워크스페이스 — AI 검색 속, 브랜드의 존재감을 높이다"></figure>
   </div>
 </section>`;
 }
@@ -182,7 +182,12 @@ function checkList(items: readonly string[]): SafeHtml {
 
 function pricingSection(links: LandingLinks, context: LandingContext): SafeHtml {
   const approval = context.auth === "login" && !context.signedIn && context.signupMode === "approval";
-  return html`<section class="section" id="pricing" aria-labelledby="pricing-title">
+  // 요금제는 schema.org SoftwareApplication·Offer microdata로도 표기한다. 화면에 보이는 가격과 같은 값만 쓴다.
+  return html`<section class="section" id="pricing" aria-labelledby="pricing-title" itemscope itemtype="https://schema.org/SoftwareApplication">
+  <meta itemprop="name" content="GEO Master">
+  <meta itemprop="applicationCategory" content="BusinessApplication">
+  <meta itemprop="operatingSystem" content="Web">
+  <meta itemprop="description" content="${DESCRIPTION}">
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow">PRICING</p>
@@ -190,14 +195,16 @@ function pricingSection(links: LandingLinks, context: LandingContext): SafeHtml 
       <p>가입할 때 계정 유형을 고릅니다. 무료 계정은 GEO 측정에, SEMForge Pro 계정은 결제 후 SEMForge 실행 기능까지 사용합니다.</p>
     </div>
     <div class="grid grid-2 plans">
-      <article class="plan" aria-labelledby="plan-free">
+      <article class="plan" aria-labelledby="plan-free" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+        <meta itemprop="name" content="무료 · GEO 측정"><meta itemprop="price" content="0"><meta itemprop="priceCurrency" content="KRW">
         <div class="plan-top"><h3 id="plan-free">무료 · GEO 측정</h3><span class="badge badge-muted">FREE</span></div>
         <p class="price">₩0</p>
         <p class="price-note">신용카드 없이 시작</p>
         ${checkList(FREE_PLAN)}
         <a class="btn btn-ghost" href="${links.free.href}">${links.free.label}</a>
       </article>
-      <article class="plan plan-featured" aria-labelledby="plan-pro">
+      <article class="plan plan-featured" aria-labelledby="plan-pro" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+        <meta itemprop="name" content="SEMForge Pro · 유료"><meta itemprop="price" content="${SEMFORGE_MONTHLY_PRICE_KRW}"><meta itemprop="priceCurrency" content="KRW">
         <div class="plan-top"><h3 id="plan-pro">SEMForge Pro · 유료</h3><span class="badge">PRO</span></div>
         <p class="price">₩${PRICE}<small>/ 월</small></p>
         <p class="price-note">VAT 별도 · 계정별 구독</p>
@@ -234,7 +241,7 @@ function faqSection(context: LandingContext): SafeHtml {
   return html`<section class="section section-alt" id="faq" aria-labelledby="faq-title">
   <div class="wrap">
     <div class="section-head"><p class="eyebrow">FAQ</p><h2 id="faq-title">자주 묻는 질문</h2></div>
-    <div class="faq">${items.map(([question, answer]) => html`<details><summary>${question}</summary><p>${answer}</p></details>`)}</div>
+    <div class="faq" itemscope itemtype="https://schema.org/FAQPage">${items.map(([question, answer]) => html`<details itemprop="mainEntity" itemscope itemtype="https://schema.org/Question"><summary itemprop="name">${question}</summary><div itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer"><p itemprop="text">${answer}</p></div></details>`)}</div>
   </div>
 </section>`;
 }

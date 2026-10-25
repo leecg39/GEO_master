@@ -5,9 +5,9 @@ export function PageHeader({ eyebrow, title, description, action }: { eyebrow: s
   return (
     <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="mb-2 text-[15px] font-medium uppercase tracking-[0.2px] text-[color:var(--app-text-subtle)]">{eyebrow}</p>
+        <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-[color:var(--app-text-subtle)]">{eyebrow}</p>
         <h1 className="font-display text-[30px] font-medium leading-[1.2] tracking-tight text-white sm:text-[36px]">{title}</h1>
-        <p className="mt-3 max-w-3xl text-base font-normal leading-[2] text-[color:var(--color-on-dark-muted)]">{description}</p>
+        <p className="mt-3 max-w-3xl text-base font-normal leading-relaxed text-[color:var(--color-on-dark-muted)]">{description}</p>
       </div>
       {action}
     </header>
@@ -37,7 +37,7 @@ export function Badge({ children, tone = "default", className }: { children: Rea
     cyan: "border-[color:var(--color-accent-violet)]/30 bg-[color:var(--color-accent-violet)]/15 text-[color:var(--app-status-violet)]",
   };
   return (
-    <span className={cn("inline-flex rounded-[4px] border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.25px]", tones[tone], className)}>
+    <span className={cn("inline-flex rounded-[4px] border px-2 py-1 text-xs font-semibold uppercase tracking-[0.25px]", tones[tone], className)}>
       {children}
     </span>
   );
@@ -46,9 +46,9 @@ export function Badge({ children, tone = "default", className }: { children: Rea
 export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "danger" }>(function Button({ className, variant = "primary", ...props }, ref) {
   const variants = {
     primary:
-      "bg-[color:var(--app-cta-bg)] text-[color:var(--app-cta-text)] shadow-[rgba(0,0,0,0.08)_0_2px_8px_0] hover:opacity-95 active:bg-[color:var(--app-cta-pressed-bg)] active:text-[color:var(--app-cta-pressed-text)] disabled:bg-[color:var(--color-hairline-cloud)] disabled:text-[color:var(--color-on-dark-muted)] disabled:shadow-none",
+      "bg-[color:var(--app-cta-bg)] text-[color:var(--app-cta-text)] shadow-[rgba(0,0,0,0.08)_0_2px_8px_0] hover:opacity-95 active:bg-[color:var(--app-cta-pressed-bg)] active:text-[color:var(--app-cta-pressed-text)] disabled:opacity-50 disabled:shadow-none",
     secondary:
-      "border border-[color:var(--color-hairline-violet)] bg-[color:var(--app-secondary-bg)] text-[color:var(--app-secondary-text)] hover:bg-[color:var(--app-secondary-hover)] disabled:text-[color:var(--color-on-dark-muted)]",
+      "border border-[color:var(--color-hairline-violet)] bg-[color:var(--app-secondary-bg)] text-[color:var(--app-secondary-text)] hover:bg-[color:var(--app-secondary-hover)] disabled:opacity-50",
     danger:
       "border border-[color:var(--color-accent-pink)]/25 bg-[color:var(--color-accent-pink)]/10 text-[color:var(--app-status-danger)] hover:bg-[color:var(--color-accent-pink)]/20",
   };

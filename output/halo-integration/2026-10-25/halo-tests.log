@@ -1,0 +1,8 @@
+
+ RUN  v4.1.11 /Users/user01/Desktop/GEO_master
+
+
+ Test Files  1 passed (1)
+      Tests  26 passed (26)
+   Start at  16:15:50
+   Duration  1.97s (transform 510ms, setup 0ms, import 935ms, tests 943ms, environment 0ms)

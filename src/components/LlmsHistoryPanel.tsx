@@ -52,7 +52,7 @@ export function LlmsHistoryPanel({ documentId, updatedAt, onRestored }: { docume
       <div className="flex items-center gap-2"><History className="h-4 w-4 text-cyan-400" /><h2 className="font-semibold text-white">버전 이력</h2></div>
       <p className="mt-1 text-xs text-slate-500">문서 내용이 바뀔 때마다 기록됩니다. 원격 확인으로 덮어써도 이전 내용은 남습니다.</p>
       {error && <p role="alert" className="mt-3 text-sm text-rose-300">{error}</p>}
-      <ul className="mt-3 divide-y divide-white/5 text-sm">
+      <ul className="mt-3 divide-y divide-white/8 text-sm">
         {items.map((item, index) => (
           <li key={item.revision} className="flex flex-wrap items-center gap-2 py-2">
             <span className="text-slate-200">v{item.revision}</span><Badge>{ORIGIN[item.origin]}</Badge>

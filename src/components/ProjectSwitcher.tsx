@@ -21,6 +21,7 @@ interface Project {
 }
 
 interface Dependencies {
+  opportunities: number; knowledgeDocuments: number; writingProfiles: number;
   questionSets: number;
   measurementRuns: number;
   measurementSchedules: number;
@@ -75,6 +76,7 @@ const dependencyLabels: Record<keyof Dependencies, string> = {
   facts: "사실 메모",
   optimizationRuns: "최적화 실행",
   reportShares: "공개 리포트 링크",
+  opportunities: "기회 후보", knowledgeDocuments: "지식 자료", writingProfiles: "작성 페르소나",
 };
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {
@@ -269,7 +271,7 @@ export function ProjectSwitcher() {
   return <>
     <section className="mt-5" aria-label="활성 프로젝트">
       <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">Project</span>
+        <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-600">Project</span>
         {loading && <LoaderCircle className="h-3.5 w-3.5 animate-spin text-cyan-400" aria-label="프로젝트 불러오는 중" />}
       </div>
       <div className="flex gap-2">
@@ -287,8 +289,8 @@ export function ProjectSwitcher() {
           <FolderCog className="h-4 w-4" />
         </button>
       </div>
-      {activeProject && <p className="mt-1.5 truncate text-[10px] text-slate-600">{activeProject.brandName || "브랜드 미설정"}</p>}
-      {error && !managerOpen && <p role="alert" className="mt-1.5 text-[10px] leading-4 text-rose-300">{error}</p>}
+      {activeProject && <p className="mt-1.5 truncate text-xs text-slate-600">{activeProject.brandName || "브랜드 미설정"}</p>}
+      {error && !managerOpen && <p role="alert" className="mt-1.5 text-xs leading-4 text-rose-300">{error}</p>}
     </section>
 
     <DetailDrawer

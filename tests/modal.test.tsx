@@ -1,6 +1,7 @@
 /** @vitest-environment jsdom */
 import { act, useRef, useState } from "react";
-import { createRoot, type Root } from "react-dom/client";
+import { createRoot, hydrateRoot, type Root } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { Modal } from "@/components/Modal";
 
@@ -19,6 +20,18 @@ async function mount(node: React.ReactNode) {
   const container = document.createElement("div"); document.body.append(container);
   root = createRoot(container); await act(async () => root.render(node));
 }
+it("server renders an initially open drawer and opens its portal after hydration", async () => {
+  const node = <Modal open labelledBy="initial-title" onClose={() => {}}><h2 id="initial-title">이력 상세</h2></Modal>;
+  const container = document.createElement("div");
+  container.innerHTML = renderToString(node);
+  expect(container.innerHTML).toBe("");
+  document.body.append(container);
+  const recoverable = vi.fn();
+  await act(async () => { root = hydrateRoot(container, node, { onRecoverableError: recoverable }); });
+  expect(recoverable).not.toHaveBeenCalled();
+  expect(document.querySelector("dialog")?.open).toBe(true);
+  expect(document.querySelector("dialog")?.textContent).toBe("이력 상세");
+});
 function Stack() {
   const [drawer, setDrawer] = useState(false); const [confirm, setConfirm] = useState(false);
   const drawerFocus = useRef<HTMLButtonElement>(null); const cancelFocus = useRef<HTMLButtonElement>(null);

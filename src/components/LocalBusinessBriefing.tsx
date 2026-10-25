@@ -116,7 +116,7 @@ export function LocalBusinessBriefing({
             <p className="mt-2 text-sm text-slate-400">
               {locationLabel} · {updatedAt ? new Date(updatedAt).toLocaleString("ko-KR") : "—"} 수집
             </p>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{briefing.narratives[0]}</p>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">{briefing.narratives[0]}</p>
           </div>
           <div className="w-full max-w-xs shrink-0 rounded-xl border border-white/8 bg-slate-950/50 p-3">
             <VisibilityGauge value={briefing.visibility} label="Map Rank 가시성" />
@@ -210,7 +210,7 @@ export function LocalBusinessBriefing({
           ) : (
             <ul className="space-y-2 text-sm leading-6 text-slate-300">
               {briefing.recommendations.map((item) => (
-                <li key={item} className="rounded-lg border border-white/6 bg-slate-950/40 px-3 py-2">{item}</li>
+                <li key={item} className="rounded-lg border border-white/8 bg-slate-950/40 px-3 py-2">{item}</li>
               ))}
             </ul>
           )}
@@ -232,7 +232,7 @@ export function LocalBusinessBriefing({
             </thead>
             <tbody>
               {briefing.keywords.map((item) => (
-                <tr key={item.id} className="border-b border-white/5 text-slate-300">
+                <tr key={item.id} className="border-b border-white/8 text-slate-300">
                   <td className="py-3 pr-4 text-white">{item.keyword}</td>
                   <td className="py-3 pr-4 font-semibold text-violet-300">{item.mapPosition ?? "—"}</td>
                   <td className="py-3 pr-4">{item.inLocalPack ? <Badge tone="good">노출</Badge> : <Badge>없음</Badge>}</td>

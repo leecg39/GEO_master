@@ -174,6 +174,7 @@ function countProjectDependencies(projectId: number): ProjectDependencies {
     facts: count("facts"),
     optimizationRuns: count("optimization_runs"),
     reportShares: count("report_shares"),
+    opportunities: count("opportunities"), knowledgeDocuments: count("knowledge_documents"), writingProfiles: count("writing_profiles"),
   };
 }
 

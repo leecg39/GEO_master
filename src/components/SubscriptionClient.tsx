@@ -135,7 +135,7 @@ export function SubscriptionClient({ workspace = false }: { workspace?: boolean 
             <>
               <Button disabled={busy || subscription?.billingAvailable === false} onClick={() => void startCheckout()} className="w-full sm:w-auto">{busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}{subscription?.billingAvailable === false ? "결제 연동 준비 중" : "월 구독 결제 시작"}</Button>
               {checkout && (
-                <form onSubmit={confirmPayment} className="mt-5 space-y-3 border-t border-white/7 pt-5">
+                <form onSubmit={confirmPayment} className="mt-5 space-y-3 border-t border-white/8 pt-5">
                   <p className="text-xs text-slate-500">주문 ID: {checkout.orderId}</p>
                   <label className="block text-sm text-slate-400">개발 확인 토큰<input className="mt-2" value={confirmToken} onChange={(e) => setConfirmToken(e.target.value)} /></label>
                   <Button type="submit" disabled={busy || !confirmToken.trim()} variant="secondary">결제 확인 · 구독 활성화</Button>

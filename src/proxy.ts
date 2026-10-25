@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { accountRole, canAccessPath, type AccountRole } from "@/lib/account-policy";
 import { authSecret, basicUser, isTrustedProxy, sameOriginMutation, SESSION_COOKIE, sessionUser } from "@/lib/login-session";
+import { PUBLIC_PAGE_CSP } from "@/lib/public-pages/document";
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const PUBLIC_PATHS = new Set(["/login", "/signup", "/welcome", "/link-preview.html", "/og/geo-master-20261007.jpg", "/og/geo-master-thumbnail-20261007.jpg", "/api/health"]);
@@ -35,7 +36,7 @@ function forbidden(role: AccountRole, path: string) {
   const message = role === "guest" ? "게스트 계정은 이 기능에 접근할 수 없습니다." : "이 계정 권한으로는 이 기능에 접근할 수 없습니다.";
   if (path.startsWith("/api/")) return privateResponse(NextResponse.json({ error: message, code: "FORBIDDEN" }, { status: 403 }));
   const detail = role === "guest" ? "게스트 계정은 이 메뉴를 이용할 수 없습니다." : "이 메뉴는 관리자 또는 운영 계정만 이용할 수 있습니다.";
-  return privateResponse(new NextResponse(`<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>접근 권한 안내 · GEO Master</title><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><h1>접근 권한이 없습니다</h1><p>${detail}</p><a href="/">대시보드로 돌아가기</a></main></html>`, { status: 403, headers: { "content-type": "text/html; charset=utf-8" } }));
+  return privateResponse(new NextResponse(`<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>접근 권한 안내 · GEO Master</title><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><h1>접근 권한이 없습니다</h1><p>${detail}</p><a href="/">대시보드로 돌아가기</a></main></html>`, { status: 403, headers: { "content-type": "text/html; charset=utf-8", "content-security-policy": PUBLIC_PAGE_CSP, "x-content-type-options": "nosniff", "referrer-policy": "same-origin" } }));
 }
 
 function anonymous(request: NextRequest, path: string, headers: Headers) {

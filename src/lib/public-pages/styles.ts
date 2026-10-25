@@ -127,6 +127,11 @@ legend{margin-bottom:12px;padding:0;font-size:14px;font-weight:700}
 .consent-detail{margin:8px 0 0 28px;color:var(--subtle);font-size:12.5px}
 .alert{margin:22px 0 0;padding:12px 16px;border:1px solid rgba(250,127,170,.45);border-radius:12px;background:rgba(250,127,170,.09);color:#ffc7da;font-size:14px}
 .alert ul{margin:0;padding-left:18px}
+.alert-title{margin:0 0 6px;font-weight:700}
+.alert a{color:#ffe0ec;text-decoration:underline}
+.hp{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+.field-error{display:block;margin-top:6px;color:#ffc7da;font-size:12.5px;font-weight:500}
+.field input[aria-invalid="true"],.consent input[aria-invalid="true"]{border-color:var(--pink);outline:1px solid var(--pink)}
 .notice{margin:22px 0 0;padding:12px 16px;border:1px solid rgba(194,239,78,.4);border-radius:12px;background:rgba(194,239,78,.07);color:#e6f8b8;font-size:14px}
 .submit{width:100%;margin-top:28px}
 .auth-links{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-top:20px;color:var(--muted);font-size:14px}

@@ -1,0 +1,46 @@
+{
+  "passed": 11,
+  "total": 27,
+  "metric": 40.7,
+  "outerScore": 0,
+  "groups": {
+    "security": {
+      "passed": 3,
+      "total": 6
+    },
+    "a11y": {
+      "passed": 7,
+      "total": 7
+    },
+    "flow": {
+      "passed": 1,
+      "total": 5
+    },
+    "structured": {
+      "passed": 0,
+      "total": 5
+    },
+    "admin": {
+      "passed": 0,
+      "total": 4
+    }
+  },
+  "failed": [
+    "security silently drops honeypot sign-ups and renders the trap field for bots only",
+    "security hardens the access-denied page like the public pages",
+    "security sends a referrer policy with the login page",
+    "flow sends signed-in visitors from the sign-up page to their workspace",
+    "flow sends signed-in visitors from the login page to the requested page",
+    "flow carries the requested page from login into sign-up",
+    "flow returns auto-approved members to the page they asked for",
+    "structured marks the FAQ as schema.org FAQPage microdata",
+    "structured keeps FAQ microdata on the visible questions",
+    "structured describes GEO Master as a SoftwareApplication",
+    "structured publishes both plans as KRW offers",
+    "structured prioritises the hero artwork for loading",
+    "admin lists members for administrators only",
+    "admin filters members by status",
+    "admin searches members by e-mail or name",
+    "admin rejects unknown filters"
+  ]
+}

@@ -13,7 +13,7 @@ import {
 } from "./crud";
 import { getDatabase } from "./db";
 import { AppError } from "./errors";
-import { requireActiveProject } from "./projects";
+import { getProject, requireActiveProject } from "./projects";
 
 const MAX_INPUT_BYTES = 2_000_000;
 const MAX_OUTPUT_BYTES = 8_000_000;
@@ -302,11 +302,12 @@ export function getContent(idInput: unknown) {
   return publicContent(ownedContentRow(resourceIdSchema.parse(idInput)));
 }
 
-export function findContentByRequest(clientRequestIdInput: unknown, requestHash?: string) {
+export function findContentByRequest(clientRequestIdInput: unknown, requestHash?: string, capturedProjectId?: number) {
   const clientRequestId = idempotencyKeySchema.parse(clientRequestIdInput);
   const row = findContentRowByRequest(clientRequestId);
   if (!row) return null;
-  const active = requireActiveProject();
+  // capturedProjectId is server-captured before an async provider call, never raw client scope.
+  const active = capturedProjectId === undefined ? requireActiveProject() : getProject(capturedProjectId);
   const actualHash = parseMetadata(row.metadata, true)._requestHash;
   if (row.project_id !== active.id || (requestHash !== undefined && actualHash !== requestHash)) {
     throw new AppError("같은 요청 ID가 다른 콘텐츠 입력에 이미 사용되었습니다.", 409, "IDEMPOTENCY_KEY_REUSED");
@@ -314,9 +315,10 @@ export function findContentByRequest(clientRequestIdInput: unknown, requestHash?
   return publicContent(row);
 }
 
-export function storeGeneratedContent(input: unknown) {
+export function storeGeneratedContent(input: unknown, capturedProjectId?: number) {
   const parsed = storedContentSchema.parse(input);
-  const active = requireActiveProject();
+  // capturedProjectId is server-captured before an async provider call, never raw client scope.
+  const active = capturedProjectId === undefined ? requireActiveProject() : getProject(capturedProjectId);
   const requestHash = parsed.clientRequestId
     ? parsed.requestHash ?? contentRequestHash({
       tool: parsed.tool,

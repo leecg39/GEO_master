@@ -104,7 +104,7 @@ const robotsRows = [
 
 function RobotsPolicySummary({ robots }: { robots: NonNullable<SiteAuditBriefingData["robots"]> }) {
   return (
-    <div className="rounded-lg border border-white/6 bg-slate-950/40 p-3">
+    <div className="rounded-lg border border-white/8 bg-slate-950/40 p-3">
       <p className="mb-2 text-xs font-semibold text-slate-300">AI 크롤러 정책 (robots.txt 실제 요청)</p>
       {robots.state === "unknown" ? (
         <p className="text-xs text-slate-400">확인 불가 — {robots.detail}</p>
@@ -215,7 +215,7 @@ export function SiteAuditBriefing({
               <Badge tone={briefing.grade.tone}>{briefing.grade.label}</Badge>
             </div>
             <p className="mt-2 text-sm text-slate-400">{domain} · {lastRunAt ? new Date(lastRunAt).toLocaleString("ko-KR") : "—"} 수집</p>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{briefing.narratives[0]}</p>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">{briefing.narratives[0]}</p>
           </div>
           <div className="w-full max-w-xs shrink-0 rounded-xl border border-white/8 bg-slate-950/50 p-3">
             <HealthGauge score={briefing.score} label={briefing.dataState === "legacy_estimate" ? "이전 방식 추정 점수" : "사이트 건강 점수"} />
@@ -230,7 +230,7 @@ export function SiteAuditBriefing({
         <Card className="xl:col-span-2">
           <h4 className="mb-4 text-sm font-semibold text-white">점수 산출 근거</h4>
           {briefing.scoreFactors.length === 0 ? (
-            <p className="rounded-lg border border-white/6 bg-slate-950/40 p-4 text-sm leading-6 text-slate-400">
+            <p className="rounded-lg border border-white/8 bg-slate-950/40 p-4 text-sm leading-6 text-slate-400">
               {briefing.dataState === "legacy_estimate"
                 ? "이전 버전 결과는 페이지를 실제로 요청하지 않고 계산한 추정치라 산출 근거를 표시하지 않습니다. 다시 크롤하세요."
                 : briefing.dataState === "measured"
@@ -260,7 +260,7 @@ export function SiteAuditBriefing({
             </div>
             <ul className="space-y-2 text-sm">
               {briefing.scoreFactors.map((factor) => (
-                <li key={factor.key} className="flex items-center justify-between rounded-lg border border-white/6 bg-slate-950/40 px-3 py-2">
+                <li key={factor.key} className="flex items-center justify-between rounded-lg border border-white/8 bg-slate-950/40 px-3 py-2">
                   <span className="text-slate-400">{factor.label}</span>
                   <span className={cn("font-semibold", factor.points >= 0 ? "text-cyan-300" : "text-rose-300")}>
                     {factor.kind === "total" ? `${factor.points}점` : `${factor.points > 0 ? "+" : ""}${factor.points}`}
@@ -356,7 +356,7 @@ export function SiteAuditBriefing({
           <div className="mb-4 flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-300" /><h4 className="text-sm font-semibold text-white">왜 이 점수인가 — 핵심 근거</h4></div>
           <ul className="space-y-3">
             {briefing.narratives.map((line, index) => (
-              <li key={index} className="rounded-lg border border-white/6 bg-slate-950/35 px-3 py-2.5 text-sm leading-6 text-slate-300">{line}</li>
+              <li key={index} className="rounded-lg border border-white/8 bg-slate-950/35 px-3 py-3 text-sm leading-6 text-slate-300">{line}</li>
             ))}
           </ul>
         </Card>
@@ -368,7 +368,7 @@ export function SiteAuditBriefing({
           ) : (
             <ol className="space-y-2">
               {briefing.recommendations.map((item, index) => (
-                <li key={item} className="flex gap-3 rounded-lg border border-cyan-400/10 bg-cyan-400/5 px-3 py-2.5 text-sm text-slate-300">
+                <li key={item} className="flex gap-3 rounded-lg border border-cyan-400/10 bg-cyan-400/5 px-3 py-3 text-sm text-slate-300">
                   <span className="font-bold text-cyan-300">{index + 1}.</span>
                   <span>{item}</span>
                 </li>
@@ -386,13 +386,13 @@ export function SiteAuditBriefing({
           ) : (
             <ul className="space-y-2">
               {briefing.issues.map((issue) => (
-                <li key={issue.id} className="rounded-lg border border-white/6 bg-slate-950/35 p-3">
+                <li key={issue.id} className="rounded-lg border border-white/8 bg-slate-950/35 p-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge tone={severityTone[issue.severity] ?? "default"}>{severityLabel[issue.severity] ?? issue.severity}</Badge>
                     <span className="text-sm font-medium text-white">{issue.title}</span>
                   </div>
                   <p className="mt-1 text-xs leading-5 text-slate-400">{issue.detail}</p>
-                  <p className="mt-1 truncate text-[11px] text-slate-600">{issue.url}</p>
+                  <p className="mt-1 truncate text-xs text-slate-600">{issue.url}</p>
                 </li>
               ))}
             </ul>
@@ -407,13 +407,13 @@ export function SiteAuditBriefing({
               <li key={page.url} className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-white/5">
                 <Badge tone="default">d{page.depth}</Badge>
                 <span className="truncate text-slate-400">{page.url}</span>
-                <span className="ml-auto shrink-0 text-[10px] text-slate-500" title={page.fetchError ?? undefined}>{pageStateLabel(page)}</span>
+                <span className="ml-auto shrink-0 text-xs text-slate-500" title={page.fetchError ?? undefined}>{pageStateLabel(page)}</span>
                 {page.snapshotId ? (
                   <button
                     type="button"
                     onClick={() => setSnapshotId(page.snapshotId ?? null)}
                     aria-label={`${page.url} 근거 보기${page.technicalIssues ? ` (기술 오류 ${page.technicalIssues}건)` : ""}`}
-                    className="shrink-0 rounded-md border border-cyan-400/20 px-2 py-0.5 text-[10px] font-semibold text-cyan-300 hover:bg-cyan-400/10"
+                    className="shrink-0 rounded-md border border-cyan-400/20 px-2 py-0.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-400/10"
                   >
                     근거{page.technicalIssues ? <span className="ml-1 text-rose-300">{page.technicalIssues}</span> : null}
                   </button>

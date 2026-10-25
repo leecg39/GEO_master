@@ -1,0 +1,12 @@
+
+> geo-master@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.11 /Users/user01/Desktop/GEO_master
+
+
+ Test Files  125 passed (125)
+      Tests  1056 passed (1056)
+   Start at  16:15:08
+   Duration  28.06s (transform 9.18s, setup 0ms, import 104.02s, tests 50.64s, environment 19.22s)

@@ -1,0 +1,52 @@
+[
+  {
+    "name": "changes-dark-375",
+    "width": 375,
+    "scroll": 375,
+    "theme": "dark",
+    "overflow": []
+  },
+  {
+    "name": "changes-light-375",
+    "width": 375,
+    "scroll": 375,
+    "theme": "light",
+    "overflow": []
+  },
+  {
+    "name": "report-light-375-expanded-history",
+    "width": 375,
+    "scroll": 375,
+    "theme": "light",
+    "overflow": [],
+    "downloads": 3
+  },
+  {
+    "name": "report-dark-375-expanded-history",
+    "width": 375,
+    "scroll": 375,
+    "theme": "dark",
+    "overflow": [],
+    "downloads": 3
+  },
+  {
+    "name": "same-url-reload",
+    "downloads": 3
+  },
+  {
+    "name": "report-dark-1440",
+    "width": 1440,
+    "scroll": 1440,
+    "theme": "dark",
+    "overflow": [],
+    "downloads": 3
+  },
+  {
+    "name": "changes-dark-1440",
+    "width": 1440,
+    "scroll": 1440,
+    "theme": "dark",
+    "overflow": [],
+    "downloads": 0
+  }
+]

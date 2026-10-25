@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, useSyncExternalStore, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 
 const openDialogs = new Set<HTMLDialogElement>();
 const lastDialogFocus = new WeakMap<HTMLDialogElement, HTMLElement>();
 let previousOverflow = "";
+const subscribeToClient = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
 
 /** Native modal dialogs provide inert backgrounds and a focus boundary, including nested dialogs. */
 export function Modal({ open, labelledBy, describedBy, role = "dialog", busy = false, initialFocus, onClose, children }: {
@@ -19,9 +22,11 @@ export function Modal({ open, labelledBy, describedBy, role = "dialog", busy = f
   children: ReactNode;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  // Initial deep links can open a drawer during SSR; portals require a hydrated DOM.
+  const clientReady = useSyncExternalStore(subscribeToClient, clientSnapshot, serverSnapshot);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || !clientReady) return;
     const dialog = dialogRef.current;
     if (!dialog) return;
     const parentDialog = [...openDialogs].at(-1);
@@ -41,9 +46,9 @@ export function Modal({ open, labelledBy, describedBy, role = "dialog", busy = f
       if (!openDialogs.size) document.body.style.overflow = previousOverflow;
       if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
     };
-  }, [open, initialFocus]);
+  }, [open, initialFocus, clientReady]);
 
-  if (!open) return null;
+  if (!open || !clientReady) return null;
   return createPortal(
     <dialog
       ref={dialogRef}

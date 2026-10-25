@@ -125,7 +125,7 @@ export function PositionTrackingClient() {
                 <ul className="space-y-2">
                   {campaigns.map((c) => (
                     <li key={c.id}>
-                      <button type="button" onClick={() => void loadKeywords(c)} className={`w-full rounded-xl border px-4 py-3 text-left ${selectedCampaign?.id === c.id ? "border-cyan-400/30 bg-cyan-400/10" : "border-white/7 bg-slate-950/35"}`}>
+                      <button type="button" onClick={() => void loadKeywords(c)} className={`w-full rounded-xl border px-4 py-3 text-left ${selectedCampaign?.id === c.id ? "border-cyan-400/30 bg-cyan-400/10" : "border-white/8 bg-slate-950/35"}`}>
                         <div className="flex items-center justify-between gap-2"><strong className="text-white">{c.name}</strong><Badge tone="cyan">가시성 {c.visibility}</Badge></div>
                         <p className="mt-1 text-xs text-slate-500">{c.domain}</p>
                       </button>

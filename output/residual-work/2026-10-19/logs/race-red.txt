@@ -1,0 +1,29 @@
+
+ RUN  v4.1.11 /Users/user01/Desktop/GEO_master
+
+ ❯ tests/change-report-client.test.tsx (11 tests | 1 failed) 113ms
+   × invalidates an old JSON body synchronously before the project-change effect cleans up 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/change-report-client.test.tsx > invalidates an old JSON body synchronously before the project-change effect cleans up
+AssertionError: expected 'Change report수정 결과 보고서수정안별로 원래 값, 제안 …' not to contain '옛 제목'
+
+Expected: "옛 제목"
+Received: "Change report수정 결과 보고서수정안별로 원래 값, 제안 값, 공개 페이지에서 실제로 읽은 값을 나란히 보여 줍니다. 점수 변화는 실제로 다시 진단한 경우에만 표시합니다.보고서 보기MarkdownPDFJSON전체2반영 확인1확인 대기1충돌0실패0조치 필요#2 설명: 공개 페이지에 아직 반영되지 않았습니다.재진단 비교수정 이후 진단이 없어 점수 변화를 표시하지 않습니다.반영 확인제목#1마지막 확인 2026-10-12T01:00:00.000Z · HTTP 200원래 값옛 제목제안 값새 제목WordPress 저장값WordPress 확인 기록 없음공개 페이지 값새 제목전달 이력 1건2026-10-12T00:00:01.000Z · wordpress · ok · HTTP 200 · 95ms · 이전 값: 옛 제목확인 이력 1건2026-10-12T01:00:00.000Z · matched · HTTP 200 · 120ms확인 대기설명#2확인 기록 없음원래 값빈 값 또는 기록 없음제안 값<img src=x onerror=alert(1)>WordPress 저장값WordPress 확인 기록 없음공개 페이지 값확인 기록 없음확인 주소가 수정안 주소와 다릅니다: https://example.com/elsewhere"
+
+ ❯ tests/change-report-client.test.tsx:148:37
+    146|     for (let i = 0; i < 20; i++) await Promise.resolve();
+    147|   });
+    148|   expect(container.textContent).not.toContain("옛 제목");
+       |                                     ^
+    149|   expect(container.querySelectorAll("a[download]")).toHaveLength(0);
+    150|   await act(async () => { finishNext(Response.json({ error: "새 프로젝트 조회…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  17:13:40
+   Duration  957ms (transform 51ms, setup 0ms, import 153ms, tests 113ms, environment 599ms)

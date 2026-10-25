@@ -177,7 +177,7 @@ export function SemforgeHubClient() {
           </div>
           <ul className="space-y-3">
             {steps.map((step) => (
-              <li key={step.key} className="flex flex-col gap-2 rounded-xl border border-white/7 bg-slate-950/35 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <li key={step.key} className="flex flex-col gap-2 rounded-xl border border-white/8 bg-slate-950/35 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <strong className="text-white">{step.label}</strong>

@@ -27,7 +27,7 @@ function FeatureComparison({ baseline, target }: { baseline: FeatureConfig; targ
           </div>
         </div>
       ))}
-      <p className="pt-1 text-[11px] text-slate-500"><span className="text-[color:var(--app-chart-previous)]">■</span> 현재 원문(휴리스틱 추정) · <span className="text-[color:var(--app-chart-current)]">■</span> 추천 후보의 목표 설정</p>
+      <p className="pt-1 text-xs text-slate-500"><span className="text-[color:var(--app-chart-previous)]">■</span> 현재 원문(휴리스틱 추정) · <span className="text-[color:var(--app-chart-current)]">■</span> 추천 후보의 목표 설정</p>
     </div>
   );
 }
@@ -80,7 +80,7 @@ export function OptimizerResult({ result }: { result: OptimizationResult }) {
               </ScatterChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-[11px] text-slate-500"><span className="text-[color:var(--app-chart-previous)]">◆</span> 원문 · <span className="text-[color:var(--app-chart-current)]">●</span> Pareto 후보 · <span className="text-[color:var(--color-accent-violet)]">●</span> 기타 후보</p>
+          <p className="text-xs text-slate-500"><span className="text-[color:var(--app-chart-previous)]">◆</span> 원문 · <span className="text-[color:var(--app-chart-current)]">●</span> Pareto 후보 · <span className="text-[color:var(--color-accent-violet)]">●</span> 기타 후보</p>
         </Card>
         <Card>
           <h3 className="font-semibold text-white">피처 프로필</h3>
@@ -90,7 +90,7 @@ export function OptimizerResult({ result }: { result: OptimizationResult }) {
       </div>
       <Card>
         <h3 className="font-semibold text-white">후보 문안</h3>
-        <ul className="mt-3 divide-y divide-white/5">
+        <ul className="mt-3 divide-y divide-white/8">
           {[...result.candidates].sort((a, b) => (b.visibility ?? -1) - (a.visibility ?? -1)).map((candidate) => (
             <li key={candidate.id} className="py-3">
               <button type="button" className="flex w-full flex-wrap items-center gap-2 text-left text-sm" aria-expanded={openId === candidate.id} onClick={() => setOpenId(openId === candidate.id ? null : candidate.id)}>
